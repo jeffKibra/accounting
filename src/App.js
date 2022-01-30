@@ -1,17 +1,12 @@
-import { ChakraProvider, Box, extendTheme } from "@chakra-ui/react";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { BrowserRouter } from "react-router-dom";
 import { mode } from "@chakra-ui/theme-tools";
 import Layout from "./components/layout/Layout";
-import Card, {
-  CardHeader,
-  CardContent,
-  CardActions,
-} from "./components/ui/Card";
+import Router from "./nav/Router";
 
 const config = (theme) => {
-  console.log({ theme });
-
   return {
-    initialColorMode: "light",
+    initialColorMode: "dark",
     useSystemColorMode: false,
   };
 };
@@ -22,7 +17,7 @@ const colors = {
 
 const styles = {
   global: (props) => {
-    console.log({ props });
+    // console.log({ props });
     return {
       body: {
         fontFamily: "body",
@@ -46,7 +41,13 @@ const theme = extendTheme({ config, styles, colors });
 function App() {
   return (
     <ChakraProvider theme={theme}>
-      <Layout>hey there!</Layout>
+      <BrowserRouter>
+        <Layout>
+          hey there!
+          <Router />
+        </Layout>
+      </BrowserRouter>
+
       {/* <Box w={400}>
         <Card>
           <>
