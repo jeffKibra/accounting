@@ -43,20 +43,9 @@ function App() {
     <ChakraProvider theme={theme}>
       <BrowserRouter>
         <Layout>
-          hey there!
           <Router />
         </Layout>
       </BrowserRouter>
-
-      {/* <Box w={400}>
-        <Card>
-          <>
-            <CardHeader>Plus and minus</CardHeader>
-            <CardContent>minus</CardContent>
-            <CardActions>plus</CardActions>
-          </>
-        </Card>
-      </Box> */}
     </ChakraProvider>
   );
 }

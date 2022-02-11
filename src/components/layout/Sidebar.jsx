@@ -5,6 +5,7 @@ import {
   RiShoppingBagLine,
   RiContactsLine,
   RiShoppingCartLine,
+  RiCoinsLine,
 } from "react-icons/ri";
 import * as routes from "../../nav/routes";
 import ExpandableDrawerItem from "../ui/ExpandableDrawerItem";
@@ -35,6 +36,9 @@ export default function Sidebar() {
           </DrawerItem>
           <DrawerItem route={routes.CUSTOMERS} icon={RiContactsLine}>
             Customers
+          </DrawerItem>
+          <DrawerItem route={routes.EXPENSES} icon={RiCoinsLine}>
+            Expenses
           </DrawerItem>
 
           <ExpandableDrawerItem

@@ -14,9 +14,11 @@ export default function Layout({ children }) {
         <Box w="100%" minH="56px" maxH="56px" />
         <Container
           ml={`${DRAWER_WIDTH}px`}
-          minH="100vh"
-          maxW="container.lg"
+          // minH="100vh"
+          maxW={`calc(100% - ${DRAWER_WIDTH}px)`}
+          w="full"
           p={4}
+          mb="28"
         >
           {children}
         </Container>
