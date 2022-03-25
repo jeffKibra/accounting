@@ -1,4 +1,8 @@
-const functions = require("firebase-functions");
+const { createUser } = require("./auth/createUser");
+const orgs = require("./orgs");
+
+exports.auth = { createUser };
+exports.orgs = orgs;
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions

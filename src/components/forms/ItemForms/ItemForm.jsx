@@ -22,6 +22,7 @@ import {
   NumberDecrementStepper,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
+import PropTypes from "prop-types";
 
 import Card, { CardContent } from "../../ui/Card";
 
@@ -64,6 +65,7 @@ const purchaseAccounts = [
 ];
 
 function ItemForm(props) {
+  const { createItem } = props;
   const {
     register,
     handleSubmit,
@@ -72,6 +74,7 @@ function ItemForm(props) {
 
   function handleFormSubmit(data) {
     console.log({ data });
+    createItem(data);
   }
   console.log(errors);
   return (
@@ -286,5 +289,9 @@ function ItemForm(props) {
     </Card>
   );
 }
+
+ItemForm.propTypes = {
+  createItem: PropTypes.func.isRequired,
+};
 
 export default ItemForm;

@@ -1,8 +1,11 @@
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { StepsStyleConfig as Steps } from "chakra-ui-steps";
 import { BrowserRouter } from "react-router-dom";
 import { mode } from "@chakra-ui/theme-tools";
+
 import Layout from "./components/layout/Layout";
 import Router from "./nav/Router";
+import CheckAuth from "./containers/Auth/CheckAuth";
 
 const config = (theme) => {
   return {
@@ -36,16 +39,22 @@ const styles = {
   },
 };
 
-const theme = extendTheme({ config, styles, colors });
+const components = {
+  Steps,
+};
+
+const theme = extendTheme({ config, styles, colors, components });
 
 function App() {
   return (
     <ChakraProvider theme={theme}>
-      <BrowserRouter>
-        <Layout>
-          <Router />
-        </Layout>
-      </BrowserRouter>
+      <CheckAuth>
+        <BrowserRouter>
+          <Layout>
+            <Router />
+          </Layout>
+        </BrowserRouter>
+      </CheckAuth>
     </ChakraProvider>
   );
 }
