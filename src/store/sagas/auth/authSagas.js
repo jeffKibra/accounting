@@ -21,13 +21,7 @@ import {
 } from "../../actions/authActions";
 import { auth } from "../../../utils/firebase";
 
-import {
-  start,
-  success,
-  fail,
-  reset,
-  newUser,
-} from "../../slices/auth/authSlice";
+import { start, success, fail, reset, newUser } from "../../slices/authSlice";
 
 export function* logout() {
   yield put(start());

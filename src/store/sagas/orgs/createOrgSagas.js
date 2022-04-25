@@ -6,75 +6,79 @@ import {
   addDoc,
   serverTimestamp,
   query,
-  setDoc,
-  doc,
+  getDoc,
 } from "firebase/firestore";
 import { put, call, takeLatest, select } from "redux-saga/effects";
 
 import { db } from "../../../utils/firebase";
 
-import {
-  modifyOrgsStart,
-  modifyOrgsSuccess,
-  modifyOrgsFail,
-} from "../../slices/orgs/modifyOrgsSlice";
+import { start, success, fail } from "../../slices/orgsSlice";
 import { CREATE_ORG } from "../../actions/orgsActions";
-import { GET_USER_ORGS } from "../../actions/authActions";
+
+export function getOrg(userId) {
+  const q = query(
+    collection(db, "organizations"),
+    where("owner", "==", userId),
+    where("status", "in", ["onboarding", "active", "suspended"]),
+    limit(1)
+  );
+
+  return getDocs(q).then((snap) => {
+    if (snap.empty) {
+      return null;
+    }
+
+    const orgDoc = snap.docs[0];
+
+    return {
+      ...orgDoc.data(),
+      orgId: orgDoc.id,
+      id: orgDoc.id,
+    };
+  });
+}
 
 function* createOrg({ data }) {
-  yield put(modifyOrgsStart());
+  yield put(start(CREATE_ORG));
   // console.log({ data });
 
   const userProfile = yield select((state) => state.authReducer.userProfile);
-
-  function checkOrg(name) {
-    const q = query(
-      collection(db, "organizations"),
-      where("name", "==", name),
-      where("status", "in", ["onboarding", "active", "suspended"]),
-      limit(1)
-    );
-    return getDocs(q).then((snap) => snap.empty);
-  }
+  const { email, user_id } = userProfile;
 
   async function saveData() {
     const orgRef = await addDoc(collection(db, "organizations"), {
       ...data,
-      createdBy: userProfile?.email,
-      modifiedBy: userProfile?.email,
+      status: "active",
+      createdBy: email,
+      modifiedBy: email,
+      owner: user_id,
       createdAt: serverTimestamp(),
       modifiedAt: serverTimestamp(),
     });
 
-    await setDoc(
-      doc(db, "organizations", orgRef.id, "orgUsers", userProfile.sub),
-      {
-        name: userProfile.name,
-        email: userProfile.email,
-        uid: userProfile.sub,
-        role: "owner",
-        orgId: orgRef.id,
-        createdAt: serverTimestamp(),
-      }
-    );
+    const orgDoc = await getDoc(orgRef);
 
-    return orgRef;
+    return {
+      ...orgDoc.data(),
+      orgId: orgDoc.id,
+      id: orgDoc.id,
+    };
   }
 
   try {
-    const isNewOrg = yield call(checkOrg, data.name);
+    const userHasOrg = yield call(getOrg, data.name);
 
-    if (!isNewOrg) {
-      throw new Error("An organization with a similar name already exists!");
+    if (userHasOrg) {
+      throw new Error("The User already has an orgnaization account!");
     }
 
-    yield call(saveData);
+    const org = yield call(saveData);
+    // console.log({ org });
 
-    yield put(modifyOrgsSuccess());
-    yield put({ type: GET_USER_ORGS });
+    yield put(success(org));
   } catch (err) {
     console.log(err);
-    yield put(modifyOrgsFail(err));
+    yield put(fail(err));
   }
 }
 

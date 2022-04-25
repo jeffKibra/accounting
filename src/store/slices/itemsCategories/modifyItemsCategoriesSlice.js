@@ -6,27 +6,26 @@ const initialState = {
   error: null,
 };
 
-const modifyOrgsSlice = createSlice({
-  name: "modifyOrgsSlice",
+const modifyItemsCategoriesSlice = createSlice({
+  name: "modify_items_categories_slice",
   initialState: {
     ...initialState,
   },
   reducers: {
-    modifyOrgsStart: (state, action) => {
+    start: (state) => {
       return {
         ...state,
         loading: true,
-        error: null,
       };
     },
-    modifyOrgsSuccess: (state, action) => {
+    success: (state) => {
       return {
         ...state,
         loading: false,
         isModified: true,
       };
     },
-    modifyOrgsFail: (state, action) => {
+    fail: (state, action) => {
       const { payload } = action;
       return {
         ...state,
@@ -34,7 +33,7 @@ const modifyOrgsSlice = createSlice({
         error: payload,
       };
     },
-    modifyOrgsReset: (state, action) => {
+    reset: (state) => {
       return {
         ...initialState,
       };
@@ -42,13 +41,9 @@ const modifyOrgsSlice = createSlice({
   },
 });
 
-export const {
-  modifyOrgsStart,
-  modifyOrgsSuccess,
-  modifyOrgsFail,
-  modifyOrgsReset,
-} = modifyOrgsSlice.actions;
+export const { start, success, fail, reset } =
+  modifyItemsCategoriesSlice.actions;
 
-export const modifyOrgsReducer = modifyOrgsSlice.reducer;
+export const modifyItemsCategoriesReducer = modifyItemsCategoriesSlice.reducer;
 
-export default modifyOrgsSlice;
+export default modifyItemsCategoriesSlice;

@@ -10,16 +10,11 @@ import { call, put, takeLatest } from "redux-saga/effects";
 
 import { db } from "../../../utils/firebase";
 
-import {
-  getOrgsStart,
-  getOrgsSuccess,
-  getOrgSuccess,
-  getOrgsFail,
-} from "../../slices/orgs/orgsSlice";
+import { start, orgsSuccess, orgSuccess, fail } from "../../slices/orgsSlice";
 import { GET_ORGS, GET_ORG } from "../../actions/orgsActions";
 
 function* getOrg({ orgId }) {
-  yield put(getOrgsStart());
+  yield put(start(GET_ORG));
 
   async function fetchOrg() {
     const orgDoc = await getDoc(doc(db, "organizations", orgId));
@@ -29,10 +24,10 @@ function* getOrg({ orgId }) {
   try {
     const org = yield call(fetchOrg);
 
-    yield put(getOrgSuccess(org));
+    yield put(orgSuccess(org));
   } catch (err) {
     console.log(err);
-    yield put(getOrgsFail(err));
+    yield put(fail(err));
   }
 }
 
@@ -41,7 +36,7 @@ export function* watchGetOrg() {
 }
 
 function* getOrgs() {
-  yield put(getOrgsStart());
+  yield put(start(GET_ORGS));
 
   async function fetchOrgs() {
     const q = query(
@@ -63,10 +58,10 @@ function* getOrgs() {
   try {
     const orgs = yield call(fetchOrgs);
 
-    yield put(getOrgsSuccess(orgs));
+    yield put(orgsSuccess(orgs));
   } catch (err) {
     console.log(err);
-    yield put(getOrgsFail(err));
+    yield put(fail(err));
   }
 }
 

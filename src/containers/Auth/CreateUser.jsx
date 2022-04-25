@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { connect } from "react-redux";
-import { Flex } from "@chakra-ui/react";
 
 import useToasts from "../../hooks/useToasts";
 import { CREATE_USER } from "../../store/actions/authActions";
@@ -17,17 +16,7 @@ function CreateUser(props) {
     }
   }, [error, toasts]);
 
-  return (
-    <Flex
-      direction="row"
-      justifyContent="center"
-      alignItems="center"
-      w="full"
-      minH="100vh"
-    >
-      <CreateAccountForm handleFormSubmit={create} loading={loading} />
-    </Flex>
-  );
+  return <CreateAccountForm handleFormSubmit={create} loading={loading} />;
 }
 
 function mapStateToProps(state) {

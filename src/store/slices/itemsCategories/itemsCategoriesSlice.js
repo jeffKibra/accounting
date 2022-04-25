@@ -1,38 +1,38 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const orgsSlice = createSlice({
-  name: "orgsSlice",
+const itemsCategoriesSlice = createSlice({
+  name: "itemsCategoriesSlice",
   initialState: {
     loading: false,
-    orgs: null,
-    org: null,
+    categories: null,
+    category: null,
     error: null,
   },
   reducers: {
-    getOrgsStart: (state, action) => {
+    start: (state, action) => {
       return {
         ...state,
         loading: true,
         error: null,
       };
     },
-    getOrgsSuccess: (state, action) => {
+    categoriesSuccess: (state, action) => {
       const { payload } = action;
       return {
         ...state,
         loading: false,
-        orgs: payload,
+        categories: payload,
       };
     },
-    getOrgSuccess: (state, action) => {
+    categorySuccess: (state, action) => {
       const { payload } = action;
       return {
         ...state,
         loading: false,
-        org: payload,
+        category: payload,
       };
     },
-    getOrgsFail: (state, action) => {
+    fail: (state, action) => {
       const { payload } = action;
       return {
         ...state,
@@ -43,9 +43,9 @@ const orgsSlice = createSlice({
   },
 });
 
-export const { getOrgsStart, getOrgsSuccess, getOrgSuccess, getOrgsFail } =
-  orgsSlice.actions;
+export const { start, categorySuccess, categoriesSuccess, fail } =
+  itemsCategoriesSlice.actions;
 
-export const orgsReducer = orgsSlice.reducer;
+export const itemsCategoriesReducer = itemsCategoriesSlice.reducer;
 
-export default orgsSlice;
+export default itemsCategoriesSlice;

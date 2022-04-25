@@ -1,20 +1,14 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import useAuth from "../hooks/useAuth";
+import useSavedLocation from "../hooks/useSavedLocation";
 
 function PublicRoute({ children }) {
-  const navigate = useNavigate();
-  const userProfile = useAuth();
+  const userProfile = useSelector((state) => state.authReducer.userProfile);
+  const prevLocation = useSavedLocation().getLocation() || "/";
 
-  useEffect(() => {
-    if (userProfile) {
-      navigate("/", { replace: true });
-    }
-  }, [userProfile, navigate]);
-
-  return children;
+  return userProfile ? <Navigate to={prevLocation} replace /> : children;
 }
 
 PublicRoute.propTypes = {

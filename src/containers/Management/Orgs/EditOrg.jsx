@@ -3,11 +3,11 @@ import { connect } from "react-redux";
 import { SkeletonText } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { modifyOrgsReset } from "../../../store/slices/orgs/modifyOrgsSlice";
+import { reset } from "../../../store/slices/orgsSlice";
 import { GET_ORG, EDIT_ORG } from "../../../store/actions/orgsActions";
 import useToasts from "../../../hooks/useToasts";
 
-import OrgForm from "../../../components/forms/OrgsForms/OrgForm";
+import OrgForm from "../../../components/forms/Orgs/OrgForm";
 
 function EditOrg(props) {
   const {
@@ -17,7 +17,7 @@ function EditOrg(props) {
     isModified,
     getOrg,
     updateOrg,
-    reset,
+    resetOrg,
     error,
     updateError,
   } = props;
@@ -34,11 +34,11 @@ function EditOrg(props) {
 
   useEffect(() => {
     if (isModified) {
-      reset();
+      resetOrg();
       toasts.success("Successfully updated the Organization!");
       navigate(-1);
     }
-  }, [isModified, reset, navigate, toasts]);
+  }, [isModified, resetOrg, navigate, toasts]);
 
   useEffect(() => {
     if (error || updateError) {
@@ -79,7 +79,7 @@ function mapDispatchToProps(dispatch) {
   return {
     getOrg: (orgId) => dispatch({ type: GET_ORG, orgId }),
     updateOrg: (data) => dispatch({ type: EDIT_ORG, data }),
-    reset: () => dispatch(modifyOrgsReset()),
+    resetOrg: () => dispatch(reset()),
   };
 }
 

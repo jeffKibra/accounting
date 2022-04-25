@@ -3,14 +3,10 @@ import { updateDoc, doc, serverTimestamp } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
 import { EDIT_ORG } from "../../actions/orgsActions";
-import {
-  modifyOrgsStart,
-  modifyOrgsSuccess,
-  modifyOrgsFail,
-} from "../../slices/orgs/modifyOrgsSlice";
+import { start, success, fail } from "../../slices/orgsSlice";
 
 function* updateOrg({ data }) {
-  yield put(modifyOrgsStart());
+  yield put(start(EDIT_ORG));
   const userProfile = yield select((state) => state.authReducer.userProfile);
 
   //   console.log({ data, userProfile });
@@ -27,10 +23,10 @@ function* updateOrg({ data }) {
   try {
     yield call(update);
 
-    yield put(modifyOrgsSuccess());
+    yield put(success());
   } catch (error) {
     console.log(error);
-    yield put(modifyOrgsFail(error));
+    yield put(fail(error));
   }
 }
 

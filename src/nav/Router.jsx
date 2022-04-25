@@ -54,9 +54,11 @@ function Router() {
           }
         />
 
-        {userProfile && isAdmin(userProfile.role)
-          ? AdminRoutes()
-          : ManagementRoutes()}
+        {userProfile
+          ? isAdmin(userProfile.role)
+            ? AdminRoutes()
+            : ManagementRoutes()
+          : []}
 
         <Route path="*" element={<div>page not found</div>} />
       </Routes>

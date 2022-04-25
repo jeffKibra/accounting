@@ -5,7 +5,7 @@ import { setDoc, doc } from "firebase/firestore";
 import { auth, db } from "../../../utils/firebase";
 import { CREATE_USER, GET_USER_ORGS } from "../../actions/authActions";
 
-import { start, success, fail, newUser } from "../../slices/auth/authSlice";
+import { start, success, fail, newUser } from "../../slices/authSlice";
 
 function* createUser({ data }) {
   yield put(start());

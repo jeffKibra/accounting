@@ -5,8 +5,11 @@ import PageLayout from "../../../components/layout/PageLayout";
 
 import Orgs from "../../../containers/Admin/Orgs/Orgs";
 
+import useSavedLocation from "../../../hooks/useSavedLocation";
+
 function OrgsPage() {
   const location = useLocation();
+  useSavedLocation().setLocation();
 
   return (
     <PageLayout

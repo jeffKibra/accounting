@@ -7,7 +7,7 @@ import { CREATE_ORG } from "../../../store/actions/orgsActions";
 
 import useToasts from "../../../hooks/useToasts";
 
-import OrgForm from "../../../components/forms/OrgsForms/OrgForm";
+import OrgForm from "../../../components/forms/Orgs/OrgForm";
 
 function NewOrg(props) {
   const { loading, isModified, error, createOrg, reset } = props;

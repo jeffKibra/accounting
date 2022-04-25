@@ -1,5 +1,15 @@
+import useSavedLocation from "../../../hooks/useSavedLocation";
+
+import PageLayout from "../../../components/layout/PageLayout";
+
 function DashboardPage() {
-  return <div> dashboardPage page</div>;
+  useSavedLocation().setLocation();
+
+  return (
+    <PageLayout pageTitle="Dashboard Page">
+      <p>dashboard</p>
+    </PageLayout>
+  );
 }
 
 export default DashboardPage;

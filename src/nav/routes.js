@@ -32,3 +32,7 @@ export const SALES_RECEIPTS = "/sales-receipts";
 export const EXPENSES = "/expenses";
 export const NEW_EXPENSE = "/expenses/new";
 export const EDIT_EXPENSE = "/expenses/:expenseId/edit";
+//settings
+export const ITEMS_CATEGORIES = "/settings/itemsCategories";
+export const NEW_ITEM_CATEGORY = "/settings/itemsCategories/new";
+export const EDIT_ITEM_CATEGORY = "/settings/itemsCategories/:categoryId/edit";

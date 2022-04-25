@@ -4,27 +4,27 @@ import { connect } from "react-redux";
 
 import { isAdmin } from "../../../utils/roles";
 
-import { modifyOrgsReset } from "../../../store/slices/orgs/modifyOrgsSlice";
+import { reset } from "../../../store/slices/orgsSlice";
 import { CREATE_ORG } from "../../../store/actions/orgsActions";
 
 import useAuth from "../../../hooks/useAuth";
 import useToasts from "../../../hooks/useToasts";
 
-import OrgForm from "../../../components/forms/OrgsForms/OrgForm";
+import OrgForm from "../../../components/forms/Orgs/OrgForm";
 
 function NewOrg(props) {
-  const { loading, isModified, error, createOrg, reset } = props;
+  const { loading, isModified, error, createOrg, resetOrg } = props;
   const toasts = useToasts();
   const navigate = useNavigate();
   const userProfile = useAuth();
 
   useEffect(() => {
     if (isModified) {
-      reset();
+      resetOrg();
       toasts.success("Orgnization successfully created!");
       navigate(-1);
     }
-  }, [isModified, reset, navigate, toasts]);
+  }, [isModified, resetOrg, navigate, toasts]);
 
   useEffect(() => {
     if (error) {
@@ -44,7 +44,7 @@ function NewOrg(props) {
 }
 
 function mapStateToProps(state) {
-  const { loading, isModified, error } = state.modifyOrgsReducer;
+  const { loading, isModified, error } = state.orgsReducer;
 
   return {
     loading,
@@ -56,7 +56,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     createOrg: (data) => dispatch({ type: CREATE_ORG, data }),
-    reset: () => dispatch(modifyOrgsReset()),
+    resetOrg: () => dispatch(reset()),
   };
 }
 

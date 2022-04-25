@@ -25,6 +25,10 @@ import InvoicesPage from "../pages/Management/Invoices/InvoicesPage";
 //expenses
 import ExpensesPage from "../pages/Management/Expenses/ExpensesPage";
 import NewExpensePage from "../pages/Management/Expenses/NewExpensePage";
+//items
+import ItemsCategoriesPage from "../pages/Management/ItemsCategories/ItemsCategoriesPage";
+import NewItemCategoryPage from "../pages/Management/ItemsCategories/NewItemCategoryPage";
+import EditItemCategoryPage from "../pages/Management/ItemsCategories/EditItemCategoryPage";
 
 function ManagementRoutes() {
   return [
@@ -155,6 +159,36 @@ function ManagementRoutes() {
       element={
         <ManagementRoute>
           <NewExpensePage />
+        </ManagementRoute>
+      }
+    />,
+    <Route
+      path={routes.ITEMS_CATEGORIES}
+      key={routes.ITEMS_CATEGORIES}
+      exact
+      element={
+        <ManagementRoute>
+          <ItemsCategoriesPage />
+        </ManagementRoute>
+      }
+    />,
+    <Route
+      path={routes.NEW_ITEM_CATEGORY}
+      key={routes.NEW_ITEM_CATEGORY}
+      exact
+      element={
+        <ManagementRoute>
+          <NewItemCategoryPage />
+        </ManagementRoute>
+      }
+    />,
+    <Route
+      path={routes.EDIT_ITEM_CATEGORY}
+      key={routes.EDIT_ITEM_CATEGORY}
+      exact
+      element={
+        <ManagementRoute>
+          <EditItemCategoryPage />
         </ManagementRoute>
       }
     />,

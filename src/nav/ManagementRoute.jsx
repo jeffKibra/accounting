@@ -1,34 +1,27 @@
-import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { useNavigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+
+import useSavedLocation from "../hooks/useSavedLocation";
 
 import * as routes from "./routes";
-
-import useAuth from "../hooks/useAuth";
 
 import ProtectedRoute from "./ProtectedRoute";
 
 function MRoute({ children }) {
-  const userProfile = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
+  const org = useSelector((state) => state.orgsReducer.org);
+  const savedLocation = useSavedLocation().getLocation() || "/";
 
-  const [isSamePage, setIsSamePage] = useState(false);
+  const isNewOrgRoute = location.pathname === routes.NEW_ORG;
 
-  useEffect(() => {
-    if (userProfile?.orgs?.length > 0) {
-      setIsSamePage(true);
-    } else {
-      if (location.pathname === routes.NEW_ORG) {
-        setIsSamePage(true);
-      } else {
-        navigate(routes.NEW_ORG);
-      }
-    }
-  }, [navigate, userProfile, location]);
-  console.log("management route");
-
-  return isSamePage ? children : <p>access denied</p>;
+  return org && isNewOrgRoute ? (
+    <Navigate to={savedLocation} />
+  ) : org || isNewOrgRoute ? (
+    children
+  ) : (
+    <Navigate to={routes.NEW_ORG} />
+  );
 }
 
 export default function ManagementRoute({ children }) {

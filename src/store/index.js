@@ -3,9 +3,10 @@ import createSagaMiddleware from "redux-saga";
 
 import rootSaga from "./sagas";
 
-import { authReducer } from "./slices/auth/authSlice";
-import { orgsReducer } from "./slices/orgs/orgsSlice";
-import { modifyOrgsReducer } from "./slices/orgs/modifyOrgsSlice";
+import { authReducer } from "./slices/authSlice";
+import { orgsReducer } from "./slices/orgsSlice";
+import { itemsReducer } from "./slices/itemsSlice";
+import { modifyItemsCategoriesReducer } from "./slices/itemsCategories/modifyItemsCategoriesSlice";
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -13,7 +14,8 @@ const store = configureStore({
   reducer: {
     authReducer,
     orgsReducer,
-    modifyOrgsReducer,
+    itemsReducer,
+    modifyItemsCategoriesReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ thunk: true, serializableCheck: false }).concat(

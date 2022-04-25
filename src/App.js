@@ -6,6 +6,7 @@ import { mode } from "@chakra-ui/theme-tools";
 import Layout from "./components/layout/Layout";
 import Router from "./nav/Router";
 import CheckAuth from "./containers/Auth/CheckAuth";
+import CheckOrg from "./containers/Management/Orgs/CheckOrg";
 
 const config = (theme) => {
   return {
@@ -49,11 +50,13 @@ function App() {
   return (
     <ChakraProvider theme={theme}>
       <CheckAuth>
-        <BrowserRouter>
-          <Layout>
-            <Router />
-          </Layout>
-        </BrowserRouter>
+        <CheckOrg>
+          <BrowserRouter>
+            <Layout>
+              <Router />
+            </Layout>
+          </BrowserRouter>
+        </CheckOrg>
       </CheckAuth>
     </ChakraProvider>
   );

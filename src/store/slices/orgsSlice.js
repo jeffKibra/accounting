@@ -2,29 +2,25 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   loading: false,
-  userProfile: null,
-  isNewUser: false,
+  orgs: null,
+  org: null,
+  isModified: null,
+  action: null,
   error: null,
 };
 
-const authSlice = createSlice({
-  name: "authSlice",
+const orgsSlice = createSlice({
+  name: "orgs_slice",
   initialState: {
     ...initialState,
   },
   reducers: {
-    newUser: (state, action) => {
+    start: (state, action) => {
       const { payload } = action;
-
-      return {
-        ...state,
-        isNewUser: payload,
-      };
-    },
-    start: (state) => {
       return {
         ...state,
         loading: true,
+        action: payload,
         error: null,
       };
     },
@@ -34,21 +30,28 @@ const authSlice = createSlice({
       return {
         ...state,
         loading: false,
-        userProfile: payload,
+        org: payload,
+        isModified: true,
       };
     },
-    userOrgsSuccess: (state, action) => {
+    orgsSuccess: (state, action) => {
       const { payload } = action;
-
       return {
         ...state,
         loading: false,
-        userProfile: { ...state.userProfile, orgs: payload },
+        orgs: payload,
+      };
+    },
+    orgSuccess: (state, action) => {
+      const { payload } = action;
+      return {
+        ...state,
+        loading: false,
+        org: payload,
       };
     },
     fail: (state, action) => {
       const { payload } = action;
-
       return {
         ...state,
         loading: false,
@@ -56,17 +59,20 @@ const authSlice = createSlice({
       };
     },
     reset: (state) => {
-      console.log({ yy: this });
       return {
-        ...initialState,
+        ...state,
+        loading: false,
+        error: null,
+        isModified: false,
+        action: null,
       };
     },
   },
 });
 
-export const { start, success, fail, reset, newUser, userOrgsSuccess } =
-  authSlice.actions;
+export const { start, success, orgSuccess, orgsSuccess, fail, reset } =
+  orgsSlice.actions;
 
-export const authReducer = authSlice.reducer;
+export const orgsReducer = orgsSlice.reducer;
 
-export default authSlice;
+export default orgsSlice;

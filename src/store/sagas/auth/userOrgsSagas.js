@@ -4,7 +4,7 @@ import { getDocs, collectionGroup, query, where } from "firebase/firestore";
 import { db } from "../../../utils/firebase";
 
 import { GET_USER_ORGS } from "../../actions/authActions";
-import { start, fail, userOrgsSuccess } from "../../slices/auth/authSlice";
+import { start, fail, userOrgsSuccess } from "../../slices/authSlice";
 
 export function* userOrgs() {
   yield put(start());

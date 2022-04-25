@@ -31,7 +31,7 @@ CheckAuth.propTypes = {
 
 function mapStateToProps(state) {
   const { loading, userProfile, error, isNewUser } = state.authReducer;
-  console.log({ loading, isNewUser });
+  // console.log({ loading, isNewUser });
   return {
     loading,
     userProfile,

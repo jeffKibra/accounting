@@ -1,26 +1,26 @@
-import { Flex, Heading, Box } from "@chakra-ui/react";
-import UserAccountDetails from "../ui/UserAccountDetails";
+import { Flex, Box } from "@chakra-ui/react";
 
-import { DRAWER_WIDTH } from "../../utils/constants";
+import UserAccountDetails from "../../containers/Auth/UserAccountDetails";
+import SideDrawer from "./SideDrawer";
+import Title from "./Title";
+
+import { BAR_HEIGHT } from "../../utils/constants";
 
 export default function AppBar() {
   return (
     <Flex
-      zIndex="sticky"
-      shadow="md"
-      bg="card"
-      minH="56px"
-      maxH="56px"
+      zIndex="banner"
+      bg="white"
+      minH={`${BAR_HEIGHT}px`}
+      maxH={`${BAR_HEIGHT}px`}
       align="center"
       px={3}
-      position="fixed"
       top={0}
       right={0}
-      w={`calc(100% - ${DRAWER_WIDTH}px)`}
+      w="full"
     >
-      <Heading fontWeight="semibold" fontSize="x-large">
-        BOOKS
-      </Heading>
+      <SideDrawer />
+      <Title />
       <Box flexGrow={1} />
       <UserAccountDetails />
     </Flex>

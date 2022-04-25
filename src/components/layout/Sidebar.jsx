@@ -1,85 +1,39 @@
-import { Accordion, Box, VStack, Divider } from "@chakra-ui/react";
-import DrawerItem from "../ui/DrawerItem";
-import {
-  RiDashboardLine,
-  RiShoppingBagLine,
-  RiContactsLine,
-  RiShoppingCartLine,
-  RiCoinsLine,
-  RiStore3Line,
-} from "react-icons/ri";
+import { Box, Divider, Flex } from "@chakra-ui/react";
 
-import { isAdmin } from "../../utils/roles";
+// import { isAdmin } from "../../utils/roles";
 import useAuth from "../../hooks/useAuth";
+import useOrg from "../../hooks/useOrg";
 
-import * as routes from "../../nav/routes";
-import ExpandableDrawerItem from "../ui/ExpandableDrawerItem";
+import MainSidebar from "./MainSidebar";
 
 import { DRAWER_WIDTH } from "../../utils/constants";
+import SidebarFooter from "./SidebarFooter";
 
 export default function Sidebar() {
   const userProfile = useAuth();
+  const org = useOrg();
+  // console.log({ userProfile, org });
 
-  return userProfile ? (
+  return userProfile && org ? (
     <Box
-      position="fixed"
-      top={0}
-      left={0}
-      zIndex="banner"
-      bg="card"
+      position="relative"
+      // top={0}
+      // left={0}
+      zIndex="sticky"
+      bg="white"
       minH="100%"
+      w={`${DRAWER_WIDTH}px`}
       minW={`${DRAWER_WIDTH}px`}
-      maxW={`${DRAWER_WIDTH}px`}
+      display={["none", null, null, "block"]}
     >
-      <Box minH="56px" />
       <Divider />
-      <Accordion w="full" allowToggle>
-        <VStack spacing="2px" mt={4} align="flex-start" w="full">
-          {isAdmin(userProfile.role) ? <AdminSidebar /> : <ManagementSidebar />}
-        </VStack>
-      </Accordion>
+      <MainSidebar />
+      <Box position="absolute" bottom={0} w="full">
+        <Divider />
+        <Flex w="full" justify="flex-end" p={4}>
+          <SidebarFooter />
+        </Flex>
+      </Box>
     </Box>
   ) : null;
-}
-
-function AdminSidebar(props) {
-  return (
-    <>
-      <DrawerItem route={routes.DASHBOARD} icon={RiDashboardLine}>
-        Dashboard
-      </DrawerItem>
-      <DrawerItem route={routes.ORGS} icon={RiStore3Line}>
-        Organizations
-      </DrawerItem>
-    </>
-  );
-}
-
-function ManagementSidebar(props) {
-  return (
-    <>
-      <DrawerItem route={routes.DASHBOARD} icon={RiDashboardLine}>
-        Dashboard
-      </DrawerItem>
-      <DrawerItem route={routes.ITEMS} icon={RiShoppingBagLine}>
-        Items
-      </DrawerItem>
-      <DrawerItem route={routes.CUSTOMERS} icon={RiContactsLine}>
-        Customers
-      </DrawerItem>
-      <DrawerItem route={routes.EXPENSES} icon={RiCoinsLine}>
-        Expenses
-      </DrawerItem>
-
-      <ExpandableDrawerItem
-        title="Sales"
-        icon={RiShoppingCartLine}
-        subRoutes={[
-          { title: "Estimates", route: routes.ESTIMATES },
-          { title: "Invoices", route: routes.INVOICES },
-          { title: "Sales Receipts", route: routes.SALES_RECEIPTS },
-        ]}
-      />
-    </>
-  );
 }

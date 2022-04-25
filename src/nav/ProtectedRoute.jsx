@@ -1,22 +1,16 @@
-import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useLocation, Navigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
-import useAuth from "../hooks/useAuth";
-
 function ProtectedRoute({ children }) {
-  const location = useLocation;
-  const navigate = useNavigate();
-  const userProfile = useAuth();
-  // console.log({ userProfile });
+  const location = useLocation();
+  const userProfile = useSelector((state) => state.authReducer.userProfile);
 
-  useEffect(() => {
-    if (!userProfile) {
-      navigate("/login", { state: { from: location } });
-    }
-  }, [userProfile, navigate, location]);
-
-  return children;
+  return userProfile ? (
+    children
+  ) : (
+    <Navigate to="/login" state={{ from: location }} />
+  );
 }
 
 ProtectedRoute.propTypes = {
