@@ -8,6 +8,8 @@ import Router from "./nav/Router";
 import CheckAuth from "./containers/Auth/CheckAuth";
 import CheckOrg from "./containers/Management/Orgs/CheckOrg";
 
+import Toasts from "./components/ui/Toasts";
+
 const config = (theme) => {
   return {
     initialColorMode: "dark",
@@ -49,6 +51,7 @@ const theme = extendTheme({ config, styles, colors, components });
 function App() {
   return (
     <ChakraProvider theme={theme}>
+      <Toasts />
       <CheckAuth>
         <CheckOrg>
           <BrowserRouter>

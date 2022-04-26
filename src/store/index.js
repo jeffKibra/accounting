@@ -3,6 +3,7 @@ import createSagaMiddleware from "redux-saga";
 
 import rootSaga from "./sagas";
 
+import { toastReducer } from "./slices/toastSlice";
 import { authReducer } from "./slices/authSlice";
 import { orgsReducer } from "./slices/orgsSlice";
 import { itemsReducer } from "./slices/itemsSlice";
@@ -12,6 +13,7 @@ const sagaMiddleware = createSagaMiddleware();
 
 const store = configureStore({
   reducer: {
+    toastReducer,
     authReducer,
     orgsReducer,
     itemsReducer,

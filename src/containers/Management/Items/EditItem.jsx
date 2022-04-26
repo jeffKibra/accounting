@@ -14,7 +14,6 @@ function EditItem(props) {
     props;
   const { itemId } = useParams();
   const navigate = useNavigate();
-  console.log({ itemId });
 
   useEffect(() => {
     getItem(itemId);
@@ -22,15 +21,13 @@ function EditItem(props) {
 
   useEffect(() => {
     if (isModified) {
-      console.log({ isModified });
-
       resetItem();
       navigate("/items");
     }
   }, [isModified, resetItem, navigate]);
 
   function handleSubmit(data) {
-    console.log({ data });
+    // console.log({ data });
     updateItem({
       ...data,
       itemId,

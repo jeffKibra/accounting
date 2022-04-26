@@ -24,14 +24,6 @@ function ItemsTable(props) {
     return items.map((item) => {
       const { itemId, name, variant } = item;
 
-      function onDelete() {
-        console.log({ itemId });
-        handleDelete({
-          itemId,
-          status: "deleted",
-        });
-      }
-
       return {
         ...item,
         actions: (
@@ -40,7 +32,7 @@ function ItemsTable(props) {
             deleteDialog={{
               isDeleted: isDeleted,
               title: "Delete Item",
-              onConfirm: onDelete,
+              onConfirm: () => handleDelete(itemId),
               loading: deleting,
               message: (
                 <Box>

@@ -1,14 +1,28 @@
 import { useEffect } from "react";
 import { useToast } from "@chakra-ui/react";
 import PropTypes from "prop-types";
+import { connect } from "react-redux";
+
+import { warning, info, success, error } from "../../store/slices/toastSlice";
 
 function Toasts(props) {
-  const { info, success, error, warning, title } = props;
+  const {
+    infoMsg,
+    successMsg,
+    errorMsg,
+    warningMsg,
+    title,
+    toastInfo,
+    toastWarning,
+    toastError,
+    toastSuccess,
+  } = props;
   const toast = useToast();
+  // console.log({ props });
 
   //info
   useEffect(() => {
-    if (info) {
+    if (infoMsg) {
       toast({
         duration: 5000,
         isClosable: true,
@@ -16,14 +30,15 @@ function Toasts(props) {
         status: "info",
         variant: "subtle",
         ...(title ? { title } : {}),
-        description: info,
+        description: infoMsg,
+        onCloseComplete: () => toastInfo(null),
       });
     }
-  }, [toast, info, title]);
+  }, [toast, infoMsg, title, toastInfo]);
 
   //success
   useEffect(() => {
-    if (success) {
+    if (successMsg) {
       toast({
         duration: 5000,
         isClosable: true,
@@ -31,14 +46,15 @@ function Toasts(props) {
         status: "success",
         variant: "subtle",
         ...(title ? { title } : {}),
-        description: success,
+        description: successMsg,
+        onCloseComplete: () => toastSuccess(null),
       });
     }
-  }, [toast, success, title]);
+  }, [toast, successMsg, title, toastSuccess]);
 
   //error
   useEffect(() => {
-    if (error) {
+    if (errorMsg) {
       toast({
         duration: 5000,
         isClosable: true,
@@ -46,14 +62,15 @@ function Toasts(props) {
         status: "error",
         variant: "subtle",
         ...(title ? { title } : {}),
-        description: error,
+        description: errorMsg,
+        onCloseComplete: () => toastError(null),
       });
     }
-  }, [toast, error, title]);
+  }, [toast, errorMsg, title, toastError]);
 
   //warning
   useEffect(() => {
-    if (warning) {
+    if (warningMsg) {
       toast({
         duration: 5000,
         isClosable: true,
@@ -61,20 +78,41 @@ function Toasts(props) {
         status: "warning",
         variant: "subtle",
         ...(title ? { title } : {}),
-        description: warning,
+        description: warningMsg,
+        onCloseComplete: () => toastWarning(null),
       });
     }
-  }, [toast, warning, title]);
+  }, [toast, warningMsg, title, toastWarning]);
 
   return null;
 }
 
 Toasts.propTypes = {
-  error: PropTypes.string,
-  info: PropTypes.string,
-  success: PropTypes.string,
-  warning: PropTypes.string,
-  title: PropTypes.string,
+  errorMsg: PropTypes.node,
+  infoMsg: PropTypes.node,
+  successMsg: PropTypes.node,
+  warningMsg: PropTypes.node,
+  title: PropTypes.node,
 };
 
-export default Toasts;
+function mapStateToProps(state) {
+  const { info, warning, error, success } = state.toastReducer;
+
+  return {
+    infoMsg: info,
+    warningMsg: warning,
+    errorMsg: error,
+    successMsg: success,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    toastError: (message) => dispatch(error(message)),
+    toastInfo: (message) => dispatch(info(message)),
+    toastSuccess: (message) => dispatch(success(message)),
+    toastWarning: (message) => dispatch(warning(message)),
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Toasts);

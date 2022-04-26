@@ -10,13 +10,12 @@ import ItemForm from "../../../components/forms/Items/ItemForm";
 class NewItem extends Component {
   componentDidUpdate(prevProps) {
     if (this.props.isModified && !prevProps.isModified) {
-      console.log("reseting");
+      // console.log("reseting");
       this.props.resetItems();
     }
   }
 
   render() {
-    console.log(this.props);
     const { isModified, loading, createItem } = this.props;
 
     return isModified ? (

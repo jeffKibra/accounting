@@ -1,7 +1,7 @@
 import { Component } from "react";
 import { connect } from "react-redux";
 
-import { GET_ITEMS, UPDATE_ITEM } from "../../../store/actions/itemsActions";
+import { GET_ITEMS, DELETE_ITEM } from "../../../store/actions/itemsActions";
 import { reset } from "../../../store/slices/itemsSlice";
 
 import Empty from "../../../components/ui/Empty";
@@ -35,7 +35,7 @@ class Items extends Component {
       <ItemsTable
         isDeleted={isModified}
         handleDelete={deleteItem}
-        deleting={loading && action === UPDATE_ITEM}
+        deleting={loading && action === DELETE_ITEM}
         items={items}
       />
     ) : (
@@ -53,7 +53,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     getItems: () => dispatch({ type: GET_ITEMS }),
-    deleteItem: (data) => dispatch({ type: UPDATE_ITEM, data }),
+    deleteItem: (itemId) => dispatch({ type: DELETE_ITEM, itemId }),
     resetItem: () => dispatch(reset()),
   };
 }

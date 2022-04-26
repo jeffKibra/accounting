@@ -4,6 +4,7 @@ import {
   getDocs,
   query,
   where,
+  orderBy,
   doc,
   getDoc,
 } from "firebase/firestore";
@@ -17,6 +18,7 @@ import {
   itemsSuccess,
   fail,
 } from "../../slices/itemsSlice";
+import { error as toastError } from "../../slices/toastSlice";
 
 function* getItems() {
   yield put(start(GET_ITEMS));
@@ -27,12 +29,16 @@ function* getItems() {
   async function get() {
     const q = query(
       collection(db, "organizations", orgId, "items"),
+      orderBy("createdAt", "desc"),
       where("status", "==", "active")
     );
     const snap = await getDocs(q);
     const items = [];
-    snap.forEach((doc) => {
-      items.push(doc.data());
+    snap.forEach((itemDoc) => {
+      items.push({
+        ...itemDoc.data(),
+        itemId: itemDoc.id,
+      });
     });
 
     return items;
@@ -40,12 +46,13 @@ function* getItems() {
 
   try {
     const items = yield call(get);
-    console.log({ items });
+    // console.log({ items });
 
     yield put(itemsSuccess(items));
   } catch (error) {
     console.log(error);
     yield put(fail(error));
+    yield put(toastError(error.message));
   }
 }
 
@@ -55,7 +62,6 @@ export function* watchGetItems() {
 
 function* getItem({ itemId }) {
   yield put(start(GET_ITEM));
-  console.log({ itemId });
 
   const org = yield select((state) => state.orgsReducer.org);
   const orgId = org.id;
@@ -69,7 +75,10 @@ function* getItem({ itemId }) {
       throw new Error("item not found!");
     }
 
-    return itemDoc.data();
+    return {
+      ...itemDoc.data(),
+      itemId: itemDoc.id,
+    };
   }
 
   try {
@@ -79,6 +88,7 @@ function* getItem({ itemId }) {
   } catch (error) {
     console.log(error);
     yield put(fail(error));
+    yield put(toastError(error.message));
   }
 }
 

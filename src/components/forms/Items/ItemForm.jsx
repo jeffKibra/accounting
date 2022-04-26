@@ -92,12 +92,12 @@ function ItemForm(props) {
     const name = refactor(itemName);
     const variant = refactor(itemVariant);
     const id = `${name}${variant && `-${variant}`}`;
-    console.log({ name, variant, id });
+    // console.log({ name, variant, id });
 
-    setValue("itemId", id);
+    setValue("slug", id);
   }, [itemName, itemVariant, setValue]);
 
-  console.log(errors);
+  // console.log(errors);
   return (
     <Box
       bg="white"
@@ -167,11 +167,11 @@ function ItemForm(props) {
           </GridItem>
 
           <GridItem colSpan={[12, 6]}>
-            <FormControl isDisabled w="full" isInvalid={errors.itemId}>
-              <FormLabel htmlFor="itemId">Item Id </FormLabel>
-              <Input id="itemId" {...register("itemId")} />
+            <FormControl isDisabled w="full" isInvalid={errors.slug}>
+              <FormLabel htmlFor="slug">Item Id</FormLabel>
+              <Input id="slug" {...register("slug")} />
               <FormHelperText>items unique identifier</FormHelperText>
-              <FormErrorMessage>{errors?.itemId?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors?.slug?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
 
@@ -180,7 +180,7 @@ function ItemForm(props) {
               isDisabled={loading}
               isInvalid={errors.itemDescription}
             >
-              <FormLabel htmlFor="itemDescription">Item Description</FormLabel>
+              <FormLabel htmlFor="itemDescription">Item Details</FormLabel>
               <Textarea id="itemDescription" {...register("itemDescription")} />
             </FormControl>
           </GridItem>
@@ -372,7 +372,7 @@ function ItemForm(props) {
 }
 
 ItemForm.defaultProps = {
-  item: { itemId: "" },
+  item: { slug: "" },
 };
 
 ItemForm.propTypes = {

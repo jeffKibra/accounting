@@ -12,6 +12,7 @@ import { watchCheckOrg } from "./orgs/checkOrgSagas";
 import { watchCreateItem } from "./items/createItemSagas";
 import { watchGetItem, watchGetItems } from "./items/getItemsSaga";
 import { watchUpdateItem } from "./items/updateItemSagas";
+import { watchDeleteItem } from "./items/updateItemSagas";
 //categories
 import { watchCreateItemCategory } from "./itemsCategories/createItemCategorySagas";
 
@@ -31,6 +32,7 @@ export default function* rootSaga() {
     watchGetItem(),
     watchGetItems(),
     watchUpdateItem(),
+    watchDeleteItem(),
     watchCreateItemCategory(),
   ]);
 }
