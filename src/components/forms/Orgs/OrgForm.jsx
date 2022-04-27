@@ -42,7 +42,11 @@ function OrgForm(props) {
     return (
       <Content>
         {isAdmin && (
-          <FormControl isRequired isInvalid={!!errors.organizaionName}>
+          <FormControl
+            isDisabled={loading}
+            isRequired
+            isInvalid={!!errors.organizaionName}
+          >
             <FormLabel>Status</FormLabel>
             <Select
               {...register("status", {
@@ -58,7 +62,7 @@ function OrgForm(props) {
           </FormControl>
         )}
 
-        <FormControl isRequired isInvalid={!!errors.name}>
+        <FormControl isDisabled={loading} isRequired isInvalid={!!errors.name}>
           <FormLabel>Company Name</FormLabel>
           <Input
             {...register("name", {
@@ -68,7 +72,11 @@ function OrgForm(props) {
           <FormHelperText>Company | Business Name</FormHelperText>
           <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
         </FormControl>
-        <FormControl isRequired isInvalid={!!errors.industry}>
+        <FormControl
+          isDisabled={loading}
+          isRequired
+          isInvalid={!!errors.industry}
+        >
           <FormLabel>Industry</FormLabel>
           <Input
             {...register("industry", {
@@ -77,7 +85,7 @@ function OrgForm(props) {
           />
           <FormErrorMessage>{errors.industry?.message}</FormErrorMessage>
         </FormControl>
-        <FormControl isRequired isInvalid={!!errors.size}>
+        <FormControl isDisabled={loading} isRequired isInvalid={!!errors.size}>
           <FormLabel>Size</FormLabel>
           <Select
             {...register("size", {
@@ -101,7 +109,7 @@ function OrgForm(props) {
   function OrgContactDetails() {
     return (
       <Content>
-        <FormControl isRequired isInvalid={!!errors.phone}>
+        <FormControl isDisabled={loading} isRequired isInvalid={!!errors.phone}>
           <FormLabel>phone</FormLabel>
           <Input
             {...register("phone", {
@@ -111,7 +119,11 @@ function OrgForm(props) {
           <FormHelperText>Format : 254 712 345678</FormHelperText>
           <FormErrorMessage>{errors.phone?.message}</FormErrorMessage>
         </FormControl>
-        <FormControl isRequired isInvalid={!!errors.address}>
+        <FormControl
+          isDisabled={loading}
+          isRequired
+          isInvalid={!!errors.address}
+        >
           <FormLabel>address</FormLabel>
           <Input
             {...register("address", {
@@ -120,7 +132,7 @@ function OrgForm(props) {
           />
           <FormErrorMessage>{errors.address?.message}</FormErrorMessage>
         </FormControl>
-        <FormControl isRequired isInvalid={!!errors.city}>
+        <FormControl isDisabled={loading} isRequired isInvalid={!!errors.city}>
           <FormLabel>city</FormLabel>
           <Input
             {...register("city", {
@@ -129,7 +141,7 @@ function OrgForm(props) {
           />
           <FormErrorMessage>{errors.city?.message}</FormErrorMessage>
         </FormControl>
-        <FormControl isInvalid={!!errors.website}>
+        <FormControl isDisabled={loading} isInvalid={!!errors.website}>
           <FormLabel>website</FormLabel>
           <Input {...register("website")} />
           <FormErrorMessage>{errors.website?.message}</FormErrorMessage>
@@ -141,7 +153,11 @@ function OrgForm(props) {
   function ContactPerson(props) {
     return (
       <Content>
-        <FormControl isRequired isInvalid={!!errors.firstName}>
+        <FormControl
+          isDisabled={loading}
+          isRequired
+          isInvalid={!!errors.firstName}
+        >
           <FormLabel>First Name</FormLabel>
           <Input
             {...register("firstName", {
@@ -150,7 +166,11 @@ function OrgForm(props) {
           />
           <FormErrorMessage>{errors.firstName?.message}</FormErrorMessage>
         </FormControl>
-        <FormControl isRequired isInvalid={!!errors.lastName}>
+        <FormControl
+          isDisabled={loading}
+          isRequired
+          isInvalid={!!errors.lastName}
+        >
           <FormLabel>Last Name</FormLabel>
           <Input
             {...register("lastName", {
@@ -159,7 +179,11 @@ function OrgForm(props) {
           />
           <FormErrorMessage>{errors.lastName?.message}</FormErrorMessage>
         </FormControl>
-        <FormControl isRequired isInvalid={!!errors.contactPhone}>
+        <FormControl
+          isDisabled={loading}
+          isRequired
+          isInvalid={!!errors.contactPhone}
+        >
           <FormLabel>Phone</FormLabel>
           <Input
             {...register("contactPhone", {
