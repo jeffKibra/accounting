@@ -1,7 +1,7 @@
 import { Divider, Accordion, VStack } from "@chakra-ui/react";
 import {
   RiDashboardLine,
-  // RiSettings6Line,
+  RiSettings6Line,
   RiShoppingBagLine,
   RiContactsLine,
   RiShoppingCartLine,
@@ -67,6 +67,13 @@ function ManagementSidebar(props) {
           { title: "Invoices", route: routes.INVOICES },
           { title: "Sales Receipts", route: routes.SALES_RECEIPTS },
         ]}
+      />
+      <Divider />
+
+      <ExpandableDrawerItem
+        title="Settings"
+        icon={RiSettings6Line}
+        subRoutes={[{ title: "Taxes", route: routes.TAXES }]}
       />
     </>
   );

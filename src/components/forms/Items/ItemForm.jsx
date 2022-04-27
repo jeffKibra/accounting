@@ -26,7 +26,21 @@ import {
 import { useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 
-// const units = ["ml", "litres", "mm", "metres", "grams", "kg", "count"];
+const units = [
+  "millilitres",
+  "litres",
+  "millimetres",
+  "metres",
+  "grams",
+  "kilograms",
+  "count",
+  "pairs",
+  "dozen",
+  "box",
+  "pieces",
+  "units",
+  "tablets",
+];
 
 const sellingAccounts = [
   {
@@ -94,7 +108,7 @@ function ItemForm(props) {
     const id = `${name}${variant && `-${variant}`}`;
     // console.log({ name, variant, id });
 
-    setValue("slug", id);
+    setValue("sku", id);
   }, [itemName, itemVariant, setValue]);
 
   // console.log(errors);
@@ -167,15 +181,54 @@ function ItemForm(props) {
           </GridItem>
 
           <GridItem colSpan={[12, 6]}>
-            <FormControl isDisabled w="full" isInvalid={errors.slug}>
-              <FormLabel htmlFor="slug">Item Id</FormLabel>
-              <Input id="slug" {...register("slug")} />
-              <FormHelperText>items unique identifier</FormHelperText>
-              <FormErrorMessage>{errors?.slug?.message}</FormErrorMessage>
+            <FormControl isDisabled w="full" isInvalid={errors.sku}>
+              <FormLabel htmlFor="sku">SKU</FormLabel>
+              <Input id="sku" {...register("sku")} />
+              <FormHelperText>
+                (Stock Keeping Unit) Unique Item Identifier
+              </FormHelperText>
+              <FormErrorMessage>{errors?.sku?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
 
-          <GridItem colSpan={12}>
+          <GridItem colSpan={[12, 6]}>
+            <FormControl
+              isDisabled={loading}
+              isRequired
+              isInvalid={errors.unit}
+            >
+              <FormLabel htmlFor="unit">Unit</FormLabel>
+              <Input
+                id="unit"
+                {...register("unit", {
+                  required: { value: true, message: "Required" },
+                })}
+                list="unitList"
+              />
+              <datalist id="unitList">
+                {units.map((unit, i) => {
+                  return (
+                    <Box
+                      as="option"
+                      textTransform="uppercase"
+                      key={i}
+                      value={unit}
+                    >
+                      {unit}
+                    </Box>
+                  );
+                })}
+              </datalist>
+              <FormErrorMessage>
+                {errors?.costAccount?.message}
+              </FormErrorMessage>
+              <FormHelperText>
+                Select or type in your custom unit.
+              </FormHelperText>
+            </FormControl>
+          </GridItem>
+
+          <GridItem colSpan={[12, 6]}>
             <FormControl
               isDisabled={loading}
               isInvalid={errors.itemDescription}
@@ -186,7 +239,7 @@ function ItemForm(props) {
           </GridItem>
         </Grid>
 
-        <Divider />
+        <Divider mb="30px !important" />
         <Grid columnGap={4} autoFlow="row" templateColumns="repeat(12, 1fr)">
           <GridItem colSpan={[12, 6]}>
             <VStack>
@@ -258,14 +311,11 @@ function ItemForm(props) {
                 <Textarea id="sellingDetails" {...register("sellingDetails")} />
               </FormControl>
               <FormControl isDisabled={loading} isInvalid={errors.tax}>
-                <FormLabel htmlFor="sellingTax">Tax</FormLabel>
-                <Select
-                  placeholder="select tax account"
-                  id="sellingTax"
-                  {...register("sellingTax")}
-                >
+                <FormLabel htmlFor="tax">Tax</FormLabel>
+                <Select placeholder="select tax" id="tax" {...register("tax")}>
                   <option></option>
                 </Select>
+                <FormHelperText>Add tax to your item</FormHelperText>
               </FormControl>
             </VStack>
           </GridItem>
@@ -339,16 +389,6 @@ function ItemForm(props) {
                   defaultValue=""
                 />
               </FormControl>
-              <FormControl isDisabled={loading} isInvalid={errors.tax}>
-                <FormLabel htmlFor="costTax">Tax</FormLabel>
-                <Select
-                  placeholder="select tax account"
-                  id="costTax"
-                  {...register("costTax")}
-                >
-                  <option></option>
-                </Select>
-              </FormControl>
             </VStack>
           </GridItem>
         </Grid>
@@ -372,7 +412,7 @@ function ItemForm(props) {
 }
 
 ItemForm.defaultProps = {
-  item: { slug: "" },
+  item: { sku: "" },
 };
 
 ItemForm.propTypes = {

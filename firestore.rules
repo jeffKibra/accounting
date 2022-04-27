@@ -63,10 +63,10 @@ service cloud.firestore {
       match /items/{itemId} {
 
         function verifyItemData(){
-          let general=['name', 'type', 'status', 'slug', 'createdBy', 'modifiedBy', 'createdAt', 'modifiedAt'];
+          let general=['name', 'type', 'status', 'sku', 'unit', 'createdBy', 'modifiedBy', 'createdAt', 'modifiedAt'];
           let extras=['costAccount', 'costPrice', 'sellingAccount', 'sellingPrice'];
           let required= general.concat(extras);
-          let optional=['variant', 'costDetails', 'costTax', 'itemDescription', 'sellingDetails', 'sellingTax'];
+          let optional=['variant', 'costDetails', 'itemDescription', 'sellingDetails', 'tax'];
           let allFields=required.concat(optional);
 
           return request.resource.data.keys().hasAll(required) &&
@@ -74,7 +74,7 @@ service cloud.firestore {
             request.resource.data.name is string &&
             request.resource.data.type is string &&
             request.resource.data.status is string &&
-            request.resource.data.slug is string &&
+            request.resource.data.sku is string &&
             request.resource.data.createdBy is string &&
             request.resource.data.modifiedBy is string &&
             request.resource.data.createdAt is timestamp &&
@@ -85,16 +85,16 @@ service cloud.firestore {
             request.resource.data.sellingPrice is int &&
             request.resource.data.variant is string &&
             request.resource.data.costDetails is string &&
-            request.resource.data.costTax is string &&
+            request.resource.data.unit is string &&
             request.resource.data.itemDescription is string &&
             request.resource.data.sellingDetails is string &&
-            request.resource.data.sellingTax is string
+            request.resource.data.tax is string
         }
 
         function allowItemUpdate(){
-          let cost=['costDetails', 'costAccount', 'costPrice', 'costTax'];
-          let selling=['sellingDetails', 'sellingAccount', 'sellingPrice', 'sellingTax'];
-          let general=['name', 'variant', 'slug', 'status', 'type', 'itemDescription', 'modifiedAt', 'modifiedBy'];
+          let cost=['costDetails', 'costAccount', 'costPrice'];
+          let selling=['sellingDetails', 'sellingAccount', 'sellingPrice', 'tax'];
+          let general=['name', 'variant', 'sku', 'status', 'type', 'unit', 'itemDescription', 'modifiedAt', 'modifiedBy'];
           let allowed=general.concat(selling).concat(cost);
 
           return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowed)

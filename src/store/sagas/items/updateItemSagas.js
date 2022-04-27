@@ -21,8 +21,8 @@ function* updateItem({ data }) {
 
   async function update() {
     const { itemId, ...rest } = data;
-    const { slug } = rest;
-    const similarItem = await getSimilarItem(orgId, slug);
+    const { sku } = rest;
+    const similarItem = await getSimilarItem(orgId, sku);
 
     if (similarItem) {
       //check its not the same document being updated

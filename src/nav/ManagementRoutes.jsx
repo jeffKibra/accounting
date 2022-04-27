@@ -29,6 +29,11 @@ import NewExpensePage from "../pages/Management/Expenses/NewExpensePage";
 import ItemsCategoriesPage from "../pages/Management/ItemsCategories/ItemsCategoriesPage";
 import NewItemCategoryPage from "../pages/Management/ItemsCategories/NewItemCategoryPage";
 import EditItemCategoryPage from "../pages/Management/ItemsCategories/EditItemCategoryPage";
+//settings
+//taxes
+import TaxesPage from "../pages/Management/Taxes/TaxesPage";
+import NewTaxPage from "../pages/Management/Taxes/NewTaxPage";
+import EditTaxPage from "../pages/Management/Taxes/EditTaxPage";
 
 function ManagementRoutes() {
   return [
@@ -189,6 +194,36 @@ function ManagementRoutes() {
       element={
         <ManagementRoute>
           <EditItemCategoryPage />
+        </ManagementRoute>
+      }
+    />,
+    <Route
+      path={routes.TAXES}
+      key={routes.TAXES}
+      exact
+      element={
+        <ManagementRoute>
+          <TaxesPage />
+        </ManagementRoute>
+      }
+    />,
+    <Route
+      path={routes.NEW_TAX}
+      key={routes.NEW_TAX}
+      exact
+      element={
+        <ManagementRoute>
+          <NewTaxPage />
+        </ManagementRoute>
+      }
+    />,
+    <Route
+      path={routes.EDIT_TAX}
+      key={routes.EDIT_TAX}
+      exact
+      element={
+        <ManagementRoute>
+          <EditTaxPage />
         </ManagementRoute>
       }
     />,

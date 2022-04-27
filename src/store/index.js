@@ -8,6 +8,7 @@ import { toastReducer } from "./slices/toastSlice";
 import { authReducer } from "./slices/authSlice";
 import { orgsReducer } from "./slices/orgsSlice";
 import { itemsReducer } from "./slices/itemsSlice";
+import { taxesReducer } from "./slices/taxesSlice";
 import { modifyItemsCategoriesReducer } from "./slices/itemsCategories/modifyItemsCategoriesSlice";
 
 const sagaMiddleware = createSagaMiddleware();
@@ -19,6 +20,7 @@ const store = configureStore({
       authReducer,
       orgsReducer,
       itemsReducer,
+      taxesReducer,
       modifyItemsCategoriesReducer,
     });
 

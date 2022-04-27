@@ -19,11 +19,11 @@ import {
   error as toastError,
 } from "../../slices/toastSlice";
 
-export async function getSimilarItem(orgId, slug) {
+export async function getSimilarItem(orgId, sku) {
   const q = query(
     collection(db, "organizations", orgId, "items"),
     orderBy("createdAt", "desc"),
-    where("slug", "==", slug),
+    where("sku", "==", sku),
     where("status", "==", "active"),
     limit(1)
   );
@@ -48,11 +48,11 @@ function* createItem({ data }) {
   const { name } = userProfile;
   const org = yield select((state) => state.orgsReducer.org);
   const orgId = org.id;
-
+  console.log({ data });
   async function create() {
-    const { slug } = data;
+    const { sku } = data;
     //check if there is another item with similar itemId
-    const similarItem = await getSimilarItem(orgId, slug);
+    const similarItem = await getSimilarItem(orgId, sku);
 
     if (similarItem) {
       throw new Error("There is another item with similar details!");

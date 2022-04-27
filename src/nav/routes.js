@@ -33,6 +33,11 @@ export const EXPENSES = "/expenses";
 export const NEW_EXPENSE = "/expenses/new";
 export const EDIT_EXPENSE = "/expenses/:expenseId/edit";
 //settings
+//taxes
+export const TAXES = "/settings/taxes";
+export const NEW_TAX = "/settings/taxes/new";
+export const EDIT_TAX = "/settings/taxes/:taxId/edit";
+//items categories
 export const ITEMS_CATEGORIES = "/settings/itemsCategories";
 export const NEW_ITEM_CATEGORY = "/settings/itemsCategories/new";
 export const EDIT_ITEM_CATEGORY = "/settings/itemsCategories/:categoryId/edit";

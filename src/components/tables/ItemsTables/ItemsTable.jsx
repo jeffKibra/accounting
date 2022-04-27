@@ -14,6 +14,7 @@ function ItemsTable(props) {
       { Header: "", accessor: "actions" },
       { Header: "Name", accessor: "name" },
       { Header: "Variant", accessor: "variant" },
+      { Header: "Unit", accessor: "unit" },
       { Header: "Type", accessor: "type" },
       { Header: "Rate", accessor: "sellingPrice" },
       { Header: "Cost", accessor: "costPrice" },
