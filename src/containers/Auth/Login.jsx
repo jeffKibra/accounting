@@ -12,11 +12,11 @@ class Login extends Component {
   };
 
   render() {
-    const { loading } = this.props;
+    const { loading, action } = this.props;
 
     return (
       <EmailPasswordForm
-        loading={loading}
+        loading={loading && action === LOGIN}
         handleFormSubmit={this.handleFormSubmit}
       />
     );
@@ -24,8 +24,8 @@ class Login extends Component {
 }
 
 function mapStateToProps(state) {
-  const { loading, error } = state.authReducer;
-  return { loading, error };
+  const { loading, error, action } = state.authReducer;
+  return { loading, error, action };
 }
 
 function mapDispatchToProps(dispatch) {

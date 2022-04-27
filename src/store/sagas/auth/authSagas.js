@@ -9,7 +9,7 @@ import {
 import { AUTH_LISTENER, LOGIN, LOGOUT } from "../../actions/authActions";
 import { auth } from "../../../utils/firebase";
 
-import { start, success, fail, newUser } from "../../slices/authSlice";
+import { start, success, fail } from "../../slices/authSlice";
 
 function removeUser() {
   // console.log("removing current user if any!");
@@ -22,7 +22,7 @@ function removeUser() {
 }
 
 export function* logout() {
-  yield put(start());
+  yield put(start(LOGOUT));
   console.log("logging out");
 
   try {
@@ -56,7 +56,7 @@ function authStateChannel() {
 }
 
 export function* activeAuthListener() {
-  yield put(start());
+  yield put(start(AUTH_LISTENER));
   const channel = yield call(authStateChannel);
 
   try {
@@ -102,8 +102,7 @@ export function* watchAuthListener() {
 }
 
 export function* login({ data }) {
-  yield put(start());
-  yield put(newUser(true));
+  yield put(start(LOGIN));
   const { email, password } = data;
 
   async function signin() {
@@ -125,7 +124,6 @@ export function* login({ data }) {
 
     const userProfile = yield call(signin);
 
-    yield put(newUser(false));
     yield put(success(userProfile));
   } catch (error) {
     console.log(error);

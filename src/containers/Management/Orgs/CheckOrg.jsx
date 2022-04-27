@@ -13,7 +13,11 @@ class CheckOrg extends Component {
   render() {
     const { loading, children, action } = this.props;
 
-    return loading && action === CHECK_ORG ? <FullPageSpinner /> : children;
+    return loading && action === CHECK_ORG ? (
+      <FullPageSpinner label="Loading Details..." />
+    ) : (
+      children
+    );
   }
 }
 

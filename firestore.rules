@@ -6,6 +6,10 @@ service cloud.firestore {
     //       // request.time < timestamp.date(2022, 2, 19);
 
     // }
+    match /users/{userId} {
+      allow read, create, update: if request.auth.uid == request.resource.data.user_id 
+    }
+
     match /organizations/{orgId} {
       function isOrgOwner(){
          return resource.data.owner == request.auth.uid;

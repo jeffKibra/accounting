@@ -10,7 +10,6 @@ import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
 
 function PasswordInput(props) {
   const [visible, setVisibility] = useState(false);
-  console.log({ props });
   const { register } = props;
 
   function changeVisibility() {

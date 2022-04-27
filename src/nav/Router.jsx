@@ -19,7 +19,7 @@ import CreateUserPage from "../pages/Auth/CreateUserPage";
 
 function Router() {
   const userProfile = useAuth();
-  console.log({ userProfile });
+  // console.log({ userProfile });
 
   return (
     <>

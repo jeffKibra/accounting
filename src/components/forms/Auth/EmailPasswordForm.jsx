@@ -16,7 +16,7 @@ import { Link } from "react-router-dom";
 import * as routes from "../../../nav/routes";
 import PasswordInput from "../../ui/PasswordInput";
 
-import Card, { CardContent, CardHeader } from "../../ui/Card";
+import { CardHeader } from "../../ui/Card";
 
 function EmailPasswordForm(props) {
   const {
@@ -28,69 +28,73 @@ function EmailPasswordForm(props) {
   const { handleFormSubmit, loading } = props;
 
   return (
-    <Box w={350} maxW="90%">
-      <Card>
+    <Flex w="full" justify="center" align="center">
+      <Box bg="white" borderRadius="md" shadow="md" w={350} maxW="90%">
         <Box textAlign="center">
           <CardHeader>Accounts</CardHeader>
         </Box>
 
-        <CardContent>
-          <form onSubmit={handleSubmit(handleFormSubmit)}>
-            <VStack spacing={2}>
-              <FormControl
-                isDisabled={loading}
-                isRequired
-                isInvalid={!!errors.email}
-              >
-                <FormLabel>Email</FormLabel>
-                <Input
-                  {...register("email", {
+        <Box
+          p={4}
+          as="form"
+          role="form"
+          onSubmit={handleSubmit(handleFormSubmit)}
+        >
+          <VStack spacing={2}>
+            <FormControl
+              isDisabled={loading}
+              isRequired
+              isInvalid={!!errors.email}
+            >
+              <FormLabel>Email</FormLabel>
+              <Input
+                {...register("email", {
+                  required: { value: true, message: "Required!" },
+                })}
+              />
+              <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
+            </FormControl>
+
+            <FormControl
+              isDisabled={loading}
+              isRequired
+              isInvalid={!!errors.password}
+            >
+              <FormLabel>Password</FormLabel>
+              <PasswordInput
+                register={() =>
+                  register("password", {
                     required: { value: true, message: "Required!" },
-                  })}
-                />
-                <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
-              </FormControl>
+                  })
+                }
+              />
+              <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
+            </FormControl>
 
-              <FormControl
-                isDisabled={loading}
-                isRequired
-                isInvalid={!!errors.password}
-              >
-                <FormLabel>Password</FormLabel>
-                <PasswordInput
-                  register={() =>
-                    register("password", {
-                      required: { value: true, message: "Required!" },
-                    })
-                  }
-                />
-                <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
-              </FormControl>
+            <Button
+              style={{ marginTop: 16 }}
+              colorScheme="cyan"
+              isFullWidth
+              type="submit"
+              isLoading={loading}
+            >
+              login
+            </Button>
+          </VStack>
+        </Box>
 
-              <Button
-                style={{ marginTop: 16 }}
-                colorScheme="cyan"
-                isFullWidth
-                type="submit"
-                isLoading={loading}
-              >
-                login
+        <Flex p={4} pt={0} justifyContent="center">
+          <Text>
+            Don't have an Account?{" "}
+            <Link to={routes.SIGNUP}>
+              <Button isDisabled={loading} variant="link">
+                signup
               </Button>
-            </VStack>
-          </form>
-          {!loading && (
-            <Flex mt="16px" justifyContent="center">
-              <Text>
-                Don't have an Account?{" "}
-                <Link to={routes.SIGNUP}>
-                  <Button variant="link">signup</Button>
-                </Link>
-              </Text>
-            </Flex>
-          )}
-        </CardContent>
-      </Card>
-    </Box>
+            </Link>
+          </Text>
+        </Flex>
+      </Box>
+    </Flex>
   );
 }
 

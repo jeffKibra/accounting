@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   loading: false,
   userProfile: null,
-  isNewUser: false,
+  action: null,
   error: null,
 };
 
@@ -13,18 +13,12 @@ const authSlice = createSlice({
     ...initialState,
   },
   reducers: {
-    newUser: (state, action) => {
+    start: (state, action) => {
       const { payload } = action;
-
-      return {
-        ...state,
-        isNewUser: payload,
-      };
-    },
-    start: (state) => {
       return {
         ...state,
         loading: true,
+        action: payload,
         error: null,
       };
     },
@@ -37,15 +31,6 @@ const authSlice = createSlice({
         userProfile: payload,
       };
     },
-    userOrgsSuccess: (state, action) => {
-      const { payload } = action;
-
-      return {
-        ...state,
-        loading: false,
-        userProfile: { ...state.userProfile, orgs: payload },
-      };
-    },
     fail: (state, action) => {
       const { payload } = action;
 
@@ -56,7 +41,6 @@ const authSlice = createSlice({
       };
     },
     reset: (state) => {
-      console.log({ yy: this });
       return {
         ...initialState,
       };
@@ -64,8 +48,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { start, success, fail, reset, newUser, userOrgsSuccess } =
-  authSlice.actions;
+export const { start, success, fail, reset } = authSlice.actions;
 
 export const authReducer = authSlice.reducer;
 

@@ -24,12 +24,7 @@ function Layout(props) {
   return (
     <Flex direction="column" h="100vh" minW="full" overflowY="hidden">
       {isFreeRoute ? (
-        <Flex
-          flexGrow={1}
-          justifyContent="center"
-          alignItems="center"
-          overflowY="auto"
-        >
+        <Flex flexGrow={1} overflowY="hidden">
           {children}
         </Flex>
       ) : (

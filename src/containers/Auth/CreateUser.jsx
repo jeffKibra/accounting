@@ -7,7 +7,7 @@ import { CREATE_USER } from "../../store/actions/authActions";
 import CreateAccountForm from "../../components/forms/Auth/CreateAccountForm";
 
 function CreateUser(props) {
-  const { loading, error, create } = props;
+  const { loading, error, create, action } = props;
   const toasts = useToasts();
 
   useEffect(() => {
@@ -16,15 +16,21 @@ function CreateUser(props) {
     }
   }, [error, toasts]);
 
-  return <CreateAccountForm handleFormSubmit={create} loading={loading} />;
+  return (
+    <CreateAccountForm
+      handleFormSubmit={create}
+      loading={loading && action === CREATE_USER}
+    />
+  );
 }
 
 function mapStateToProps(state) {
-  const { loading, error } = state.authReducer;
+  const { loading, error, action } = state.authReducer;
 
   return {
     loading,
     error,
+    action,
   };
 }
 

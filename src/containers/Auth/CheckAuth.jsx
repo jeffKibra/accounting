@@ -9,7 +9,7 @@ import { AUTH_LISTENER } from "../../store/actions/authActions";
 import FullPageSpinner from "../../components/ui/FullPageSpinner";
 
 export function CheckAuth(props) {
-  const { authListener, loading, error, isNewUser, children } = props;
+  const { authListener, loading, error, action, children } = props;
   const toasts = useToasts();
 
   useEffect(() => {
@@ -22,7 +22,11 @@ export function CheckAuth(props) {
     }
   }, [error, toasts]);
 
-  return loading && !isNewUser ? <FullPageSpinner /> : children;
+  return loading && action === AUTH_LISTENER ? (
+    <FullPageSpinner label="Loading User..." />
+  ) : (
+    children
+  );
 }
 
 CheckAuth.propTypes = {
@@ -30,13 +34,13 @@ CheckAuth.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const { loading, userProfile, error, isNewUser } = state.authReducer;
-  // console.log({ loading, isNewUser });
+  const { loading, userProfile, error, action } = state.authReducer;
+  // console.log({ loading, action });
   return {
     loading,
     userProfile,
     error,
-    isNewUser,
+    action,
   };
 }
 
