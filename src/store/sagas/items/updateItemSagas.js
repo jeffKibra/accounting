@@ -20,7 +20,8 @@ function* updateItem({ data }) {
   const orgId = org.id;
 
   async function update() {
-    const { itemId, slug } = data;
+    const { itemId, ...rest } = data;
+    const { slug } = rest;
     const similarItem = await getSimilarItem(orgId, slug);
 
     if (similarItem) {
@@ -31,7 +32,7 @@ function* updateItem({ data }) {
     }
 
     return updateDoc(doc(db, "organizations", orgId, "items", itemId), {
-      ...data,
+      ...rest,
       modifiedBy: name,
       modifiedAt: serverTimestamp(),
     });

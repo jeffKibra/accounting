@@ -1,9 +1,67 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true
-          // request.time < timestamp.date(2022, 2, 19);
+    // match /{document=**} {
+    //   allow read, write: if true
+    //       // request.time < timestamp.date(2022, 2, 19);
+
+    // }
+    match /organizations/{orgId} {
+      allow read, update: if resource.data.owner == request.auth.uid;
+      allow create: if request.auth != null;
+
+      function getOrgData(){
+        return get(/databases/$(database)/documents/organizations/$(orgId)).data
+      }
+
+      function isOwner(){
+        return request.auth.uid == getOrgData().owner
+      }
+
+      function verifyItemData(){
+        let general=['name', 'type', 'status', 'slug', 'createdBy', 'modifiedBy', 'createdAt', 'modifiedAt'];
+        let extras=['costAccount', 'costPrice', 'sellingAccount', 'sellingPrice'];
+        let required= general.concat(extras);
+        let optional=['variant', 'costDetails', 'costTax', 'itemDescription', 'sellingDetails', 'sellingTax'];
+        let allFields=required.concat(optional);
+
+        return request.resource.data.keys().hasAll(required) &&
+          request.resource.data.keys().hasOnly(allFields) &&
+          request.resource.data.name is string &&
+          request.resource.data.type is string &&
+          request.resource.data.status is string &&
+          request.resource.data.slug is string &&
+          request.resource.data.createdBy is string &&
+          request.resource.data.modifiedBy is string &&
+          request.resource.data.createdAt is timestamp &&
+          request.resource.data.modifiedAt is timestamp &&
+          request.resource.data.costAccount is string &&
+          request.resource.data.costPrice is int &&
+          request.resource.data.sellingAccount is string &&
+          request.resource.data.sellingPrice is int &&
+          request.resource.data.variant is string &&
+          request.resource.data.costDetails is string &&
+          request.resource.data.costTax is string &&
+          request.resource.data.itemDescription is string &&
+          request.resource.data.sellingDetails is string &&
+          request.resource.data.sellingTax is string
+      }
+
+      function allowItemUpdate(){
+        let cost=['costDetails', 'costAccount', 'costPrice', 'costTax'];
+        let selling=['sellingDetails', 'sellingAccount', 'sellingPrice', 'sellingTax'];
+        let general=['name', 'variant', 'slug', 'status', 'type', 'itemDescription', 'modifiedAt', 'modifiedBy'];
+        let allowed=general.concat(selling).concat(cost);
+
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowed)
+      }
+
+      match /items/{itemId} {
+        allow read: if isOwner();
+        allow create: if isOwner() && verifyItemData();
+        allow update: if isOwner() && verifyItemData() && allowItemUpdate()
+      }
     }
+    
   }
 }

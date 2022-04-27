@@ -13,12 +13,7 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 
-import {
-  AUTH_LISTENER,
-  LOGIN,
-  LOGOUT,
-  GET_USER_ORGS,
-} from "../../actions/authActions";
+import { AUTH_LISTENER, LOGIN, LOGOUT } from "../../actions/authActions";
 import { auth } from "../../../utils/firebase";
 
 import { start, success, fail, reset, newUser } from "../../slices/authSlice";
@@ -95,7 +90,7 @@ export function* activeAuthListener() {
       if (!isNewUser) {
         yield put(success(claims));
 
-        yield put({ type: GET_USER_ORGS });
+        // yield put({ type: GET_USER_ORGS });
       }
     }
   } catch (err) {
@@ -133,7 +128,7 @@ export function* login({ data }) {
     yield put(newUser(false));
     yield put(success(userProfile));
 
-    yield put({ type: GET_USER_ORGS });
+    // yield put({ type: GET_USER_ORGS });
   } catch (error) {
     console.log(error);
     yield put(fail(error));
