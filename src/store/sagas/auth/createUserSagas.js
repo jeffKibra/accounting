@@ -32,7 +32,7 @@ function* createUser({ data }) {
       doc(db, "users", claims.sub),
       {
         ...claims,
-        orgs: [],
+        org: "",
       },
       { merge: true }
     );

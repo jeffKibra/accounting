@@ -1,11 +1,4 @@
-import {
-  put,
-  call,
-  takeEvery,
-  takeLatest,
-  take,
-  select,
-} from "redux-saga/effects";
+import { put, call, takeLatest, take, select } from "redux-saga/effects";
 import { eventChannel } from "redux-saga";
 import {
   signInWithEmailAndPassword,
@@ -16,29 +9,35 @@ import {
 import { AUTH_LISTENER, LOGIN, LOGOUT } from "../../actions/authActions";
 import { auth } from "../../../utils/firebase";
 
-import { start, success, fail, reset, newUser } from "../../slices/authSlice";
+import { start, success, fail, newUser } from "../../slices/authSlice";
+
+function removeUser() {
+  // console.log("removing current user if any!");
+  //remove blog data
+  localStorage.removeItem("org");
+  //remove location data
+  localStorage.removeItem("location");
+
+  return signOut(auth);
+}
 
 export function* logout() {
   yield put(start());
   console.log("logging out");
 
-  function out() {
-    return signOut(auth);
-  }
-
   try {
-    yield call(out);
+    yield call(removeUser);
 
-    console.log("logged out!");
-    yield put(reset());
+    // console.log("logged out!");
+    // yield put(reset());
   } catch (error) {
     console.log(error);
     yield put(fail(error));
   }
 }
 
-export function* watchLogout() {
-  yield takeEvery(LOGOUT, logout);
+export function* watchLogout(data) {
+  yield takeLatest(LOGOUT, logout);
 }
 
 function authStateChannel() {
@@ -76,21 +75,20 @@ export function* activeAuthListener() {
           const user = await userRecord.getIdTokenResult();
           return user;
         }
-        console.log("user found");
+        // console.log("user found");
         const user = yield call(getUser);
 
         claims = user.claims;
       } else {
-        console.log("no user logged in");
+        // console.log("no user logged in");
         claims = null;
       }
 
       const isNewUser = yield select((state) => state.authReducer.isNewUser);
+      // console.log({ claims });
 
       if (!isNewUser) {
         yield put(success(claims));
-
-        // yield put({ type: GET_USER_ORGS });
       }
     }
   } catch (err) {
@@ -123,12 +121,12 @@ export function* login({ data }) {
   }
 
   try {
+    yield call(removeUser);
+
     const userProfile = yield call(signin);
 
     yield put(newUser(false));
     yield put(success(userProfile));
-
-    // yield put({ type: GET_USER_ORGS });
   } catch (error) {
     console.log(error);
     yield put(fail(error));

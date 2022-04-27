@@ -14,8 +14,14 @@ import { db } from "../../../utils/firebase";
 
 import { start, success, fail } from "../../slices/orgsSlice";
 import { CREATE_ORG } from "../../actions/orgsActions";
+import {
+  success as toastSuccess,
+  error as toastError,
+} from "../../slices/toastSlice";
 
 export function getOrg(userId) {
+  // console.log("getting org", userId);
+
   const q = query(
     collection(db, "organizations"),
     where("owner", "==", userId),
@@ -66,7 +72,7 @@ function* createOrg({ data }) {
   }
 
   try {
-    const userHasOrg = yield call(getOrg, data.name);
+    const userHasOrg = yield call(getOrg, user_id);
 
     if (userHasOrg) {
       throw new Error("The User already has an orgnaization account!");
@@ -76,9 +82,11 @@ function* createOrg({ data }) {
     // console.log({ org });
 
     yield put(success(org));
+    yield put(toastSuccess("Campany successfully created!"));
   } catch (err) {
     console.log(err);
     yield put(fail(err));
+    yield put(toastError(err.message));
   }
 }
 
