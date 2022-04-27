@@ -6,10 +6,15 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 
-import { AUTH_LISTENER, LOGIN, LOGOUT } from "../../actions/authActions";
+import {
+  AUTH_LISTENER,
+  LOGIN,
+  LOGOUT,
+  CREATE_USER,
+} from "../../actions/authActions";
 import { auth } from "../../../utils/firebase";
 
-import { start, success, fail } from "../../slices/authSlice";
+import { start, success, fail, reset } from "../../slices/authSlice";
 
 function removeUser() {
   // console.log("removing current user if any!");
@@ -29,7 +34,7 @@ export function* logout() {
     yield call(removeUser);
 
     // console.log("logged out!");
-    // yield put(reset());
+    yield put(reset());
   } catch (error) {
     console.log(error);
     yield put(fail(error));
@@ -84,10 +89,10 @@ export function* activeAuthListener() {
         claims = null;
       }
 
-      const isNewUser = yield select((state) => state.authReducer.isNewUser);
+      const action = yield select((state) => state.authReducer.action);
       // console.log({ claims });
 
-      if (!isNewUser) {
+      if (action !== CREATE_USER) {
         yield put(success(claims));
       }
     }

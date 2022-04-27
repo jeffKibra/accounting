@@ -40,7 +40,7 @@ const authSlice = createSlice({
         error: payload,
       };
     },
-    reset: (state) => {
+    reset: () => {
       return {
         ...initialState,
       };

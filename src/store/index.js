@@ -1,6 +1,7 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import createSagaMiddleware from "redux-saga";
 
+import { reset as authReset } from "./slices/authSlice";
 import rootSaga from "./sagas";
 
 import { toastReducer } from "./slices/toastSlice";
@@ -12,13 +13,22 @@ import { modifyItemsCategoriesReducer } from "./slices/itemsCategories/modifyIte
 const sagaMiddleware = createSagaMiddleware();
 
 const store = configureStore({
-  reducer: {
-    toastReducer,
-    authReducer,
-    orgsReducer,
-    itemsReducer,
-    modifyItemsCategoriesReducer,
+  reducer: (state, action) => {
+    const appReducer = combineReducers({
+      toastReducer,
+      authReducer,
+      orgsReducer,
+      itemsReducer,
+      modifyItemsCategoriesReducer,
+    });
+
+    if (action.type === authReset().type) {
+      return appReducer(undefined, action);
+    }
+
+    return appReducer(state, action);
   },
+
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ thunk: true, serializableCheck: false }).concat(
       sagaMiddleware

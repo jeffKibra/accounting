@@ -97,7 +97,6 @@ Toasts.propTypes = {
 
 function mapStateToProps(state) {
   const { info, warning, error, success } = state.toastReducer;
-
   return {
     infoMsg: info,
     warningMsg: warning,
