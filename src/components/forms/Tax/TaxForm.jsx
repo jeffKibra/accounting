@@ -16,17 +16,18 @@ import { useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 
 function TaxForm(props) {
-  const { handleFormSubmit, loading } = props;
+  const { handleFormSubmit, loading, tax } = props;
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({
     mode: "onChange",
+    ...(tax ? { defaultValues: { ...tax } } : {}),
   });
 
   return (
-    <Box bg="white" borderRadius="md" shadow="md" p={4}>
+    <Box bg="white" borderRadius="md" w="350px" maxW="90%" shadow="md" p={4}>
       <Box as="form" role="form" onSubmit={handleSubmit(handleFormSubmit)}>
         <FormControl isDisabled={loading} isRequired isInvalid={errors.name}>
           <FormLabel htmlFor="taxName">Tax Name</FormLabel>
@@ -58,7 +59,9 @@ function TaxForm(props) {
           <FormErrorMessage>{errors?.rate?.message}</FormErrorMessage>
         </FormControl>
         <Flex mt={4}>
-          <Button>save</Button>
+          <Button type="submit" isLoading={loading} colorScheme="cyan">
+            save
+          </Button>
         </Flex>
       </Box>
     </Box>
@@ -68,7 +71,7 @@ function TaxForm(props) {
 TaxForm.propTypes = {
   handleFormSubmit: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
-  defaultValues: PropTypes.shape({
+  tax: PropTypes.shape({
     name: PropTypes.string,
     rate: PropTypes.number,
   }),

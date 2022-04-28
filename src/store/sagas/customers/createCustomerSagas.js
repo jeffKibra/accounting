@@ -1,29 +1,29 @@
-import { put, takeLatest, select, call } from "redux-saga/effects";
+import { put, call, select, takeLatest } from "redux-saga/effects";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
 
-import { start, success, fail } from "../../slices/taxesSlice";
+import { CREATE_CUSTOMER } from "../../actions/customersActions";
+import { start, success, fail } from "../../slices/customersSlice";
 import {
   success as toastSuccess,
   error as toastError,
 } from "../../slices/toastSlice";
-import { CREATE_TAX } from "../../actions/taxesActions";
 
-function* createTax({ data }) {
-  yield put(start(CREATE_TAX));
+function* createCustomer({ data }) {
+  yield put(start(CREATE_CUSTOMER));
+
   const orgId = yield select((state) => state.orgsReducer.org.id);
   const userProfile = yield select((state) => state.authReducer.userProfile);
-  const { email } = userProfile;
-  console.log({ data });
+  const { email, user_id } = userProfile;
 
   async function create() {
-    await addDoc(collection(db, "organizations", orgId, "taxes"), {
+    await addDoc(collection(db, "organizations", orgId, "customers"), {
       ...data,
       status: "active",
       createdBy: email,
-      modifiedBy: email,
       createdAt: serverTimestamp(),
+      modifiedBy: email,
       modifiedAt: serverTimestamp(),
     });
   }
@@ -32,7 +32,7 @@ function* createTax({ data }) {
     yield call(create);
 
     yield put(success());
-    yield put(toastSuccess("Tax successfully created!"));
+    yield put(toastSuccess("Customer added successfully!"));
   } catch (error) {
     console.log(error);
     yield put(fail(error));
@@ -40,6 +40,6 @@ function* createTax({ data }) {
   }
 }
 
-export function* watchCreateTax() {
-  yield takeLatest(CREATE_TAX, createTax);
+export function* watchCreateCustomer() {
+  yield takeLatest(CREATE_CUSTOMER, createCustomer);
 }

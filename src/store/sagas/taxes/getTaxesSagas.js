@@ -42,11 +42,9 @@ function* getTaxes() {
   try {
     const taxes = yield call(get);
 
-    console.log({ taxes });
-
     yield put(taxesSuccess(taxes));
   } catch (error) {
-    console.log({ error });
+    console.log(error);
     yield put(fail(error));
     yield put(toastError(error.message));
   }
@@ -78,11 +76,9 @@ function* getTax({ taxId }) {
   try {
     const tax = yield call(get);
 
-    console.log({ tax });
-
     yield put(taxSuccess(tax));
   } catch (error) {
-    console.log({ error });
+    console.log(error);
     yield put(fail(error));
     yield put(toastError(error.message));
   }

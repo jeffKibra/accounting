@@ -66,7 +66,7 @@ service cloud.firestore {
           let general=['name', 'type', 'status', 'sku', 'unit', 'createdBy', 'modifiedBy', 'createdAt', 'modifiedAt'];
           let extras=['costAccount', 'costPrice', 'sellingAccount', 'sellingPrice'];
           let required= general.concat(extras);
-          let optional=['variant', 'costDetails', 'itemDescription', 'sellingDetails', 'tax'];
+          let optional=['variant', 'costDetails', 'itemDescription', 'sellingDetails', 'tax', 'taxId'];
           let allFields=required.concat(optional);
 
           return request.resource.data.keys().hasAll(required) &&
@@ -88,12 +88,13 @@ service cloud.firestore {
             request.resource.data.unit is string &&
             request.resource.data.itemDescription is string &&
             request.resource.data.sellingDetails is string &&
-            request.resource.data.tax is string
+            request.resource.data.tax is map &&
+            request.resource.data.taxId is string
         }
 
         function allowItemUpdate(){
           let cost=['costDetails', 'costAccount', 'costPrice'];
-          let selling=['sellingDetails', 'sellingAccount', 'sellingPrice', 'tax'];
+          let selling=['sellingDetails', 'sellingAccount', 'sellingPrice', 'tax', 'taxId'];
           let general=['name', 'variant', 'sku', 'status', 'type', 'unit', 'itemDescription', 'modifiedAt', 'modifiedBy'];
           let allowed=general.concat(selling).concat(cost);
 
@@ -104,7 +105,33 @@ service cloud.firestore {
         allow create: if isOwner() && verifyItemData();
         allow update: if isOwner() && verifyItemData() && allowItemUpdate()
       }
+
+      match /taxes/{taxId} {
+        function verifyTaxData(){
+          let general=['name', 'rate', 'status', 'createdAt', 'createdBy', 'modifiedBy', 'modifiedAt'];
+          
+          return request.resource.data.keys().hasAll(general) &&
+            request.resource.data.keys().hasOnly(general) &&
+            request.resource.data.name is string &&
+            request.resource.data.rate is int &&
+            request.resource.data.status is string &&
+            request.resource.data.createdAt is timestamp &&
+            request.resource.data.createdBy is string &&
+            request.resource.data.modifiedBy is string &&
+            request.resource.data.modifiedAt is timestamp
+        }
+
+        function allowTaxUpdate(){
+          let general=['name', 'rate', 'status', 'modifiedBy', 'modifiedAt'];
+
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(general)
+        }
+
+        allow read: if isOwner()
+        allow create: if isOwner() && verifyTaxData()
+        allow update: if isOwner() && verifyTaxData() && allowTaxUpdate()
+
+      }
     }
-    
   }
 }

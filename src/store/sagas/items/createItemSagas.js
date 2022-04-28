@@ -48,7 +48,7 @@ function* createItem({ data }) {
   const { name } = userProfile;
   const org = yield select((state) => state.orgsReducer.org);
   const orgId = org.id;
-  console.log({ data });
+  // console.log({ data });
   async function create() {
     const { sku } = data;
     //check if there is another item with similar itemId

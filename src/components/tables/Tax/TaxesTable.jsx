@@ -14,15 +14,18 @@ function TaxesTable(props) {
       { Header: "", accessor: "actions" },
       { Header: "Name", accessor: "name" },
       { Header: "Rate", accessor: "rate" },
+      { Header: "Status", accessor: "status" },
+      { Header: "Date Created", accessor: "createdAt" },
     ];
   }, []);
 
   const data = useMemo(() => {
     return taxes.map((tax) => {
-      const { taxId, name, rate } = tax;
+      const { taxId, name, rate, createdAt } = tax;
 
       return {
         ...tax,
+        createdAt: new Date(createdAt.seconds * 1000).toDateString(),
         actions: (
           <TableActions
             editRoute={`${taxId}/edit`}
@@ -39,7 +42,7 @@ function TaxesTable(props) {
                       Tax Name: <b>{name}</b>
                     </Text>
                     <Text>
-                      Tax Rate: <b>{rate}</b>
+                      Tax Rate: <b>{rate} %</b>
                     </Text>
                   </Box>
                   <Text>NOTE:::THIS ACTION CANNOT BE UNDONE!</Text>
@@ -59,7 +62,7 @@ TaxesTable.propTypes = {
   taxes: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
-      rate: PropTypes.string,
+      rate: PropTypes.number.isRequired,
       taxId: PropTypes.string.isRequired,
     })
   ),

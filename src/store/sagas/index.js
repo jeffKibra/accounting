@@ -12,6 +12,20 @@ import { watchCreateItem } from "./items/createItemSagas";
 import { watchGetItem, watchGetItems } from "./items/getItemsSaga";
 import { watchUpdateItem } from "./items/updateItemSagas";
 import { watchDeleteItem } from "./items/updateItemSagas";
+//taxes
+import { watchCreateTax } from "./taxes/createTaxSagas";
+import { watchGetTax, watchGetTaxes } from "./taxes/getTaxesSagas";
+import { watchUpdateTax, watchDeleteTax } from "./taxes/updateTaxSagas";
+//customers
+import { watchCreateCustomer } from "./customers/createCustomerSagas";
+import {
+  watchUpdateCustomer,
+  watchDeleteCustomer,
+} from "./customers/updateCustomerSagas";
+import {
+  watchGetCustomer,
+  watchGetCustomers,
+} from "./customers/getCustomersSagas";
 //categories
 import { watchCreateItemCategory } from "./itemsCategories/createItemCategorySagas";
 
@@ -31,6 +45,16 @@ export default function* rootSaga() {
     watchGetItems(),
     watchUpdateItem(),
     watchDeleteItem(),
+    watchCreateTax(),
+    watchGetTax(),
+    watchGetTaxes(),
+    watchUpdateTax(),
+    watchDeleteTax(),
+    watchCreateCustomer(),
+    watchUpdateCustomer(),
+    watchDeleteCustomer(),
+    watchGetCustomer(),
+    watchGetCustomers(),
     watchCreateItemCategory(),
   ]);
 }
