@@ -8,7 +8,7 @@ function EditCustomerPage() {
   useSavedLocation().setLocation();
 
   return (
-    <PageLayout pageTitle="Customers">
+    <PageLayout pageTitle="Edit Customer">
       <EditCustomer />
     </PageLayout>
   );

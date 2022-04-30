@@ -8,7 +8,7 @@ function NewCustomerPage() {
   useSavedLocation().setLocation();
 
   return (
-    <PageLayout pageTitle="Customers">
+    <PageLayout pageTitle="New Customer">
       <NewCustomer />
     </PageLayout>
   );

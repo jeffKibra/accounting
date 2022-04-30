@@ -1,7 +1,44 @@
-import React from "react";
+import { useEffect } from "react";
+import { connect } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-function NewCustomer() {
-  return <div>NewCustomer</div>;
+import { CUSTOMERS } from "../../../nav/routes";
+
+import { CREATE_CUSTOMER } from "../../../store/actions/customersActions";
+import { reset } from "../../../store/slices/customersSlice";
+
+import CustomerForm from "../../../components/forms/CustomerForms/CustomerForm";
+
+function NewCustomer(props) {
+  const { loading, action, isModified, createCustomer, resetCustomer } = props;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isModified) {
+      resetCustomer();
+      navigate(CUSTOMERS);
+    }
+  }, [isModified, resetCustomer, navigate]);
+
+  return (
+    <CustomerForm
+      loading={loading && action === CREATE_CUSTOMER}
+      handleFormSubmit={createCustomer}
+    />
+  );
 }
 
-export default NewCustomer;
+function mapStateToProps(state) {
+  const { loading, action, isModified } = state.customersReducer;
+
+  return { loading, action, isModified };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    createCustomer: (data) => dispatch({ type: CREATE_CUSTOMER, data }),
+    resetCustomer: () => dispatch(reset()),
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(NewCustomer);

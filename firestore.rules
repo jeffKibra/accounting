@@ -132,6 +132,52 @@ service cloud.firestore {
         allow update: if isOwner() && verifyTaxData() && allowTaxUpdate()
 
       }
+
+      match /customers/{customerId} {
+        function verifyCustomerData(){
+          let req=['type', 'firstName', 'lastName', 'displayName', 'workPhone', 'city', 'address'];
+          let additional=['status', 'createdAt', 'createdBy', 'modifiedAt', 'modifiedBy'];
+          let required=req.concat(additional);
+          let optional=['companyName', 'email', 'mobile', 'zipcode', 'website', 'remarks', 'openingBalance'];
+          let allFields=required.concat(optional);
+
+          return request.resource.data.keys().hasAll(required) &&
+            request.resource.data.keys().hasOnly(allFields) &&
+            request.resource.data.status is string &&
+            request.resource.data.type is string &&
+            request.resource.data.firstName is string &&
+            request.resource.data.lastName is string &&
+            request.resource.data.companyName is string &&
+            request.resource.data.displayName is string &&
+            request.resource.data.email is string &&
+            request.resource.data.workPhone is string &&
+            request.resource.data.mobile is string &&
+            request.resource.data.openingBalance is int &&
+            request.resource.data.city is string &&
+            request.resource.data.zipcode is string &&
+            request.resource.data.website is string &&
+            request.resource.data.address is string &&
+            request.resource.data.remarks is string &&
+            request.resource.data.createdAt is timestamp &&
+            request.resource.data.modifiedAt is timestamp &&
+            request.resource.data.createdBy is string &&
+            request.resource.data.modifiedBy is string
+        }
+
+        function allowCustomerUpdate(){
+          let req=['type', 'firstName', 'lastName', 'displayName', 'workPhone', 'city', 'address'];
+          let additional=['status', 'modifiedAt', 'modifiedBy'];
+          let required=req.concat(additional);
+          let optional=['companyName', 'email', 'mobile', 'zipcode', 'website', 'remarks'];
+          let allFields=required.concat(optional);
+
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+        }
+        
+        allow read: if isOwner()
+        allow create: if isOwner() && verifyCustomerData()
+        allow update: if isOwner() && verifyCustomerData() && allowCustomerUpdate()
+      }
     }
   }
 }

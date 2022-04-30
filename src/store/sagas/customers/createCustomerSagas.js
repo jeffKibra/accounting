@@ -15,7 +15,7 @@ function* createCustomer({ data }) {
 
   const orgId = yield select((state) => state.orgsReducer.org.id);
   const userProfile = yield select((state) => state.authReducer.userProfile);
-  const { email, user_id } = userProfile;
+  const { email } = userProfile;
 
   async function create() {
     await addDoc(collection(db, "organizations", orgId, "customers"), {
