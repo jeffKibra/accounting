@@ -23,7 +23,7 @@ import {
   NumberDecrementStepper,
   FormHelperText,
 } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import PropTypes from "prop-types";
 
 const units = [
@@ -81,7 +81,6 @@ const purchaseAccounts = [
 ];
 
 function ItemFormComponent(props) {
-  console.log({ props });
   const { handleFormSubmit, item, loading, taxes } = props;
   const {
     register,
@@ -89,6 +88,7 @@ function ItemFormComponent(props) {
     formState: { errors },
     watch,
     setValue,
+    control,
   } = useForm({ mode: "onChange", defaultValues: { ...item } });
 
   const itemName = watch("name");
@@ -112,7 +112,6 @@ function ItemFormComponent(props) {
     setValue("sku", id);
   }, [itemName, itemVariant, setValue]);
 
-  // console.log(errors);
   return (
     <Box
       bg="white"
@@ -152,17 +151,30 @@ function ItemFormComponent(props) {
               isInvalid={errors.type}
             >
               <FormLabel htmlFor="type">Item Type</FormLabel>
-              <RadioGroup defaultValue="goods">
-                <Stack
-                  direction="row"
-                  {...register("type", {
-                    required: { value: true, message: "Required" },
-                  })}
-                >
-                  <Radio value="goods">Goods</Radio>
-                  <Radio value="service">Service</Radio>
-                </Stack>
-              </RadioGroup>
+              <Controller
+                control={control}
+                name="type"
+                defaultValue="goods"
+                render={({ field: { name, onChange, value, ref, onBlur } }) => {
+                  // console.log({ value });
+                  return (
+                    <RadioGroup
+                      id="type"
+                      name={name}
+                      ref={ref}
+                      onChange={onChange}
+                      value={value}
+                      onBlur={onBlur}
+                      // defaultValue="individual"
+                    >
+                      <Stack spacing={2} direction="row">
+                        <Radio value="goods">Goods</Radio>
+                        <Radio value="service">Service</Radio>
+                      </Stack>
+                    </RadioGroup>
+                  );
+                }}
+              />
 
               <FormErrorMessage>{errors?.type?.message}</FormErrorMessage>
             </FormControl>
@@ -182,9 +194,19 @@ function ItemFormComponent(props) {
           </GridItem>
 
           <GridItem colSpan={[12, 6]}>
-            <FormControl isDisabled w="full" isInvalid={errors.sku}>
+            <FormControl
+              isDisabled={loading}
+              isReadOnly
+              w="full"
+              isInvalid={errors.sku}
+            >
               <FormLabel htmlFor="sku">SKU</FormLabel>
-              <Input id="sku" {...register("sku")} />
+              <Input
+                id="sku"
+                {...register("sku", {
+                  required: { value: true, message: "*Required!" },
+                })}
+              />
               <FormHelperText>
                 (Stock Keeping Unit) Unique Item Identifier
               </FormHelperText>
@@ -425,9 +447,9 @@ function ItemFormComponent(props) {
   );
 }
 
-ItemFormComponent.defaultProps = {
-  item: { sku: "" },
-};
+// ItemFormComponent.defaultProps = {
+//   item: { sku: "" },
+// };
 
 ItemFormComponent.propTypes = {
   handleFormSubmit: PropTypes.func.isRequired,

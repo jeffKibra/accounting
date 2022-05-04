@@ -25,7 +25,7 @@ function ItemForm(props) {
   function handleSubmit(data) {
     // console.log({ data });
     const { taxId } = data;
-    let tax = null;
+    let tax = {};
 
     if (taxId) {
       const temp = taxes.find((tax) => tax.taxId === taxId);
@@ -37,7 +37,7 @@ function ItemForm(props) {
 
     const newData = {
       ...data,
-      ...(tax ? { tax } : {}),
+      tax,
     };
     // console.log({ newData });
     handleFormSubmit(newData);
