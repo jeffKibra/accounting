@@ -21,7 +21,7 @@ import PropTypes from "prop-types";
 import { useForm, Controller } from "react-hook-form";
 
 function DetailsForm(props) {
-  const { loading, next, details, handleFormSubmit } = props;
+  const { loading, defaultValues, handleFormSubmit } = props;
   const {
     register,
     formState: { errors },
@@ -31,20 +31,15 @@ function DetailsForm(props) {
     control,
   } = useForm({
     mode: "onChange",
-    ...(details ? { defaultValues: { ...details } } : {}),
+    defaultValues: defaultValues || {},
   });
   // console.log({ details });
 
-  function onSubmit(data) {
-    next();
-    handleFormSubmit(data);
-  }
-
   useEffect(() => {
-    if (details) {
-      reset(details);
+    if (defaultValues) {
+      reset(defaultValues);
     }
-  }, [reset, details]);
+  }, [reset, defaultValues]);
 
   const [firstName, lastName, companyName] = watch([
     "firstName",
@@ -61,7 +56,7 @@ function DetailsForm(props) {
       w={["full", "90%", "80%"]}
       as="form"
       role="form"
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(handleFormSubmit)}
     >
       <Grid
         columnGap={4}
@@ -226,7 +221,6 @@ function DetailsForm(props) {
 
 DetailsForm.propTypes = {
   loading: PropTypes.bool.isRequired,
-  next: PropTypes.func.isRequired,
   handleFormSubmit: PropTypes.func.isRequired,
   details: PropTypes.shape({
     type: PropTypes.string,

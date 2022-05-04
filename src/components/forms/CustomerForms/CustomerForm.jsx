@@ -1,66 +1,30 @@
-import { useState } from "react";
+// import { useState } from "react";
 import PropTypes from "prop-types";
 
 import DetailsForm from "./DetailsForm";
 import ExtraDetailsForm from "./ExtraDetailsForm";
 
-import Stepper from "../../ui/Stepper";
+import StepperForm from "../../ui/StepperForm";
 
 function CustomerForm(props) {
   const { loading, handleFormSubmit, customer } = props;
 
-  const [formValues, setFormValues] = useState({ ...customer });
-
-  function updateValues(data) {
-    setFormValues((current) => {
-      return {
-        ...current,
-        ...data,
-      };
-    });
-  }
-
-  function saveCustomer(extras) {
-    updateValues(extras);
-    const data = {
-      ...formValues,
-      ...extras,
-    };
-
-    // console.log({ data });
-
-    handleFormSubmit(data);
-  }
-
   return (
-    <Stepper
-      renderSteps={(prevStep, nextStep) => {
-        return [
-          {
-            label: "General Details",
-            content: (
-              <DetailsForm
-                details={formValues}
-                handleFormSubmit={updateValues}
-                loading={loading}
-                next={nextStep}
-              />
-            ),
-          },
-          {
-            label: "Extra Details",
-            content: (
-              <ExtraDetailsForm
-                extraDetails={formValues}
-                handleFormSubmit={saveCustomer}
-                updateValues={updateValues}
-                loading={loading}
-                prev={prevStep}
-              />
-            ),
-          },
-        ];
-      }}
+    <StepperForm
+      defaultValues={customer}
+      handleFormSubmit={handleFormSubmit}
+      steps={[
+        {
+          label: "General Details",
+          form: DetailsForm,
+          props: { loading },
+        },
+        {
+          label: "Extra Details",
+          form: ExtraDetailsForm,
+          props: { loading },
+        },
+      ]}
     />
   );
 }

@@ -20,7 +20,8 @@ import PropTypes from "prop-types";
 import { useForm } from "react-hook-form";
 
 function ExtraDetailsForm(props) {
-  const { loading, prev, extraDetails, handleFormSubmit, updateValues } = props;
+  const { loading, prev, defaultValues, handleFormSubmit } = props;
+  console.log({ props });
   const {
     register,
     formState: { errors },
@@ -29,28 +30,19 @@ function ExtraDetailsForm(props) {
     watch,
   } = useForm({
     mode: "onChange",
-    ...(extraDetails
-      ? { defaultValues: { ...extraDetails } }
-      : { openingBalance: 0 }),
+    defaultValues: defaultValues || {},
   });
 
   useEffect(() => {
-    if (extraDetails) {
-      reset({ ...extraDetails });
+    if (defaultValues) {
+      reset({ ...defaultValues });
     }
-  }, [extraDetails, reset]);
-
-  function onSubmit(data) {
-    handleFormSubmit(data);
-  }
+  }, [defaultValues, reset]);
 
   const formValues = watch();
 
   function goBack() {
-    //save current data
-    updateValues(formValues);
-    //move the steps backward
-    prev();
+    prev(formValues);
   }
 
   return (
@@ -62,7 +54,7 @@ function ExtraDetailsForm(props) {
       borderRadius="md"
       shadow="md"
       w={["full", "90%", "80%"]}
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(handleFormSubmit)}
     >
       <Grid
         columnGap={4}
@@ -175,8 +167,7 @@ ExtraDetailsForm.propTypes = {
   loading: PropTypes.bool.isRequired,
   prev: PropTypes.func.isRequired,
   handleFormSubmit: PropTypes.func.isRequired,
-  updateValues: PropTypes.func.isRequired,
-  extraDetails: PropTypes.shape({
+  defaultValues: PropTypes.shape({
     address: PropTypes.string,
     city: PropTypes.string,
     zipcode: PropTypes.string,
