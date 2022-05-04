@@ -1,14 +1,13 @@
 import { useState } from "react";
-import { Step, Steps, useSteps } from "chakra-ui-steps";
 import PropTypes from "prop-types";
 
-// import AddressForm from "./ExtraDetailsForm";
 import DetailsForm from "./DetailsForm";
 import ExtraDetailsForm from "./ExtraDetailsForm";
 
+import Stepper from "../../ui/Stepper";
+
 function CustomerForm(props) {
   const { loading, handleFormSubmit, customer } = props;
-  const { activeStep, nextStep, prevStep } = useSteps({ initialStep: 0 });
 
   const [formValues, setFormValues] = useState({ ...customer });
 
@@ -33,43 +32,36 @@ function CustomerForm(props) {
     handleFormSubmit(data);
   }
 
-  const steps = [
-    {
-      label: "General Details",
-      content: (
-        <DetailsForm
-          details={formValues}
-          handleFormSubmit={updateValues}
-          loading={loading}
-          next={nextStep}
-        />
-      ),
-    },
-    {
-      label: "Extra Details",
-      content: (
-        <ExtraDetailsForm
-          extraDetails={formValues}
-          handleFormSubmit={saveCustomer}
-          loading={loading}
-          prev={prevStep}
-        />
-      ),
-    },
-  ];
-
-  // console.log({ activeStep, ln: steps.length });
-
   return (
-    <Steps activeStep={activeStep}>
-      {steps.map(({ label, content }, i) => {
-        return (
-          <Step label={label} key={i}>
-            {content}
-          </Step>
-        );
-      })}
-    </Steps>
+    <Stepper
+      renderSteps={(prevStep, nextStep) => {
+        return [
+          {
+            label: "General Details",
+            content: (
+              <DetailsForm
+                details={formValues}
+                handleFormSubmit={updateValues}
+                loading={loading}
+                next={nextStep}
+              />
+            ),
+          },
+          {
+            label: "Extra Details",
+            content: (
+              <ExtraDetailsForm
+                extraDetails={formValues}
+                handleFormSubmit={saveCustomer}
+                updateValues={updateValues}
+                loading={loading}
+                prev={prevStep}
+              />
+            ),
+          },
+        ];
+      }}
+    />
   );
 }
 

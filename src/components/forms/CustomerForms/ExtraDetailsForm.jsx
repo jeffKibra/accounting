@@ -20,12 +20,13 @@ import PropTypes from "prop-types";
 import { useForm } from "react-hook-form";
 
 function ExtraDetailsForm(props) {
-  const { loading, prev, extraDetails, handleFormSubmit } = props;
+  const { loading, prev, extraDetails, handleFormSubmit, updateValues } = props;
   const {
     register,
     formState: { errors },
     handleSubmit,
     reset,
+    watch,
   } = useForm({
     mode: "onChange",
     ...(extraDetails
@@ -41,6 +42,15 @@ function ExtraDetailsForm(props) {
 
   function onSubmit(data) {
     handleFormSubmit(data);
+  }
+
+  const formValues = watch();
+
+  function goBack() {
+    //save current data
+    updateValues(formValues);
+    //move the steps backward
+    prev();
   }
 
   return (
@@ -143,7 +153,7 @@ function ExtraDetailsForm(props) {
           isLoading={loading}
           variant="outline"
           colorScheme="cyan"
-          onClick={prev}
+          onClick={goBack}
         >
           prev
         </Button>
@@ -165,6 +175,7 @@ ExtraDetailsForm.propTypes = {
   loading: PropTypes.bool.isRequired,
   prev: PropTypes.func.isRequired,
   handleFormSubmit: PropTypes.func.isRequired,
+  updateValues: PropTypes.func.isRequired,
   extraDetails: PropTypes.shape({
     address: PropTypes.string,
     city: PropTypes.string,
