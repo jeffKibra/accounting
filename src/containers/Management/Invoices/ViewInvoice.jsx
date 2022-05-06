@@ -38,7 +38,7 @@ function ViewInvoice(props) {
       maxW="container.md"
       //   minH="1123px"
       bg="white"
-      px="50px"
+      px={["20px", "50px"]}
       py="70px"
     >
       <VStack color="#333" w="full" h="full">
