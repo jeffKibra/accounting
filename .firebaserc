@@ -5,8 +5,8 @@
   "targets": {
     "lehi-76a0d": {
       "hosting": {
-        "lehi-springs": [
-          "build"
+        "default": [
+          "lehi-76a0d"
         ],
         "lehi": [
           "lehi-springs"
