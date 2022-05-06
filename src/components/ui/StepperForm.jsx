@@ -8,7 +8,7 @@ function StepperForm(props) {
   const { activeStep, nextStep, prevStep } = useSteps({ initialStep: 0 });
 
   const [formValues, setFormValues] = useState(defaultValues || {});
-
+  console.log({ defaultValues, formValues });
   function updateValues(data) {
     setFormValues((current) => {
       return {

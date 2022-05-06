@@ -1,16 +1,50 @@
+import { useEffect } from "react";
+import { connect } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
+import { INVOICES } from "../../../nav/routes";
+
+import { CREATE_INVOICE } from "../../../store/actions/invoicesActions";
+import { reset } from "../../../store/slices/invoicesSlice";
+
 import useSavedLocation from "../../../hooks/useSavedLocation";
 
 import PageLayout from "../../../components/layout/PageLayout";
 import EditInvoice from "../../../containers/Management/Invoices/EditInvoice";
 
-function NewInvoicePage() {
+function NewInvoicePage(props) {
+  const { loading, action, isModified, createInvoice, resetInvoice } = props;
   useSavedLocation().setLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isModified) {
+      resetInvoice();
+      navigate(INVOICES);
+    }
+  }, [isModified, resetInvoice, navigate]);
 
   return (
     <PageLayout pageTitle="New Invoice">
-      <EditInvoice />
+      <EditInvoice
+        updating={loading && action === CREATE_INVOICE}
+        handleFormSubmit={createInvoice}
+      />
     </PageLayout>
   );
 }
 
-export default NewInvoicePage;
+function mapStateToProps(state) {
+  const { loading, action, isModified } = state.invoicesReducer;
+
+  return { loading, action, isModified };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    createInvoice: (data) => dispatch({ type: CREATE_INVOICE, data }),
+    resetInvoice: () => dispatch(reset()),
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(NewInvoicePage);
