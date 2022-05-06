@@ -1,47 +1,126 @@
-import { Stack, IconButton } from "@chakra-ui/react";
-import { RiDeleteBin4Line, RiEdit2Line } from "react-icons/ri";
+import {
+  Stack,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Box,
+} from "@chakra-ui/react";
+import {
+  RiDeleteBin4Line,
+  RiEdit2Line,
+  RiEyeLine,
+  RiMoreFill,
+} from "react-icons/ri";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
 import Dialog from "../ui/Dialog";
 
 function TableActions(props) {
-  const {
-    editRoute,
-    deleteDialog: { title, message, onConfirm, isDeleted, loading },
-  } = props;
+  const { viewRoute, editRoute, deleteDialog } = props;
+  const { title, message, onConfirm, isDeleted, loading } = deleteDialog;
 
-  return (
-    <Stack direction="row" spacing={1}>
-      <Link to={editRoute}>
-        {" "}
-        <IconButton
-          size="xs"
-          colorScheme="cyan"
-          icon={<RiEdit2Line />}
-          title="Edit"
-        />
-      </Link>
+  function DeleteDialog(props) {
+    const { renderTrigger } = props;
 
+    return (
       <Dialog
         isDone={isDeleted}
         loading={loading}
         title={title}
         message={message}
         onConfirm={onConfirm}
-        renderButton={(onOpen) => {
-          return (
+        renderButton={renderTrigger}
+      />
+    );
+  }
+
+  return (
+    <>
+      <Box display={["block", null, "none"]}>
+        <Menu>
+          <MenuButton
+            as={IconButton}
+            aria-label="Table Options"
+            icon={<RiMoreFill />}
+            colorScheme="cyan"
+            size="xs"
+            variant="outline"
+          />
+          <MenuList>
+            {viewRoute && (
+              <MenuItem as={Link} to={viewRoute} icon={<RiEyeLine />}>
+                View
+              </MenuItem>
+            )}
+            {editRoute && (
+              <MenuItem as={Link} to={editRoute} icon={<RiEdit2Line />}>
+                Edit
+              </MenuItem>
+            )}
+            {deleteDialog && (
+              <DeleteDialog
+                renderTrigger={(onOpen) => {
+                  console.log({ onOpen });
+                  return (
+                    <MenuItem
+                      onClick={onOpen}
+                      icon={<RiDeleteBin4Line color="red" />}
+                    >
+                      Delete
+                    </MenuItem>
+                  );
+                }}
+              />
+            )}
+          </MenuList>
+        </Menu>
+      </Box>
+
+      <Stack display={["none", null, "flex"]} direction="row" spacing={1}>
+        {viewRoute && (
+          <Link to={viewRoute}>
+            {" "}
             <IconButton
               size="xs"
-              onClick={onOpen}
-              colorScheme="red"
-              icon={<RiDeleteBin4Line />}
-              title="Delete"
+              colorScheme="cyan"
+              icon={<RiEyeLine />}
+              title="View"
             />
-          );
-        }}
-      />
-    </Stack>
+          </Link>
+        )}
+
+        {editRoute && (
+          <Link to={editRoute}>
+            {" "}
+            <IconButton
+              size="xs"
+              colorScheme="cyan"
+              icon={<RiEdit2Line />}
+              title="Edit"
+            />
+          </Link>
+        )}
+
+        {deleteDialog && (
+          <DeleteDialog
+            renderTrigger={(onOpen) => {
+              return (
+                <IconButton
+                  size="xs"
+                  onClick={onOpen}
+                  colorScheme="red"
+                  icon={<RiDeleteBin4Line />}
+                  title="Delete"
+                />
+              );
+            }}
+          />
+        )}
+      </Stack>
+    </>
   );
 }
 
@@ -53,7 +132,8 @@ TableActions.propTypes = {
     isDeleted: PropTypes.bool.isRequired,
     loading: PropTypes.bool.isRequired,
   }),
-  editRoute: PropTypes.string.isRequired,
+  editRoute: PropTypes.string,
+  viewRoute: PropTypes.string,
 };
 
 export default TableActions;
