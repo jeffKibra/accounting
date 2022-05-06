@@ -26,6 +26,9 @@ import {
   watchGetCustomer,
   watchGetCustomers,
 } from "./customers/getCustomersSagas";
+//invoices
+import { watchCreateInvoice } from "./invoices/createInvoiceSagas";
+import { watchGetInvoice, watchGetInvoices } from "./invoices/getInvoicesSagas";
 //categories
 import { watchCreateItemCategory } from "./itemsCategories/createItemCategorySagas";
 
@@ -55,6 +58,9 @@ export default function* rootSaga() {
     watchDeleteCustomer(),
     watchGetCustomer(),
     watchGetCustomers(),
+    watchCreateInvoice(),
+    watchGetInvoice(),
+    watchGetInvoices(),
     watchCreateItemCategory(),
   ]);
 }

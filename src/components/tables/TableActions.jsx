@@ -15,7 +15,12 @@ function TableActions(props) {
     <Stack direction="row" spacing={1}>
       <Link to={editRoute}>
         {" "}
-        <IconButton colorScheme="cyan" icon={<RiEdit2Line />} title="Edit" />
+        <IconButton
+          size="xs"
+          colorScheme="cyan"
+          icon={<RiEdit2Line />}
+          title="Edit"
+        />
       </Link>
 
       <Dialog
@@ -27,6 +32,7 @@ function TableActions(props) {
         renderButton={(onOpen) => {
           return (
             <IconButton
+              size="xs"
               onClick={onOpen}
               colorScheme="red"
               icon={<RiDeleteBin4Line />}

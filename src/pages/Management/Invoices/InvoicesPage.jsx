@@ -1,5 +1,30 @@
+import { Button } from "@chakra-ui/react";
+import { Link } from "react-router-dom";
+
+import { NEW_INVOICE } from "../../../nav/routes";
+
+import useSavedLocation from "../../../hooks/useSavedLocation";
+import PageLayout from "../../../components/layout/PageLayout";
+
+import Invoices from "../../../containers/Management/Invoices/Invoices";
+
 function InvoicesPage() {
-  return <div>invoicing page</div>;
+  useSavedLocation().setLocation();
+
+  return (
+    <PageLayout
+      pageTitle="Invoices"
+      actions={
+        <Link to={NEW_INVOICE}>
+          <Button colorScheme="cyan" size="sm" variant="outline">
+            new invoice
+          </Button>
+        </Link>
+      }
+    >
+      <Invoices />
+    </PageLayout>
+  );
 }
 
 export default InvoicesPage;

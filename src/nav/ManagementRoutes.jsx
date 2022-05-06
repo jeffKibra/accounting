@@ -22,6 +22,8 @@ import EstimatesPage from "../pages/Management/Estimates/EstimatesPage";
 
 //invoices
 import InvoicesPage from "../pages/Management/Invoices/InvoicesPage";
+import NewInvoicePage from "../pages/Management/Invoices/NewInvoicePage";
+import EditInvoicePage from "../pages/Management/Invoices/EditInvoicePage";
 //expenses
 import ExpensesPage from "../pages/Management/Expenses/ExpensesPage";
 import NewExpensePage from "../pages/Management/Expenses/NewExpensePage";
@@ -134,6 +136,26 @@ function ManagementRoutes() {
       element={
         <ManagementRoute>
           <InvoicesPage />
+        </ManagementRoute>
+      }
+    />,
+    <Route
+      path={routes.NEW_INVOICE}
+      key={routes.NEW_INVOICE}
+      exact
+      element={
+        <ManagementRoute>
+          <NewInvoicePage />
+        </ManagementRoute>
+      }
+    />,
+    <Route
+      path={routes.EDIT_INVOICE}
+      key={routes.EDIT_INVOICE}
+      exact
+      element={
+        <ManagementRoute>
+          <EditInvoicePage />
         </ManagementRoute>
       }
     />,

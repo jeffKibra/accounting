@@ -63,7 +63,7 @@ StepperForm.propTypes = {
   steps: PropTypes.arrayOf(
     PropTypes.shape({
       label: PropTypes.node.isRequired,
-      form: PropTypes.node.isRequired,
+      form: PropTypes.func.isRequired,
       props: PropTypes.object,
     })
   ),

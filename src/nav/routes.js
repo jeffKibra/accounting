@@ -26,6 +26,8 @@ export const EDIT_CUSTOMER = "/customers/:customerId/edit";
 export const ESTIMATES = "/estimates";
 //invoices
 export const INVOICES = "/invoices";
+export const NEW_INVOICE = "/invoices/new";
+export const EDIT_INVOICE = "/invoices/:invoiceId/edit";
 //receipts
 export const SALES_RECEIPTS = "/sales-receipts";
 //expenses

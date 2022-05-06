@@ -178,6 +178,56 @@ service cloud.firestore {
         allow create: if isOwner() && verifyCustomerData()
         allow update: if isOwner() && verifyCustomerData() && allowCustomerUpdate()
       }
+
+      match /invoices/{invoiceId} {
+        function verifyInvoiceData(){
+          let req=['selectedItems', 'summary', 'customer', 'customerId', 'invoiceDate', 'dueDate'];
+          let additional=['invoiceNumber', 'invoiceSlug', 'status', 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy', 'org'];
+          let required=req.concat(additional);
+          let optional=['customerNotes', 'orderNumber', 'subject'];
+          let allFields=required.concat(optional);
+
+          return request.resource.data.keys().hasAll(required) &&
+            request.resource.data.keys().hasOnly(allFields) &&
+            request.resource.data.selectedItems is list &&
+            request.resource.data.summary is map &&
+            request.resource.data.summary.shipping is int &&
+            request.resource.data.summary.adjustment is int &&
+            request.resource.data.summary.subTotal is int &&
+            request.resource.data.summary.totalAmount is int &&
+            request.resource.data.summary.totalTax is int &&
+            request.resource.data.summary.taxes is list &&
+            request.resource.data.customer is map &&
+            request.resource.data.customerId is string &&
+            request.resource.data.invoiceDate is string &&
+            request.resource.data.dueDate is string &&
+            request.resource.data.createdAt is timestamp &&
+            request.resource.data.modifiedAt is timestamp &&
+            request.resource.data.createdBy is string &&
+            request.resource.data.modifiedBy is string &&
+            request.resource.data.org is map &&
+            request.resource.data.customerNotes is string &&
+            request.resource.data.orderNumber is string &&
+            request.resource.data.subject is string &&
+            request.resource.data.invoiceNumber is int &&
+            request.resource.data.invoiceSlug is string &&
+            request.resource.data.status is string
+        }
+
+        function allowInvoiceUpdate(){
+          let req=['selectedItems', 'summary', 'customer', 'customerId', 'invoiceDate', 'dueDate'];
+          let additional=['status','modifiedAt', 'modifiedBy'];
+          let required=req.concat(additional);
+          let optional=['customerNotes', 'orderNumber', 'subject'];
+          let allFields=required.concat(optional);
+
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+        }
+
+        allow read: if isOwner()
+        allow create: if isOwner() && verifyInvoiceData()
+        allow update: if isOwner() && verifyCustomerData() && allowInvoiceUpdate()
+      }
     }
   }
 }

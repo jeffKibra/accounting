@@ -1,5 +1,17 @@
 {
   "projects": {
     "default": "lehi-76a0d"
+  },
+  "targets": {
+    "lehi-76a0d": {
+      "hosting": {
+        "lehi-springs": [
+          "build"
+        ],
+        "lehi": [
+          "lehi-springs"
+        ]
+      }
+    }
   }
 }
