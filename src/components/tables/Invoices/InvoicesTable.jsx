@@ -7,7 +7,7 @@ import TableActions from "../TableActions";
 
 function InvoicesTable(props) {
   const { invoices, deleting, isDeleted, handleDelete } = props;
-  console.log({ invoices });
+  // console.log({ invoices });
 
   const columns = useMemo(() => {
     return [
@@ -30,7 +30,7 @@ function InvoicesTable(props) {
         ...invoice,
         actions: (
           <TableActions
-            editRoute={`${invoiceId}/edit`}
+            viewRoute={`${invoiceId}/view`}
             deleteDialog={{
               isDeleted: isDeleted,
               title: "Delete Invoice",
@@ -71,7 +71,7 @@ InvoicesTable.propTypes = {
         companyName: PropTypes.string,
       }),
       summary: PropTypes.shape({
-        totalAmount: PropTypes.string.isRequired,
+        totalAmount: PropTypes.number.isRequired,
       }),
       invoiceDate: PropTypes.string.isRequired,
       dueDate: PropTypes.string.isRequired,

@@ -63,7 +63,6 @@ function TableActions(props) {
             {deleteDialog && (
               <DeleteDialog
                 renderTrigger={(onOpen) => {
-                  console.log({ onOpen });
                   return (
                     <MenuItem
                       onClick={onOpen}
@@ -81,27 +80,25 @@ function TableActions(props) {
 
       <Stack display={["none", null, "flex"]} direction="row" spacing={1}>
         {viewRoute && (
-          <Link to={viewRoute}>
-            {" "}
-            <IconButton
-              size="xs"
-              colorScheme="cyan"
-              icon={<RiEyeLine />}
-              title="View"
-            />
-          </Link>
+          <IconButton
+            size="xs"
+            colorScheme="cyan"
+            icon={<RiEyeLine />}
+            title="View"
+            as={Link}
+            to={viewRoute}
+          />
         )}
 
         {editRoute && (
-          <Link to={editRoute}>
-            {" "}
-            <IconButton
-              size="xs"
-              colorScheme="cyan"
-              icon={<RiEdit2Line />}
-              title="Edit"
-            />
-          </Link>
+          <IconButton
+            size="xs"
+            colorScheme="cyan"
+            icon={<RiEdit2Line />}
+            title="Edit"
+            as={Link}
+            to={editRoute}
+          />
         )}
 
         {deleteDialog && (

@@ -28,6 +28,8 @@ export const ESTIMATES = "/estimates";
 export const INVOICES = "/invoices";
 export const NEW_INVOICE = "/invoices/new";
 export const EDIT_INVOICE = "/invoices/:invoiceId/edit";
+export const VIEW_INVOICE = "/invoices/:invoiceId/view";
+
 //receipts
 export const SALES_RECEIPTS = "/sales-receipts";
 //expenses
