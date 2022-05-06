@@ -226,7 +226,7 @@ service cloud.firestore {
 
         allow read: if isOwner()
         allow create: if isOwner() && verifyInvoiceData()
-        allow update: if isOwner() && verifyCustomerData() && allowInvoiceUpdate()
+        allow update: if isOwner() && verifyInvoiceData() && allowInvoiceUpdate()
       }
     }
   }
