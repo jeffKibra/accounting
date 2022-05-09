@@ -7,7 +7,19 @@ import FullPageSpinner from "../../../components/ui/FullPageSpinner";
 
 class CheckOrg extends Component {
   componentDidMount() {
-    this.props.check();
+    const { check, userProfile } = this.props;
+
+    if (userProfile) {
+      check();
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { userProfile, check } = this.props;
+
+    if (userProfile && !prevProps.userProfile) {
+      check();
+    }
   }
 
   render() {
@@ -23,8 +35,9 @@ class CheckOrg extends Component {
 
 function mapStateToProps(state) {
   const { loading, org, action } = state.orgsReducer;
+  const { userProfile } = state.authReducer;
 
-  return { loading, org, action };
+  return { loading, org, action, userProfile };
 }
 
 function mapDispatchToProps(dispatch) {
