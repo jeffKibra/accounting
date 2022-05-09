@@ -11,8 +11,8 @@ import StepperForm from "../../../components/ui/StepperForm";
 import Empty from "../../../components/ui/Empty";
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
 
-import InvoiceDetailsForm from "../../../components/forms/Invoice/InvoiceDetailsForm";
-import InvoiceItems from "../../../components/Custom/Invoices/InvoiceItems";
+import UnpaidInvoices from "../../../components/Custom/PaymentsReceived/UnpaidInvoices";
+import ReceivePaymentForm from "../../../components/forms/PaymentsReceived/ReceivePaymentForm";
 
 function EditPayment(props) {
   const {
@@ -42,18 +42,23 @@ function EditPayment(props) {
   ) : customers?.length > 0 && items?.length > 0 ? (
     <Box w="full" h="full">
       <StepperForm
-        defaultValues={invoice}
+        defaultValues={{ customerId: "SHOWB783uA5CZYOq2MQi" }}
         handleFormSubmit={handleFormSubmit}
         steps={[
           {
+            label: "Invoice Details",
+            props: { customers, loading: updating },
+            form: UnpaidInvoices,
+          },
+          {
             label: "Add Items",
-            props: { items, loading: updating },
-            form: InvoiceItems,
+            props: { customers, loading: updating },
+            form: ReceivePaymentForm,
           },
           {
             label: "Invoice Details",
             props: { customers, loading: updating },
-            form: InvoiceDetailsForm,
+            form: UnpaidInvoices,
           },
         ]}
       />

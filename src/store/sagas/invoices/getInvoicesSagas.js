@@ -11,7 +11,11 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
-import { GET_INVOICE, GET_INVOICES } from "../../actions/invoicesActions";
+import {
+  GET_INVOICE,
+  GET_INVOICES,
+  GET_CUSTOMER_INVOICES,
+} from "../../actions/invoicesActions";
 import {
   start,
   invoiceSuccess,
@@ -25,7 +29,7 @@ export async function getLatestInvoice(orgId) {
   const q = query(
     collection(db, "organizations", orgId, "invoices"),
     orderBy("createdAt", "desc"),
-    where("status", "in", ["pending", "paid", "draft"]),
+    where("status", "in", ["pending", "paid", "draft", "sent"]),
     limit(1)
   );
   const snap = await getDocs(q);
@@ -74,7 +78,7 @@ export function* watchGetInvoice() {
   yield takeLatest(GET_INVOICE, getInvoice);
 }
 
-function* getInvoices() {
+function* getInvoices({ statuses }) {
   yield put(start(GET_INVOICES));
   const orgId = yield select((state) => state.orgsReducer.org.id);
 
@@ -82,7 +86,7 @@ function* getInvoices() {
     const q = query(
       collection(db, "organizations", orgId, "invoices"),
       orderBy("createdAt", "desc"),
-      where("status", "in", ["pending", "paid", "draft"])
+      where("status", "in", statuses || ["pending", "paid", "draft", "sent"])
     );
     const invoices = [];
     const snap = await getDocs(q);
@@ -111,4 +115,44 @@ function* getInvoices() {
 
 export function* watchGetInvoices() {
   yield takeLatest(GET_INVOICES, getInvoices);
+}
+
+function* getCustomerInvoices({ customerId, statuses }) {
+  yield put(start(GET_CUSTOMER_INVOICES));
+  const orgId = yield select((state) => state.orgsReducer.org.id);
+  console.log({ customerId, statuses });
+  async function get() {
+    const q = query(
+      collection(db, "organizations", orgId, "invoices"),
+      orderBy("createdAt", "desc"),
+      where("customerId", "==", customerId),
+      where("status", "in", statuses || ["pending", "paid", "draft", "sent"])
+    );
+    const invoices = [];
+    const snap = await getDocs(q);
+
+    snap.forEach((invoiceDoc) => {
+      invoices.push({
+        ...invoiceDoc.data(),
+        invoiceId: invoiceDoc.id,
+      });
+    });
+
+    return invoices;
+  }
+
+  try {
+    const invoices = yield call(get);
+    console.log({ invoices });
+
+    yield put(invoicesSuccess(invoices));
+  } catch (error) {
+    console.log(error);
+    yield put(fail(error));
+    yield put(toastError(error.message));
+  }
+}
+
+export function* watchGetCustomerInvoices() {
+  yield takeLatest(GET_CUSTOMER_INVOICES, getCustomerInvoices);
 }

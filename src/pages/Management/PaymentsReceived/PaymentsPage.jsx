@@ -1,7 +1,7 @@
 import { Button } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 
-import { NEW_INVOICE } from "../../../nav/routes";
+import { NEW_PAYMENT_RECEIVED } from "../../../nav/routes";
 
 import useSavedLocation from "../../../hooks/useSavedLocation";
 import PageLayout from "../../../components/layout/PageLayout";
@@ -15,9 +15,9 @@ function PaymentsPage() {
     <PageLayout
       pageTitle="Invoices"
       actions={
-        <Link to={NEW_INVOICE}>
+        <Link to={NEW_PAYMENT_RECEIVED}>
           <Button colorScheme="cyan" size="sm" variant="outline">
-            new invoice
+            new payment
           </Button>
         </Link>
       }

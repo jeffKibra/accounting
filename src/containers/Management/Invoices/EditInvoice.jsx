@@ -28,7 +28,7 @@ function EditInvoice(props) {
     handleFormSubmit,
     updating,
   } = props;
-  console.log({ invoice });
+  console.log({ invoice, customers });
   console.log({ props });
 
   useEffect(() => {

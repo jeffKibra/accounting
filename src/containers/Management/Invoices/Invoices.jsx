@@ -34,6 +34,8 @@ function Invoices(props) {
     }
   }, [isModified, resetInvoices, getInvoices]);
 
+  console.log({ invoices });
+
   return loading && action === GET_INVOICES ? (
     <SkeletonLoader />
   ) : invoices?.length > 0 ? (
