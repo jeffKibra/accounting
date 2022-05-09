@@ -65,6 +65,7 @@ function ManagementSidebar(props) {
         subRoutes={[
           { title: "Estimates", route: routes.ESTIMATES },
           { title: "Invoices", route: routes.INVOICES },
+          { title: "Payments Received", route: routes.PAYMENTS_RECEIVED },
           { title: "Sales Receipts", route: routes.SALES_RECEIPTS },
         ]}
       />
