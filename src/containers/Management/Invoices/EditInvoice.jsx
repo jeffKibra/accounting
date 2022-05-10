@@ -47,13 +47,13 @@ function EditInvoice(props) {
         steps={[
           {
             label: "Add Items",
-            props: { items, loading: updating },
-            form: InvoiceItems,
+            content: <InvoiceItems items={items} loading={updating} />,
           },
           {
             label: "Invoice Details",
-            props: { customers, loading: updating },
-            form: InvoiceDetailsForm,
+            content: (
+              <InvoiceDetailsForm customers={customers} loading={updating} />
+            ),
           },
         ]}
       />

@@ -9,36 +9,15 @@ import { useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 
 function NumInput(props) {
-  const { name, min, max, defaultValue, required } = props;
+  const { name, min, max, defaultValue, rules } = props;
   const { register } = useFormContext();
 
   return (
-    <NumberInput
-      {...{ ...(min ? { min: 0 } : {}), ...(max ? { max: max } : {}) }}
-      defaultValue={defaultValue || 0}
-    >
+    <NumberInput min={min} max={max} defaultValue={defaultValue || 0}>
       <NumberInputField
         {...register(name, {
           valueAsNumber: true,
-          ...(min
-            ? {
-                min: {
-                  value: min,
-                  message: `Values should not be less than${min}`,
-                },
-              }
-            : {}),
-          ...(max
-            ? {
-                max: {
-                  value: min,
-                  message: `Values should not be less than${max}`,
-                },
-              }
-            : {}),
-          ...(required
-            ? { required: { value: true, message: "*Required!" } }
-            : {}),
+          ...(rules ? rules : {}),
         })}
       />
       <NumberInputStepper>
@@ -54,6 +33,29 @@ NumInput.propTypes = {
   min: PropTypes.number,
   max: PropTypes.number,
   defaultValue: PropTypes.number,
+  rules: PropTypes.shape({
+    required: PropTypes.shape({
+      value: PropTypes.bool,
+      message: PropTypes.string,
+    }),
+    min: PropTypes.shape({
+      value: PropTypes.number,
+      message: PropTypes.string,
+    }),
+    max: PropTypes.shape({
+      value: PropTypes.number,
+      message: PropTypes.string,
+    }),
+    minlength: PropTypes.shape({
+      value: PropTypes.number,
+      message: PropTypes.string,
+    }),
+    maxLength: PropTypes.shape({
+      value: PropTypes.number,
+      message: PropTypes.string,
+    }),
+    pattern: PropTypes.object,
+  }),
 };
 
 export default NumInput;

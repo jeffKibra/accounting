@@ -50,7 +50,7 @@ function EditPaymentPage(props) {
   }
 
   return (
-    <PageLayout pageTitle={`Edit Invoice ${invoice?.invoiceSlug}`}>
+    <PageLayout pageTitle={`Edit Payment ${invoice?.invoiceSlug}`}>
       {loading && action === GET_INVOICE ? (
         <SkeletonLoader />
       ) : invoice ? (

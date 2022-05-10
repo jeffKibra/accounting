@@ -124,7 +124,7 @@ function* getCustomerInvoices({ customerId, statuses }) {
   async function get() {
     const q = query(
       collection(db, "organizations", orgId, "invoices"),
-      orderBy("createdAt", "desc"),
+      orderBy("createdAt", "asc"),
       where("customerId", "==", customerId),
       where("status", "in", statuses || ["pending", "paid", "draft", "sent"])
     );

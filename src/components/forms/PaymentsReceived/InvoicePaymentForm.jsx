@@ -2,15 +2,9 @@ import {
   Box,
   Flex,
   VStack,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
   FormControl,
   FormLabel,
   FormErrorMessage,
-  FormHelperText,
   Button,
 } from "@chakra-ui/react";
 import { useForm, FormProvider } from "react-hook-form";
@@ -20,17 +14,22 @@ import NumInput from "../../ui/NumInput";
 
 function InvoicePaymentForm(props) {
   console.log({ props });
-  const { customers, handleFormSubmit, loading, defaultValues } = props;
+  const {
+    customers,
+    handleFormSubmit,
+    onClose,
+    loading,
+    defaultValues,
+    taxDeducted,
+  } = props;
   const formMethods = useForm({
     mode: "onChange",
     defaultValues: defaultValues || {},
   });
 
   const {
-    register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = formMethods;
 
   function onSubmit(data) {
@@ -51,36 +50,47 @@ function InvoicePaymentForm(props) {
   return (
     <VStack w="full">
       <FormProvider {...formMethods}>
-        <Box
-          bg="white"
-          borderRadius="md"
-          shadow="md"
-          p={4}
-          w={["full", "80%"]}
-          as="form"
-          role="form"
-          onSubmit={handleSubmit(onSubmit)}
-        >
+        <Box w="full" as="form" role="form" onSubmit={handleSubmit(onSubmit)}>
           <FormControl isDisabled={loading} required isInvalid={errors.payment}>
             <FormLabel htmlFor="payment">Payment</FormLabel>
-            <NumInput min={0} name="payment" />
+            <NumInput
+              min={0}
+              rules={{
+                required: { value: true, message: "*Required!" },
+                min: { value: 1, message: "value should not be less than 1" },
+              }}
+              name="payment"
+            />
             <FormErrorMessage>{errors.payment?.message}</FormErrorMessage>
           </FormControl>
 
-          <FormControl
-            isDisabled={loading}
-            required
-            isInvalid={errors.withholdingTax}
-          >
-            <FormLabel htmlFor="withholdingTax">Withholding Tax</FormLabel>
-            <NumInput min={0} name="withholdingTax" />
-            <FormErrorMessage>
-              {errors.withholdingTax?.message}
-            </FormErrorMessage>
-          </FormControl>
+          {taxDeducted === "yes" && (
+            <FormControl
+              isDisabled={loading}
+              required
+              isInvalid={errors.withholdingTax}
+            >
+              <FormLabel htmlFor="withholdingTax">Withholding Tax</FormLabel>
+              <NumInput
+                min={0}
+                rules={{
+                  required: { value: true, message: "*Required!" },
+                  min: {
+                    value: 0,
+                    message: "minimum value allowed is zero(0)",
+                  },
+                }}
+                name="withholdingTax"
+              />
+              <FormErrorMessage>
+                {errors.withholdingTax?.message}
+              </FormErrorMessage>
+            </FormControl>
+          )}
 
-          <Flex>
-            <Button colorScheme="cyan" mt={4} type="submit">
+          <Flex mt={4} justify="space-evenly">
+            {onClose && <Button onClick={onClose}>close</Button>}
+            <Button colorScheme="cyan" type="submit">
               add
             </Button>
           </Flex>
@@ -92,6 +102,8 @@ function InvoicePaymentForm(props) {
 
 InvoicePaymentForm.propTypes = {
   handleFormSubmit: PropTypes.func.isRequired,
+  onClose: PropTypes.func,
+  taxDeducted: PropTypes.oneOf(["yes", "no"]).isRequired,
 };
 
 export default InvoicePaymentForm;

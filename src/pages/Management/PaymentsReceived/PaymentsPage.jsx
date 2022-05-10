@@ -13,7 +13,7 @@ function PaymentsPage() {
 
   return (
     <PageLayout
-      pageTitle="Invoices"
+      pageTitle="Payments Received"
       actions={
         <Link to={NEW_PAYMENT_RECEIVED}>
           <Button colorScheme="cyan" size="sm" variant="outline">

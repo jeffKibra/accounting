@@ -1,25 +1,23 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useContext } from "react";
 import { VStack, Flex, Button } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 
 import useToasts from "../../../hooks/useToasts";
+
+import { FormContext } from "../../../contexts/stepperFormContext";
 
 import AddItem from "../../../components/Custom/Invoices/AddItem";
 import AddedItemsTable from "../../../components/tables/Invoices/AddedItemsTable";
 import Summary from "../../../components/Custom/Invoices/Summary";
 
 function InvoiceItems(props) {
-  const { loading, items, defaultValues, handleFormSubmit } = props;
+  const { loading, items } = props;
+  const formContext = useContext(FormContext);
+  const { state, next } = formContext;
 
-  const [selectedItems, setSelectedItems] = useState(
-    defaultValues?.selectedItems || []
-  );
-  const [shipping, setShipping] = useState(
-    defaultValues?.summary?.shipping || 0
-  );
-  const [adjustment, setAdjustment] = useState(
-    defaultValues?.summary?.adjustment || 0
-  );
+  const [selectedItems, setSelectedItems] = useState(state.selectedItems || []);
+  const [shipping, setShipping] = useState(state.summary?.shipping || 0);
+  const [adjustment, setAdjustment] = useState(state.summary?.adjustment || 0);
   console.log({ selectedItems, shipping, adjustment });
 
   const summary = useMemo(() => {
@@ -64,13 +62,16 @@ function InvoiceItems(props) {
       return prev + amount;
     }, 0);
 
+    const totalAmount = subTotal + totalTax + adjustment + shipping;
+
     return {
       taxes,
       subTotal,
       totalTax,
       adjustment,
       shipping,
-      totalAmount: subTotal + totalTax + adjustment + shipping,
+      totalAmount,
+      balance: totalAmount,
     };
   }, [selectedItems, adjustment, shipping]);
 
@@ -138,7 +139,7 @@ function InvoiceItems(props) {
 
   const toasts = useToasts();
 
-  function next() {
+  function save() {
     console.log({ selectedItems });
     if (selectedItems.length === 0) {
       return toasts.error("You must add atleast one item to an Invoice!");
@@ -149,7 +150,7 @@ function InvoiceItems(props) {
       summary,
     };
 
-    handleFormSubmit(all);
+    next(all);
   }
 
   console.log({ selectedItems });
@@ -173,7 +174,7 @@ function InvoiceItems(props) {
         setShipping={setShipping}
       />
       <Flex mt={4}>
-        <Button mt={4} colorScheme="cyan" onClick={next}>
+        <Button mt={4} colorScheme="cyan" onClick={save}>
           next
         </Button>
       </Flex>
@@ -184,11 +185,6 @@ function InvoiceItems(props) {
 InvoiceItems.propTypes = {
   loading: PropTypes.bool.isRequired,
   items: PropTypes.array.isRequired,
-  defaultValues: PropTypes.shape({
-    shipping: PropTypes.number,
-    adjustment: PropTypes.number,
-    selectedItems: PropTypes.array,
-  }),
 };
 
 export default InvoiceItems;

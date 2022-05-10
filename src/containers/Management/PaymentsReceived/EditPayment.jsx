@@ -27,6 +27,7 @@ function EditPayment(props) {
     getCustomers,
     handleFormSubmit,
     updating,
+    paymentId,
   } = props;
   console.log({ invoice });
   console.log({ props });
@@ -36,29 +37,24 @@ function EditPayment(props) {
     getCustomers();
   }, [getItems, getCustomers]);
 
+  console.log({ UnpaidInvoices, ReceivePaymentForm });
+
   return (loading && action === GET_ITEMS) ||
     (loadingCustomers && customersAction === GET_CUSTOMERS) ? (
     <SkeletonLoader />
   ) : customers?.length > 0 && items?.length > 0 ? (
     <Box w="full" h="full">
       <StepperForm
-        defaultValues={{ customerId: "SHOWB783uA5CZYOq2MQi" }}
+        defaultValues={{ paymentId }}
         handleFormSubmit={handleFormSubmit}
         steps={[
           {
-            label: "Invoice Details",
-            props: { customers, loading: updating },
-            form: UnpaidInvoices,
+            label: "Payment Details",
+            content: <ReceivePaymentForm customers={customers} />,
           },
           {
-            label: "Add Items",
-            props: { customers, loading: updating },
-            form: ReceivePaymentForm,
-          },
-          {
-            label: "Invoice Details",
-            props: { customers, loading: updating },
-            form: UnpaidInvoices,
+            label: "Choose Invoices",
+            content: <UnpaidInvoices />,
           },
         ]}
       />
@@ -71,6 +67,7 @@ function EditPayment(props) {
 EditPayment.propTypes = {
   handleFormSubmit: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,
+  paymentId: PropTypes.string.isRequired,
   invoice: PropTypes.shape({
     summary: PropTypes.shape({
       shipping: PropTypes.number,

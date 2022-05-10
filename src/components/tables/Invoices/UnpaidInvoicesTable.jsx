@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import PropTypes from "prop-types";
-import { Box, Text, Stack, IconButton } from "@chakra-ui/react";
+import { Text, IconButton, Flex, VStack, Button } from "@chakra-ui/react";
 
 import { RiEdit2Line } from "react-icons/ri";
 
@@ -10,38 +10,74 @@ import CustomTable from "../CustomTable";
 import InvoicePaymentForm from "../../forms/PaymentsReceived/InvoicePaymentForm";
 
 function UnpaidInvoicesTable(props) {
-  const { invoices } = props;
+  const { invoices, taxDeducted, addInvoicePayment, autoPay } = props;
+  console.log({ props });
   // console.log({ invoices });
 
   const columns = useMemo(() => {
     return [
       { Header: "", accessor: "actions" },
       { Header: "Date", accessor: "invoiceDate" },
-      { Header: "Due Date", accessor: "dueDate" },
       { Header: "Invoice#", accessor: "invoiceSlug" },
-      { Header: "Status", accessor: "status" },
       { Header: "Amount", accessor: "summary.totalAmount" },
-      { Header: "Amount Due", accessor: "summary.amountDue" },
+      { Header: "Amount Due", accessor: "summary.balance" },
+      ...(taxDeducted === "yes"
+        ? [{ Header: "Withholding Tax", accessor: "withholdingTax" }]
+        : []),
+      { Header: "Payment", accessor: "latestPayment" },
       //   { Header: "Opening Balance", accessor: "openingBalance" },
     ];
-  }, []);
+  }, [taxDeducted]);
 
   const data = useMemo(() => {
     return invoices.map((invoice) => {
-      const { invoiceId, invoiceDate, invoiceSlug } = invoice;
+      const { invoiceId, invoiceDate, dueDate, invoiceSlug } = invoice;
+      const overDue = Date.now() - new Date(dueDate).getTime() > 0;
+
+      function addInvoice(data) {
+        console.log({ data });
+        addInvoicePayment({
+          ...data,
+          invoiceId,
+        });
+      }
 
       return {
         ...invoice,
+        invoiceDate: (
+          <>
+            {new Date(invoiceDate).toDateString()} <br />{" "}
+            {overDue ? (
+              <Text color="red" fontSize="xs">
+                OVERDUE
+              </Text>
+            ) : (
+              <Text fontSize="xs">
+                Due Date: {new Date(dueDate).toDateString()}
+              </Text>
+            )}{" "}
+          </>
+        ),
         actions: (
           <CustomModal
+            title={`Payment ${invoiceSlug}`}
             closeOnOverlayClick={false}
             renderTrigger={(onOpen) => {
-              return <IconButton icon={<RiEdit2Line />} title="edit balance" />;
+              return (
+                <IconButton
+                  size="xs"
+                  colorScheme="cyan"
+                  onClick={onOpen}
+                  icon={<RiEdit2Line />}
+                  title="edit balance"
+                />
+              );
             }}
             renderContent={(onClose) => {
               return (
                 <InvoicePaymentForm
-                  handleFormSubmit={(data) => console.log({ data })}
+                  onClose={onClose}
+                  handleFormSubmit={addInvoice}
                 />
               );
             }}
@@ -49,9 +85,23 @@ function UnpaidInvoicesTable(props) {
         ),
       };
     });
-  }, [invoices]);
+  }, [invoices, addInvoicePayment]);
 
-  return <CustomTable data={data} columns={columns} />;
+  return (
+    <VStack w="full">
+      <Flex justify="flex-end" w="full">
+        <Button
+          onClick={autoPay}
+          colorScheme="cyan"
+          variant="outline"
+          size="xs"
+        >
+          auto pay
+        </Button>
+      </Flex>
+      <CustomTable data={data} columns={columns} />
+    </VStack>
+  );
 }
 
 UnpaidInvoicesTable.propTypes = {
@@ -70,6 +120,9 @@ UnpaidInvoicesTable.propTypes = {
       invoiceId: PropTypes.string.isRequired,
     })
   ),
+  addInvoicePayment: PropTypes.func.isRequired,
+  autoPay: PropTypes.func.isRequired,
+  taxDeducted: PropTypes.oneOf(["yes", "no"]).isRequired,
 };
 
 export default UnpaidInvoicesTable;

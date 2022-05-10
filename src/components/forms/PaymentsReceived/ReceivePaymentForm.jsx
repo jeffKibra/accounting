@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import {
   Box,
   Flex,
@@ -16,6 +17,8 @@ import { useForm, FormProvider } from "react-hook-form";
 import PropTypes from "prop-types";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+
+import { FormContext } from "../../../contexts/stepperFormContext";
 
 import NumInput from "../../ui/NumInput";
 import RadioInput from "../../ui/RadioInput";
@@ -44,11 +47,13 @@ const schema = Yup.object().shape({
 });
 
 function ReceivePaymentForm(props) {
-  const { customers, handleFormSubmit, loading, defaultValues } = props;
+  const { customers, loading } = props;
+  const { state, next } = useContext(FormContext);
+
   const formMethods = useForm({
     mode: "onChange",
     resolver: yupResolver(schema),
-    defaultValues: defaultValues || {},
+    defaultValues: state || {},
   });
 
   const {
@@ -70,7 +75,7 @@ function ReceivePaymentForm(props) {
     };
 
     console.log({ newData });
-    handleFormSubmit(newData);
+    next(newData);
   }
 
   return (
@@ -288,9 +293,9 @@ function ReceivePaymentForm(props) {
             )}
           </Grid>
 
-          <Flex>
+          <Flex justify="center">
             <Button colorScheme="cyan" mt={4} type="submit">
-              save
+              next
             </Button>
           </Flex>
         </Box>

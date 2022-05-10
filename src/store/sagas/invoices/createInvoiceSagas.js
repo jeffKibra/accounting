@@ -32,6 +32,7 @@ function* createInvoice({ data }) {
 
     await addDoc(collection(db, "organizations", orgId, "invoices"), {
       ...data,
+      payments: [],
       status: "pending",
       invoiceNumber,
       invoiceSlug,

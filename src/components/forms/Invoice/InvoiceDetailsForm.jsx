@@ -1,4 +1,4 @@
-import React from "react";
+import { useContext } from "react";
 import {
   Box,
   Flex,
@@ -17,9 +17,14 @@ import {
 import { useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 
+import { FormContext } from "../../../contexts/stepperFormContext";
+
 function InvoiceDetailsForm(props) {
-  const { customers, loading, handleFormSubmit, defaultValues, prev } = props;
+  const { customers, loading } = props;
   console.log({ props });
+  const formContext = useContext(FormContext);
+  console.log({ formContext });
+  const { prev, finish, state } = formContext;
 
   const {
     register,
@@ -28,7 +33,7 @@ function InvoiceDetailsForm(props) {
     watch,
   } = useForm({
     mode: "onChange",
-    defaultValues: defaultValues || {},
+    defaultValues: state || {},
   });
 
   const formValues = watch();
@@ -48,7 +53,7 @@ function InvoiceDetailsForm(props) {
       customer,
     };
 
-    handleFormSubmit(newData);
+    finish(newData);
   }
 
   return (
