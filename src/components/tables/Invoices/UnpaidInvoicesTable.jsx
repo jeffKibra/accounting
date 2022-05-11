@@ -7,10 +7,17 @@ import { RiEdit2Line } from "react-icons/ri";
 import CustomModal from "../../ui/CustomModal";
 import CustomTable from "../CustomTable";
 
-import InvoicePaymentForm from "../../forms/PaymentsReceived/InvoicePaymentForm";
+import EditInvoicePaymentForm from "../../forms/PaymentsReceived/EditInvoicePaymentForm";
 
 function UnpaidInvoicesTable(props) {
-  const { invoices, taxDeducted, addInvoicePayment, autoPay } = props;
+  const {
+    invoices,
+    summary,
+    taxDeducted,
+    editInvoicePayment,
+    autoPay,
+    paymentId,
+  } = props;
   console.log({ props });
   // console.log({ invoices });
 
@@ -33,10 +40,13 @@ function UnpaidInvoicesTable(props) {
     return invoices.map((invoice) => {
       const { invoiceId, invoiceDate, dueDate, invoiceSlug } = invoice;
       const overDue = Date.now() - new Date(dueDate).getTime() > 0;
+      const latestPayment =
+        invoice.payments.find((payment) => payment.paymentId === paymentId)
+          ?.amount || 0;
 
-      function addInvoice(data) {
+      function editPayment(data) {
         console.log({ data });
-        addInvoicePayment({
+        editInvoicePayment({
           ...data,
           invoiceId,
         });
@@ -44,6 +54,7 @@ function UnpaidInvoicesTable(props) {
 
       return {
         ...invoice,
+        latestPayment,
         invoiceDate: (
           <>
             {new Date(invoiceDate).toDateString()} <br />{" "}
@@ -75,9 +86,13 @@ function UnpaidInvoicesTable(props) {
             }}
             renderContent={(onClose) => {
               return (
-                <InvoicePaymentForm
+                <EditInvoicePaymentForm
                   onClose={onClose}
-                  handleFormSubmit={addInvoice}
+                  handleFormSubmit={editPayment}
+                  invoice={invoice}
+                  summary={summary}
+                  paymentId={paymentId}
+                  taxDeducted={taxDeducted}
                 />
               );
             }}
@@ -85,7 +100,7 @@ function UnpaidInvoicesTable(props) {
         ),
       };
     });
-  }, [invoices, addInvoicePayment]);
+  }, [invoices, editInvoicePayment, paymentId, summary, taxDeducted]);
 
   return (
     <VStack w="full">
@@ -99,7 +114,11 @@ function UnpaidInvoicesTable(props) {
           auto pay
         </Button>
       </Flex>
-      <CustomTable data={data} columns={columns} />
+      <CustomTable
+        data={data}
+        columns={columns}
+        caption="The Excess amount is added to the customers account!"
+      />
     </VStack>
   );
 }
@@ -120,7 +139,13 @@ UnpaidInvoicesTable.propTypes = {
       invoiceId: PropTypes.string.isRequired,
     })
   ),
-  addInvoicePayment: PropTypes.func.isRequired,
+  summary: PropTypes.shape({
+    amount: PropTypes.number.isRequired,
+    paidAmount: PropTypes.number.isRequired,
+    excess: PropTypes.number.isRequired,
+  }),
+  paymentId: PropTypes.string.isRequired,
+  editInvoicePayment: PropTypes.func.isRequired,
   autoPay: PropTypes.func.isRequired,
   taxDeducted: PropTypes.oneOf(["yes", "no"]).isRequired,
 };

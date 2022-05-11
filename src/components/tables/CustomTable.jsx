@@ -2,6 +2,7 @@ import { useTable } from "react-table";
 import {
   TableContainer,
   Table,
+  TableCaption,
   Thead,
   Tbody,
   Tr,
@@ -11,7 +12,7 @@ import {
 import PropTypes from "prop-types";
 
 function CustomTable(props) {
-  const { columns, data } = props;
+  const { columns, data, caption } = props;
   const instance = useTable({ columns, data });
   //   console.log({ instance });
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
@@ -20,6 +21,7 @@ function CustomTable(props) {
   return (
     <TableContainer w="full" bg="white" borderRadius="md" shadow="md" p={4}>
       <Table {...getTableProps()} minW="650px" variant="simple" size="sm">
+        {caption && <TableCaption>{caption}</TableCaption>}
         <Thead>
           {headerGroups.map((headerGroup) => {
             const { headers, getHeaderGroupProps } = headerGroup;
@@ -59,6 +61,7 @@ function CustomTable(props) {
 CustomTable.propTypes = {
   data: PropTypes.array.isRequired,
   columns: PropTypes.array.isRequired,
+  caption: PropTypes.string,
 };
 
 export default CustomTable;

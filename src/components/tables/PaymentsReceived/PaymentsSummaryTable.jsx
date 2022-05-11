@@ -1,11 +1,4 @@
-import {
-  TableContainer,
-  TableCaption,
-  Table,
-  Tbody,
-  Td,
-  Tr,
-} from "@chakra-ui/react";
+import { TableContainer, Table, Tbody, Td, Tr } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 
 function PaymentsSummaryTable(props) {
@@ -17,9 +10,6 @@ function PaymentsSummaryTable(props) {
   return (
     <TableContainer>
       <Table size="sm">
-        <TableCaption>
-          The Excess amount is added to the customers account!
-        </TableCaption>
         <Tbody>
           <Tr>
             <Td>Amount Received</Td>
@@ -44,7 +34,7 @@ function PaymentsSummaryTable(props) {
 PaymentsSummaryTable.propTypes = {
   summary: PropTypes.shape({
     amount: PropTypes.number.isRequired,
-    payments: PropTypes.number.isRequired,
+    paidAmount: PropTypes.number.isRequired,
     excess: PropTypes.number.isRequired,
   }),
 };

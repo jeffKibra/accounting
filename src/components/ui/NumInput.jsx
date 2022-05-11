@@ -10,10 +10,22 @@ import PropTypes from "prop-types";
 
 function NumInput(props) {
   const { name, min, max, defaultValue, rules } = props;
-  const { register } = useFormContext();
+  const { register, setValue, watch } = useFormContext();
+
+  function handleChange(value) {
+    setValue(name, Number(value));
+  }
+
+  const numvalue = watch(name);
 
   return (
-    <NumberInput min={min} max={max} defaultValue={defaultValue || 0}>
+    <NumberInput
+      onChange={handleChange}
+      value={numvalue}
+      min={min}
+      max={max}
+      defaultValue={defaultValue || 0}
+    >
       <NumberInputField
         {...register(name, {
           valueAsNumber: true,
