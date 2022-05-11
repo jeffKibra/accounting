@@ -1,65 +1,38 @@
-import { useEffect } from "react";
 import { Box } from "@chakra-ui/react";
-import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
-import { GET_ITEMS } from "../../../store/actions/itemsActions";
-import { GET_CUSTOMERS } from "../../../store/actions/customersActions";
+import { InvoicesContextProvider } from "../../../contexts/InvoicesContext";
 
-import StepperForm from "../../../components/ui/StepperForm";
-
-import Empty from "../../../components/ui/Empty";
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
+import Stepper from "../../../components/ui/Stepper";
 
 import InvoiceDetailsForm from "../../../components/forms/Invoice/InvoiceDetailsForm";
 import InvoiceItems from "../../../components/Custom/Invoices/InvoiceItems";
 
 function EditInvoice(props) {
-  const {
-    invoice,
-    loading,
-    items,
-    action,
-    loadingCustomers,
-    customers,
-    customersAction,
-    getItems,
-    getCustomers,
-    handleFormSubmit,
-    updating,
-  } = props;
-  console.log({ invoice, customers });
+  const { invoice, handleFormSubmit, updating } = props;
   console.log({ props });
 
-  useEffect(() => {
-    getItems();
-    getCustomers();
-  }, [getItems, getCustomers]);
-
-  return (loading && action === GET_ITEMS) ||
-    (loadingCustomers && customersAction === GET_CUSTOMERS) ? (
-    <SkeletonLoader />
-  ) : customers?.length > 0 && items?.length > 0 ? (
-    <Box w="full" h="full">
-      <StepperForm
-        defaultValues={invoice}
-        handleFormSubmit={handleFormSubmit}
-        steps={[
-          {
-            label: "Add Items",
-            content: <InvoiceItems items={items} loading={updating} />,
-          },
-          {
-            label: "Invoice Details",
-            content: (
-              <InvoiceDetailsForm customers={customers} loading={updating} />
-            ),
-          },
-        ]}
-      />
-    </Box>
-  ) : (
-    <Empty message="Please add atleast one CUSTOMER and one ITEM to continue or reload the page" />
+  return (
+    <InvoicesContextProvider
+      invoice={invoice}
+      updating={updating}
+      saveData={handleFormSubmit}
+    >
+      <Box w="full" h="full">
+        <Stepper
+          steps={[
+            {
+              label: "Add Items",
+              content: <InvoiceItems />,
+            },
+            {
+              label: "Invoice Details",
+              content: <InvoiceDetailsForm />,
+            },
+          ]}
+        />
+      </Box>
+    </InvoicesContextProvider>
   );
 }
 
@@ -86,29 +59,4 @@ EditInvoice.propTypes = {
   }),
 };
 
-function mapStateToProps(state) {
-  const { loading, items, action } = state.itemsReducer;
-  const {
-    loading: loadingCustomers,
-    customers,
-    action: customersAction,
-  } = state.customersReducer;
-
-  return {
-    loading,
-    items,
-    action,
-    loadingCustomers,
-    customers,
-    customersAction,
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    getItems: () => dispatch({ type: GET_ITEMS }),
-    getCustomers: () => dispatch({ type: GET_CUSTOMERS }),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(EditInvoice);
+export default EditInvoice;

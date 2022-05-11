@@ -17,7 +17,7 @@ function* createInvoice({ data }) {
   const orgId = org.id;
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
-  // console.log({ data, orgId, userProfile });
+  console.log({ data, orgId, userProfile });
 
   async function create() {
     const latestInvoice = await getLatestInvoice(orgId);

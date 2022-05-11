@@ -3,7 +3,7 @@ import { Box, Flex } from "@chakra-ui/react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
-import { Provider } from "../../../contexts/PaymentsContext";
+import { PaymentsContextProvider } from "../../../contexts/PaymentsContext";
 
 import Stepper from "../../../components/ui/Stepper";
 
@@ -38,7 +38,7 @@ function EditPayment(props) {
   return loading && action === GET_CUSTOMERS ? (
     <SkeletonLoader />
   ) : customers?.length > 0 ? (
-    <Provider
+    <PaymentsContextProvider
       saveData={handleFormSubmit}
       defaultValues={payment}
       paymentId={paymentId}
@@ -66,7 +66,7 @@ function EditPayment(props) {
           ]}
         />
       </Box>
-    </Provider>
+    </PaymentsContextProvider>
   ) : (
     <Empty message="Please add atleast one CUSTOMER to continue or reload the page" />
   );

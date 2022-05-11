@@ -6,6 +6,6 @@ const initialState = {
 };
 
 const StepperContext = createContext({ ...initialState });
-StepperContext.name = "stepper_context";
+StepperContext.displayName = "stepper_context";
 
 export default StepperContext;

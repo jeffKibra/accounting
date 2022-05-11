@@ -15,16 +15,14 @@ import {
   GridItem,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
-import PropTypes from "prop-types";
 
-import { FormContext } from "../../../contexts/stepperFormContext";
+import InvoicesContext from "../../../contexts/InvoicesContext";
+import StepperContext from "../../../contexts/StepperContext";
 
-function InvoiceDetailsForm(props) {
-  const { customers, loading } = props;
-  console.log({ props });
-  const formContext = useContext(FormContext);
-  console.log({ formContext });
-  const { prev, finish, state } = formContext;
+function InvoiceDetailsForm() {
+  const { formValues, updateFormValues, customers, loading, finish } =
+    useContext(InvoicesContext);
+  const { prevStep } = useContext(StepperContext);
 
   const {
     register,
@@ -33,12 +31,13 @@ function InvoiceDetailsForm(props) {
     watch,
   } = useForm({
     mode: "onChange",
-    defaultValues: state || {},
+    defaultValues: formValues || {},
   });
 
-  const formValues = watch();
+  const values = watch();
   function goBack() {
-    prev(formValues);
+    updateFormValues(values);
+    prevStep();
   }
 
   function onSubmit(data) {
@@ -168,19 +167,12 @@ function InvoiceDetailsForm(props) {
             prev
           </Button>
           <Button isLoading={loading} colorScheme="cyan" type="submit">
-            save
+            finish
           </Button>
         </Flex>
       </Box>
     </VStack>
   );
 }
-
-InvoiceDetailsForm.propTypes = {
-  customers: PropTypes.array.isRequired,
-  handleFormSubmit: PropTypes.func.isRequired,
-  defaultValues: PropTypes.object,
-  loading: PropTypes.bool.isRequired,
-};
 
 export default InvoiceDetailsForm;

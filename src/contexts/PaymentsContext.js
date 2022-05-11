@@ -18,11 +18,11 @@ const initialState = {
 };
 
 const PaymentsContext = createContext({ ...initialState });
-PaymentsContext.name = "payments_context";
+PaymentsContext.displayName = "payments_context";
 
 export default PaymentsContext;
 
-function PaymentsContextProvider(props) {
+function Provider(props) {
   const {
     children,
     paymentId,
@@ -218,7 +218,7 @@ function PaymentsContextProvider(props) {
   );
 }
 
-PaymentsContextProvider.propTypes = {
+Provider.propTypes = {
   children: PropTypes.node.isRequired,
   defaultValues: PropTypes.object,
   paymentId: PropTypes.string.isRequired,
@@ -238,7 +238,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export const Provider = connect(
+export const PaymentsContextProvider = connect(
   mapStateToProps,
   mapDispatchToProps
-)(PaymentsContextProvider);
+)(Provider);

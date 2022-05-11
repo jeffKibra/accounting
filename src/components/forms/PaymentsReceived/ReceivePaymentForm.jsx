@@ -288,7 +288,7 @@ function ReceivePaymentForm(props) {
 
         <Flex justify="center">
           <Button isLoading={loading} colorScheme="cyan" mt={4} type="submit">
-            save
+            next
           </Button>
         </Flex>
       </Box>

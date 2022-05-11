@@ -1,159 +1,39 @@
-import { useState, useMemo, useContext } from "react";
-import { VStack, Flex, Button } from "@chakra-ui/react";
-import PropTypes from "prop-types";
+import { useContext } from "react";
+import { VStack, Flex, Button, Grid, GridItem } from "@chakra-ui/react";
+
+import InvoicesContext from "../../../contexts/InvoicesContext";
+import StepperContext from "../../../contexts/StepperContext";
 
 import useToasts from "../../../hooks/useToasts";
 
-import { FormContext } from "../../../contexts/stepperFormContext";
-
 import AddItem from "../../../components/Custom/Invoices/AddItem";
 import AddedItemsTable from "../../../components/tables/Invoices/AddedItemsTable";
-import Summary from "../../../components/Custom/Invoices/Summary";
+import SummaryTable from "../../tables/Invoices/SummaryTable";
 
-function InvoiceItems(props) {
-  const { loading, items } = props;
-  const formContext = useContext(FormContext);
-  const { state, next } = formContext;
-
-  const [selectedItems, setSelectedItems] = useState(state.selectedItems || []);
-  const [shipping, setShipping] = useState(state.summary?.shipping || 0);
-  const [adjustment, setAdjustment] = useState(state.summary?.adjustment || 0);
-  console.log({ selectedItems, shipping, adjustment });
-
-  const summary = useMemo(() => {
-    let taxes = [];
-    selectedItems.forEach((item) => {
-      const index = taxes.findIndex((tax) => tax.taxId === item.tax?.taxId);
-
-      if (index === -1) {
-        taxes.push(item.tax);
-      }
-    });
-    console.log({ taxes });
-
-    taxes = taxes
-      .filter((tax) => tax?.name)
-      .map((tax) => {
-        const { taxId, rate } = tax;
-        console.log({ rate });
-        //get all items with this tax
-        const totalAmount = selectedItems
-          .filter((obj) => obj.tax.taxId === taxId)
-          .reduce((prev, current) => {
-            const { amount } = current;
-            return amount + prev;
-          }, 0);
-
-        const taxedAmount = Math.ceil((totalAmount * rate) / 100);
-
-        console.log({ taxedAmount });
-        console.log({ tax });
-
-        return { ...tax, taxedAmount };
-      });
-
-    const totalTax = taxes.reduce((prev, current) => {
-      const { taxedAmount } = current;
-      return prev + taxedAmount;
-    }, 0);
-
-    const subTotal = selectedItems.reduce((prev, current) => {
-      const { amount } = current;
-      return prev + amount;
-    }, 0);
-
-    const totalAmount = subTotal + totalTax + adjustment + shipping;
-
-    return {
-      taxes,
-      subTotal,
-      totalTax,
-      adjustment,
-      shipping,
-      totalAmount,
-      balance: totalAmount,
-    };
-  }, [selectedItems, adjustment, shipping]);
-
-  function addItem(data) {
-    console.log({ data });
-    const { itemId, rate, quantity, discount, discountType } = data;
-    const item = items.find((item) => item.itemId === itemId);
-    let amount = rate * quantity;
-    let totalDiscount = 0;
-
-    if (discount > 0) {
-      if (discountType === "KES") {
-        totalDiscount = discount;
-      } else {
-        totalDiscount = Math.floor((discount * amount) / 100);
-      }
-    }
-
-    console.log({ amount, totalDiscount });
-
-    amount = amount - totalDiscount;
-
-    const itemData = {
-      itemId,
-      rate,
-      quantity,
-      discount,
-      discountType,
-      totalDiscount,
-      amount,
-    };
-
-    setSelectedItems((current) => {
-      const index = current.findIndex((value) => value.itemId === itemId);
-      console.log({ current, index, quantity });
-      let newItems = [];
-
-      if (index === -1) {
-        //value not in selected array
-        newItems = [...current, { ...item, ...itemData }];
-      } else {
-        //value is in the selected array
-        newItems = current.map((value, i) => {
-          if (i === index) {
-            return {
-              ...value,
-              ...itemData,
-            };
-          } else {
-            return value;
-          }
-        });
-      }
-
-      return newItems;
-    });
-  }
-
-  function handleDelete(itemId) {
-    console.log({ itemId });
-    setSelectedItems((current) => {
-      return current.filter((item) => item.itemId !== itemId);
-    });
-  }
-
+function InvoiceItems() {
+  const {
+    addItem,
+    items,
+    removeItem,
+    selectedItems,
+    summary,
+    setAdjustment,
+    setShipping,
+    loading,
+  } = useContext(InvoicesContext);
+  const { nextStep } = useContext(StepperContext);
   const toasts = useToasts();
 
-  function save() {
+  console.log({ selectedItems });
+
+  function saveItems() {
     console.log({ selectedItems });
     if (selectedItems.length === 0) {
       return toasts.error("You must add atleast one item to an Invoice!");
     }
 
-    const all = {
-      selectedItems,
-      summary,
-    };
-
-    next(all);
+    nextStep();
   }
-
-  console.log({ selectedItems });
 
   return (
     <VStack mt="0px !important" maxW="full" h="full">
@@ -161,30 +41,35 @@ function InvoiceItems(props) {
 
       <AddedItemsTable
         handleEdit={addItem}
-        handleDelete={handleDelete}
+        handleDelete={removeItem}
         items={selectedItems}
       />
 
-      <Summary
-        loading={loading}
-        summary={summary}
-        adjustment={adjustment}
-        setAdjustment={setAdjustment}
-        shipping={shipping}
-        setShipping={setShipping}
-      />
+      <Grid w="full" rowGap={4} columnGap={4} templateColumns="repeat(12, 1fr)">
+        <GridItem colSpan={[1, 4, 6]}></GridItem>
+        <GridItem
+          colSpan={[11, 8, 6]}
+          bg="white"
+          p={4}
+          borderRadius="md"
+          shadow="md"
+        >
+          <SummaryTable
+            loading={loading}
+            summary={summary}
+            setAdjustment={setAdjustment}
+            setShipping={setShipping}
+          />
+        </GridItem>
+      </Grid>
+
       <Flex mt={4}>
-        <Button mt={4} colorScheme="cyan" onClick={save}>
+        <Button mt={4} colorScheme="cyan" onClick={saveItems}>
           next
         </Button>
       </Flex>
     </VStack>
   );
 }
-
-InvoiceItems.propTypes = {
-  loading: PropTypes.bool.isRequired,
-  items: PropTypes.array.isRequired,
-};
 
 export default InvoiceItems;

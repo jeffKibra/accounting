@@ -16,9 +16,9 @@ import AdjustmentForm from "../../forms/Invoice/AdjustmentForm";
 import ShippingForm from "../../forms/Invoice/ShippingForm";
 
 function SummaryTable(props) {
-  const { summary, shipping, setShipping, adjustment, setAdjustment } = props;
+  const { summary, setShipping, setAdjustment } = props;
 
-  const { subTotal, taxes, totalAmount } = summary;
+  const { subTotal, taxes, totalAmount, shipping, adjustment } = summary;
   console.log({ summary });
 
   return (
@@ -137,10 +137,10 @@ SummaryTable.propTypes = {
     ),
     totalTax: PropTypes.number,
     totalAmount: PropTypes.number,
+    shipping: PropTypes.number.isRequired,
+    adjustment: PropTypes.number.isRequired,
   }),
-  shipping: PropTypes.number.isRequired,
   setShipping: PropTypes.func.isRequired,
-  adjustment: PropTypes.number.isRequired,
   setAdjustment: PropTypes.func.isRequired,
 };
 

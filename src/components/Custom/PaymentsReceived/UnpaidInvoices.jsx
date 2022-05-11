@@ -61,7 +61,7 @@ function UnpaidInvoices(props) {
       </Grid>
       <Flex mt={4} justify="space-evenly">
         <Button onClick={goBack}>prev</Button>
-        <Button colorScheme="cyan">save</Button>
+        <Button colorScheme="cyan">finish</Button>
       </Flex>
     </>
   );
