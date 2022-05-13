@@ -2,6 +2,7 @@ import { put, call, takeLatest, select } from "redux-saga/effects";
 
 import { CHECK_ORG } from "../../actions/orgsActions";
 import { start, orgSuccess, fail } from "../../slices/orgsSlice";
+import { error as toastError } from "../../slices/toastSlice";
 
 import { getOrg } from "./createOrgSagas";
 
@@ -32,6 +33,7 @@ function* checkOrg() {
   } catch (error) {
     console.log(error);
     yield put(fail(error));
+    yield put(toastError(error.message));
   }
 }
 

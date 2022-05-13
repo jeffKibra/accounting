@@ -1,5 +1,10 @@
 import { put, call, takeLatest, select } from "redux-saga/effects";
-import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  serverTimestamp,
+  runTransaction,
+} from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
 
@@ -62,10 +67,27 @@ function* deleteItem({ itemId }) {
   const orgId = org.id;
 
   async function update() {
-    return updateDoc(doc(db, "organizations", orgId, "items", itemId), {
-      status: "deleted",
-      modifiedBy: name,
-      modifiedAt: serverTimestamp(),
+    const orgRef = doc(db, "organizations", orgId);
+    const itemRef = doc(db, "organizations", orgId, "items", itemId);
+
+    await runTransaction(db, async (transaction) => {
+      const orgDoc = await transaction.get(orgRef);
+      if (!orgDoc.exists) {
+        throw new Error("Organization data not found!");
+      }
+      const orgItems = orgDoc.data().summary?.items || 0;
+
+      if (orgItems > 0) {
+        transaction.update(orgRef, {
+          "summary.items": orgItems - 1,
+        });
+      }
+
+      transaction.update(itemRef, {
+        status: "deleted",
+        modifiedBy: name,
+        modifiedAt: serverTimestamp(),
+      });
     });
   }
 

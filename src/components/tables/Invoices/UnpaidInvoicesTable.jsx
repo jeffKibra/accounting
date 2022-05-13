@@ -18,8 +18,7 @@ function UnpaidInvoicesTable(props) {
     autoPay,
     paymentId,
   } = props;
-  console.log({ props });
-  // console.log({ invoices });
+  // console.log({ props });
 
   const columns = useMemo(() => {
     return [
@@ -40,12 +39,13 @@ function UnpaidInvoicesTable(props) {
     return invoices.map((invoice) => {
       const { invoiceId, invoiceDate, dueDate, invoiceSlug } = invoice;
       const overDue = Date.now() - new Date(dueDate).getTime() > 0;
-      const latestPayment =
-        invoice.payments.find((payment) => payment.paymentId === paymentId)
-          ?.amount || 0;
+      const payment = invoice.payments.find(
+        (payment) => payment.paymentId === paymentId
+      );
+      const latestPayment = payment?.amount || 0;
+      const withholdingTax = payment?.withholdingTax || 0;
 
       function editPayment(data) {
-        console.log({ data });
         editInvoicePayment({
           ...data,
           invoiceId,
@@ -55,6 +55,7 @@ function UnpaidInvoicesTable(props) {
       return {
         ...invoice,
         latestPayment,
+        withholdingTax,
         invoiceDate: (
           <>
             {new Date(invoiceDate).toDateString()} <br />{" "}

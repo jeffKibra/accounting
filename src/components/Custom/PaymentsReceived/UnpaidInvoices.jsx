@@ -1,12 +1,10 @@
-import { useEffect, useState, useContext } from "react";
-import { connect } from "react-redux";
+import { useContext } from "react";
 import { Flex, Grid, GridItem, Button } from "@chakra-ui/react";
 
 import PaymentsContext from "../../../contexts/PaymentsContext";
 import StepperContext from "../../../contexts/StepperContext";
 
 import SkeletonLoader from "../../ui/SkeletonLoader";
-import Empty from "../../ui/Empty";
 
 import UnpaidInvoicesTable from "../../tables/Invoices/UnpaidInvoicesTable";
 import PaymentsSummaryTable from "../../tables/PaymentsReceived/PaymentsSummaryTable";
@@ -21,6 +19,7 @@ function UnpaidInvoices(props) {
     invoices,
     summary,
     formValues,
+    finish,
   } = useContext(PaymentsContext);
   const { prevStep } = useContext(StepperContext);
 
@@ -60,8 +59,12 @@ function UnpaidInvoices(props) {
         </GridItem>
       </Grid>
       <Flex mt={4} justify="space-evenly">
-        <Button onClick={goBack}>prev</Button>
-        <Button colorScheme="cyan">finish</Button>
+        <Button onClick={goBack} colorScheme="cyan" variant="outline">
+          prev
+        </Button>
+        <Button onClick={finish} colorScheme="cyan">
+          finish
+        </Button>
       </Flex>
     </>
   );

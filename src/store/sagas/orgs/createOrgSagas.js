@@ -55,6 +55,14 @@ function* createOrg({ data }) {
     const orgRef = await addDoc(collection(db, "organizations"), {
       ...data,
       status: "active",
+      summary: {
+        invoices: 0,
+        invoicesTotal: 0,
+        payments: 0,
+        paymentsTotal: 0,
+        items: 0,
+        customers: 0,
+      },
       createdBy: email,
       modifiedBy: email,
       owner: user_id,

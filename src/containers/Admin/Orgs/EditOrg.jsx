@@ -7,7 +7,7 @@ import { modifyOrgsReset } from "../../../store/slices/orgs/modifyOrgsSlice";
 import { GET_ORG, EDIT_ORG } from "../../../store/actions/orgsActions";
 import useToasts from "../../../hooks/useToasts";
 
-import OrgForm from "../../../components/forms/Orgs/OrgForm";
+import OrgForm from "../../../components/forms/Orgs/ContactDetailsForm";
 
 function EditOrg(props) {
   const {

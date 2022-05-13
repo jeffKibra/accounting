@@ -27,13 +27,13 @@ function EditPayment(props) {
     handleFormSubmit,
     updating,
   } = props;
-  console.log({ props });
+  // console.log({ props });
 
   useEffect(() => {
     getCustomers();
   }, [getCustomers]);
 
-  console.log({ UnpaidInvoices, ReceivePaymentForm });
+  // console.log({ UnpaidInvoices, ReceivePaymentForm });
 
   return loading && action === GET_CUSTOMERS ? (
     <SkeletonLoader />

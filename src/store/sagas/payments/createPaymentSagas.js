@@ -1,5 +1,10 @@
 import { put, call, select, takeLatest } from "redux-saga/effects";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  collection,
+  serverTimestamp,
+  runTransaction,
+} from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
 import { CREATE_PAYMENT } from "../../actions/paymentsActions";
@@ -21,27 +26,34 @@ function* createPayment({ data }) {
   const { customerId } = data;
 
   async function create() {
-    const latestPayment = await getLatestPayment(orgId, customerId);
+    const newDocRef = doc(collection(db, "organizations", orgId, "payments"));
+    const orgSummaryRef = doc(db, "organizations", orgId, "");
 
-    let paymentNumber = 1;
-    if (latestPayment) {
-      paymentNumber = latestPayment.paymentNumber + 1;
-    }
-    const paymentSlug = `INV-${String(paymentNumber).padStart(6, 0)}`;
+    await runTransaction(db, async (transaction) => {
+      transaction.get();
 
-    // console.log({ latestPayment, paymentNumber, paymentSlug });
+      const latestPayment = await getLatestPayment(orgId, customerId);
 
-    await addDoc(collection(db, "organizations", orgId, "payments"), {
-      ...data,
-      payments: [],
-      status: "pending",
-      paymentNumber,
-      paymentSlug,
-      org,
-      createdBy: email,
-      createdAt: serverTimestamp(),
-      modifiedBy: email,
-      modifiedAt: serverTimestamp(),
+      let paymentNumber = 1;
+      if (latestPayment) {
+        paymentNumber = latestPayment.paymentNumber + 1;
+      }
+      const paymentSlug = `INV-R-${String(paymentNumber).padStart(6, 0)}`;
+
+      // console.log({ latestPayment, paymentNumber, paymentSlug });
+
+      transaction.set(newDocRef, {
+        ...data,
+        payments: [],
+        status: "pending",
+        paymentNumber,
+        paymentSlug,
+        org,
+        createdBy: email,
+        createdAt: serverTimestamp(),
+        modifiedBy: email,
+        modifiedAt: serverTimestamp(),
+      });
     });
   }
 

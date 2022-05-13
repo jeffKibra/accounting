@@ -1,5 +1,10 @@
 import { put, call, select, takeLatest } from "redux-saga/effects";
-import { updateDoc, doc, serverTimestamp } from "firebase/firestore";
+import {
+  updateDoc,
+  doc,
+  serverTimestamp,
+  runTransaction,
+} from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
 
@@ -53,10 +58,36 @@ function* deleteCustomer({ customerId }) {
   const { email } = userProfile;
 
   async function update() {
-    await updateDoc(doc(db, "organizations", orgId, "customers", customerId), {
-      status: "deleted",
-      modifiedBy: email,
-      modifiedAt: serverTimestamp(),
+    const customerRef = doc(
+      db,
+      "organizations",
+      orgId,
+      "customers",
+      customerId
+    );
+    const orgRef = doc(db, "organizations", orgId);
+
+    await runTransaction(db, async (transaction) => {
+      const orgDoc = await transaction.get(orgRef);
+      if (!orgDoc.exists) {
+        throw new Error("Organization data not found!");
+      }
+
+      const orgData = orgDoc.data();
+      const orgSummary = orgData.summary;
+      const customers = orgSummary?.customers || 0;
+
+      if (customers > 0) {
+        transaction.update(orgRef, {
+          "summary.customers": customers - 1,
+        });
+      }
+
+      transaction.update(customerRef, {
+        status: "deleted",
+        modifiedBy: email,
+        modifiedAt: serverTimestamp(),
+      });
     });
   }
 

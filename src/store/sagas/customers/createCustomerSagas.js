@@ -1,5 +1,10 @@
 import { put, call, select, takeLatest } from "redux-saga/effects";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  collection,
+  serverTimestamp,
+  runTransaction,
+} from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
 
@@ -18,13 +23,37 @@ function* createCustomer({ data }) {
   const { email } = userProfile;
 
   async function create() {
-    await addDoc(collection(db, "organizations", orgId, "customers"), {
-      ...data,
-      status: "active",
-      createdBy: email,
-      createdAt: serverTimestamp(),
-      modifiedBy: email,
-      modifiedAt: serverTimestamp(),
+    const newDocRef = doc(collection(db, "organizations", orgId, "customers"));
+    const orgRef = doc(db, "organizations", orgId);
+
+    await runTransaction(db, async (transaction) => {
+      const orgDoc = await transaction.get(orgRef);
+      if (!orgDoc.exists) {
+        throw new Error("Organization data not found!");
+      }
+      const orgData = orgDoc.data();
+      const orgSummary = orgData.summary;
+
+      let customers = orgSummary.customers || 0;
+
+      transaction.update(orgRef, {
+        "summary.customers": customers + 1,
+      });
+
+      transaction.set(newDocRef, {
+        ...data,
+        status: "active",
+        summary: {
+          invoices: 0,
+          invoicesTotal: 0,
+          payments: 0,
+          paymentsTotal: 0,
+        },
+        createdBy: email,
+        createdAt: serverTimestamp(),
+        modifiedBy: email,
+        modifiedAt: serverTimestamp(),
+      });
     });
   }
 

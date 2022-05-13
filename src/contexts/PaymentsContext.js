@@ -1,4 +1,10 @@
-import { createContext, useEffect, useState, useMemo } from "react";
+import {
+  createContext,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
@@ -36,7 +42,77 @@ function Provider(props) {
 
   const [selectedInvoices, setSelectedInvoices] = useState(invoices || []);
   const [formValues, setFormValues] = useState(defaultValues || {});
-  const { amount, customerId } = formValues;
+  const { customerId } = formValues;
+
+  const updateInvoicePayment = useCallback(
+    (invoice = {}, data = { amount: 0, withholdingTax: 0 }) => {
+      /**
+       * function is to be called after ascertaining no conflicts in summary amount
+       */
+      const { invoiceId } = invoice;
+      const { amount } = data;
+      const { tdsTaxAccount } = formValues;
+      const paymentData = {
+        ...data,
+        paymentId,
+        invoiceId,
+        ...(tdsTaxAccount ? { tdsTaxAccount } : {}),
+      };
+
+      let payments = [...invoice.payments];
+      const index = payments.findIndex(
+        (payment) => payment.paymentId === paymentId
+      );
+
+      console.log({ paymentData, payments });
+
+      if (index === -1) {
+        //create new payment entry
+        if (amount > 0) {
+          //only add amounts greater than zero
+          payments = [{ ...paymentData }, ...payments];
+        }
+      } else {
+        //create new payments with current payment updated to supplied amount
+        if (amount > 0) {
+          //only update amounts greater than zero
+          payments = payments.map((payment) => {
+            if (payment.paymentId === paymentId) {
+              console.log({ payment, paymentData });
+              return {
+                ...payment,
+                ...paymentData,
+              };
+            }
+            return payment;
+          });
+        } else {
+          //amount is zero, remove payment from list
+          payments = payments.filter(
+            (payment) => payment.paymentId !== paymentId
+          );
+        }
+      }
+
+      const totalPaid = payments.reduce((prev, payment) => {
+        return prev + payment.amount;
+      }, 0);
+
+      const invoiceTotal = invoice.summary.totalAmount;
+      const newBalance = invoiceTotal - totalPaid;
+      // console.log({ invoiceTotal, totalPaid, newBalance });
+
+      return {
+        ...invoice,
+        payments,
+        summary: {
+          ...invoice.summary,
+          balance: newBalance,
+        },
+      };
+    },
+    [formValues, paymentId]
+  );
 
   useEffect(() => {
     //update selected invoices incase invoices change
@@ -46,25 +122,42 @@ function Provider(props) {
   }, [invoices]);
 
   useEffect(() => {
+    const { amount } = formValues;
+    //update selected invoices when paid amount  changes
+    if (amount) {
+      setSelectedInvoices((currentInvoices) => {
+        return currentInvoices.map((invoice) => {
+          const updated = updateInvoicePayment(invoice, { amount: 0 });
+          return {
+            ...invoice,
+            ...updated,
+          };
+        });
+      });
+    }
+  }, [formValues, updateInvoicePayment]);
+
+  useEffect(() => {
     if (customerId) {
       getInvoices(customerId, ["sent"]);
     }
   }, [getInvoices, customerId]);
 
   const summary = useMemo(() => {
-    console.log({ paymentId, selectedInvoices });
+    // console.log({ paymentId, selectedInvoices });
 
     const paidAmount = selectedInvoices.reduce((prev, current) => {
       const payments = current.payments;
-      console.log({ payments, current });
+      // console.log({ payments, current });
       const paid =
         payments.find((payment) => payment.paymentId === paymentId)?.amount ||
         0;
-      console.log({ payments, paid });
+      // console.log({ payments, paid });
 
       return prev + paid;
     }, 0);
 
+    const { amount } = formValues;
     const balance = amount - paidAmount;
 
     const excess = balance > 0 ? balance : 0;
@@ -74,88 +167,45 @@ function Provider(props) {
       excess,
       amount,
     };
-  }, [selectedInvoices, amount, paymentId]);
+  }, [selectedInvoices, formValues, paymentId]);
 
   function updateFormValues(data) {
-    console.log({ data });
+    // console.log({ data });
     setFormValues((current) => ({ ...current, ...data }));
   }
 
   function finish() {
-    saveData({});
-  }
+    const paidInvoices = selectedInvoices.filter((invoice) => {
+      const { payments } = invoice;
+      return payments.find((payment) => payment.paymentId === paymentId);
+    });
+    console.log({ selectedInvoices, paidInvoices });
 
-  function updateInvoicePayment(invoice = {}, amount = 0) {
-    /**
-     * function is to be called after ascertaining no conflicts in summary amount
-     */
-
-    let payments = [...invoice.payments];
-    const index = payments.findIndex(
-      (payment) => payment.paymentId === paymentId
-    );
-
-    if (index === -1) {
-      //create new payment entry
-      if (amount > 0) {
-        //only add amounts greater than zero
-        payments = [{ paymentId, amount }, ...payments];
-      }
-    } else {
-      //create new payments with current payment updated to supplied amount
-      if (amount > 0) {
-        //only update amounts greater than zero
-        payments = payments.map((payment) => {
-          if (payment.paymentId === paymentId) {
-            return {
-              ...payment,
-              amount,
-            };
-          }
-          return payment;
-        });
-      } else {
-        //amount is zero, remove payment from list
-        payments = payments.filter(
-          (payment) => payment.paymentId !== paymentId
-        );
-      }
-    }
-
-    const totalPaid = payments.reduce((prev, payment) => {
-      return prev + payment.amount;
-    }, 0);
-
-    const invoiceTotal = invoice.summary.totalAmount;
-    const newBalance = invoiceTotal - totalPaid;
-    console.log({ invoiceTotal, totalPaid, newBalance });
-
-    return {
-      ...invoice,
-      payments,
-      summary: {
-        ...invoice.summary,
-        balance: newBalance,
-      },
+    const allData = {
+      ...formValues,
+      paidInvoices,
+      summary,
     };
+
+    console.log({ allData });
+    saveData(allData);
   }
 
   function editInvoicePayment(data) {
     setSelectedInvoices((currentInvoices) => {
-      console.log({ data });
-      const { invoiceId, amount } = data;
+      // console.log({ data });
+      const { invoiceId } = data;
 
       //get current invoice
       const invoice = currentInvoices.find(
         (invoice) => invoice.invoiceId === invoiceId
       );
 
-      const updated = updateInvoicePayment(invoice, amount);
-      console.log({ updated });
+      const updated = updateInvoicePayment(invoice, data);
 
       return currentInvoices.map((currentInvoice) => {
         if (currentInvoice.invoiceId === invoiceId) {
-          console.log("invoice found");
+          // console.log("invoice found");
           return {
             ...currentInvoice,
             ...updated,
@@ -167,11 +217,18 @@ function Provider(props) {
     });
   }
 
+  function getSimilarPayment(invoice) {
+    const { payments } = invoice;
+    return payments.find((payment) => payment.paymentId === paymentId);
+  }
+
   function autoPay() {
     let balance = summary.amount;
 
-    const updated = invoices.map((invoice) => {
-      const invoiceBalance = invoice.summary.balance;
+    const updated = selectedInvoices.map((invoice) => {
+      //get similar payment
+      const currentPayment = getSimilarPayment(invoice)?.amount || 0;
+      const invoiceBalance = invoice.summary.balance + currentPayment;
       let latestPayment = 0;
 
       if (balance > 0) {
@@ -184,19 +241,19 @@ function Provider(props) {
         }
       }
 
-      const updatedInvoice = updateInvoicePayment(invoice, latestPayment);
+      const paymentData = {
+        amount: latestPayment,
+      };
 
-      console.log({ updatedInvoice });
+      const updatedInvoice = updateInvoicePayment(invoice, paymentData);
 
       return updatedInvoice;
     });
 
-    console.log({ updated });
-
     setSelectedInvoices(updated);
   }
 
-  console.log({ summary, invoices, selectedInvoices });
+  // console.log({ summary, invoices, selectedInvoices });
 
   return (
     <PaymentsContext.Provider

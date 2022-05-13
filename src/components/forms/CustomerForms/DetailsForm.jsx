@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import {
   FormControl,
   Input,
@@ -20,8 +20,12 @@ import {
 import PropTypes from "prop-types";
 import { useForm, Controller } from "react-hook-form";
 
+import StepperContext from "../../../contexts/StepperContext";
+
 function DetailsForm(props) {
   const { loading, defaultValues, handleFormSubmit } = props;
+  const { nextStep } = useContext(StepperContext);
+
   const {
     register,
     formState: { errors },
@@ -41,6 +45,11 @@ function DetailsForm(props) {
     }
   }, [reset, defaultValues]);
 
+  function onSubmit(data) {
+    handleFormSubmit(data);
+    nextStep();
+  }
+
   const [firstName, lastName, companyName] = watch([
     "firstName",
     "lastName",
@@ -56,7 +65,7 @@ function DetailsForm(props) {
       w={["full", "90%", "80%"]}
       as="form"
       role="form"
-      onSubmit={handleSubmit(handleFormSubmit)}
+      onSubmit={handleSubmit(onSubmit)}
     >
       <Grid
         columnGap={4}
@@ -222,7 +231,7 @@ function DetailsForm(props) {
 DetailsForm.propTypes = {
   loading: PropTypes.bool.isRequired,
   handleFormSubmit: PropTypes.func.isRequired,
-  details: PropTypes.shape({
+  defaultValues: PropTypes.shape({
     type: PropTypes.string,
     companyName: PropTypes.string,
     firstName: PropTypes.string,

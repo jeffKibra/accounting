@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import {
   FormControl,
   Input,
@@ -19,9 +19,12 @@ import {
 import PropTypes from "prop-types";
 import { useForm } from "react-hook-form";
 
+import StepperContext from "../../../contexts/StepperContext";
+
 function ExtraDetailsForm(props) {
-  const { loading, prev, defaultValues, handleFormSubmit } = props;
-  console.log({ props });
+  const { loading, defaultValues, handleFormSubmit, updateFormValues } = props;
+
+  const { prevStep } = useContext(StepperContext);
   const {
     register,
     formState: { errors },
@@ -42,7 +45,8 @@ function ExtraDetailsForm(props) {
   const formValues = watch();
 
   function goBack() {
-    prev(formValues);
+    updateFormValues(formValues);
+    prevStep();
   }
 
   return (
@@ -165,8 +169,8 @@ function ExtraDetailsForm(props) {
 
 ExtraDetailsForm.propTypes = {
   loading: PropTypes.bool.isRequired,
-  prev: PropTypes.func.isRequired,
   handleFormSubmit: PropTypes.func.isRequired,
+  updateFormValues: PropTypes.func,
   defaultValues: PropTypes.shape({
     address: PropTypes.string,
     city: PropTypes.string,

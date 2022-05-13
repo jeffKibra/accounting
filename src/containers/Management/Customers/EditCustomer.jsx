@@ -1,73 +1,77 @@
-import { useEffect } from "react";
-import { connect } from "react-redux";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import PropTypes from "prop-types";
 
-import { CUSTOMERS } from "../../../nav/routes";
-import {
-  GET_CUSTOMER,
-  UPDATE_CUSTOMER,
-} from "../../../store/actions/customersActions";
-import { reset } from "../../../store/slices/customersSlice";
+import Stepper from "../../../components/ui/Stepper";
 
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
-
-import CustomerForm from "../../../components/forms/CustomerForms/CustomerForm";
+import DetailsForm from "../../../components/forms/CustomerForms/DetailsForm";
+import ExtraDetailsForm from "../../../components/forms/CustomerForms/ExtraDetailsForm";
 
 function EditCustomer(props) {
-  const {
-    loading,
-    action,
-    isModified,
-    customer,
-    getCustomer,
-    updateCustomer,
-    resetCustomer,
-  } = props;
+  const { customer, loading, saveData } = props;
+  const [formValues, setFormValues] = useState(customer || {});
 
-  const navigate = useNavigate();
-  const { customerId } = useParams();
-
-  useEffect(() => {
-    getCustomer(customerId);
-  }, [getCustomer, customerId]);
-
-  useEffect(() => {
-    if (isModified) {
-      resetCustomer();
-      navigate(CUSTOMERS);
-    }
-  }, [isModified, resetCustomer, navigate]);
-
-  function update(data) {
-    updateCustomer({ ...data, customerId });
+  function updateFormValues(data) {
+    setFormValues((current) => ({ ...current, ...data }));
   }
 
-  return loading && action === GET_CUSTOMER ? (
-    <SkeletonLoader />
-  ) : customer ? (
-    <CustomerForm
-      customer={customer}
-      loading={loading && action === UPDATE_CUSTOMER}
-      handleFormSubmit={update}
+  function finish(data) {
+    updateFormValues(data);
+
+    saveData({
+      ...formValues,
+      ...data,
+    });
+  }
+
+  return (
+    <Stepper
+      steps={[
+        {
+          label: "General Details",
+          content: (
+            <DetailsForm
+              handleFormSubmit={updateFormValues}
+              defaultValues={formValues}
+              loading={loading}
+            />
+          ),
+        },
+        {
+          label: "Extra Details",
+          content: (
+            <ExtraDetailsForm
+              handleFormSubmit={finish}
+              loading={loading}
+              defaultValues={formValues}
+              updateFormValues={updateFormValues}
+            />
+          ),
+        },
+      ]}
     />
-  ) : (
-    <Empty message="Customer not Found!" />
   );
 }
 
-function mapStateToProps(state) {
-  const { loading, action, isModified, customer } = state.customersReducer;
+EditCustomer.propTypes = {
+  loading: PropTypes.bool.isRequired,
+  saveData: PropTypes.func.isRequired,
+  customer: PropTypes.shape({
+    status: PropTypes.string,
+    type: PropTypes.string,
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
+    companyName: PropTypes.string,
+    displayName: PropTypes.string,
+    email: PropTypes.string,
+    workPhone: PropTypes.string,
+    mobile: PropTypes.string,
+    openingBalance: PropTypes.number,
+    city: PropTypes.string,
+    zipcode: PropTypes.string,
+    website: PropTypes.string,
+    address: PropTypes.string,
+    remarks: PropTypes.string,
+  }),
+};
 
-  return { loading, action, isModified, customer };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    getCustomer: (customerId) => dispatch({ type: GET_CUSTOMER, customerId }),
-    updateCustomer: (data) => dispatch({ type: UPDATE_CUSTOMER, data }),
-    resetCustomer: () => dispatch(reset()),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(EditCustomer);
+export default EditCustomer;

@@ -1,6 +1,6 @@
 import { put, call, takeLatest, select } from "redux-saga/effects";
 import {
-  addDoc,
+  doc,
   serverTimestamp,
   collection,
   query,
@@ -8,6 +8,7 @@ import {
   orderBy,
   limit,
   getDocs,
+  runTransaction,
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
@@ -53,18 +54,35 @@ function* createItem({ data }) {
     const { sku } = data;
     //check if there is another item with similar itemId
     const similarItem = await getSimilarItem(orgId, sku);
-
     if (similarItem) {
       throw new Error("There is another item with similar details!");
     }
 
-    return addDoc(collection(db, "organizations", orgId, "items"), {
-      ...data,
-      status: "active",
-      createdBy: name,
-      modifiedBy: name,
-      createdAt: serverTimestamp(),
-      modifiedAt: serverTimestamp(),
+    const newDocRef = doc(collection(db, "organizations", orgId, "items"));
+    const orgRef = doc(db, "organizations", orgId);
+
+    await runTransaction(db, async (transaction) => {
+      const orgDoc = await transaction.get(orgRef);
+      if (!orgDoc.exists) {
+        throw new Error("Organization data not found!");
+      }
+      const orgData = orgDoc.data();
+      const orgSummary = orgData.summary;
+
+      let items = orgSummary.items || 0;
+
+      transaction.update(orgRef, {
+        "summary.items": items + 1,
+      });
+
+      transaction.set(newDocRef, {
+        ...data,
+        status: "active",
+        createdBy: name,
+        modifiedBy: name,
+        createdAt: serverTimestamp(),
+        modifiedAt: serverTimestamp(),
+      });
     });
   }
 

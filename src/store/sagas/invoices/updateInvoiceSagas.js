@@ -1,5 +1,5 @@
 import { put, call, select, takeLatest } from "redux-saga/effects";
-import { updateDoc, doc, serverTimestamp } from "firebase/firestore";
+import { doc, serverTimestamp, runTransaction } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
 import { UPDATE_INVOICE, DELETE_INVOICE } from "../../actions/invoicesActions";
@@ -15,13 +15,62 @@ function* updateInvoice({ data }) {
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
   const { invoiceId, ...rest } = data;
+  const { customerId, summary } = rest;
   // console.log({ data, orgId, userProfile });
 
   async function update() {
-    await updateDoc(doc(db, "organizations", orgId, "invoices", invoiceId), {
-      ...rest,
-      modifiedBy: email,
-      modifiedAt: serverTimestamp(),
+    const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
+    const orgRef = doc(db, "organizations", orgId);
+    const customerRef = doc(
+      db,
+      "organizations",
+      orgId,
+      "customers",
+      customerId
+    );
+
+    await runTransaction(db, async (transaction) => {
+      const [invoiceDoc, orgDoc, customerDoc] = await Promise.all([
+        transaction.get(invoiceRef),
+        transaction.get(orgRef),
+        transaction.get(customerRef),
+      ]);
+      if (!invoiceDoc.exists) {
+        throw new Error("Invoice Data not found!");
+      }
+      if (!orgDoc.exists) {
+        throw new Error("Org Data not found!");
+      }
+      if (!customerDoc.exists) {
+        throw new Error("Customer Data not found!");
+      }
+      //customerSummary
+      const customerSummary = customerDoc.data().summary;
+      //orgSummary
+      const orgSummary = orgDoc.data().summary;
+      //invoice summary
+      const invoiceSummary = invoiceDoc.data().summary;
+
+      if (invoiceSummary.totalAmount !== summary.totalAmount) {
+        transaction.update(customerRef, {
+          "summary.invoicesTotal":
+            customerSummary.invoicesTotal -
+            invoiceSummary.totalAmount +
+            summary.totalAmount,
+        });
+        transaction.update(orgRef, {
+          "summary.invoicesTotal":
+            orgSummary.invoicesTotal -
+            invoiceSummary.totalAmount +
+            summary.totalAmount,
+        });
+      }
+
+      transaction.update(invoiceRef, {
+        ...rest,
+        modifiedBy: email,
+        modifiedAt: serverTimestamp(),
+      });
     });
   }
 
@@ -49,10 +98,57 @@ function* deleteInvoice({ invoiceId }) {
   console.log({ invoiceId, orgId, userProfile });
 
   async function update() {
-    await updateDoc(doc(db, "organizations", orgId, "invoices", invoiceId), {
-      status: "deleted",
-      modifiedBy: email,
-      modifiedAt: serverTimestamp(),
+    const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
+    const orgRef = doc(db, "organizations", orgId);
+
+    await runTransaction(db, async (transaction) => {
+      const [orgDoc, invoiceDoc] = await Promise.all([
+        transaction.get(orgRef),
+        transaction.get(invoiceRef),
+      ]);
+
+      if (!orgDoc.exists) {
+        throw new Error("Organization data not found!");
+      }
+      if (!invoiceDoc.exists) {
+        throw new Error("Invoice data not found!");
+      }
+      const {
+        customerId,
+        summary: { totalAmount },
+      } = invoiceDoc.data();
+      const customerRef = doc(
+        db,
+        "organizations",
+        orgId,
+        "customers",
+        customerId
+      );
+
+      const customerDoc = await transaction.get(customerRef);
+      if (!customerDoc.exists) {
+        throw new Error("Customer data not found!");
+      }
+      //customer summary
+      const customerSummary = customerDoc.data().summary;
+      //org summary
+      const orgSummary = orgDoc.data().summary;
+
+      transaction.update(orgRef, {
+        "summary.invoicesTotal": orgSummary.invoicesTotal - totalAmount,
+        "summary.invoices": orgSummary.invoices - 1,
+      });
+
+      transaction.update(customerRef, {
+        "summary.invoicesTotal": customerSummary.invoicesTotal - totalAmount,
+        "summary.invoices": customerSummary.invoices - 1,
+      });
+
+      transaction.update(invoiceRef, {
+        status: "deleted",
+        modifiedBy: email,
+        modifiedAt: serverTimestamp(),
+      });
     });
   }
 
