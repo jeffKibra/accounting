@@ -23,14 +23,35 @@ function* createPayment({ data }) {
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
   console.log({ data, orgId, userProfile });
-  const { customerId } = data;
+  const {
+    customerId,
+    paymentId,
+    paidInvoices,
+    summary: { excess, paidAmount, amount },
+  } = data;
 
   async function create() {
     const newDocRef = doc(collection(db, "organizations", orgId, "payments"));
-    const orgSummaryRef = doc(db, "organizations", orgId, "");
+    const orgRef = doc(db, "organizations", orgId);
+    const customerRef = doc(
+      db,
+      "organizations",
+      orgId,
+      "customers",
+      customerId
+    );
 
     await runTransaction(db, async (transaction) => {
-      transaction.get();
+      const [orgDoc, customerDoc] = await Promise.all([
+        transaction.get(orgRef),
+        transaction.get(customerRef),
+      ]);
+      if (!orgDoc.exists) {
+        throw new Error("Organization data not found!");
+      }
+      if (!customerDoc.exists) {
+        throw new Error("Customer data not found!");
+      }
 
       const latestPayment = await getLatestPayment(orgId, customerId);
 
@@ -49,10 +70,10 @@ function* createPayment({ data }) {
         paymentNumber,
         paymentSlug,
         org,
-        createdBy: email,
-        createdAt: serverTimestamp(),
-        modifiedBy: email,
-        modifiedAt: serverTimestamp(),
+        // createdBy: email,
+        // createdAt: serverTimestamp(),
+        // modifiedBy: email,
+        // modifiedAt: serverTimestamp(),
       });
     });
   }

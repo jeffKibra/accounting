@@ -39,9 +39,8 @@ function UnpaidInvoicesTable(props) {
     return invoices.map((invoice) => {
       const { invoiceId, invoiceDate, dueDate, invoiceSlug } = invoice;
       const overDue = Date.now() - new Date(dueDate).getTime() > 0;
-      const payment = invoice.payments.find(
-        (payment) => payment.paymentId === paymentId
-      );
+      const payment = invoice.payments[paymentId];
+
       const latestPayment = payment?.amount || 0;
       const withholdingTax = payment?.withholdingTax || 0;
 

@@ -72,8 +72,8 @@ function* createInvoice({ data }) {
 
       transaction.set(newDocRef, {
         ...data,
-        payments: [],
-        status: "pending",
+        payments: {},
+        status: "sent",
         invoiceNumber,
         invoiceSlug,
         org,

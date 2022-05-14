@@ -14,7 +14,6 @@ import PropTypes from "prop-types";
 import NumInput from "../../ui/NumInput";
 
 function EditInvoicePaymentForm(props) {
-  console.log({ props });
   const {
     invoice,
     summary,
@@ -28,7 +27,7 @@ function EditInvoicePaymentForm(props) {
     summary: { balance: invoiceBalance },
   } = invoice;
 
-  let payment = payments.find((payment) => payment.paymentId === paymentId);
+  let payment = payments[paymentId];
   const prevPayment = payment?.amount || 0;
 
   const formMethods = useForm({
@@ -56,10 +55,9 @@ function EditInvoicePaymentForm(props) {
 
   let balance = invoiceBalance + prevPayment;
   const max = Math.min(balance, newExcess);
-  console.log({ newExcess, balance, max });
+  // console.log({ newExcess, balance, max });
 
   const amount = watch("amount") || 0;
-  console.log({ amount });
 
   return (
     <VStack w="full">
@@ -132,7 +130,7 @@ EditInvoicePaymentForm.propTypes = {
     summary: PropTypes.shape({
       totalAmount: PropTypes.number.isRequired,
     }),
-    payments: PropTypes.array.isRequired,
+    payments: PropTypes.object.isRequired,
     invoiceDate: PropTypes.string.isRequired,
     dueDate: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,

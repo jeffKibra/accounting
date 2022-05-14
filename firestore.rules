@@ -214,7 +214,7 @@ service cloud.firestore {
           return request.resource.data.keys().hasAll(required) &&
             request.resource.data.keys().hasOnly(allFields) &&
             request.resource.data.selectedItems is list &&
-            request.resource.data.payments is list &&
+            request.resource.data.payments is map &&
             request.resource.data.summary is map &&
             request.resource.data.summary.shipping is int &&
             request.resource.data.summary.adjustment is int &&

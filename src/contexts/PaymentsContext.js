@@ -42,65 +42,62 @@ function Provider(props) {
 
   const [selectedInvoices, setSelectedInvoices] = useState(invoices || []);
   const [formValues, setFormValues] = useState(defaultValues || {});
-  const { customerId } = formValues;
+  const { customerId, amount: paymentAmount } = formValues;
 
   const updateInvoicePayment = useCallback(
-    (invoice = {}, data = { amount: 0, withholdingTax: 0 }) => {
+    (
+      invoice = {},
+      data = { amount: 0, withholdingTax: 0, tdsTaxAccount: "" }
+    ) => {
       /**
        * function is to be called after ascertaining no conflicts in summary amount
        */
+      // console.log({ data });
       const { invoiceId } = invoice;
       const { amount } = data;
-      const { tdsTaxAccount } = formValues;
       const paymentData = {
         ...data,
         paymentId,
         invoiceId,
-        ...(tdsTaxAccount ? { tdsTaxAccount } : {}),
       };
 
-      let payments = [...invoice.payments];
-      const index = payments.findIndex(
-        (payment) => payment.paymentId === paymentId
-      );
+      let payments = { ...invoice.payments };
+      const similarPayment = payments[paymentId];
 
-      console.log({ paymentData, payments });
+      // console.log({ paymentData, payments });
 
-      if (index === -1) {
-        //create new payment entry
-        if (amount > 0) {
-          //only add amounts greater than zero
-          payments = [{ ...paymentData }, ...payments];
-        }
-      } else {
+      if (similarPayment) {
         //create new payments with current payment updated to supplied amount
         if (amount > 0) {
           //only update amounts greater than zero
-          payments = payments.map((payment) => {
-            if (payment.paymentId === paymentId) {
-              console.log({ payment, paymentData });
-              return {
-                ...payment,
-                ...paymentData,
-              };
-            }
-            return payment;
-          });
+          payments = {
+            ...payments,
+            [paymentId]: { ...payments[paymentId], ...paymentData },
+          };
         } else {
           //amount is zero, remove payment from list
-          payments = payments.filter(
-            (payment) => payment.paymentId !== paymentId
-          );
+          delete payments[paymentId];
+        }
+      } else {
+        //create new payment entry
+        if (amount > 0) {
+          //only add amounts greater than zero
+          payments = {
+            ...payments,
+            [paymentId]: paymentData,
+          };
         }
       }
 
-      const totalPaid = payments.reduce((prev, payment) => {
-        return prev + payment.amount;
+      const totalPaid = Object.keys(payments).reduce((prev, key) => {
+        const paidAmount = payments[key].amount || 0;
+        return prev + paidAmount;
       }, 0);
 
       const invoiceTotal = invoice.summary.totalAmount;
       const newBalance = invoiceTotal - totalPaid;
       // console.log({ invoiceTotal, totalPaid, newBalance });
+      // console.log({ data, invoiceTotal, newBalance, totalPaid });
 
       return {
         ...invoice,
@@ -111,7 +108,7 @@ function Provider(props) {
         },
       };
     },
-    [formValues, paymentId]
+    [paymentId]
   );
 
   useEffect(() => {
@@ -122,7 +119,7 @@ function Provider(props) {
   }, [invoices]);
 
   useEffect(() => {
-    const { amount } = formValues;
+    const amount = paymentAmount;
     //update selected invoices when paid amount  changes
     if (amount) {
       setSelectedInvoices((currentInvoices) => {
@@ -135,7 +132,7 @@ function Provider(props) {
         });
       });
     }
-  }, [formValues, updateInvoicePayment]);
+  }, [paymentAmount, updateInvoicePayment]);
 
   useEffect(() => {
     if (customerId) {
@@ -149,9 +146,7 @@ function Provider(props) {
     const paidAmount = selectedInvoices.reduce((prev, current) => {
       const payments = current.payments;
       // console.log({ payments, current });
-      const paid =
-        payments.find((payment) => payment.paymentId === paymentId)?.amount ||
-        0;
+      const paid = payments[paymentId]?.amount || 0;
       // console.log({ payments, paid });
 
       return prev + paid;
@@ -170,24 +165,24 @@ function Provider(props) {
   }, [selectedInvoices, formValues, paymentId]);
 
   function updateFormValues(data) {
-    // console.log({ data });
     setFormValues((current) => ({ ...current, ...data }));
   }
 
   function finish() {
     const paidInvoices = selectedInvoices.filter((invoice) => {
       const { payments } = invoice;
-      return payments.find((payment) => payment.paymentId === paymentId);
+      return payments[paymentId];
     });
-    console.log({ selectedInvoices, paidInvoices });
+    // console.log({ selectedInvoices, paidInvoices });
 
     const allData = {
+      paymentId,
       ...formValues,
       paidInvoices,
       summary,
     };
 
-    console.log({ allData });
+    // console.log({ allData });
     saveData(allData);
   }
 
@@ -205,7 +200,6 @@ function Provider(props) {
 
       return currentInvoices.map((currentInvoice) => {
         if (currentInvoice.invoiceId === invoiceId) {
-          // console.log("invoice found");
           return {
             ...currentInvoice,
             ...updated,
@@ -217,17 +211,12 @@ function Provider(props) {
     });
   }
 
-  function getSimilarPayment(invoice) {
-    const { payments } = invoice;
-    return payments.find((payment) => payment.paymentId === paymentId);
-  }
-
   function autoPay() {
     let balance = summary.amount;
 
     const updated = selectedInvoices.map((invoice) => {
       //get similar payment
-      const currentPayment = getSimilarPayment(invoice)?.amount || 0;
+      const currentPayment = invoice.payments[paymentId]?.amount || 0;
       const invoiceBalance = invoice.summary.balance + currentPayment;
       let latestPayment = 0;
 
@@ -244,6 +233,7 @@ function Provider(props) {
       const paymentData = {
         amount: latestPayment,
       };
+      // console.log({ paymentData });
 
       const updatedInvoice = updateInvoicePayment(invoice, paymentData);
 
