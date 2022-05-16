@@ -17,7 +17,7 @@ service cloud.firestore {
 
       function verifyOrgData(){
         let general=['name', 'size', 'industry', 'owner', 'status'];
-        let additional=["summary", 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy'];
+        let additional=["accountTypes", 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy'];
         let info=['address', 'city', 'phone'];
         let person=['firstName', 'lastName', 'contactPhone'];
         let optional=['website'];
@@ -42,18 +42,19 @@ service cloud.firestore {
           request.resource.data.modifiedAt is timestamp &&
           request.resource.data.createdBy is string &&
           request.resource.data.modifiedBy is string &&
-          request.resource.data.summary is map &&
-          request.resource.data.summary.invoices is int &&
-          request.resource.data.summary.invoicesTotal is int &&
-          request.resource.data.summary.payments is int &&
-          request.resource.data.summary.paymentsTotal is int &&
-          request.resource.data.summary.items is int &&
-          request.resource.data.summary.customers is int
+          request.resource.data.accountTypes is map
+          // request.resource.data.summary is map &&
+          // request.resource.data.summary.invoices is int &&
+          // request.resource.data.summary.invoicesTotal is int &&
+          // request.resource.data.summary.payments is int &&
+          // request.resource.data.summary.paymentsTotal is int &&
+          // request.resource.data.summary.items is int &&
+          // request.resource.data.summary.customers is int
       }
 
       function allowOrgUpdate(){
         let general=['name', 'size', 'industry', 'owner', 'status'];
-        let additional=["summary", 'modifiedAt', 'modifiedBy'];
+        let additional=['modifiedAt', 'modifiedBy'];
         let info=['address', 'city', 'phone'];
         let person=['firstName', 'lastName', 'contactPhone'];
         let optional=['website'];
@@ -77,6 +78,55 @@ service cloud.firestore {
         return request.auth.uid == getOrgData().owner
       }
 
+      match /summaries/counters {
+        function verifyCountersData(){
+          let required=["invoices", "deletedInvoices", "payments","deletedPayments", "items", "customers"];
+          
+          return request.resource.data.keys().hasAll(required) &&
+            request.resource.data.invoices is int &&
+            request.resource.data.deletedInvoices is int &&
+            request.resource.data.payments is int &&
+            request.resource.data.deletedPayments is int &&
+            request.resource.data.items is int &&
+            request.resource.data.customers is int
+        }
+
+
+        allow create: if request.auth != null && verifyCountersData()
+        allow read: if isOwner()
+        allow update: if isOwner() && verifyCountersData()
+      }
+
+      match /accounts/{accountId} {
+        function verifyAccountData(){
+          let required=["accountType", "name", "amount", "description"];
+          let additional=["status", "createdAt", "modifiedAt", 'createdBy', 'modifiedBy'];
+          let allFields=required.concat(additional);
+
+          return request.resource.data.keys().hasAll(required) &&
+            request.resource.data.keys().hasOnly(allFields) &&
+            request.resource.data.accountType is string &&
+            request.resource.data.name is string &&
+            request.resource.data.amount is int &&
+            request.resource.data.description is string
+        }
+
+        function allowAccountUpdate(){
+          let required=["name", "amount", "description"];
+          let additional=["status", "modifiedAt", 'modifiedBy'];
+          let allFields=required.concat(additional);
+
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+        }
+
+        allow read: if isOwner()
+        allow create: if request.auth != null && verifyAccountData()
+        allow update: if isOwner() && verifyAccountData() && allowAccountUpdate()
+
+        match /transactions/{transactionId}{
+          allow read:if true
+        }
+      }
       
 
       match /items/{itemId} {
@@ -256,33 +306,30 @@ service cloud.firestore {
       }
 
       match /payments/{paymentId} {
+
         function verifyPaymentData(){
           let req=['account', 'amount', "summary", 'customerId', 'customer', 'paymentDate', "paymentMode", 'taxDeducted'];
           let optional=['bankCharges', 'paidInvoices', "reference", "tdsTaxAccount"];
-          let additional=['status', 'org', 'paymentSlug', 'paymentNumber', 'createdBy', 'modifiedBy', "createdAt", "modifiedBy"];
+          let additional=['status', 'org', 'paymentSlug', 'paymentNumber', 'createdBy', 'modifiedBy', "createdAt", "modifiedAt"];
           let required=req.concat(additional);
           let allFields=required.concat(optional);
-
-          let subTotal=request.resource.data.summary.usedAmount + request.resource.data.summary.excesss;
 
           return request.resource.data.keys().hasAll(required) &&
             request.resource.data.keys().hasOnly(allFields) &&
             request.resource.data.summary is map &&
             request.resource.data.summary.amount is int &&
-            request.resource.data.summary.amount == subTotal &&
             request.resource.data.summary.excess is int &&
-            request.resource.data.summary.usedAmount is int &&
+            request.resource.data.summary.payments is int &&
             request.resource.data.account is string &&
             request.resource.data.amount is int &&
             request.resource.data.customerId is string &&
-            request.resource.data.customer is string &&
+            request.resource.data.customer is map &&
             request.resource.data.paymentDate is string &&
             request.resource.data.paymentMode is string &&
             request.resource.data.taxDeducted is string &&
             request.resource.data.bankCharges is int &&
             request.resource.data.paidInvoices is list &&
             request.resource.data.reference is string &&
-            request.resource.data.tdsTaxAccount is string &&
             request.resource.data.status is string &&
             request.resource.data.org is map &&
             request.resource.data.paymentSlug is string &&
@@ -290,7 +337,9 @@ service cloud.firestore {
             request.resource.data.createdBy is string &&
             request.resource.data.modifiedBy is string &&
             request.resource.data.createdAt is timestamp &&
-            request.resource.data.modifiedAt is timestamp
+            request.resource.data.modifiedAt is timestamp 
+            // request.resource.data.tdsTaxAccount is string 
+
         }
 
         function allowPaymentUpdate(){

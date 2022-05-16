@@ -3,14 +3,17 @@ import {
   limit,
   where,
   getDocs,
-  addDoc,
   serverTimestamp,
   query,
   getDoc,
+  doc,
+  writeBatch,
 } from "firebase/firestore";
 import { put, call, takeLatest, select } from "redux-saga/effects";
 
 import { db } from "../../../utils/firebase";
+import accounts from "../../../utils/accounts";
+import accountTypes from "../../../utils/accountTypes";
 
 import { start, success, fail } from "../../slices/orgsSlice";
 import { CREATE_ORG } from "../../actions/orgsActions";
@@ -52,23 +55,46 @@ function* createOrg({ data }) {
   const { email, user_id } = userProfile;
 
   async function saveData() {
-    const orgRef = await addDoc(collection(db, "organizations"), {
+    const orgRef = doc(collection(db, "organizations"));
+    const countersRef = doc(db, orgRef.path, "summaries", "counters");
+
+    const batch = writeBatch(db);
+
+    Object.keys(accounts).forEach((key) => {
+      const accountDetails = accounts[key];
+      const accountRef = doc(db, orgRef.path, "accounts", key);
+
+      batch.set(accountRef, {
+        ...accountDetails,
+        status: "active",
+        createdAt: serverTimestamp(),
+        createdBy: email,
+        modifiedAt: serverTimestamp(),
+        modifiedBy: email,
+      });
+    });
+
+    batch.set(countersRef, {
+      invoices: 0,
+      deletedInvoices: 0,
+      payments: 0,
+      deletedPayments: 0,
+      items: 0,
+      customers: 0,
+    });
+
+    batch.set(orgRef, {
       ...data,
       status: "active",
-      summary: {
-        invoices: 0,
-        invoicesTotal: 0,
-        payments: 0,
-        paymentsTotal: 0,
-        items: 0,
-        customers: 0,
-      },
+      accountTypes,
       createdBy: email,
       modifiedBy: email,
       owner: user_id,
       createdAt: serverTimestamp(),
       modifiedAt: serverTimestamp(),
     });
+
+    await batch.commit();
 
     const orgDoc = await getDoc(orgRef);
 
