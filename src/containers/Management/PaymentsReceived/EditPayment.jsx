@@ -24,7 +24,7 @@ function EditPayment(props) {
     action,
     customers,
     getCustomers,
-    handleFormSubmit,
+    saveData,
     updating,
   } = props;
   // console.log({ props });
@@ -39,9 +39,10 @@ function EditPayment(props) {
     <SkeletonLoader />
   ) : customers?.length > 0 ? (
     <PaymentsContextProvider
-      saveData={handleFormSubmit}
+      saveData={saveData}
       defaultValues={payment}
       paymentId={paymentId}
+      updating={updating}
     >
       <Box w="full">
         <Stepper
@@ -51,7 +52,7 @@ function EditPayment(props) {
               content: (
                 <Flex mt={1} w="full" justify="center">
                   <ReceivePaymentForm
-                    // handleFormSubmit={handleFormSubmit}
+                    // saveData={saveData}
                     customers={customers}
                     loading={updating}
                     // defaultValues={payment}
@@ -73,7 +74,7 @@ function EditPayment(props) {
 }
 
 EditPayment.propTypes = {
-  handleFormSubmit: PropTypes.func.isRequired,
+  saveData: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,
   payment: PropTypes.shape({
     reference: PropTypes.string,

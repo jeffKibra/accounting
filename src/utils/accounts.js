@@ -1,3 +1,5 @@
+import accountTypes from "./accountTypes";
+
 export const Assets = {
   prepaid_expenses: {
     accountType: "other_current_asset",
@@ -346,12 +348,28 @@ export const Expenses = {
   },
 };
 
-const accounts = {
+let accounts = {
   ...Assets,
   ...Liabilities,
   ...Equity,
   ...Income,
   ...Expenses,
 };
+
+Object.keys(accounts).forEach((key) => {
+  const account = accounts[key];
+  const { accountType } = account;
+
+  accounts = {
+    ...accounts,
+    [key]: {
+      ...account,
+      accountType: {
+        id: accountType,
+        ...accountTypes[accountType],
+      },
+    },
+  };
+});
 
 export default accounts;

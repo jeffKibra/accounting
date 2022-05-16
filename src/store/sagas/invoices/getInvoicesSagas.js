@@ -24,12 +24,14 @@ import {
 } from "../../slices/invoicesSlice";
 import { error as toastError } from "../../slices/toastSlice";
 
+const allStatuses = ["pending", "partially paid", "paid", "draft", "sent"];
+
 export async function getLatestInvoice(orgId) {
   console.log({ orgId });
   const q = query(
     collection(db, "organizations", orgId, "invoices"),
     orderBy("createdAt", "desc"),
-    where("status", "in", ["pending", "paid", "draft", "sent"]),
+    where("status", "in", allStatuses),
     limit(1)
   );
   const snap = await getDocs(q);
@@ -86,7 +88,7 @@ function* getInvoices({ statuses }) {
     const q = query(
       collection(db, "organizations", orgId, "invoices"),
       orderBy("createdAt", "desc"),
-      where("status", "in", statuses || ["pending", "paid", "draft", "sent"])
+      where("status", "in", statuses || allStatuses)
     );
     const invoices = [];
     const snap = await getDocs(q);
@@ -126,7 +128,7 @@ function* getCustomerInvoices({ customerId, statuses }) {
       collection(db, "organizations", orgId, "invoices"),
       orderBy("createdAt", "asc"),
       where("customerId", "==", customerId),
-      where("status", "in", statuses || ["pending", "paid", "draft", "sent"])
+      where("status", "in", statuses || allStatuses)
     );
     const invoices = [];
     const snap = await getDocs(q);

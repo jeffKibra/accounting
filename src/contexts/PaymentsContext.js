@@ -13,6 +13,7 @@ import { GET_CUSTOMER_INVOICES } from "../store/actions/invoicesActions";
 const initialState = {
   paymentId: "",
   loadingInvoices: false,
+  updating: false,
   invoices: [],
   getInvoices: () => {},
   autoPay: () => {},
@@ -30,6 +31,7 @@ export default PaymentsContext;
 
 function Provider(props) {
   const {
+    updating,
     children,
     paymentId,
     defaultValues,
@@ -143,22 +145,22 @@ function Provider(props) {
   const summary = useMemo(() => {
     // console.log({ paymentId, selectedInvoices });
 
-    const paidAmount = selectedInvoices.reduce((prev, current) => {
-      const payments = current.payments;
+    const payments = selectedInvoices.reduce((prev, current) => {
+      const invoicePayments = current.payments;
       // console.log({ payments, current });
-      const paid = payments[paymentId]?.amount || 0;
+      const paid = invoicePayments[paymentId]?.amount || 0;
       // console.log({ payments, paid });
 
       return prev + paid;
     }, 0);
 
     const { amount } = formValues;
-    const balance = amount - paidAmount;
+    const balance = amount - payments;
 
     const excess = balance > 0 ? balance : 0;
 
     return {
-      paidAmount,
+      payments,
       excess,
       amount,
     };
@@ -248,6 +250,7 @@ function Provider(props) {
   return (
     <PaymentsContext.Provider
       value={{
+        updating,
         paymentId,
         loadingInvoices: loading && action === GET_CUSTOMER_INVOICES,
         invoices: selectedInvoices,
@@ -270,6 +273,7 @@ Provider.propTypes = {
   defaultValues: PropTypes.object,
   paymentId: PropTypes.string.isRequired,
   saveData: PropTypes.func.isRequired,
+  updating: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state) {

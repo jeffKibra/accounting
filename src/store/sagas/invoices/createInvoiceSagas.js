@@ -20,7 +20,7 @@ function* createInvoice({ data }) {
   const orgId = org.id;
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
-  console.log({ data, orgId, userProfile });
+  // console.log({ data, orgId, userProfile });
   const { customerId, summary } = data;
 
   async function create() {
@@ -77,6 +77,7 @@ function* createInvoice({ data }) {
         invoiceNumber,
         invoiceSlug,
         org,
+        plus: "icons",
         createdBy: email,
         createdAt: serverTimestamp(),
         modifiedBy: email,

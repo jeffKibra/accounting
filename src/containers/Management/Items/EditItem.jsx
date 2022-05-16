@@ -1,68 +1,116 @@
 import { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
+import PropTypes from "prop-types";
 
-import { GET_ITEM, UPDATE_ITEM } from "../../../store/actions/itemsActions";
-import { reset } from "../../../store/slices/itemsSlice";
+import { GET_TAXES } from "../../../store/actions/taxesActions";
+import { GET_ACCOUNTS } from "../../../store/actions/accountsActions";
 
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
 import Empty from "../../../components/ui/Empty";
 import ItemForm from "../../../components/forms/Items/ItemForm";
 
 function EditItem(props) {
-  const { getItem, updateItem, resetItem, loading, isModified, action, item } =
-    props;
-  const { itemId } = useParams();
-  const navigate = useNavigate();
+  const {
+    saveData,
+    updating,
+    getAccounts,
+    loading,
+    action,
+    accounts,
+    item,
+    loadingTaxes,
+    taxesAction,
+    taxes,
+    getTaxes,
+  } = props;
 
   useEffect(() => {
-    getItem(itemId);
-  }, [getItem, itemId]);
+    getAccounts();
+    getTaxes();
+  }, [getAccounts, getTaxes]);
 
-  useEffect(() => {
-    if (isModified) {
-      resetItem();
-      navigate("/items");
-    }
-  }, [isModified, resetItem, navigate]);
-
-  function handleSubmit(data) {
+  function handleFormSubmit(data) {
     // console.log({ data });
-    updateItem({
+    const { salesTaxId, salesAccountId } = data;
+
+    //sales account
+    let salesAccount = {};
+
+    salesAccount = accounts.find(
+      (account) => account.accountType.id === salesAccountId
+    );
+
+    if (salesAccount) {
+      const { accountId, accountType, name } = salesAccount;
+
+      salesAccount = { accountId, accountType, name };
+    }
+
+    //tax account
+    let salesTax = {};
+
+    if (salesTaxId) {
+      const temp = taxes.find((tax) => tax.taxId === salesTaxId);
+      if (temp) {
+        const { name, rate, taxId } = temp;
+        salesTax = { name, rate, taxId };
+      }
+    }
+
+    const newData = {
       ...data,
-      itemId,
-    });
+      salesTax,
+      salesAccount,
+    };
+    // console.log({ newData });
+    saveData(newData);
   }
 
-  return loading && action === GET_ITEM ? (
+  return (loading && action === GET_ACCOUNTS) ||
+    (loadingTaxes && taxesAction === GET_TAXES) ? (
     <SkeletonLoader />
-  ) : item ? (
-    (() => {
-      const { createdAt, modifiedAt, createdBy, modifiedBy, ...rest } = item;
-      return (
-        <ItemForm
-          loading={loading && action === UPDATE_ITEM}
-          item={rest}
-          handleFormSubmit={handleSubmit}
-        />
-      );
-    })()
+  ) : accounts ? (
+    <ItemForm
+      accounts={accounts}
+      loading={updating}
+      defaultValues={item}
+      handleFormSubmit={handleFormSubmit}
+      taxes={taxes}
+    />
   ) : (
-    <Empty message="Item Data not found!" />
+    <Empty message="Accounts Data not found!" />
   );
 }
 
-function mapStateToProps(state) {
-  const { loading, isModified, action, item } = state.itemsReducer;
+EditItem.propTypes = {
+  updating: PropTypes.bool.isRequired,
+  saveData: PropTypes.func.isRequired,
+  item: PropTypes.object,
+};
 
-  return { loading, isModified, action, item };
+function mapStateToProps(state) {
+  const { loading, isModified, action, accounts } = state.accountsReducer;
+  const {
+    loading: loadingTaxes,
+    action: taxesAction,
+    taxes,
+  } = state.taxesReducer;
+
+  return {
+    loading,
+    isModified,
+    action,
+    accounts,
+    loadingTaxes,
+    taxesAction,
+    taxes,
+  };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    updateItem: (data) => dispatch({ type: UPDATE_ITEM, data }),
-    getItem: (itemId) => dispatch({ type: GET_ITEM, itemId }),
-    resetItem: () => dispatch(reset()),
+    getAccounts: () => dispatch({ type: GET_ACCOUNTS, mainTypes: ["income"] }),
+    getTaxes: () => dispatch({ type: GET_TAXES }),
   };
 }
 

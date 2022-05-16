@@ -20,6 +20,7 @@ function UnpaidInvoices(props) {
     summary,
     formValues,
     finish,
+    updating,
   } = useContext(PaymentsContext);
   const { prevStep } = useContext(StepperContext);
 
@@ -59,10 +60,15 @@ function UnpaidInvoices(props) {
         </GridItem>
       </Grid>
       <Flex mt={4} justify="space-evenly">
-        <Button onClick={goBack} colorScheme="cyan" variant="outline">
+        <Button
+          isLoading={updating}
+          onClick={goBack}
+          colorScheme="cyan"
+          variant="outline"
+        >
           prev
         </Button>
-        <Button onClick={finish} colorScheme="cyan">
+        <Button isLoading={updating} onClick={finish} colorScheme="cyan">
           finish
         </Button>
       </Flex>

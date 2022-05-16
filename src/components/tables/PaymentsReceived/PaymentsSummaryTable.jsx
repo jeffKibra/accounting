@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 function PaymentsSummaryTable(props) {
   const { summary } = props;
 
-  const { amount, paidAmount, excess } = summary;
+  const { amount, payments, excess } = summary;
   // console.log({ summary });
 
   return (
@@ -18,7 +18,7 @@ function PaymentsSummaryTable(props) {
 
           <Tr>
             <Td>Payments</Td>
-            <Td isNumeric>{paidAmount}</Td>
+            <Td isNumeric>{payments}</Td>
           </Tr>
 
           <Tr>
@@ -34,7 +34,7 @@ function PaymentsSummaryTable(props) {
 PaymentsSummaryTable.propTypes = {
   summary: PropTypes.shape({
     amount: PropTypes.number.isRequired,
-    paidAmount: PropTypes.number.isRequired,
+    payments: PropTypes.number.isRequired,
     excess: PropTypes.number.isRequired,
   }),
 };

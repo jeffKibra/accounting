@@ -7,8 +7,8 @@ import { db } from "../../../utils/firebase";
 
 import { PAYMENTS_RECEIVED } from "../../../nav/routes";
 
-import { CREATE_INVOICE } from "../../../store/actions/invoicesActions";
-import { reset } from "../../../store/slices/invoicesSlice";
+import { CREATE_PAYMENT } from "../../../store/actions/paymentsActions";
+import { reset } from "../../../store/slices/paymentsSlice";
 
 import useSavedLocation from "../../../hooks/useSavedLocation";
 
@@ -16,7 +16,7 @@ import PageLayout from "../../../components/layout/PageLayout";
 import EditPayment from "../../../containers/Management/PaymentsReceived/EditPayment";
 
 function NewPaymentPage(props) {
-  const { loading, action, isModified, createInvoice, resetInvoice, orgId } =
+  const { loading, action, isModified, createPayment, resetPayment, orgId } =
     props;
   useSavedLocation().setLocation();
   const navigate = useNavigate();
@@ -29,24 +29,24 @@ function NewPaymentPage(props) {
 
   useEffect(() => {
     if (isModified) {
-      resetInvoice();
+      resetPayment();
       navigate(PAYMENTS_RECEIVED);
     }
-  }, [isModified, resetInvoice, navigate]);
+  }, [isModified, resetPayment, navigate]);
 
   return (
     <PageLayout pageTitle="Receive Payment">
       <EditPayment
         paymentId={paymentId}
-        updating={loading && action === CREATE_INVOICE}
-        handleFormSubmit={createInvoice}
+        updating={loading && action === CREATE_PAYMENT}
+        saveData={createPayment}
       />
     </PageLayout>
   );
 }
 
 function mapStateToProps(state) {
-  const { loading, action, isModified } = state.invoicesReducer;
+  const { loading, action, isModified } = state.paymentsReducer;
   const orgId = state.orgsReducer.org.id;
 
   return { loading, action, isModified, orgId };
@@ -54,8 +54,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createInvoice: (data) => dispatch({ type: CREATE_INVOICE, data }),
-    resetInvoice: () => dispatch(reset()),
+    createPayment: (data) => dispatch({ type: CREATE_PAYMENT, data }),
+    resetPayment: () => dispatch(reset()),
   };
 }
 

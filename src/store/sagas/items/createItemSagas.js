@@ -8,7 +8,8 @@ import {
   orderBy,
   limit,
   getDocs,
-  runTransaction,
+  writeBatch,
+  increment,
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
@@ -50,6 +51,7 @@ function* createItem({ data }) {
   const org = yield select((state) => state.orgsReducer.org);
   const orgId = org.id;
   // console.log({ data });
+
   async function create() {
     const { sku } = data;
     //check if there is another item with similar itemId
@@ -59,31 +61,30 @@ function* createItem({ data }) {
     }
 
     const newDocRef = doc(collection(db, "organizations", orgId, "items"));
-    const orgRef = doc(db, "organizations", orgId);
+    const countersRef = doc(
+      db,
+      "organizations",
+      orgId,
+      "summaries",
+      "counters"
+    );
 
-    await runTransaction(db, async (transaction) => {
-      const orgDoc = await transaction.get(orgRef);
-      if (!orgDoc.exists) {
-        throw new Error("Organization data not found!");
-      }
-      const orgData = orgDoc.data();
-      const orgSummary = orgData.summary;
+    const batch = writeBatch(db);
 
-      let items = orgSummary.items || 0;
-
-      transaction.update(orgRef, {
-        "summary.items": items + 1,
-      });
-
-      transaction.set(newDocRef, {
-        ...data,
-        status: "active",
-        createdBy: name,
-        modifiedBy: name,
-        createdAt: serverTimestamp(),
-        modifiedAt: serverTimestamp(),
-      });
+    batch.update(countersRef, {
+      items: increment(1),
     });
+
+    batch.set(newDocRef, {
+      ...data,
+      status: "active",
+      createdBy: name,
+      modifiedBy: name,
+      createdAt: serverTimestamp(),
+      modifiedAt: serverTimestamp(),
+    });
+
+    await batch.commit();
   }
 
   try {

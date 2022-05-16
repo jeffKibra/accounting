@@ -3,7 +3,8 @@ import {
   doc,
   updateDoc,
   serverTimestamp,
-  runTransaction,
+  writeBatch,
+  increment,
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
@@ -67,28 +68,28 @@ function* deleteItem({ itemId }) {
   const orgId = org.id;
 
   async function update() {
-    const orgRef = doc(db, "organizations", orgId);
     const itemRef = doc(db, "organizations", orgId, "items", itemId);
+    const countersRef = doc(
+      db,
+      "organizations",
+      orgId,
+      "summaries",
+      "counters"
+    );
 
-    await runTransaction(db, async (transaction) => {
-      const orgDoc = await transaction.get(orgRef);
-      if (!orgDoc.exists) {
-        throw new Error("Organization data not found!");
-      }
-      const orgItems = orgDoc.data().summary?.items || 0;
+    const batch = writeBatch(db);
 
-      if (orgItems > 0) {
-        transaction.update(orgRef, {
-          "summary.items": orgItems - 1,
-        });
-      }
-
-      transaction.update(itemRef, {
-        status: "deleted",
-        modifiedBy: name,
-        modifiedAt: serverTimestamp(),
-      });
+    batch.update(countersRef, {
+      items: increment(-1),
     });
+
+    batch.update(itemRef, {
+      status: "deleted",
+      modifiedBy: name,
+      modifiedAt: serverTimestamp(),
+    });
+
+    await batch.commit();
   }
 
   try {

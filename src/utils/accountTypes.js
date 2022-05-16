@@ -23,6 +23,10 @@ const accountTypes = {
     main: "assets",
     name: "Stock",
   },
+  accounts_receivable: {
+    main: "assets",
+    name: "Accounts Receivable",
+  },
   payment_clearing: {
     main: "assets",
     name: "Payment Clearing",
@@ -38,6 +42,10 @@ const accountTypes = {
   credit_card: {
     main: "liability",
     name: "Credit Card",
+  },
+  accounts_payable: {
+    main: "liability",
+    name: "Accounts Payable",
   },
   long_term_liability: {
     main: "liability",

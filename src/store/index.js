@@ -12,6 +12,7 @@ import { taxesReducer } from "./slices/taxesSlice";
 import { customersReducer } from "./slices/customersSlice";
 import { invoicesReducer } from "./slices/invoicesSlice";
 import { paymentsReducer } from "./slices/paymentsSlice";
+import { accountsReducer } from "./slices/accountsSlice";
 import { modifyItemsCategoriesReducer } from "./slices/itemsCategories/modifyItemsCategoriesSlice";
 
 const sagaMiddleware = createSagaMiddleware();
@@ -27,6 +28,7 @@ const store = configureStore({
       customersReducer,
       invoicesReducer,
       paymentsReducer,
+      accountsReducer,
       modifyItemsCategoriesReducer,
     });
 
