@@ -50,7 +50,8 @@ function DetailsForm(props) {
     nextStep();
   }
 
-  const [firstName, lastName, companyName] = watch([
+  const [salutation, firstName, lastName, companyName] = watch([
+    "salutation",
     "firstName",
     "lastName",
     "companyName",
@@ -124,7 +125,30 @@ function DetailsForm(props) {
           <Divider />
         </GridItem>
 
-        <GridItem colSpan={[12, 6]}>
+        <GridItem colSpan={[12, 4]}>
+          <FormControl
+            isDisabled={loading}
+            isRequired
+            isInvalid={!!errors.salutation}
+          >
+            <FormLabel>Salutation</FormLabel>
+            <Select
+              placeholder="salutation"
+              {...register("salutation", {
+                required: { value: true, message: "Required!" },
+              })}
+            >
+              <option value="Mr.">Mr.</option>
+              <option value="Mrs.">Mrs.</option>
+              <option value="Ms.">Ms.</option>
+              <option value="Miss.">Miss.</option>
+              <option value="Dr.">Dr.</option>
+            </Select>
+            <FormErrorMessage>{errors.salutation?.message}</FormErrorMessage>
+          </FormControl>
+        </GridItem>
+
+        <GridItem colSpan={[12, 4]}>
           <FormControl
             isDisabled={loading}
             isRequired
@@ -140,7 +164,7 @@ function DetailsForm(props) {
             <FormErrorMessage>{errors.firstName?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
-        <GridItem colSpan={[12, 6]}>
+        <GridItem colSpan={[12, 4]}>
           <FormControl
             isDisabled={loading}
             isRequired
@@ -171,11 +195,11 @@ function DetailsForm(props) {
               })}
             >
               <option
-                value={`${firstName} ${lastName}`}
-              >{`${firstName} ${lastName}`}</option>
+                value={`${salutation} ${firstName} ${lastName}`}
+              >{`${salutation} ${firstName} ${lastName}`}</option>
               <option
-                value={`${lastName} ${firstName}`}
-              >{`${lastName} ${firstName}`}</option>
+                value={`${salutation} ${lastName} ${firstName}`}
+              >{`${salutation} ${lastName} ${firstName}`}</option>
               <option value={companyName}>{companyName}</option>
             </Select>
             <FormHelperText>Name used in all transactions</FormHelperText>

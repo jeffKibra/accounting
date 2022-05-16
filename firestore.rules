@@ -204,7 +204,7 @@ service cloud.firestore {
 
       match /customers/{customerId} {
         function verifyCustomerData(){
-          let req=['type', 'firstName', 'lastName', 'displayName', 'workPhone', 'city', 'address'];
+          let req=['type', 'salutation', 'firstName', 'lastName', 'displayName', 'workPhone', 'city', 'address'];
           let additional=['status', "summary", 'createdAt', 'createdBy', 'modifiedAt', 'modifiedBy'];
           let required=req.concat(additional);
           let optional=['companyName', 'email', 'mobile', 'zipcode', 'website', 'remarks', 'openingBalance'];
@@ -214,6 +214,7 @@ service cloud.firestore {
             request.resource.data.keys().hasOnly(allFields) &&
             request.resource.data.status is string &&
             request.resource.data.type is string &&
+            request.resource.data.salutation is string &&
             request.resource.data.firstName is string &&
             request.resource.data.lastName is string &&
             request.resource.data.companyName is string &&
@@ -221,7 +222,6 @@ service cloud.firestore {
             request.resource.data.email is string &&
             request.resource.data.workPhone is string &&
             request.resource.data.mobile is string &&
-            request.resource.data.openingBalance is int &&
             request.resource.data.city is string &&
             request.resource.data.zipcode is string &&
             request.resource.data.website is string &&
@@ -236,10 +236,12 @@ service cloud.firestore {
             request.resource.data.summary.invoicesTotal is int &&
             request.resource.data.summary.payments is int &&
             request.resource.data.summary.paymentsTotal is int 
+            // request.resource.data.openingBalance is int &&
+
         }
 
         function allowCustomerUpdate(){
-          let req=['type', 'firstName', 'lastName', 'displayName', 'workPhone', 'city', 'address'];
+          let req=['type', 'salutation', 'firstName', 'lastName', 'displayName', 'workPhone', 'city', 'address'];
           let additional=['status', "summary", 'modifiedAt', 'modifiedBy', "summary"];
           let required=req.concat(additional);
           let optional=['companyName', 'email', 'mobile', 'zipcode', 'website', 'remarks'];

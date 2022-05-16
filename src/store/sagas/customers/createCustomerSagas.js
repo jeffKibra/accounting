@@ -3,7 +3,8 @@ import {
   doc,
   collection,
   serverTimestamp,
-  runTransaction,
+  writeBatch,
+  increment,
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
@@ -22,39 +23,40 @@ function* createCustomer({ data }) {
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
 
+  console.log({ data });
+
   async function create() {
     const newDocRef = doc(collection(db, "organizations", orgId, "customers"));
-    const orgRef = doc(db, "organizations", orgId);
+    const countersRef = doc(
+      db,
+      "organizations",
+      orgId,
+      "summaries",
+      "counters"
+    );
 
-    await runTransaction(db, async (transaction) => {
-      const orgDoc = await transaction.get(orgRef);
-      if (!orgDoc.exists) {
-        throw new Error("Organization data not found!");
-      }
-      const orgData = orgDoc.data();
-      const orgSummary = orgData.summary;
+    const batch = writeBatch(db);
 
-      let customers = orgSummary.customers || 0;
-
-      transaction.update(orgRef, {
-        "summary.customers": customers + 1,
-      });
-
-      transaction.set(newDocRef, {
-        ...data,
-        status: "active",
-        summary: {
-          invoices: 0,
-          invoicesTotal: 0,
-          payments: 0,
-          paymentsTotal: 0,
-        },
-        createdBy: email,
-        createdAt: serverTimestamp(),
-        modifiedBy: email,
-        modifiedAt: serverTimestamp(),
-      });
+    batch.update(countersRef, {
+      customers: increment(1),
     });
+
+    batch.set(newDocRef, {
+      ...data,
+      status: "active",
+      summary: {
+        invoices: 0,
+        invoicesTotal: 0,
+        payments: 0,
+        paymentsTotal: 0,
+      },
+      createdBy: email,
+      createdAt: serverTimestamp(),
+      modifiedBy: email,
+      modifiedAt: serverTimestamp(),
+    });
+
+    await batch.commit();
   }
 
   try {

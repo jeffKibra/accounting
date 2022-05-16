@@ -5,11 +5,11 @@ import {
   FormLabel,
   FormErrorMessage,
   Textarea,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
+  // NumberInput,
+  // NumberInputField,
+  // NumberInputStepper,
+  // NumberIncrementStepper,
+  // NumberDecrementStepper,
   Grid,
   GridItem,
   Flex,
@@ -67,7 +67,7 @@ function ExtraDetailsForm(props) {
         mt="4px"
         mb="4px"
       >
-        <GridItem colSpan={[12, 6]}>
+        {/* <GridItem colSpan={[12, 6]}>
           <FormControl isDisabled={loading} isInvalid={!!errors.openingBalance}>
             <FormLabel htmlFor="openingBalance">Opening Balance</FormLabel>
             <NumberInput defaultValue={0}>
@@ -84,7 +84,7 @@ function ExtraDetailsForm(props) {
               {errors.openingBalance?.message}
             </FormErrorMessage>
           </FormControl>
-        </GridItem>
+        </GridItem> */}
 
         <GridItem colSpan={[12, 6]}>
           <FormControl
