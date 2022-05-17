@@ -46,9 +46,9 @@ function* createCustomer({ data }) {
       status: "active",
       summary: {
         invoices: 0,
-        invoicesTotal: 0,
+        deletedInvoices: 0,
         payments: 0,
-        paymentsTotal: 0,
+        deletedPayments: 0,
       },
       createdBy: email,
       createdAt: serverTimestamp(),

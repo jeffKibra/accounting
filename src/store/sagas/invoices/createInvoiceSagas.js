@@ -4,6 +4,7 @@ import {
   collection,
   serverTimestamp,
   runTransaction,
+  increment,
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
@@ -20,8 +21,8 @@ function* createInvoice({ data }) {
   const orgId = org.id;
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
-  // console.log({ data, orgId, userProfile });
-  const { customerId, summary } = data;
+  console.log({ data });
+  const { customerId, summary, selectedItems } = data;
 
   async function create() {
     const customerRef = doc(
@@ -31,43 +32,34 @@ function* createInvoice({ data }) {
       "customers",
       customerId
     );
-    const orgRef = doc(db, "organizations", orgId);
+    const countersRef = doc(
+      db,
+      "organizations",
+      orgId,
+      "summaries",
+      "counters"
+    );
     const newDocRef = doc(collection(db, "organizations", orgId, "invoices"));
 
     await runTransaction(db, async (transaction) => {
-      const [customerDoc, orgDoc] = await Promise.all([
-        transaction.get(customerRef),
-        transaction.get(orgRef),
-      ]);
+      const [customerDoc] = await transaction.get(customerRef);
       if (!customerDoc.exists) {
         throw new Error("Selected customer not found!");
       }
-      if (!orgDoc.exists) {
-        throw new Error("Orgnization data not found!");
-      }
+
       const customer = customerDoc.data();
       const customerSummary = customer.summary;
 
-      let invoiceNumber = customerSummary?.invoices || 0;
-      let invoicesTotal = customerSummary?.invoicesTotal || 0;
-      //org
-      const orgData = orgDoc.data();
-      const orgSummary = orgData.summary;
-
-      let orgInvoices = orgSummary?.invoices || 0;
-      let orgInvoicesTotal = orgSummary?.invoicesTotal || 0;
-
-      invoiceNumber += 1;
+      const invoiceNumber = (customerSummary?.invoices || 0) + 1;
       const invoiceSlug = `INV-${String(invoiceNumber).padStart(6, 0)}`;
 
       transaction.update(customerRef, {
-        "summary.invoices": invoiceNumber,
-        "summary.invoicesTotal": invoicesTotal + summary.totalAmount,
+        "summary.invoices": increment(1),
+        "summary.invoicesTotal": increment(summary.totalAmount),
       });
 
-      transaction.update(orgRef, {
-        "summary.invoices": orgInvoices + 1,
-        "summary.invoicesTotal": orgInvoicesTotal + summary.totalAmount,
+      transaction.update(countersRef, {
+        invoices: increment(1),
       });
 
       transaction.set(newDocRef, {

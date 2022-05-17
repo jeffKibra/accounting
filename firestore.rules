@@ -138,7 +138,7 @@ service cloud.firestore {
           let general=['name', 'type',  'sku', 'unit', "salesAccountId", 'salesAccount', 'sellingPrice', 'costAccount', 'costPrice'];
           let additional=['status', 'createdBy', 'modifiedBy', 'createdAt', 'modifiedAt'];
           let required= general.concat(additional);
-          let optional=['variant', 'costDetails', 'itemDescription', 'sellingDetails', 'salesTax', 'salesTaxId'];
+          let optional=['variant', 'costDetails', 'itemDescription', 'sellingDetails', 'salesTax', 'salesTaxId', "salesTaxType"];
           let allFields=required.concat(optional);
 
           return request.resource.data.keys().hasAll(required) &&
@@ -162,12 +162,13 @@ service cloud.firestore {
             request.resource.data.itemDescription is string &&
             request.resource.data.sellingDetails is string &&
             request.resource.data.salesTax is map &&
-            request.resource.data.salesTaxId is string
+            request.resource.data.salesTaxId is string &&
+            request.resource.data.salesTaxType is string
         }
 
         function allowItemUpdate(){
           let cost=['costDetails', 'costAccount', 'costPrice'];
-          let selling=['sellingDetails', 'salesAccount', 'sellingPrice', 'salesTax', 'salesTaxId'];
+          let selling=['sellingDetails', 'salesAccount', 'sellingPrice', 'salesTax', 'salesTaxId', 'salesTaxType'];
           let general=['name', 'variant', 'sku', 'status', 'type', 'unit', 'itemDescription', 'modifiedAt', 'modifiedBy'];
           let allowed=general.concat(selling).concat(cost);
 

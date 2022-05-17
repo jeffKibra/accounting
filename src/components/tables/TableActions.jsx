@@ -20,22 +20,6 @@ import Dialog from "../ui/Dialog";
 
 function TableActions(props) {
   const { viewRoute, editRoute, deleteDialog } = props;
-  const { title, message, onConfirm, isDeleted, loading } = deleteDialog;
-
-  function DeleteDialog(props) {
-    const { renderTrigger } = props;
-
-    return (
-      <Dialog
-        isDone={isDeleted}
-        loading={loading}
-        title={title}
-        message={message}
-        onConfirm={onConfirm}
-        renderButton={renderTrigger}
-      />
-    );
-  }
 
   return (
     <>
@@ -62,6 +46,7 @@ function TableActions(props) {
             )}
             {deleteDialog && (
               <DeleteDialog
+                {...deleteDialog}
                 renderTrigger={(onOpen) => {
                   return (
                     <MenuItem
@@ -103,6 +88,7 @@ function TableActions(props) {
 
         {deleteDialog && (
           <DeleteDialog
+            {...deleteDialog}
             renderTrigger={(onOpen) => {
               return (
                 <IconButton
@@ -134,3 +120,28 @@ TableActions.propTypes = {
 };
 
 export default TableActions;
+
+function DeleteDialog(props) {
+  const { isDeleted, loading, title, message, onConfirm, renderTrigger } =
+    props;
+
+  return (
+    <Dialog
+      isDone={isDeleted}
+      loading={loading}
+      title={title}
+      message={message}
+      onConfirm={onConfirm}
+      renderButton={renderTrigger}
+    />
+  );
+}
+
+DeleteDialog.propTypes = {
+  title: PropTypes.string.isRequired,
+  message: PropTypes.node.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  isDeleted: PropTypes.bool.isRequired,
+  loading: PropTypes.bool.isRequired,
+  renderTrigger: PropTypes.func.isRequired,
+};

@@ -1,13 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
 import { GET_TAXES } from "../../../store/actions/taxesActions";
 import { GET_ACCOUNTS } from "../../../store/actions/accountsActions";
 
+import Stepper from "../../../components/ui/Stepper";
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
 import Empty from "../../../components/ui/Empty";
-import ItemForm from "../../../components/forms/Items/ItemForm";
+
+import ItemDetailsForm from "../../../components/forms/Items/ItemDetailsForm";
+import SalesDetailsForm from "../../../components/forms/Items/SalesDetailsForm";
+import PurchaseDetailsForm from "../../../components/forms/Items/PurchaseDetailsForm";
 
 function EditItem(props) {
   const {
@@ -23,11 +27,18 @@ function EditItem(props) {
     taxes,
     getTaxes,
   } = props;
+  console.log({ accounts });
+
+  const [formValues, setFormValues] = useState(item || {});
 
   useEffect(() => {
     getAccounts();
     getTaxes();
   }, [getAccounts, getTaxes]);
+
+  function updateFormValues(data) {
+    setFormValues((current) => ({ ...current, ...data }));
+  }
 
   function handleFormSubmit(data) {
     // console.log({ data });
@@ -37,7 +48,7 @@ function EditItem(props) {
     let salesAccount = {};
 
     salesAccount = accounts.find(
-      (account) => account.accountType.id === salesAccountId
+      (account) => account.accountId === salesAccountId
     );
 
     if (salesAccount) {
@@ -70,12 +81,44 @@ function EditItem(props) {
     (loadingTaxes && taxesAction === GET_TAXES) ? (
     <SkeletonLoader />
   ) : accounts ? (
-    <ItemForm
-      accounts={accounts}
-      loading={updating}
-      defaultValues={item}
-      handleFormSubmit={handleFormSubmit}
-      taxes={taxes}
+    <Stepper
+      steps={[
+        {
+          label: "Item Details",
+          content: (
+            <ItemDetailsForm
+              loading={updating}
+              defaultValues={formValues}
+              handleFormSubmit={updateFormValues}
+            />
+          ),
+        },
+        {
+          label: "Purchase Details",
+          content: (
+            <PurchaseDetailsForm
+              accounts={accounts}
+              loading={updating}
+              defaultValues={formValues}
+              handleFormSubmit={updateFormValues}
+              taxes={taxes}
+            />
+          ),
+        },
+        {
+          label: "Sales Details",
+          content: (
+            <SalesDetailsForm
+              accounts={accounts}
+              loading={updating}
+              defaultValues={formValues}
+              updateFormValues={updateFormValues}
+              handleFormSubmit={handleFormSubmit}
+              taxes={taxes}
+            />
+          ),
+        },
+      ]}
     />
   ) : (
     <Empty message="Accounts Data not found!" />

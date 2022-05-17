@@ -3,7 +3,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 
 function RadioInput(props) {
-  const { name, options, defaultValue } = props;
+  const { name, options, defaultValue, rules } = props;
   const { control } = useFormContext();
 
   return (
@@ -22,20 +22,22 @@ function RadioInput(props) {
             value={value}
             onBlur={onBlur}
             // defaultValue="individual"
+            textTransform="capitalize"
           >
             <Wrap spacing={2}>
               {options.map((option, i) => {
                 return (
                   <WrapItem key={i}>
-                    <Radio textTransform="capitalize" value={option}>
-                      {option}
-                    </Radio>
+                    <Radio value={option}>{option}</Radio>
                   </WrapItem>
                 );
               })}
             </Wrap>
           </RadioGroup>
         );
+      }}
+      rules={{
+        ...rules,
       }}
     />
   );
@@ -45,6 +47,12 @@ RadioInput.propTypes = {
   name: PropTypes.string.isRequired,
   options: PropTypes.array.isRequired,
   defaultValue: PropTypes.string,
+  rules: PropTypes.shape({
+    required: PropTypes.shape({
+      value: PropTypes.bool,
+      message: PropTypes.string,
+    }),
+  }),
 };
 
 export default RadioInput;
