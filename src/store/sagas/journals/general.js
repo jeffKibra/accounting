@@ -14,22 +14,25 @@ export function newEntry(
   transaction,
   userProfile = { email: "" },
   orgId,
+  accountId,
   data = {
     amount: 0,
     transactionType: "",
     transactionId: "",
-    account: { id: "", name: "" },
     transactionDetails: "",
     reference: "",
+    account: {
+      accountId: "",
+      accountType: { id: "", main: "", name: "" },
+      name: "",
+    },
     debit: 0,
     credit: 0,
   }
 ) {
   const { amount, ...rest } = data;
-  const {
-    account: { id: accountId },
-  } = rest;
 
+  console.log({ userProfile, orgId, accountId });
   const accountRef = doc(db, "organizations", orgId, "accounts", accountId);
   const newEntryRef = doc(collection(db, "organizations", orgId, "journals"));
   const { email } = userProfile;
@@ -39,6 +42,18 @@ export function newEntry(
   transaction.update(accountRef, {
     amount: increment(amount),
   });
+
+  const allData = {
+    ...rest,
+    createdAt: serverTimestamp(),
+    createdBy: email,
+    modifiedAt: serverTimestamp(),
+    modifiedBy: email,
+    month,
+    status: "active",
+  };
+
+  console.log({ allData });
 
   transaction.set(newEntryRef, {
     ...rest,
@@ -73,7 +88,9 @@ export function updateEntry(
     amount: increment(accountSummaryAdjustment),
   });
 
-  transaction.set(entryRef, {
+  console.log({ accountId, entryId });
+
+  transaction.update(entryRef, {
     ...rest,
     modifiedAt: serverTimestamp(),
     modifiedBy: email,

@@ -3,7 +3,7 @@ import {
   doc,
   collection,
   serverTimestamp,
-  writeBatch,
+  runTransaction,
   increment,
 } from "firebase/firestore";
 
@@ -16,12 +16,15 @@ import {
   error as toastError,
 } from "../../slices/toastSlice";
 
+import { assetEntry } from "../../sagas/journals";
+
 function* createCustomer({ data }) {
   yield put(start(CREATE_CUSTOMER));
 
   const orgId = yield select((state) => state.orgsReducer.org.id);
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
+  const { openingBalance } = data;
 
   console.log({ data });
 
@@ -34,29 +37,62 @@ function* createCustomer({ data }) {
       "summaries",
       "counters"
     );
+    const accountRef = doc(
+      db,
+      "organizations",
+      orgId,
+      "accounts",
+      "accounts_receivable"
+    );
 
-    const batch = writeBatch(db);
+    await runTransaction(db, async (transaction) => {
+      const accountDoc = await transaction.get(accountRef);
+      if (!accountDoc.exists) {
+        throw new Error("Account data not found!");
+      }
 
-    batch.update(countersRef, {
-      customers: increment(1),
+      const { accountType, name } = accountDoc.data();
+      const accountId = accountDoc.id;
+
+      transaction.update(countersRef, {
+        customers: increment(1),
+      });
+
+      if (openingBalance > 0) {
+        assetEntry.newEntry(
+          transaction,
+          userProfile,
+          orgId,
+          "accounts_receivable",
+          {
+            account: { accountType, accountId, name },
+            amount: openingBalance,
+            reference: "",
+            transactionId: newDocRef.id,
+            transactionDetails: data,
+            transactionType: "customer opening balance",
+          }
+        );
+      }
+
+      transaction.set(newDocRef, {
+        ...data,
+        status: "active",
+        summary: {
+          invoices: 0,
+          deletedInvoices: 0,
+          payments: 0,
+          deletedPayments: 0,
+          unusedCredits: 0,
+          invoicedAmount: 0,
+          invoicePayments: 0,
+        },
+        createdBy: email,
+        createdAt: serverTimestamp(),
+        modifiedBy: email,
+        modifiedAt: serverTimestamp(),
+      });
     });
-
-    batch.set(newDocRef, {
-      ...data,
-      status: "active",
-      summary: {
-        invoices: 0,
-        deletedInvoices: 0,
-        payments: 0,
-        deletedPayments: 0,
-      },
-      createdBy: email,
-      createdAt: serverTimestamp(),
-      modifiedBy: email,
-      modifiedAt: serverTimestamp(),
-    });
-
-    await batch.commit();
   }
 
   try {

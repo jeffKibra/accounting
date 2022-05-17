@@ -50,11 +50,17 @@ function EditCustomerPage(props) {
       {loading && action === GET_CUSTOMER ? (
         <SkeletonLoader />
       ) : customer ? (
-        <EditCustomer
-          customer={customer}
-          loading={loading && action === UPDATE_CUSTOMER}
-          saveData={update}
-        />
+        (() => {
+          const { createdAt, createdBy, modifiedAt, modifiedBy, ...rest } =
+            customer;
+          return (
+            <EditCustomer
+              customer={rest}
+              loading={loading && action === UPDATE_CUSTOMER}
+              saveData={update}
+            />
+          );
+        })()
       ) : (
         <Empty message="Customer not Found!" />
       )}

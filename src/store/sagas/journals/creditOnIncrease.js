@@ -7,13 +7,18 @@ export function newCreditOnIncrease(
   transaction,
   userProfile = { email: "" },
   orgId,
+  accountId,
   data = {
     amount: 0,
     transactionType: "",
     transactionId: "",
-    account: { id: "", name: "" },
     transactionDetails: "",
     reference: "",
+    account: {
+      accountId: "",
+      accountType: { id: "", main: "", name: "" },
+      name: "",
+    },
   }
 ) {
   const { amount } = data;
@@ -31,7 +36,7 @@ export function newCreditOnIncrease(
   }
   console.log({ credit, debit, amount });
 
-  newEntry(transaction, userProfile, orgId, {
+  newEntry(transaction, userProfile, orgId, accountId, {
     ...data,
     credit,
     debit,
@@ -42,13 +47,13 @@ export function updateCreditOnIncrease(
   transaction,
   userProfile = { email: "" },
   orgId,
+  accountId,
+  entryId,
+  amount = 0,
   currentData = {
     debit: 0,
     credit: 0,
-    account: { id: "" },
-  },
-  amount = 0,
-  entryId
+  }
 ) {
   if (amount === 0) {
     throw new Error("Transaction Amount cannot be zero(0)");
@@ -91,18 +96,11 @@ export function updateCreditOnIncrease(
   }
   console.log({ credit, debit, amount, currentAmount, adjustment });
 
-  updateEntry(
-    transaction,
-    userProfile,
-    orgId,
-    entryId,
-    currentData.account.id,
-    {
-      accountSummaryAdjustment: adjustment,
-      credit,
-      debit,
-    }
-  );
+  updateEntry(transaction, userProfile, orgId, entryId, accountId, {
+    accountSummaryAdjustment: adjustment,
+    credit,
+    debit,
+  });
 }
 
 export function deleteCreditOnIncrease(
@@ -110,8 +108,8 @@ export function deleteCreditOnIncrease(
   userProfile = { email: "" },
   orgId,
   entryId,
+  accountId,
   data = {
-    account: { id: "", name: "" },
     debit: 0,
     credit: 0,
   }
@@ -120,11 +118,7 @@ export function deleteCreditOnIncrease(
    * if credit >0 subtract from account
    * if debit >0 add to account
    */
-  const {
-    account: { id: accountId },
-    debit,
-    credit,
-  } = data;
+  const { debit, credit } = data;
 
   /**
    * check is debit is greater than zero(0)

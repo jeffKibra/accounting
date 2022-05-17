@@ -5,11 +5,6 @@ import {
   FormLabel,
   FormErrorMessage,
   Textarea,
-  // NumberInput,
-  // NumberInputField,
-  // NumberInputStepper,
-  // NumberIncrementStepper,
-  // NumberDecrementStepper,
   Grid,
   GridItem,
   Flex,
@@ -17,7 +12,9 @@ import {
   Box,
 } from "@chakra-ui/react";
 import PropTypes from "prop-types";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
+
+import NumInput from "../../ui/NumInput";
 
 import StepperContext from "../../../contexts/StepperContext";
 
@@ -25,16 +22,18 @@ function ExtraDetailsForm(props) {
   const { loading, defaultValues, handleFormSubmit, updateFormValues } = props;
 
   const { prevStep } = useContext(StepperContext);
+  const formMethods = useForm({
+    mode: "onChange",
+    defaultValues: defaultValues || {},
+  });
+
   const {
     register,
     formState: { errors },
     handleSubmit,
     reset,
     watch,
-  } = useForm({
-    mode: "onChange",
-    defaultValues: defaultValues || {},
-  });
+  } = formMethods;
 
   useEffect(() => {
     if (defaultValues) {
@@ -50,120 +49,125 @@ function ExtraDetailsForm(props) {
   }
 
   return (
-    <Box
-      as="form"
-      role="form"
-      p={4}
-      bg="white"
-      borderRadius="md"
-      shadow="md"
-      w={["full", "90%", "80%"]}
-      onSubmit={handleSubmit(handleFormSubmit)}
-    >
-      <Grid
-        columnGap={4}
-        rowGap={2}
-        templateColumns="repeat(12, 1fr)"
-        mt="4px"
-        mb="4px"
+    <FormProvider {...formMethods}>
+      <Box
+        as="form"
+        role="form"
+        p={4}
+        bg="white"
+        borderRadius="md"
+        shadow="md"
+        w={["full", "90%", "80%"]}
+        onSubmit={handleSubmit(handleFormSubmit)}
       >
-        {/* <GridItem colSpan={[12, 6]}>
-          <FormControl isDisabled={loading} isInvalid={!!errors.openingBalance}>
-            <FormLabel htmlFor="openingBalance">Opening Balance</FormLabel>
-            <NumberInput defaultValue={0}>
-              <NumberInputField
-                id="openingBalance"
-                {...register("openingBalance", { valueAsNumber: true })}
+        <Grid
+          columnGap={4}
+          rowGap={2}
+          templateColumns="repeat(12, 1fr)"
+          mt="4px"
+          mb="4px"
+        >
+          <GridItem colSpan={[12, 6]}>
+            <FormControl
+              isDisabled={loading}
+              isInvalid={!!errors.openingBalance}
+            >
+              <FormLabel htmlFor="openingBalance">Opening Balance</FormLabel>
+              <NumInput
+                name="openingBalance"
+                min={0}
+                rules={{
+                  min: {
+                    value: 0,
+                    message: "Value cannot be less than zero(0)!",
+                  },
+                }}
               />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
-            <FormErrorMessage>
-              {errors.openingBalance?.message}
-            </FormErrorMessage>
-          </FormControl>
-        </GridItem> */}
+              <FormErrorMessage>
+                {errors.openingBalance?.message}
+              </FormErrorMessage>
+            </FormControl>
+          </GridItem>
 
-        <GridItem colSpan={[12, 6]}>
-          <FormControl
-            isDisabled={loading}
-            isRequired
-            isInvalid={!!errors.city}
+          <GridItem colSpan={[12, 6]}>
+            <FormControl
+              isDisabled={loading}
+              isRequired
+              isInvalid={!!errors.city}
+            >
+              <FormLabel>city</FormLabel>
+              <Input
+                {...register("city", {
+                  required: { value: true, message: "Required!" },
+                })}
+              />
+              <FormErrorMessage>{errors.city?.message}</FormErrorMessage>
+            </FormControl>
+          </GridItem>
+
+          <GridItem colSpan={[12, 6]}>
+            <FormControl isDisabled={loading} isInvalid={!!errors.zipcode}>
+              <FormLabel>Zip Code</FormLabel>
+              <Input {...register("zipcode")} />
+              <FormErrorMessage>{errors.zipcode?.message}</FormErrorMessage>
+            </FormControl>
+          </GridItem>
+
+          <GridItem colSpan={[12, 6]}>
+            <FormControl isDisabled={loading} isInvalid={!!errors.website}>
+              <FormLabel htmlFor="website">website</FormLabel>
+              <Input id="website" {...register("website")} />
+              <FormErrorMessage>{errors.website?.message}</FormErrorMessage>
+            </FormControl>
+          </GridItem>
+
+          <GridItem colSpan={[12, 6]}>
+            <FormControl
+              isDisabled={loading}
+              isRequired
+              isInvalid={!!errors.address}
+            >
+              <FormLabel htmlFor="address">Address</FormLabel>
+              <Textarea
+                id="address"
+                {...register("address", {
+                  required: { value: true, message: "Required!" },
+                })}
+              />
+              <FormErrorMessage>{errors.address?.message}</FormErrorMessage>
+            </FormControl>
+          </GridItem>
+
+          <GridItem colSpan={[12, 6]}>
+            <FormControl isDisabled={loading} isInvalid={!!errors.remarks}>
+              <FormLabel htmlFor="remarks">Remarks</FormLabel>
+              <Textarea id="remarks" {...register("remarks")} />
+              <FormErrorMessage>{errors.remarks?.message}</FormErrorMessage>
+            </FormControl>
+          </GridItem>
+        </Grid>
+
+        <Flex justifyContent="space-around" mt={4}>
+          <Button
+            isLoading={loading}
+            variant="outline"
+            colorScheme="cyan"
+            onClick={goBack}
           >
-            <FormLabel>city</FormLabel>
-            <Input
-              {...register("city", {
-                required: { value: true, message: "Required!" },
-              })}
-            />
-            <FormErrorMessage>{errors.city?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
+            prev
+          </Button>
 
-        <GridItem colSpan={[12, 6]}>
-          <FormControl isDisabled={loading} isInvalid={!!errors.zipcode}>
-            <FormLabel>Zip Code</FormLabel>
-            <Input {...register("zipcode")} />
-            <FormErrorMessage>{errors.zipcode?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
-
-        <GridItem colSpan={[12, 6]}>
-          <FormControl isDisabled={loading} isInvalid={!!errors.website}>
-            <FormLabel htmlFor="website">website</FormLabel>
-            <Input id="website" {...register("website")} />
-            <FormErrorMessage>{errors.website?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
-
-        <GridItem colSpan={[12, 6]}>
-          <FormControl
-            isDisabled={loading}
-            isRequired
-            isInvalid={!!errors.address}
+          <Button
+            isLoading={loading}
+            variant="outline"
+            colorScheme="cyan"
+            type="submit"
           >
-            <FormLabel htmlFor="address">Address</FormLabel>
-            <Textarea
-              id="address"
-              {...register("address", {
-                required: { value: true, message: "Required!" },
-              })}
-            />
-            <FormErrorMessage>{errors.address?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
-
-        <GridItem colSpan={[12, 6]}>
-          <FormControl isDisabled={loading} isInvalid={!!errors.remarks}>
-            <FormLabel htmlFor="remarks">Remarks</FormLabel>
-            <Textarea id="remarks" {...register("remarks")} />
-            <FormErrorMessage>{errors.remarks?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
-      </Grid>
-
-      <Flex justifyContent="space-around" mt={4}>
-        <Button
-          isLoading={loading}
-          variant="outline"
-          colorScheme="cyan"
-          onClick={goBack}
-        >
-          prev
-        </Button>
-
-        <Button
-          isLoading={loading}
-          variant="outline"
-          colorScheme="cyan"
-          type="submit"
-        >
-          save
-        </Button>
-      </Flex>
-    </Box>
+            save
+          </Button>
+        </Flex>
+      </Box>
+    </FormProvider>
   );
 }
 

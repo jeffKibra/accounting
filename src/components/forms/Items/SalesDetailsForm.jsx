@@ -50,7 +50,6 @@ function SalesDetailsForm(props) {
   }
 
   const salesTaxId = watch("salesTaxId");
-  console.log({ salesTaxId });
 
   return (
     <FormProvider {...formMethods}>
@@ -156,7 +155,6 @@ function SalesDetailsForm(props) {
                   rules={{
                     validate: {
                       required: (value) => {
-                        console.log({ value });
                         return !salesTaxId || !!value || "*Required!";
                       },
                     },
@@ -193,10 +191,6 @@ function SalesDetailsForm(props) {
     </FormProvider>
   );
 }
-
-// SalesDetailsForm.defaultProps = {
-//   item: { sku: "" },
-// };
 
 SalesDetailsForm.propTypes = {
   handleFormSubmit: PropTypes.func.isRequired,

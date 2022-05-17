@@ -228,15 +228,7 @@ function ItemDetailsForm(props) {
 ItemDetailsForm.propTypes = {
   handleFormSubmit: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
-  taxes: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      rate: PropTypes.number.isRequired,
-      taxId: PropTypes.string.isRequired,
-    })
-  ),
   defaultValues: PropTypes.object,
-  accounts: PropTypes.array.isRequired,
 };
 
 export default ItemDetailsForm;

@@ -132,10 +132,6 @@ function PurchaseDetailsForm(props) {
   );
 }
 
-// PurchaseDetailsForm.defaultProps = {
-//   item: { sku: "" },
-// };
-
 PurchaseDetailsForm.propTypes = {
   handleFormSubmit: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
