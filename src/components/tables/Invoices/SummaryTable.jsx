@@ -6,6 +6,7 @@ import {
   Td,
   Tr,
   IconButton,
+  Text,
 } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 import { RiAddLine } from "react-icons/ri";
@@ -19,14 +20,19 @@ function SummaryTable(props) {
   const { summary, setShipping, setAdjustment } = props;
 
   const { subTotal, taxes, totalAmount, shipping, adjustment } = summary;
-  console.log({ summary });
+  // console.log({ summary });
 
   return (
     <TableContainer>
       <Table size="sm">
         <Tbody>
           <Tr>
-            <Td>Sub Total</Td>
+            <Td>
+              Sub Total <br />{" "}
+              <Text fontSize="xs" color="gray.800">
+                (Tax Inclusize)
+              </Text>{" "}
+            </Td>
             <Td isNumeric>{subTotal}</Td>
           </Tr>
 
@@ -67,14 +73,14 @@ function SummaryTable(props) {
           </Tr>
 
           {taxes.map((tax, i) => {
-            const { name, rate, taxedAmount } = tax;
+            const { name, rate, totalTax } = tax;
             return (
               <Tr key={i}>
                 <Td>
                   {" "}
                   {name} ({rate}%)
                 </Td>
-                <Td isNumeric>{taxedAmount}</Td>
+                <Td isNumeric>{totalTax}</Td>
               </Tr>
             );
           })}
@@ -132,10 +138,10 @@ SummaryTable.propTypes = {
         name: PropTypes.string,
         rate: PropTypes.number,
         taxId: PropTypes.string,
-        taxedAmount: PropTypes.number,
+        totalTax: PropTypes.number,
       })
     ),
-    totalTax: PropTypes.number,
+    totalTaxes: PropTypes.number,
     totalAmount: PropTypes.number,
     shipping: PropTypes.number.isRequired,
     adjustment: PropTypes.number.isRequired,

@@ -24,10 +24,7 @@ function InvoiceItems() {
   const { nextStep } = useContext(StepperContext);
   const toasts = useToasts();
 
-  console.log({ selectedItems });
-
   function saveItems() {
-    console.log({ selectedItems });
     if (selectedItems.length === 0) {
       return toasts.error("You must add atleast one item to an Invoice!");
     }
@@ -36,7 +33,7 @@ function InvoiceItems() {
   }
 
   return (
-    <VStack mt="0px !important" maxW="full" h="full">
+    <VStack mt="0px !important" maxW="full">
       <AddItem loading={loading} addItem={addItem} items={items || []} />
 
       <AddedItemsTable
@@ -63,7 +60,7 @@ function InvoiceItems() {
         </GridItem>
       </Grid>
 
-      <Flex mt={4}>
+      <Flex mt={4} pb={5}>
         <Button mt={4} colorScheme="cyan" onClick={saveItems}>
           next
         </Button>

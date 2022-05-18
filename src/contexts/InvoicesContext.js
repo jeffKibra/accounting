@@ -12,7 +12,7 @@ const initialState = {
   summary: {
     taxes: [],
     subTotal: 0,
-    totalTax: 0,
+    totalTaxes: 0,
     adjustment: 0,
     shipping: 0,
     totalAmount: 0,
@@ -53,7 +53,7 @@ function Provider(props) {
   } = props;
 
   //   console.log({ invoice, customers });
-  console.log({ props });
+  // console.log({ props });
 
   useEffect(() => {
     getItems();
@@ -68,60 +68,67 @@ function Provider(props) {
   const [adjustment, setAdjustment] = useState(
     invoice?.summary?.adjustment || 0
   );
-  console.log({ selectedItems, shipping, adjustment });
+  // console.log({ selectedItems, shipping, adjustment });
+  //remove selected items from list
+  const remainingItems = useMemo(() => {
+    if (items) {
+      return items.filter((item) => {
+        const selectedItem = selectedItems.find(
+          ({ itemId }) => itemId === item.itemId
+        );
+        return !selectedItem;
+      });
+    }
+
+    return [];
+  }, [items, selectedItems]);
 
   const summary = useMemo(() => {
     let taxes = [];
     selectedItems.forEach((item) => {
-      const index = taxes.findIndex((tax) => tax.taxId === item.tax?.taxId);
+      const index = taxes.findIndex(
+        (tax) => tax.taxId === item.salesTax?.taxId
+      );
 
       if (index === -1) {
-        taxes.push(item.tax);
+        taxes.push(item.salesTax);
       }
     });
-    console.log({ taxes });
 
     taxes = taxes
       .filter((tax) => tax?.name)
       .map((tax) => {
-        const { taxId, rate } = tax;
-        console.log({ rate });
+        const { taxId } = tax;
         //get all items with this tax
-        const totalAmount = selectedItems
-          .filter((obj) => obj.tax.taxId === taxId)
+        let totalTax = selectedItems
+          .filter((obj) => obj.salesTax.taxId === taxId)
           .reduce((prev, current) => {
-            const { amount } = current;
-            return amount + prev;
+            const sum = current.totalTax + prev;
+            return sum;
           }, 0);
+        totalTax = +totalTax.toFixed(2);
 
-        const taxedAmount = Math.ceil((totalAmount * rate) / 100);
-
-        console.log({ taxedAmount });
-        console.log({ tax });
-
-        return { ...tax, taxedAmount };
+        return { ...tax, totalTax };
       });
 
-    const totalTax = taxes.reduce((prev, current) => {
-      const { taxedAmount } = current;
-      return prev + taxedAmount;
+    const totalTaxes = taxes.reduce((prev, current) => {
+      return prev + current.totalTax;
     }, 0);
 
     const subTotal = selectedItems.reduce((prev, current) => {
-      const { amount } = current;
-      return prev + amount;
+      return prev + current.totalAmount;
     }, 0);
 
-    const totalAmount = subTotal + totalTax + adjustment + shipping;
+    const totalAmount = subTotal + adjustment + shipping;
 
     return {
       taxes,
-      subTotal,
-      totalTax,
+      subTotal: +totalAmount.toFixed(2),
+      totalTaxes: +totalTaxes.toFixed(2),
       adjustment,
       shipping,
-      totalAmount,
-      balance: totalAmount,
+      totalAmount: +totalAmount.toFixed(2),
+      balance: +totalAmount.toFixed(2),
     };
   }, [selectedItems, adjustment, shipping]);
 
@@ -130,23 +137,55 @@ function Provider(props) {
   }
 
   function addItem(data) {
-    console.log({ data });
+    // console.log({ data });
     const { itemId, rate, quantity, discount, discountType } = data;
     const item = items.find((item) => item.itemId === itemId);
     let amount = rate * quantity;
     let totalDiscount = 0;
+    /**
+     * initialize total amount with amount assuming amount is:
+     * tax exclusive
+     */
+    let totalAmount = 0;
+    //initialize assuming amount is tax exclusive
+    let taxExclusiveAmount = amount;
+    let totalTax = 0;
+    const { salesTax, salesTaxType } = item;
 
+    //set all values to be tax exclusive
+    if (salesTax?.rate) {
+      if (salesTaxType === "tax inclusive") {
+        //item rate is inclusive of tax
+        const tax = (salesTax.rate / (100 + salesTax.rate)) * amount;
+        taxExclusiveAmount = amount - tax;
+      }
+    }
+
+    //discounts
     if (discount > 0) {
       if (discountType === "KES") {
         totalDiscount = discount;
       } else {
-        totalDiscount = Math.floor((discount * amount) / 100);
+        totalDiscount = (discount * taxExclusiveAmount) / 100;
       }
     }
+    /**
+     * adjust tax exclusive amount based on discount given
+     * for uniformity, discounts are applied to the tax exclusive amount
+     * ask user to consider giving the discount at transaction level
+     * instead of item level
+     */
+    if (totalDiscount) {
+      taxExclusiveAmount -= totalDiscount;
+    }
 
-    console.log({ amount, totalDiscount });
-
-    amount = amount - totalDiscount;
+    //assing taxes
+    if (salesTax?.rate) {
+      //item rate does not have tax
+      totalTax = (salesTax.rate / 100) * taxExclusiveAmount;
+    }
+    //finaly assign total amount
+    totalAmount = taxExclusiveAmount + totalTax;
 
     const itemData = {
       itemId,
@@ -154,13 +193,17 @@ function Provider(props) {
       quantity,
       discount,
       discountType,
-      totalDiscount,
-      amount,
+      totalDiscount: +totalDiscount.toFixed(2),
+      totalAmount: +totalAmount.toFixed(2),
+      taxExclusiveAmount: +taxExclusiveAmount.toFixed(2),
+      totalTax: +totalTax.toFixed(2),
     };
+
+    // console.log({ itemData });
 
     setSelectedItems((current) => {
       const index = current.findIndex((value) => value.itemId === itemId);
-      console.log({ current, index, quantity });
+      // console.log({ current, index, quantity });
       let newItems = [];
 
       if (index === -1) {
@@ -185,7 +228,7 @@ function Provider(props) {
   }
 
   function removeItem(itemId) {
-    console.log({ itemId });
+    // console.log({ itemId });
     setSelectedItems((current) => {
       return current.filter((item) => item.itemId !== itemId);
     });
@@ -198,12 +241,12 @@ function Provider(props) {
       selectedItems,
       summary,
     };
-    console.log({ data, all });
+    // console.log({ data, all });
 
     saveData(all);
   }
 
-  console.log({ selectedItems });
+  // console.log({ selectedItems });
 
   return (loadingItems && itemsAction === GET_ITEMS) ||
     (loadingCustomers && customersAction === GET_CUSTOMERS) ? (
@@ -217,7 +260,7 @@ function Provider(props) {
         removeItem,
         addItem,
         finish,
-        items,
+        items: remainingItems,
         customers,
         selectedItems,
         loading: updating,

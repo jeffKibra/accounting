@@ -1,11 +1,11 @@
 import { useMemo } from "react";
 import PropTypes from "prop-types";
-import { Stack, IconButton } from "@chakra-ui/react";
+import { Stack, IconButton, Text } from "@chakra-ui/react";
 import { RiDeleteBin4Line, RiEdit2Line } from "react-icons/ri";
 
 import CustomModal from "../../ui/CustomModal";
 import CustomTable from "../CustomTable";
-import InvoiceForm from "../../forms/Invoice/InvoiceForm";
+import ItemQtyForm from "../../forms/Invoice/ItemQtyForm";
 
 function AddedItemsTable(props) {
   const { items, handleDelete, handleEdit } = props;
@@ -16,22 +16,40 @@ function AddedItemsTable(props) {
       { Header: "", accessor: "actions" },
       { Header: "Name", accessor: "displayName" },
       { Header: "Quantity", accessor: "quantity" },
-      { Header: "Rate", accessor: "sellingPrice" },
+      { Header: "Rate", accessor: "rate" },
       { Header: "Discount", accessor: "discount" },
       { Header: "Tax", accessor: "tax" },
-      { Header: "Amount", accessor: "amount" },
+      { Header: "Amount", accessor: "totalAmount" },
     ];
   }, []);
 
   const data = useMemo(() => {
     return items.map((item) => {
-      const { itemId, name, variant, tax, discount, discountType } = item;
+      const {
+        itemId,
+        name,
+        variant,
+        salesTax,
+        salesTaxType,
+        discount,
+        discountType,
+      } = item;
 
       return {
         ...item,
         displayName: `${name}-${variant}`,
         discount: `${discount} (${discountType})`,
-        tax: tax?.name ? `${tax?.name} (${tax?.rate}%)` : "",
+        tax: salesTax?.name ? (
+          <>
+            {salesTax?.name} ({salesTax?.rate}%)
+            <br />
+            <Text color="gray.600" textTransform="capitalize" fontSize="xs">
+              {salesTaxType}
+            </Text>
+          </>
+        ) : (
+          ""
+        ),
         actions: (
           <Stack direction="row" spacing={1}>
             <CustomModal
@@ -50,7 +68,7 @@ function AddedItemsTable(props) {
               }}
               renderContent={(onClose) => {
                 return (
-                  <InvoiceForm
+                  <ItemQtyForm
                     handleFormSubmit={handleEdit}
                     items={items}
                     item={item}
@@ -89,9 +107,11 @@ AddedItemsTable.propTypes = {
           rate: PropTypes.number,
           taxId: PropTypes.string,
         }),
-        PropTypes.string,
       ]),
-      amount: PropTypes.number.isRequired,
+      totalAmount: PropTypes.number.isRequired,
+      taxExclusiveAmount: PropTypes.number.isRequired,
+      totalTax: PropTypes.number.isRequired,
+      totalDiscount: PropTypes.number.isRequired,
       quantity: PropTypes.number.isRequired,
     })
   ),

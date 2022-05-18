@@ -2,7 +2,7 @@ import { IconButton } from "@chakra-ui/react";
 import { RiAddLine } from "react-icons/ri";
 import PropTypes from "prop-types";
 
-import InvoiceForm from "../../forms/Invoice/InvoiceForm";
+import ItemQtyForm from "../../forms/Invoice/ItemQtyForm";
 import CustomModal from "../../ui/CustomModal";
 
 function AddItem(props) {
@@ -27,7 +27,7 @@ function AddItem(props) {
       )}
       renderContent={(onClose) => {
         return (
-          <InvoiceForm
+          <ItemQtyForm
             handleFormSubmit={addItem}
             onClose={onClose}
             items={items || []}
