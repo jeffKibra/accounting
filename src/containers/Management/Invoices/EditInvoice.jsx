@@ -10,7 +10,7 @@ import InvoiceItems from "../../../components/Custom/Invoices/InvoiceItems";
 
 function EditInvoice(props) {
   const { invoice, handleFormSubmit, updating } = props;
-  console.log({ props });
+  // console.log({ props });
 
   return (
     <InvoicesContextProvider

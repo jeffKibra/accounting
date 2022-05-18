@@ -30,7 +30,7 @@ function SummaryTable(props) {
             <Td>
               Sub Total <br />{" "}
               <Text fontSize="xs" color="gray.800">
-                (Tax Inclusize)
+                (Tax Inclusive)
               </Text>{" "}
             </Td>
             <Td isNumeric>{subTotal}</Td>
