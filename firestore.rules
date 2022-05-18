@@ -6,6 +6,11 @@ service cloud.firestore {
     //       // request.time < timestamp.date(2022, 2, 19);
 
     // }
+
+    function numberValue(field){
+      return field is int || field is float
+    }
+
     match /users/{userId} {
       allow read, create, update: if request.auth.uid == request.resource.data.user_id 
     }
@@ -110,7 +115,7 @@ service cloud.firestore {
             request.resource.data.accountType.main is string &&
             request.resource.data.accountType.name is string &&
             request.resource.data.name is string &&
-            request.resource.data.amount is int &&
+            numberValue(request.resource.data.amount) &&
             request.resource.data.description is string
         }
 
@@ -221,8 +226,8 @@ service cloud.firestore {
             request.resource.data.account.accountType is map &&
             request.resource.data.account.name is string &&
             request.resource.data.account.accountId is string &&
-            request.resource.data.debit is int &&
-            request.resource.data.credit is int &&
+            numberValue(request.resource.data.debit) &&
+            numberValue(request.resource.data.credit) &&
             request.resource.data.transactionId is string &&
             request.resource.data.transactionDetails is map &&
             request.resource.data.reference is string &&
@@ -280,10 +285,10 @@ service cloud.firestore {
             request.resource.data.summary.deletedInvoices is int &&
             request.resource.data.summary.payments is int &&
             request.resource.data.summary.deletedInvoices is int &&
-            request.resource.data.summary.unusedCredits is int &&
-            request.resource.data.summary.invoicedAmount is int &&
-            request.resource.data.summary.invoicePayments is int &&
-            request.resource.data.openingBalance is int 
+            numberValue(request.resource.data.summary.unusedCredits) &&
+            numberValue(request.resource.data.summary.invoicedAmount) &&
+            numberValue(request.resource.data.summary.invoicePayments) &&
+            numberValue(request.resource.data.openingBalance)
         }
 
         function allowCustomerUpdate(){
@@ -314,12 +319,12 @@ service cloud.firestore {
             request.resource.data.selectedItems is list &&
             request.resource.data.payments is map &&
             request.resource.data.summary is map &&
-            request.resource.data.summary.shipping is int &&
-            request.resource.data.summary.adjustment is int &&
-            request.resource.data.summary.subTotal is int &&
-            request.resource.data.summary.totalAmount is int &&
-            request.resource.data.summary.balance is int &&
-            request.resource.data.summary.totalTax is int &&
+            numberValue(request.resource.data.summary.shipping) &&
+            numberValue(request.resource.data.summary.adjustment) &&
+            numberValue(request.resource.data.summary.subTotal) &&
+            numberValue(request.resource.data.summary.totalAmount) &&
+            numberValue(request.resource.data.summary.balance) &&
+            numberValue(request.resource.data.summary.totalTaxes) &&
             request.resource.data.summary.taxes is list &&
             request.resource.data.customer is map &&
             request.resource.data.customerId is string &&
