@@ -126,11 +126,11 @@ function SalesDetailsForm(props) {
                 {...register("salesTaxId")}
               >
                 {taxes.map((tax, i) => {
-                  const { name, rate, salesTaxId } = tax;
+                  const { name, rate, taxId } = tax;
 
                   return (
                     <option
-                      value={salesTaxId}
+                      value={taxId}
                       key={i}
                     >{`${name} -  ${rate}%`}</option>
                   );

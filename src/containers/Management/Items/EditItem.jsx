@@ -27,7 +27,7 @@ function EditItem(props) {
     taxes,
     getTaxes,
   } = props;
-  console.log({ accounts });
+  // console.log({ accounts, taxes });
 
   const [formValues, setFormValues] = useState(item || {});
 
