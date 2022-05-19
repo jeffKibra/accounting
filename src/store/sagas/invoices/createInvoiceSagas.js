@@ -17,7 +17,6 @@ import {
 
 import { assetEntry, liabilityEntry, incomeEntry } from "../journals";
 import { getSalesAccounts, getAccountData } from "./utils";
-import accounts from "../../../utils/accounts";
 
 function* createInvoice({ data }) {
   yield put(start(CREATE_INVOICE));

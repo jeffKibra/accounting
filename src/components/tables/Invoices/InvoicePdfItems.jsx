@@ -73,8 +73,14 @@ function InvoicePdfItems(props) {
           </Thead>
           <Tbody>
             {items.map((item, i) => {
-              const { name, quantity, rate, discount, discountType, amount } =
-                item;
+              const {
+                name,
+                quantity,
+                rate,
+                discount,
+                discountType,
+                totalAmount,
+              } = item;
               return (
                 <Tr key={i}>
                   <Td>{i + 1}</Td>
@@ -88,7 +94,7 @@ function InvoicePdfItems(props) {
                     </Td>
                   )}
 
-                  <Td isNumeric>{Number(amount).toLocaleString()}</Td>
+                  <Td isNumeric>{Number(totalAmount).toLocaleString()}</Td>
                 </Tr>
               );
             })}

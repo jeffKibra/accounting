@@ -5,7 +5,7 @@ function InvoicePdfSummary(props) {
   const { summary } = props;
 
   const { subTotal, taxes, totalAmount, shipping, adjustment } = summary;
-
+  console.log({ summary });
   return (
     <TableContainer>
       <Table color="black" size="sm">
@@ -22,14 +22,14 @@ function InvoicePdfSummary(props) {
           </Tr>
 
           {taxes.map((tax, i) => {
-            const { name, rate, taxedAmount } = tax;
+            const { name, rate, totalTax } = tax;
             return (
               <Tr key={i}>
                 <Td isNumeric>
                   {" "}
                   {name} ({rate}%)
                 </Td>
-                <Td isNumeric>{Number(taxedAmount).toLocaleString()}</Td>
+                <Td isNumeric>{Number(totalTax).toLocaleString()}</Td>
               </Tr>
             );
           })}

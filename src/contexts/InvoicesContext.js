@@ -123,7 +123,7 @@ function Provider(props) {
 
     return {
       taxes,
-      subTotal: +totalAmount.toFixed(2),
+      subTotal: +subTotal.toFixed(2),
       totalTaxes: +totalTaxes.toFixed(2),
       adjustment,
       shipping,
