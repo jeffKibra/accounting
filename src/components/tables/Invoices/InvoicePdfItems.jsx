@@ -120,7 +120,7 @@ InvoicePdfItems.propTypes = {
         }),
         PropTypes.string,
       ]),
-      amount: PropTypes.number.isRequired,
+      totalAmount: PropTypes.number.isRequired,
       quantity: PropTypes.number.isRequired,
     })
   ),

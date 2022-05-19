@@ -69,12 +69,12 @@ InvoicePdfSummary.propTypes = {
         name: PropTypes.string,
         rate: PropTypes.number,
         taxId: PropTypes.string,
-        taxedAmount: PropTypes.number,
+        totalTax: PropTypes.number,
       })
     ),
     shipping: PropTypes.number.isRequired,
     adjustment: PropTypes.number.isRequired,
-    totalTax: PropTypes.number,
+    totalTaxes: PropTypes.number,
     totalAmount: PropTypes.number,
   }),
 };

@@ -1,5 +1,10 @@
 import { put, call, select, takeLatest } from "redux-saga/effects";
-import { doc, serverTimestamp, runTransaction } from "firebase/firestore";
+import {
+  doc,
+  serverTimestamp,
+  runTransaction,
+  increment,
+} from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
 import { UPDATE_INVOICE, DELETE_INVOICE } from "../../actions/invoicesActions";
@@ -9,18 +14,28 @@ import {
   success as toastSuccess,
 } from "../../slices/toastSlice";
 
+import { incomeEntry, assetEntry, liabilityEntry } from "../journals";
+import {
+  getAccountData,
+  getSalesAccounts,
+  getUpdatedSalesAccounts,
+  getInvoiceData,
+  getItemsEntriesToUpdate,
+  getCustomerEntryData,
+} from "./utils";
+
 function* updateInvoice({ data }) {
   yield put(start(UPDATE_INVOICE));
   const orgId = yield select((state) => state.orgsReducer.org.id);
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
   const { invoiceId, ...rest } = data;
-  const { customerId, summary } = rest;
+  const { customerId, summary, selectedItems } = rest;
   // console.log({ data, orgId, userProfile });
+  const { totalTaxes, shipping, adjustment, totalAmount } = summary;
 
   async function update() {
     const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
-    const orgRef = doc(db, "organizations", orgId);
     const customerRef = doc(
       db,
       "organizations",
@@ -30,44 +45,102 @@ function* updateInvoice({ data }) {
     );
 
     await runTransaction(db, async (transaction) => {
-      const [invoiceDoc, orgDoc, customerDoc] = await Promise.all([
-        transaction.get(invoiceRef),
-        transaction.get(orgRef),
-        transaction.get(customerRef),
+      const [invoiceData] = await Promise.all([
+        getInvoiceData(transaction, orgId, invoiceId),
       ]);
-      if (!invoiceDoc.exists) {
-        throw new Error("Invoice Data not found!");
-      }
-      if (!orgDoc.exists) {
-        throw new Error("Org Data not found!");
-      }
-      if (!customerDoc.exists) {
-        throw new Error("Customer Data not found!");
-      }
-      //customerSummary
-      const customerSummary = customerDoc.data().summary;
-      //orgSummary
-      const orgSummary = orgDoc.data().summary;
-      //invoice summary
-      const invoiceSummary = invoiceDoc.data().summary;
+      const { summary: prevSummary, invoiceSlug } = invoiceData;
+
+      const [shipingEntry, adjustmentEntry, taxEntry, receivableEntry] =
+        await Promise.all([
+          getCustomerEntryData({
+            orgId,
+            customerId,
+            accountId: "shipping_charge",
+            transactionId: invoiceSlug,
+            transactionType: "invoice",
+            shouldFetch: shipping !== prevSummary.shipping,
+          }),
+          getCustomerEntryData({
+            orgId,
+            customerId,
+            accountId: "other_charges",
+            transactionId: invoiceSlug,
+            transactionType: "invoice",
+            shouldFetch: adjustment !== prevSummary.adjustment,
+          }),
+          getCustomerEntryData({
+            orgId,
+            customerId,
+            accountId: "tax_payable",
+            transactionId: invoiceSlug,
+            transactionType: "invoice",
+            shouldFetch: totalTaxes !== prevSummary.totalTaxes,
+          }),
+          getCustomerEntryData({
+            orgId,
+            customerId,
+            accountId: "accounts_receivable",
+            transactionId: invoiceSlug,
+            transactionType: "invoice",
+            shouldFetch: totalAmount !== prevSummary.totalAmount,
+          }),
+        ]);
+
+      const itemsEntries = await getItemsEntriesToUpdate(
+        orgId,
+        invoiceData,
+        selectedItems
+      );
+      console.log({ itemsEntries });
+
+      //invoiceSummary
+      const invoiceSummary = invoiceData.summary;
+
+      //update itemsEntries
+      itemsEntries.forEach((entry) => {
+        const { entryId, accountId, amount, credit, debit } = entry;
+        incomeEntry.updateEntry(
+          transaction,
+          userProfile,
+          orgId,
+          accountId,
+          entryId,
+          amount,
+          {
+            credit,
+            debit,
+          }
+        );
+      });
+
+      console.log({ shipingEntry, adjustmentEntry, taxEntry, receivableEntry });
+
+      //shipping has changed?
+      // if (shipping !== prevSummary.shipping) {
+      //   const { credit, debit, entryId } = shipingEntry;
+
+      //   incomeEntry.updateEntry(
+      //     transaction,
+      //     userProfile,
+      //     orgId,
+      //     "shipping_charge",
+      //     entryId,
+      //     shipping,
+      //     {}
+      //   );
+      // }
 
       if (invoiceSummary.totalAmount !== summary.totalAmount) {
+        const adjustment = summary.totalAmount - invoiceSummary.totalAmount;
+        //update customer summaries
         transaction.update(customerRef, {
-          "summary.invoicesTotal":
-            customerSummary.invoicesTotal -
-            invoiceSummary.totalAmount +
-            summary.totalAmount,
-        });
-        transaction.update(orgRef, {
-          "summary.invoicesTotal":
-            orgSummary.invoicesTotal -
-            invoiceSummary.totalAmount +
-            summary.totalAmount,
+          "summary.invoicedAmount": increment(adjustment),
         });
       }
 
       transaction.update(invoiceRef, {
         ...rest,
+        classical: "plus",
         modifiedBy: email,
         modifiedAt: serverTimestamp(),
       });
@@ -99,24 +172,21 @@ function* deleteInvoice({ invoiceId }) {
 
   async function update() {
     const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
-    const orgRef = doc(db, "organizations", orgId);
+    const countersRef = doc(
+      db,
+      "organizations",
+      orgId,
+      "summaries",
+      "counters"
+    );
 
     await runTransaction(db, async (transaction) => {
-      const [orgDoc, invoiceDoc] = await Promise.all([
-        transaction.get(orgRef),
-        transaction.get(invoiceRef),
-      ]);
+      const invoiceData = await getInvoiceData(transaction, orgId, invoiceId);
 
-      if (!orgDoc.exists) {
-        throw new Error("Organization data not found!");
-      }
-      if (!invoiceDoc.exists) {
-        throw new Error("Invoice data not found!");
-      }
       const {
         customerId,
         summary: { totalAmount },
-      } = invoiceDoc.data();
+      } = invoiceData;
       const customerRef = doc(
         db,
         "organizations",
@@ -125,23 +195,14 @@ function* deleteInvoice({ invoiceId }) {
         customerId
       );
 
-      const customerDoc = await transaction.get(customerRef);
-      if (!customerDoc.exists) {
-        throw new Error("Customer data not found!");
-      }
-      //customer summary
-      const customerSummary = customerDoc.data().summary;
-      //org summary
-      const orgSummary = orgDoc.data().summary;
-
-      transaction.update(orgRef, {
-        "summary.invoicesTotal": orgSummary.invoicesTotal - totalAmount,
-        "summary.invoices": orgSummary.invoices - 1,
-      });
-
+      //update customer summaries
       transaction.update(customerRef, {
-        "summary.invoicesTotal": customerSummary.invoicesTotal - totalAmount,
-        "summary.invoices": customerSummary.invoices - 1,
+        "summary.invoices": increment(-1),
+        "summary.invoicedAmount": increment(-totalAmount),
+      });
+      //update org summaries
+      transaction.update(countersRef, {
+        invoices: increment(-1),
       });
 
       transaction.update(invoiceRef, {

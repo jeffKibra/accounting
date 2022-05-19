@@ -53,6 +53,9 @@ export function updateDebitOnIncrease(
     credit: 0,
   }
 ) {
+  /**
+   * amount should be the raw value not the adjsutement of the value
+   */
   if (amount === 0) {
     throw new Error("Transaction Amount cannot be zero(0)");
   }
