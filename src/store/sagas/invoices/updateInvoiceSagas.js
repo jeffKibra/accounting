@@ -16,12 +16,9 @@ import {
 
 import { incomeEntry, assetEntry, liabilityEntry } from "../journals";
 import {
-  getAccountData,
-  getSalesAccounts,
-  getUpdatedSalesAccounts,
   getInvoiceData,
   getItemsEntriesToUpdate,
-  getCustomerEntryData,
+  getSummaryEntries,
 } from "./utils";
 
 function* updateInvoice({ data }) {
@@ -48,43 +45,9 @@ function* updateInvoice({ data }) {
       const [invoiceData] = await Promise.all([
         getInvoiceData(transaction, orgId, invoiceId),
       ]);
-      const { summary: prevSummary, invoiceSlug } = invoiceData;
 
-      const [shipingEntry, adjustmentEntry, taxEntry, receivableEntry] =
-        await Promise.all([
-          getCustomerEntryData({
-            orgId,
-            customerId,
-            accountId: "shipping_charge",
-            transactionId: invoiceSlug,
-            transactionType: "invoice",
-            shouldFetch: shipping !== prevSummary.shipping,
-          }),
-          getCustomerEntryData({
-            orgId,
-            customerId,
-            accountId: "other_charges",
-            transactionId: invoiceSlug,
-            transactionType: "invoice",
-            shouldFetch: adjustment !== prevSummary.adjustment,
-          }),
-          getCustomerEntryData({
-            orgId,
-            customerId,
-            accountId: "tax_payable",
-            transactionId: invoiceSlug,
-            transactionType: "invoice",
-            shouldFetch: totalTaxes !== prevSummary.totalTaxes,
-          }),
-          getCustomerEntryData({
-            orgId,
-            customerId,
-            accountId: "accounts_receivable",
-            transactionId: invoiceSlug,
-            transactionType: "invoice",
-            shouldFetch: totalAmount !== prevSummary.totalAmount,
-          }),
-        ]);
+      const { shippingEntry, adjustmentEntry, taxEntry, receivableEntry } =
+        await getSummaryEntries(orgId, invoiceData, summary);
 
       const itemsEntries = await getItemsEntriesToUpdate(
         orgId,
@@ -113,23 +76,82 @@ function* updateInvoice({ data }) {
         );
       });
 
-      console.log({ shipingEntry, adjustmentEntry, taxEntry, receivableEntry });
+      console.log({
+        shippingEntry,
+        adjustmentEntry,
+        taxEntry,
+        receivableEntry,
+      });
 
       //shipping has changed?
-      // if (shipping !== prevSummary.shipping) {
-      //   const { credit, debit, entryId } = shipingEntry;
+      if (shippingEntry) {
+        const { credit, debit, entryId } = shippingEntry;
 
-      //   incomeEntry.updateEntry(
-      //     transaction,
-      //     userProfile,
-      //     orgId,
-      //     "shipping_charge",
-      //     entryId,
-      //     shipping,
-      //     {}
-      //   );
-      // }
+        incomeEntry.updateEntry(
+          transaction,
+          userProfile,
+          orgId,
+          "shipping_charge",
+          entryId,
+          shipping,
+          { credit, debit }
+        );
+      }
+      //adjustment entry
+      if (adjustmentEntry) {
+        const { entryId, credit, debit } = adjustmentEntry;
 
+        incomeEntry.updateEntry(
+          transaction,
+          userProfile,
+          orgId,
+          "other_charges",
+          entryId,
+          adjustment,
+          {
+            credit,
+            debit,
+          }
+        );
+      }
+
+      //tax entry
+      if (taxEntry) {
+        const { entryId, credit, debit } = taxEntry;
+
+        liabilityEntry.updateEntry(
+          transaction,
+          userProfile,
+          orgId,
+          "tax_payable",
+          entryId,
+          totalTaxes,
+          {
+            credit,
+            debit,
+          }
+        );
+      }
+
+      //receivable entry - totalAmount
+      if (receivableEntry) {
+        const { entryId, credit, debit } = receivableEntry;
+
+        assetEntry.updateEntry(
+          transaction,
+          userProfile,
+          orgId,
+          "accounts_receivable",
+          entryId,
+          totalAmount,
+          {
+            credit,
+            debit,
+          }
+        );
+      }
+
+      //update customer summaries
       if (invoiceSummary.totalAmount !== summary.totalAmount) {
         const adjustment = summary.totalAmount - invoiceSummary.totalAmount;
         //update customer summaries
@@ -140,7 +162,7 @@ function* updateInvoice({ data }) {
 
       transaction.update(invoiceRef, {
         ...rest,
-        classical: "plus",
+        // classical: "plus",
         modifiedBy: email,
         modifiedAt: serverTimestamp(),
       });
@@ -182,11 +204,25 @@ function* deleteInvoice({ invoiceId }) {
 
     await runTransaction(db, async (transaction) => {
       const invoiceData = await getInvoiceData(transaction, orgId, invoiceId);
+      const { shippingEntry, adjustmentEntry, taxEntry, receivableEntry } =
+        await getSummaryEntries(orgId, invoiceData, {
+          shipping: 0,
+          adjustment: 0,
+          totalTaxes: 0,
+          totalAmount: 0,
+        });
+      console.log({
+        shippingEntry,
+        adjustmentEntry,
+        taxEntry,
+        receivableEntry,
+      });
 
       const {
         customerId,
         summary: { totalAmount },
       } = invoiceData;
+
       const customerRef = doc(
         db,
         "organizations",
@@ -194,6 +230,66 @@ function* deleteInvoice({ invoiceId }) {
         "customers",
         customerId
       );
+
+      if (shippingEntry) {
+        const { entryId, credit, debit } = shippingEntry;
+        incomeEntry.deleteEntry(
+          transaction,
+          userProfile,
+          orgId,
+          entryId,
+          "shipping_charge",
+          {
+            credit,
+            debit,
+          }
+        );
+      }
+      //adjustment value needs deleting
+      if (adjustmentEntry) {
+        const { entryId, credit, debit } = adjustmentEntry;
+        incomeEntry.deleteEntry(
+          transaction,
+          userProfile,
+          orgId,
+          entryId,
+          "other_charges",
+          {
+            credit,
+            debit,
+          }
+        );
+      }
+      //taxes need deleting
+      if (taxEntry) {
+        const { entryId, credit, debit } = taxEntry;
+        liabilityEntry.deleteEntry(
+          transaction,
+          userProfile,
+          orgId,
+          entryId,
+          "tax_payable",
+          {
+            credit,
+            debit,
+          }
+        );
+      }
+      //delete total amount
+      if (receivableEntry) {
+        const { entryId, credit, debit } = receivableEntry;
+        assetEntry.deleteEntry(
+          transaction,
+          userProfile,
+          orgId,
+          entryId,
+          "accounts_receivable",
+          {
+            credit,
+            debit,
+          }
+        );
+      }
 
       //update customer summaries
       transaction.update(customerRef, {
@@ -207,6 +303,7 @@ function* deleteInvoice({ invoiceId }) {
 
       transaction.update(invoiceRef, {
         status: "deleted",
+        // opius: "none",
         modifiedBy: email,
         modifiedAt: serverTimestamp(),
       });

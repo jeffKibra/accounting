@@ -45,6 +45,7 @@ function* createInvoice({ data }) {
     );
 
     const newDocRef = doc(collection(db, "organizations", orgId, "invoices"));
+    const invoiceId = newDocRef.id;
 
     await runTransaction(db, async (transaction) => {
       const [
@@ -73,6 +74,16 @@ function* createInvoice({ data }) {
       const invoiceNumber = (customerSummary?.invoices || 0) + 1;
       const invoiceSlug = `INV-${String(invoiceNumber).padStart(6, 0)}`;
 
+      const invoiceData = {
+        ...data,
+        payments: {},
+        status: "sent",
+        invoiceNumber,
+        invoiceSlug,
+        org,
+      };
+      console.log({ invoiceData });
+
       //create journal entries for income accounts
       salesAccounts.forEach((account) => {
         const { salesAmount, ...rest } = account;
@@ -84,7 +95,7 @@ function* createInvoice({ data }) {
           reference: "",
           transactionId: invoiceSlug,
           transactionType: "invoice",
-          transactionDetails: { ...customer, customerId },
+          transactionDetails: { ...invoiceData, invoiceId },
         });
       });
       console.log({ summary });
@@ -98,7 +109,7 @@ function* createInvoice({ data }) {
           reference: "",
           transactionType: "invoice",
           transactionId: invoiceSlug,
-          transactionDetails: { ...customer, customerId },
+          transactionDetails: { ...invoiceData, invoiceId },
           account: accounts_receivable,
           amount: summary.totalAmount,
         }
@@ -109,7 +120,7 @@ function* createInvoice({ data }) {
         reference: "",
         transactionId: invoiceSlug,
         transactionType: "invoice",
-        transactionDetails: { ...customer, customerId },
+        transactionDetails: { ...invoiceData, invoiceId },
         account: tax_payable,
       });
       //shipping charge
@@ -124,7 +135,7 @@ function* createInvoice({ data }) {
             reference: "",
             transactionId: invoiceSlug,
             transactionType: "invoice",
-            transactionDetails: { ...customer, customerId },
+            transactionDetails: { ...invoiceData, invoiceId },
 
             account: shipping_charge,
           }
@@ -138,7 +149,7 @@ function* createInvoice({ data }) {
           reference: "",
           transactionId: invoiceSlug,
           transactionType: "invoice",
-          transactionDetails: { ...customer, customerId },
+          transactionDetails: { ...invoiceData, invoiceId },
         });
       }
 
@@ -152,28 +163,9 @@ function* createInvoice({ data }) {
         invoices: increment(1),
       });
 
-      const ddata = {
-        ...data,
-        payments: {},
-        status: "sent",
-        invoiceNumber,
-        invoiceSlug,
-        org,
-        createdBy: email,
-        createdAt: serverTimestamp(),
-        modifiedBy: email,
-        modifiedAt: serverTimestamp(),
-      };
-      console.log({ ddata });
-
       //create invoice
       transaction.set(newDocRef, {
-        ...data,
-        payments: {},
-        status: "sent",
-        invoiceNumber,
-        invoiceSlug,
-        org,
+        ...invoiceData,
         createdBy: email,
         createdAt: serverTimestamp(),
         modifiedBy: email,

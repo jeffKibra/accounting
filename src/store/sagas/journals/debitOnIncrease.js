@@ -60,6 +60,7 @@ export function updateDebitOnIncrease(
     throw new Error("Transaction Amount cannot be zero(0)");
   }
   const { debit: currentDebit, credit: currentCredit } = currentData;
+  //atlease credit or debit need to be zero
   if (currentData.debit > 0 && currentData.credit > 0) {
     throw new Error("Invalid data");
   }
@@ -72,27 +73,29 @@ export function updateDebitOnIncrease(
   let currentAmount = currentCredit > 0 ? 0 - currentCredit : currentDebit;
 
   /**
-   * ascertain both amounts(current and incoming) are either debit or credit
-   * debit- both values should be positive
-   * credit- both values should be negative
+   * value for adjusting the account summary
+   * subtract current amount from the incoming account
    */
-  if ((amount > 0 && currentAmount < 0) || (amount < 0 && currentAmount > 0)) {
-    throw new Error(
-      "Invalid data submitted! Cannot change a debit value to credit and vise versa"
-    );
-  }
-
-  //value for adjusting the account summary
-  //subtract current amount from the incoming account
   const adjustment = amount - currentAmount;
-
-  let debit = amount;
+  /**
+   * scenarios
+   * scene1:amount is +ve - debit the amount
+   * scene1 is assumed by default when initializing debit and credit
+   * scene2:amount is -ve - credit the amount
+   */
+  //scene1
   let credit = 0;
-
+  let debit = amount;
+  //scene2
   if (amount < 0) {
-    debit = 0;
+    /**
+     * make debit zero(0) and assign amount to credit
+     * subtract value from zero to make +ve
+     */
     credit = 0 - amount;
+    debit = 0;
   }
+
   console.log({ credit, debit, amount, currentAmount, adjustment });
 
   updateEntry(transaction, userProfile, orgId, entryId, accountId, {

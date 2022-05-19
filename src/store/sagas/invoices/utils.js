@@ -104,6 +104,7 @@ export async function getCustomerEntryData({
   status = "active",
   shouldFetch = true,
 }) {
+  console.log({ transactionType });
   const q = query(
     collection(db, "organizations", orgId, "journals"),
     orderBy("createdAt", "desc"),
@@ -262,7 +263,7 @@ export async function getItemsEntriesToUpdate(
         orgId,
         customerId,
         transactionId: invoiceSlug,
-        transactionType: invoice,
+        transactionType: "invoice",
         accountId,
       });
       const amount = items.reduce((sum, item) => {
@@ -278,4 +279,52 @@ export async function getItemsEntriesToUpdate(
   );
 
   return entries;
+}
+
+export async function getSummaryEntries(orgId, invoice, incomingSummary = {}) {
+  const { customerId, invoiceSlug, summary } = invoice;
+  const { shipping, adjustment, totalTaxes, totalAmount } = incomingSummary;
+
+  const [shippingEntry, adjustmentEntry, taxEntry, receivableEntry] =
+    await Promise.all([
+      getCustomerEntryData({
+        orgId,
+        customerId,
+        accountId: "shipping_charge",
+        transactionId: invoiceSlug,
+        transactionType: "invoice",
+        shouldFetch: shipping !== summary.shipping,
+      }),
+      getCustomerEntryData({
+        orgId,
+        customerId,
+        accountId: "other_charges",
+        transactionId: invoiceSlug,
+        transactionType: "invoice",
+        shouldFetch: adjustment !== summary.adjustment,
+      }),
+      getCustomerEntryData({
+        orgId,
+        customerId,
+        accountId: "tax_payable",
+        transactionId: invoiceSlug,
+        transactionType: "invoice",
+        shouldFetch: totalTaxes !== summary.totalTaxes,
+      }),
+      getCustomerEntryData({
+        orgId,
+        customerId,
+        accountId: "accounts_receivable",
+        transactionId: invoiceSlug,
+        transactionType: "invoice",
+        shouldFetch: totalAmount !== summary.totalAmount,
+      }),
+    ]);
+
+  return {
+    shippingEntry,
+    adjustmentEntry,
+    taxEntry,
+    receivableEntry,
+  };
 }
