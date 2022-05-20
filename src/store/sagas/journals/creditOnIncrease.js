@@ -22,9 +22,9 @@ export function newCreditOnIncrease(
   }
 ) {
   const { amount } = data;
-  if (amount === 0) {
-    throw new Error("Transaction Amount cannot be zero(0)");
-  }
+  // if (amount === 0) {
+  //   throw new Error("Transaction Amount cannot be zero(0)");
+  // }
   //initialize. assuming amount is positive, asign to credit
   let debit = 0;
   let credit = amount;
@@ -34,7 +34,7 @@ export function newCreditOnIncrease(
     debit = 0 - amount;
     credit = 0;
   }
-  console.log({ credit, debit, amount });
+  // console.log({ credit, debit, amount });
 
   newEntry(transaction, userProfile, orgId, accountId, {
     ...data,
@@ -53,14 +53,15 @@ export function updateCreditOnIncrease(
   currentData = {
     debit: 0,
     credit: 0,
-  }
+  },
+  transactionDetails = {}
 ) {
   /**
    * amount should be the raw value not the adjsutement of the value
    */
-  if (amount === 0) {
-    throw new Error("Transaction Amount cannot be zero(0)");
-  }
+  // if (amount === 0) {
+  //   throw new Error("Transaction Amount cannot be zero(0)");
+  // }
   const { debit: currentDebit, credit: currentCredit } = currentData;
   //atleast either debit or credit should be zero
   if (currentData.debit > 0 && currentData.credit > 0) {
@@ -96,12 +97,14 @@ export function updateCreditOnIncrease(
     debit = 0 - amount;
   }
 
-  console.log({ credit, debit, amount, currentAmount, adjustment });
+  // console.log({ credit, debit, amount, currentAmount, adjustment });
 
   updateEntry(transaction, userProfile, orgId, entryId, accountId, {
     accountSummaryAdjustment: adjustment,
     credit,
     debit,
+    amount,
+    transactionDetails,
   });
 }
 
@@ -131,7 +134,7 @@ export function deleteCreditOnIncrease(
    */
   let amount = debit > 0 ? debit : 0 - credit;
 
-  console.log({ credit, debit, amount });
+  // console.log({ credit, debit, amount });
 
   deleteEntry(transaction, userProfile, orgId, entryId, accountId, amount);
 }

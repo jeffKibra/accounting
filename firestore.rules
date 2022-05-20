@@ -214,12 +214,14 @@ service cloud.firestore {
 
       match /journals/{entryId} {
         function verifyJournalData(){
-          let req=["transactionType", "account", "debit", "credit", "transactionId", "transactionDetails", "reference"];
+          let req=["amount", "amountState", "transactionType", "account", "debit", "credit", "transactionId", "transactionDetails", "reference"];
           let additional=["month", "status", "createdAt", "createdBy", "modifiedAt", "modifiedBy"];
           let required= req.concat(additional);
 
           return request.resource.data.keys().hasAll(required) &&
             request.resource.data.keys().hasOnly(required) &&
+            numberValue(request.resource.data.amount) &&
+            request.resource.data.amountState is string &&
             request.resource.data.month is string &&
             request.resource.data.transactionType is string &&
             request.resource.data.account is map &&
@@ -239,7 +241,7 @@ service cloud.firestore {
         }
 
         function allowJournalUpdate(){
-          let req=["month", "transactionType", "debit", "credit", "transactionId", "transactionDetails", "reference"];
+          let req=["amount", "amountState", "month", "transactionType", "debit", "credit", "transactionId", "transactionDetails", "reference"];
           let additional=["status", "modifiedAt", "modifiedBy"];
           let required= req.concat(additional);
 

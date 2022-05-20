@@ -124,34 +124,24 @@ function* createInvoice({ data }) {
         account: tax_payable,
       });
       //shipping charge
-      if (summary.shipping) {
-        incomeEntry.newEntry(
-          transaction,
-          userProfile,
-          orgId,
-          "shipping_charge",
-          {
-            amount: summary.shipping,
-            reference: "",
-            transactionId: invoiceSlug,
-            transactionType: "invoice",
-            transactionDetails: { ...invoiceData, invoiceId },
+      incomeEntry.newEntry(transaction, userProfile, orgId, "shipping_charge", {
+        amount: summary.shipping,
+        reference: "",
+        transactionId: invoiceSlug,
+        transactionType: "invoice",
+        transactionDetails: { ...invoiceData, invoiceId },
+        account: shipping_charge,
+      });
 
-            account: shipping_charge,
-          }
-        );
-      }
       //adjustments
-      if (summary.adjustment) {
-        incomeEntry.newEntry(transaction, userProfile, orgId, "other_charges", {
-          account: other_charges,
-          amount: summary.adjustment,
-          reference: "",
-          transactionId: invoiceSlug,
-          transactionType: "invoice",
-          transactionDetails: { ...invoiceData, invoiceId },
-        });
-      }
+      incomeEntry.newEntry(transaction, userProfile, orgId, "other_charges", {
+        account: other_charges,
+        amount: summary.adjustment,
+        reference: "",
+        transactionId: invoiceSlug,
+        transactionType: "invoice",
+        transactionDetails: { ...invoiceData, invoiceId },
+      });
 
       //update customer summaries
       transaction.update(customerRef, {

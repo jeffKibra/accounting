@@ -6,6 +6,15 @@ import {
 } from "firebase/firestore";
 import { db } from "../../../utils/firebase";
 import getMonth from "../../../utils/getMonth";
+
+function getAmountState(amount = 0) {
+  /**
+   * functions returns a string to represent the amount value
+   * for easier querying of data
+   */
+  return amount === 0 ? "zero" : amount > 0 ? "positive" : "negative";
+}
+
 /**
  * debit on increase (amount to be added)
  * credit on decrease (amount to be subtracted)
@@ -30,9 +39,10 @@ export function newEntry(
     credit: 0,
   }
 ) {
-  const { amount, ...rest } = data;
+  const { amount } = data;
+  const amountState = getAmountState(amount);
 
-  console.log({ userProfile, orgId, accountId });
+  // console.log({ amount });
   const accountRef = doc(db, "organizations", orgId, "accounts", accountId);
   const newEntryRef = doc(collection(db, "organizations", orgId, "journals"));
   const { email } = userProfile;
@@ -44,7 +54,8 @@ export function newEntry(
   });
 
   const allData = {
-    ...rest,
+    ...data,
+    amountState,
     createdAt: serverTimestamp(),
     createdBy: email,
     modifiedAt: serverTimestamp(),
@@ -53,16 +64,10 @@ export function newEntry(
     status: "active",
   };
 
-  console.log({ allData });
+  // console.log({ allData });
 
   transaction.set(newEntryRef, {
-    ...rest,
-    createdAt: serverTimestamp(),
-    createdBy: email,
-    modifiedAt: serverTimestamp(),
-    modifiedBy: email,
-    month,
-    status: "active",
+    ...allData,
   });
 }
 
@@ -76,9 +81,14 @@ export function updateEntry(
     accountSummaryAdjustment: 0,
     debit: 0,
     credit: 0,
+    amount: 0,
+    transactionDetails: {},
   }
 ) {
+  // console.log({ data });
   const { accountSummaryAdjustment, ...rest } = data;
+  const { amount } = rest;
+  const amountState = getAmountState(amount);
 
   const accountRef = doc(db, "organizations", orgId, "accounts", accountId);
   const entryRef = doc(db, "organizations", orgId, "journals", entryId);
@@ -88,10 +98,11 @@ export function updateEntry(
     amount: increment(accountSummaryAdjustment),
   });
 
-  console.log({ accountId, entryId });
+  // console.log({ accountId, entryId });
 
   transaction.update(entryRef, {
     ...rest,
+    amountState,
     modifiedAt: serverTimestamp(),
     modifiedBy: email,
   });

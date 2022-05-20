@@ -7,7 +7,7 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
-import { UPDATE_INVOICE, DELETE_INVOICE } from "../../actions/invoicesActions";
+import { UPDATE_INVOICE } from "../../actions/invoicesActions";
 import { start, success, fail } from "../../slices/invoicesSlice";
 import {
   error as toastError,
@@ -27,60 +27,89 @@ function* updateInvoice({ data }) {
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
   const { invoiceId, ...rest } = data;
-  const { customerId, summary, selectedItems } = rest;
+  const { summary, selectedItems } = rest;
   // console.log({ data, orgId, userProfile });
   const { totalTaxes, shipping, adjustment, totalAmount } = summary;
 
   async function update() {
     const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
-    const customerRef = doc(
+    const newCustomerRef = doc(
       db,
       "organizations",
       orgId,
       "customers",
-      customerId
+      data.customerId
     );
 
     await runTransaction(db, async (transaction) => {
       const [invoiceData] = await Promise.all([
         getInvoiceData(transaction, orgId, invoiceId),
       ]);
+      const { customerId, invoiceSlug } = invoiceData;
+      const currentCustomerRef = doc(
+        db,
+        "organizations",
+        orgId,
+        "customers",
+        customerId
+      );
+      //check if customer has been changed
+      const customerHasChanged = data.customerId !== customerId;
 
       const { shippingEntry, adjustmentEntry, taxEntry, receivableEntry } =
-        await getSummaryEntries(orgId, invoiceData, summary);
+        await getSummaryEntries(
+          customerHasChanged,
+          orgId,
+          invoiceData,
+          summary
+        );
 
       const itemsEntries = await getItemsEntriesToUpdate(
+        transaction,
+        customerHasChanged,
         orgId,
         invoiceData,
         selectedItems
       );
-      console.log({ itemsEntries });
+      // console.log({ itemsEntries });
+      // console.log({
+      //   shippingEntry,
+      //   adjustmentEntry,
+      //   taxEntry,
+      //   receivableEntry,
+      // });
 
       //invoiceSummary
       const invoiceSummary = invoiceData.summary;
 
       //update itemsEntries
       itemsEntries.forEach((entry) => {
-        const { entryId, accountId, amount, credit, debit } = entry;
-        incomeEntry.updateEntry(
-          transaction,
-          userProfile,
-          orgId,
-          accountId,
-          entryId,
-          amount,
-          {
-            credit,
-            debit,
-          }
-        );
-      });
-
-      console.log({
-        shippingEntry,
-        adjustmentEntry,
-        taxEntry,
-        receivableEntry,
+        const { accountId, amount, entryData, accountData } = entry;
+        if (entryData) {
+          const { entryId, credit, debit } = entryData;
+          incomeEntry.updateEntry(
+            transaction,
+            userProfile,
+            orgId,
+            accountId,
+            entryId,
+            amount,
+            {
+              credit,
+              debit,
+            },
+            data
+          );
+        } else {
+          incomeEntry.newEntry(transaction, userProfile, orgId, accountId, {
+            amount,
+            reference: "",
+            transactionId: invoiceSlug,
+            transactionType: "invoice",
+            account: accountData,
+            transactionDetails: data,
+          });
+        }
       });
 
       //shipping has changed?
@@ -94,7 +123,8 @@ function* updateInvoice({ data }) {
           "shipping_charge",
           entryId,
           shipping,
-          { credit, debit }
+          { credit, debit },
+          data
         );
       }
       //adjustment entry
@@ -111,7 +141,8 @@ function* updateInvoice({ data }) {
           {
             credit,
             debit,
-          }
+          },
+          data
         );
       }
 
@@ -129,7 +160,8 @@ function* updateInvoice({ data }) {
           {
             credit,
             debit,
-          }
+          },
+          data
         );
       }
 
@@ -147,17 +179,31 @@ function* updateInvoice({ data }) {
           {
             credit,
             debit,
-          }
+          },
+          data
         );
       }
 
       //update customer summaries
-      if (invoiceSummary.totalAmount !== summary.totalAmount) {
-        const adjustment = summary.totalAmount - invoiceSummary.totalAmount;
-        //update customer summaries
-        transaction.update(customerRef, {
-          "summary.invoicedAmount": increment(adjustment),
+      if (customerHasChanged) {
+        //delete values from previous customer
+        transaction.update(currentCustomerRef, {
+          "summary.invoicedAmount": increment(-invoiceSummary.totalAmount),
+          "summary.deletedInvoices": increment(1),
         });
+        //add new values to the incoming customer
+        transaction.update(newCustomerRef, {
+          "summary.invoicedAmount": increment(summary.totalAmount),
+          "summary.invoices": increment(1),
+        });
+      } else {
+        if (invoiceSummary.totalAmount !== summary.totalAmount) {
+          const adjustment = summary.totalAmount - invoiceSummary.totalAmount;
+          //update customer summaries
+          transaction.update(currentCustomerRef, {
+            "summary.invoicedAmount": increment(adjustment),
+          });
+        }
       }
 
       transaction.update(invoiceRef, {
@@ -183,145 +229,4 @@ function* updateInvoice({ data }) {
 
 export function* watchUpdateInvoice() {
   yield takeLatest(UPDATE_INVOICE, updateInvoice);
-}
-
-function* deleteInvoice({ invoiceId }) {
-  yield put(start(DELETE_INVOICE));
-  const orgId = yield select((state) => state.orgsReducer.org.id);
-  const userProfile = yield select((state) => state.authReducer.userProfile);
-  const { email } = userProfile;
-  console.log({ invoiceId, orgId, userProfile });
-
-  async function update() {
-    const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
-    const countersRef = doc(
-      db,
-      "organizations",
-      orgId,
-      "summaries",
-      "counters"
-    );
-
-    await runTransaction(db, async (transaction) => {
-      const invoiceData = await getInvoiceData(transaction, orgId, invoiceId);
-      const { shippingEntry, adjustmentEntry, taxEntry, receivableEntry } =
-        await getSummaryEntries(orgId, invoiceData, {
-          shipping: 0,
-          adjustment: 0,
-          totalTaxes: 0,
-          totalAmount: 0,
-        });
-      console.log({
-        shippingEntry,
-        adjustmentEntry,
-        taxEntry,
-        receivableEntry,
-      });
-
-      const {
-        customerId,
-        summary: { totalAmount },
-      } = invoiceData;
-
-      const customerRef = doc(
-        db,
-        "organizations",
-        orgId,
-        "customers",
-        customerId
-      );
-
-      if (shippingEntry) {
-        const { entryId, credit, debit } = shippingEntry;
-        incomeEntry.deleteEntry(
-          transaction,
-          userProfile,
-          orgId,
-          entryId,
-          "shipping_charge",
-          {
-            credit,
-            debit,
-          }
-        );
-      }
-      //adjustment value needs deleting
-      if (adjustmentEntry) {
-        const { entryId, credit, debit } = adjustmentEntry;
-        incomeEntry.deleteEntry(
-          transaction,
-          userProfile,
-          orgId,
-          entryId,
-          "other_charges",
-          {
-            credit,
-            debit,
-          }
-        );
-      }
-      //taxes need deleting
-      if (taxEntry) {
-        const { entryId, credit, debit } = taxEntry;
-        liabilityEntry.deleteEntry(
-          transaction,
-          userProfile,
-          orgId,
-          entryId,
-          "tax_payable",
-          {
-            credit,
-            debit,
-          }
-        );
-      }
-      //delete total amount
-      if (receivableEntry) {
-        const { entryId, credit, debit } = receivableEntry;
-        assetEntry.deleteEntry(
-          transaction,
-          userProfile,
-          orgId,
-          entryId,
-          "accounts_receivable",
-          {
-            credit,
-            debit,
-          }
-        );
-      }
-
-      //update customer summaries
-      transaction.update(customerRef, {
-        "summary.invoices": increment(-1),
-        "summary.invoicedAmount": increment(-totalAmount),
-      });
-      //update org summaries
-      transaction.update(countersRef, {
-        invoices: increment(-1),
-      });
-
-      transaction.update(invoiceRef, {
-        status: "deleted",
-        // opius: "none",
-        modifiedBy: email,
-        modifiedAt: serverTimestamp(),
-      });
-    });
-  }
-
-  try {
-    yield call(update);
-
-    yield put(success());
-    yield put(toastSuccess("Invoice updated Sucessfully!"));
-  } catch (error) {
-    console.log(error);
-    yield put(fail(error));
-    yield put(toastError(error.message));
-  }
-}
-
-export function* watchDeleteInvoice() {
-  yield takeLatest(DELETE_INVOICE, deleteInvoice);
 }

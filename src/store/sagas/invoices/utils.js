@@ -95,16 +95,22 @@ export async function getInvoiceData(transaction, orgId, invoiceId) {
   };
 }
 
-export async function getCustomerEntryData({
+export async function getCustomerEntryData(
   orgId = "",
   customerId = "",
   accountId = "",
   transactionId = "",
   transactionType = "",
-  status = "active",
-  shouldFetch = true,
-}) {
-  console.log({ transactionType });
+  status = "active"
+) {
+  // console.log({
+  //   transactionType,
+  //   orgId,
+  //   accountId,
+  //   customerId,
+  //   transactionId,
+  //   status,
+  // });
   const q = query(
     collection(db, "organizations", orgId, "journals"),
     orderBy("createdAt", "desc"),
@@ -116,19 +122,16 @@ export async function getCustomerEntryData({
     limit(1)
   );
 
-  if (!shouldFetch) {
-    return null;
-  }
-
   const snap = await getDocs(q);
   if (snap.empty) {
-    throw new Error(`Customer entry data not found! Entry data:{
-      custimerId:${customerId},
-      custimerId:${transactionId},
-      custimerId:${accountId},
-      custimerId:${transactionType},
-      custimerId:${status}
-    }`);
+    // throw new Error(`Customer entry data not found! Entry data:{
+    //   customerId:${customerId},
+    //   transactionId:${transactionId},
+    //   accountId:${accountId},
+    //   TransactionType:${transactionType},
+    //   status:${status}
+    // }`);
+    return null;
   }
 
   const entryDoc = snap.docs[0];
@@ -189,13 +192,28 @@ export function getItemsToUpdate(items = [], incomingItems = []) {
        * similar item has been found
        * use splice function to remove item from items2 array.
        * the return value is an array containing the removed items.
-       * assign the returned value to be the new data at index 0
+       * assign the returned value to be item2 at index 0
        */
-      data = items2.splice(index, 1)[0];
+      const item2 = items2.splice(index, 1)[0];
+      /**
+       * remove salesAccount and salesAccountId from item2
+       * currently, there is no support for a situation where the items sales
+       * Account has changed.
+       * always use the items first sales account
+       * then spread data from item2 to overide since its the latest data
+       */
+      const { salesAccountId, salesAccount, ...rest } = item2;
+      //assign values to data
+      data = {
+        ...data,
+        ...rest,
+      };
       //check if both item taxExclusive amounts are equal
-      if (taxExclusiveAmount === data.taxExclusiveAmount) {
+      if (taxExclusiveAmount === item2.taxExclusiveAmount) {
         //push to similarItems array
-        similarItems.push(data);
+        similarItems.push({
+          ...data,
+        });
       }
     } else {
       /**
@@ -229,14 +247,12 @@ export function getItemsToUpdate(items = [], incomingItems = []) {
     });
   }
 
-  if (similarItems.length === uniqueItems.length) {
-    return [];
-  }
-
-  return uniqueItems;
+  return { uniqueItems, similarItems };
 }
 
 export async function getItemsEntriesToUpdate(
+  transaction,
+  customerHasChanged,
   orgId = "",
   invoice = {
     invoiceId: "",
@@ -252,26 +268,41 @@ export async function getItemsEntriesToUpdate(
    */
   const { customerId, invoiceSlug, selectedItems } = invoice;
 
-  const itemsToUpdate = getItemsToUpdate(selectedItems, incomingItems);
-  console.log({ itemsToUpdate });
+  const { uniqueItems, similarItems } = getItemsToUpdate(
+    selectedItems,
+    incomingItems
+  );
+  let itemsToUpdate = customerHasChanged
+    ? uniqueItems
+    : uniqueItems.length === similarItems.length
+    ? []
+    : uniqueItems;
+  // console.log({ itemsToUpdate });
   const salesAccounts = groupItemsBasedOnAccounts(itemsToUpdate);
 
   const entries = await Promise.all(
     salesAccounts.map(async (account) => {
       const { accountId, items } = account;
-      const entryData = await getCustomerEntryData({
+      const entryData = await getCustomerEntryData(
         orgId,
         customerId,
-        transactionId: invoiceSlug,
-        transactionType: "invoice",
         accountId,
-      });
+        invoiceSlug,
+        "invoice"
+      );
+
+      let accountData = null;
+
+      if (!entryData) {
+        accountData = await getAccountData(transaction, orgId, accountId);
+      }
       const amount = items.reduce((sum, item) => {
         return sum + item.taxExclusiveAmount;
       }, 0);
 
       return {
-        ...entryData,
+        accountData,
+        entryData,
         amount,
         accountId,
       };
@@ -281,44 +312,70 @@ export async function getItemsEntriesToUpdate(
   return entries;
 }
 
-export async function getSummaryEntries(orgId, invoice, incomingSummary = {}) {
+function getCustomerSummaryEntryData(
+  orgId,
+  customerId,
+  accountId = "",
+  transactionId = "",
+  transactionType = "",
+  shouldFetch = true
+) {
+  if (!shouldFetch) {
+    return null;
+  }
+
+  return getCustomerEntryData(
+    orgId,
+    customerId,
+    accountId,
+    transactionId,
+    transactionType
+  );
+}
+
+export async function getSummaryEntries(
+  customerHasChanged,
+  orgId,
+  invoice,
+  incomingSummary = {}
+) {
   const { customerId, invoiceSlug, summary } = invoice;
   const { shipping, adjustment, totalTaxes, totalAmount } = incomingSummary;
 
   const [shippingEntry, adjustmentEntry, taxEntry, receivableEntry] =
     await Promise.all([
-      getCustomerEntryData({
+      getCustomerSummaryEntryData(
         orgId,
         customerId,
-        accountId: "shipping_charge",
-        transactionId: invoiceSlug,
-        transactionType: "invoice",
-        shouldFetch: shipping !== summary.shipping,
-      }),
-      getCustomerEntryData({
+        "shipping_charge",
+        invoiceSlug,
+        "invoice",
+        customerHasChanged || shipping !== summary.shipping
+      ),
+      getCustomerSummaryEntryData(
         orgId,
         customerId,
-        accountId: "other_charges",
-        transactionId: invoiceSlug,
-        transactionType: "invoice",
-        shouldFetch: adjustment !== summary.adjustment,
-      }),
-      getCustomerEntryData({
+        "other_charges",
+        invoiceSlug,
+        "invoice",
+        customerHasChanged || adjustment !== summary.adjustment
+      ),
+      getCustomerSummaryEntryData(
         orgId,
         customerId,
-        accountId: "tax_payable",
-        transactionId: invoiceSlug,
-        transactionType: "invoice",
-        shouldFetch: totalTaxes !== summary.totalTaxes,
-      }),
-      getCustomerEntryData({
+        "tax_payable",
+        invoiceSlug,
+        "invoice",
+        customerHasChanged || totalTaxes !== summary.totalTaxes
+      ),
+      getCustomerSummaryEntryData(
         orgId,
         customerId,
-        accountId: "accounts_receivable",
-        transactionId: invoiceSlug,
-        transactionType: "invoice",
-        shouldFetch: totalAmount !== summary.totalAmount,
-      }),
+        "accounts_receivable",
+        invoiceSlug,
+        "invoice",
+        customerHasChanged || totalAmount !== summary.totalAmount
+      ),
     ]);
 
   return {

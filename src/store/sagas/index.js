@@ -33,10 +33,8 @@ import {
   watchGetInvoices,
   watchGetCustomerInvoices,
 } from "./invoices/getInvoicesSagas";
-import {
-  watchUpdateInvoice,
-  watchDeleteInvoice,
-} from "./invoices/updateInvoiceSagas";
+import { watchUpdateInvoice } from "./invoices/updateInvoiceSagas";
+import { watchDeleteInvoice } from "./invoices/deleteInvoiceSagas";
 //payments received
 import { watchCreatePayment } from "./payments/createPaymentSagas";
 //accounts
