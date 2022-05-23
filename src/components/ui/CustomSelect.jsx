@@ -115,7 +115,7 @@ Normal.propTypes = {
 function CustomSelect(props) {
   //   console.log({ props });
 
-  const { name, options, groupedOptions } = props;
+  const { name, options, groupedOptions, placeholder } = props;
   const { control } = useFormContext();
   const currentOptions = groupedOptions || options || [];
 
@@ -147,7 +147,7 @@ function CustomSelect(props) {
                         ? currentOptions.find(
                             (option) => option.value === value
                           )?.name
-                        : "Profile"}
+                        : placeholder}
                     </Text>
                   </MenuButton>
 
@@ -182,6 +182,7 @@ CustomSelect.propTypes = {
   options: Normal.propTypes.options,
   groupedOptions: Grouped.propTypes.options,
   name: PropTypes.string.isRequired,
+  placeholder: PropTypes.string.isRequired,
 };
 
 export default CustomSelect;
