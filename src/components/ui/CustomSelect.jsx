@@ -2,7 +2,6 @@ import {
   Menu,
   MenuButton,
   MenuList,
-  MenuGroup,
   MenuOptionGroup,
   MenuItemOption,
   MenuDivider,
@@ -47,8 +46,16 @@ function Grouped(props) {
 
   return groups.map(({ groupName, options }, i, arr) => {
     return (
-      <MenuOptionGroup onChange={onChange} value={value} type="radio">
-        <MenuGroup my={1} mb={0} color="#718096" title={groupName} />
+      <MenuOptionGroup
+        onChange={onChange}
+        value={value}
+        type="radio"
+        title={groupName}
+        color="#718096"
+        my={1}
+        mb={0}
+        key={i}
+      >
         {options.map((option, index) => {
           const { name, value } = option;
 
@@ -133,10 +140,13 @@ function CustomSelect(props) {
                     }
                     fontWeight="normal"
                   >
-                    {value
-                      ? currentOptions.find((option) => option.value === value)
-                          ?.name
-                      : "Profile"}
+                    <Text fontSize="sm">
+                      {value
+                        ? currentOptions.find(
+                            (option) => option.value === value
+                          )?.name
+                        : "Profile"}
+                    </Text>
                   </MenuButton>
 
                   <MenuList maxH="250px" overflowY="auto">
