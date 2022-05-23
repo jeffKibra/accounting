@@ -6,8 +6,8 @@ import {
   doc,
   query,
   where,
-  orderBy,
-  limit,
+  // orderBy,
+  // limit,
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
@@ -20,26 +20,24 @@ import {
 } from "../../slices/accountsSlice";
 import { error as toastError } from "../../slices/toastSlice";
 
-const allStatuses = ["pending", "partially paid", "paid", "draft", "sent"];
+// const allStatuses = ["pending", "partially paid", "paid", "draft", "sent"];
 
-export async function getLatestaccount(orgId) {
-  console.log({ orgId });
+export async function getAllAccounts(orgId) {
   const q = query(
     collection(db, "organizations", orgId, "accounts"),
-    orderBy("createdAt", "desc"),
-    where("status", "in", allStatuses),
-    limit(1)
+    where("status", "==", "active")
   );
+  const accounts = [];
   const snap = await getDocs(q);
-  if (snap.empty) {
-    return null;
-  }
 
-  const accountDoc = snap.docs[0];
-  return {
-    ...accountDoc.data(),
-    accountId: accountDoc.id,
-  };
+  snap.forEach((accountDoc) => {
+    accounts.push({
+      ...accountDoc.data(),
+      accountId: accountDoc.id,
+    });
+  });
+
+  return accounts;
 }
 
 function* getAccount({ accountId }) {
@@ -76,7 +74,7 @@ export function* watchGetAccount() {
   yield takeLatest(GET_ACCOUNT, getAccount);
 }
 
-function* getAccounts({ mainTypes }) {
+function* getGroupedAccounts({ mainTypes }) {
   yield put(start(GET_ACCOUNTS));
   const orgId = yield select((state) => state.orgsReducer.org.id);
 
@@ -95,6 +93,32 @@ function* getAccounts({ mainTypes }) {
         accountId: accountDoc.id,
       });
     });
+
+    return accounts;
+  }
+
+  try {
+    const accounts = yield call(get);
+    // console.log({ accounts });
+
+    yield put(accountsSuccess(accounts));
+  } catch (error) {
+    console.log(error);
+    yield put(fail(error));
+    yield put(toastError(error.message));
+  }
+}
+
+export function* watchGetGroupedAccounts() {
+  yield takeLatest(GET_ACCOUNTS, getGroupedAccounts);
+}
+
+function* getAccounts() {
+  yield put(start(GET_ACCOUNTS));
+  const orgId = yield select((state) => state.orgsReducer.org.id);
+
+  async function get() {
+    const accounts = await getAllAccounts(orgId);
 
     return accounts;
   }

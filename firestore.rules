@@ -104,7 +104,7 @@ service cloud.firestore {
 
       match /accounts/{accountId} {
         function verifyAccountData(){
-          let required=["accountType", "name", "amount", "description"];
+          let required=["accountType", "name", "amount", "description", "tags"];
           let additional=["status", "createdAt", "modifiedAt", 'createdBy', 'modifiedBy'];
           let allFields=required.concat(additional);
 
@@ -116,7 +116,8 @@ service cloud.firestore {
             request.resource.data.accountType.name is string &&
             request.resource.data.name is string &&
             numberValue(request.resource.data.amount) &&
-            request.resource.data.description is string
+            request.resource.data.description is string &&
+            request.resource.data.tags is list
         }
 
         function allowAccountUpdate(){
