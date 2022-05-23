@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
 import { GET_TAXES } from "../../../store/actions/taxesActions";
-import { GET_ACCOUNTS } from "../../../store/actions/accountsActions";
 
 import Stepper from "../../../components/ui/Stepper";
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
@@ -11,30 +10,29 @@ import Empty from "../../../components/ui/Empty";
 
 import ItemDetailsForm from "../../../components/forms/Items/ItemDetailsForm";
 import SalesDetailsForm from "../../../components/forms/Items/SalesDetailsForm";
-import PurchaseDetailsForm from "../../../components/forms/Items/PurchaseDetailsForm";
 
 function EditItem(props) {
   const {
     saveData,
     updating,
-    getAccounts,
     loading,
     action,
+    taxes,
     accounts,
     item,
-    loadingTaxes,
-    taxesAction,
-    taxes,
     getTaxes,
   } = props;
-  // console.log({ accounts, taxes });
+  // console.log({ accounts });
 
   const [formValues, setFormValues] = useState(item || {});
 
+  const incomeAccounts = useMemo(() => {
+    return accounts.filter(({ accountType: { id } }) => id === "income");
+  }, [accounts]);
+
   useEffect(() => {
-    getAccounts();
     getTaxes();
-  }, [getAccounts, getTaxes]);
+  }, [getTaxes]);
 
   function updateFormValues(data) {
     setFormValues((current) => ({ ...current, ...data }));
@@ -77,8 +75,7 @@ function EditItem(props) {
     saveData(newData);
   }
 
-  return (loading && action === GET_ACCOUNTS) ||
-    (loadingTaxes && taxesAction === GET_TAXES) ? (
+  return loading && action === GET_TAXES ? (
     <SkeletonLoader />
   ) : accounts ? (
     <Stepper
@@ -94,22 +91,10 @@ function EditItem(props) {
           ),
         },
         {
-          label: "Purchase Details",
-          content: (
-            <PurchaseDetailsForm
-              accounts={accounts}
-              loading={updating}
-              defaultValues={formValues}
-              handleFormSubmit={updateFormValues}
-              taxes={taxes}
-            />
-          ),
-        },
-        {
           label: "Sales Details",
           content: (
             <SalesDetailsForm
-              accounts={accounts}
+              accounts={incomeAccounts}
               loading={updating}
               defaultValues={formValues}
               updateFormValues={updateFormValues}
@@ -132,27 +117,19 @@ EditItem.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const { loading, isModified, action, accounts } = state.accountsReducer;
-  const {
-    loading: loadingTaxes,
-    action: taxesAction,
-    taxes,
-  } = state.taxesReducer;
+  const { accounts } = state.accountsReducer;
+  const { loading, action, taxes } = state.taxesReducer;
 
   return {
     loading,
-    isModified,
     action,
-    accounts,
-    loadingTaxes,
-    taxesAction,
     taxes,
+    accounts,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    getAccounts: () => dispatch({ type: GET_ACCOUNTS, mainTypes: ["income"] }),
     getTaxes: () => dispatch({ type: GET_TAXES }),
   };
 }

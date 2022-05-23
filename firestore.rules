@@ -141,10 +141,10 @@ service cloud.firestore {
       match /items/{itemId} {
 
         function verifyItemData(){
-          let general=['name', 'type',  'sku', 'unit', "salesAccountId", 'salesAccount', 'sellingPrice', 'costAccount', 'costPrice'];
+          let general=['name', 'type',  'sku', 'unit', "salesAccountId", 'salesAccount', 'sellingPrice', 'costPrice'];
           let additional=['status', 'createdBy', 'modifiedBy', 'createdAt', 'modifiedAt'];
           let required= general.concat(additional);
-          let optional=['variant', 'costDetails', 'itemDescription', 'sellingDetails', 'salesTax', 'salesTaxId', "salesTaxType"];
+          let optional=['variant', 'itemDescription', 'sellingDetails', 'salesTax', 'salesTaxId', "salesTaxType"];
           let allFields=required.concat(optional);
 
           return request.resource.data.keys().hasAll(required) &&
@@ -157,13 +157,11 @@ service cloud.firestore {
             request.resource.data.modifiedBy is string &&
             request.resource.data.createdAt is timestamp &&
             request.resource.data.modifiedAt is timestamp &&
-            request.resource.data.costAccount is string &&
             request.resource.data.costPrice is int &&
             request.resource.data.salesAccountId is string &&
             request.resource.data.salesAccount is map &&
             request.resource.data.sellingPrice is int &&
             request.resource.data.variant is string &&
-            request.resource.data.costDetails is string &&
             request.resource.data.unit is string &&
             request.resource.data.itemDescription is string &&
             request.resource.data.sellingDetails is string &&
@@ -173,7 +171,7 @@ service cloud.firestore {
         }
 
         function allowItemUpdate(){
-          let cost=['costDetails', 'costAccount', 'costPrice'];
+          let cost=['costPrice'];
           let selling=['sellingDetails', 'salesAccount', 'sellingPrice', 'salesTax', 'salesTaxId', 'salesTaxType'];
           let general=['name', 'variant', 'sku', 'status', 'type', 'unit', 'itemDescription', 'modifiedAt', 'modifiedBy'];
           let allowed=general.concat(selling).concat(cost);

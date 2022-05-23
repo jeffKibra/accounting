@@ -68,7 +68,7 @@ ItemsTable.propTypes = {
       name: PropTypes.string.isRequired,
       variant: PropTypes.string,
       itemId: PropTypes.string.isRequired,
-      type: PropTypes.oneOf(["goods", "service"]).isRequired,
+      type: PropTypes.oneOf(["goods", "services"]).isRequired,
       costPrice: PropTypes.number.isRequired,
       sellingPrice: PropTypes.number.isRequired,
     })

@@ -88,6 +88,7 @@ function SalesDetailsForm(props) {
               </FormErrorMessage>
             </FormControl>
           </GridItem>
+
           <GridItem colSpan={[12, 6]}>
             <FormControl
               isDisabled={loading}

@@ -5,7 +5,6 @@ import {
   Input,
   FormErrorMessage,
   Button,
-  VStack,
   Box,
   Textarea,
   Grid,
@@ -19,6 +18,7 @@ import PropTypes from "prop-types";
 import StepperContext from "../../../contexts/StepperContext";
 
 import RadioInput from "../../ui/RadioInput";
+import NumInput from "../../ui/NumInput";
 
 const units = [
   "millilitres",
@@ -91,135 +91,153 @@ function ItemDetailsForm(props) {
         role="form"
         onSubmit={handleSubmit(next)}
       >
-        <VStack align="stretch" spacing={2}>
-          <Grid columnGap={4} templateColumns="repeat(12, 1fr)">
-            <GridItem colSpan={[12, 6]}>
-              <FormControl
-                isDisabled={loading}
-                w="full"
-                isRequired
-                isInvalid={errors.name}
-              >
-                <FormLabel htmlFor="name">Item Name </FormLabel>
-                <Input
-                  id="name"
-                  {...register("name", {
-                    required: { value: true, message: "Required" },
-                  })}
-                />
+        <Grid rowGap={1} columnGap={4} templateColumns="repeat(12, 1fr)">
+          <GridItem colSpan={[12, 6]}>
+            <FormControl
+              isDisabled={loading}
+              w="full"
+              isRequired
+              isInvalid={errors.name}
+            >
+              <FormLabel htmlFor="name">Item Name </FormLabel>
+              <Input
+                id="name"
+                {...register("name", {
+                  required: { value: true, message: "Required" },
+                })}
+              />
 
-                <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
-              </FormControl>
-            </GridItem>
-            <GridItem colSpan={[12, 6]}>
-              <FormControl
-                isDisabled={loading}
-                w="full"
-                isRequired
-                isInvalid={errors.type}
-              >
-                <FormLabel htmlFor="type">Item Type</FormLabel>
-                <RadioInput
-                  name="type"
-                  options={["goods", "services"]}
-                  rules={{ required: { value: true, message: "*Required!" } }}
-                  // defaultValue="goods"
-                />
-                <FormErrorMessage>{errors?.type?.message}</FormErrorMessage>
-              </FormControl>
-            </GridItem>
+              <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
+            </FormControl>
+          </GridItem>
 
-            <GridItem colSpan={[12, 6]}>
-              <FormControl
-                isDisabled={loading}
-                w="full"
-                isInvalid={errors.variant}
-              >
-                <FormLabel htmlFor="variant">Item Variant </FormLabel>
-                <Input id="variant" {...register("variant")} />
-                <FormHelperText>e.g 250ml, 250g, black, small</FormHelperText>
-                <FormErrorMessage>{errors?.variant?.message}</FormErrorMessage>
-              </FormControl>
-            </GridItem>
+          <GridItem colSpan={[12, 6]}>
+            <FormControl
+              isDisabled={loading}
+              w="full"
+              isRequired
+              isInvalid={errors.type}
+            >
+              <FormLabel htmlFor="type">Item Type</FormLabel>
+              <RadioInput
+                name="type"
+                options={["goods", "services"]}
+                rules={{ required: { value: true, message: "*Required!" } }}
+                // defaultValue="goods"
+              />
+              <FormErrorMessage>{errors?.type?.message}</FormErrorMessage>
+            </FormControl>
+          </GridItem>
 
-            <GridItem colSpan={[12, 6]}>
-              <FormControl
-                isDisabled={loading}
-                isReadOnly
-                w="full"
-                isInvalid={errors.sku}
-              >
-                <FormLabel htmlFor="sku">SKU</FormLabel>
-                <Input
-                  id="sku"
-                  {...register("sku", {
-                    required: { value: true, message: "*Required!" },
-                  })}
-                />
-                <FormHelperText>
-                  (Stock Keeping Unit) Unique Item Identifier
-                </FormHelperText>
-                <FormErrorMessage>{errors?.sku?.message}</FormErrorMessage>
-              </FormControl>
-            </GridItem>
+          <GridItem colSpan={[12, 6]}>
+            <FormControl
+              isDisabled={loading}
+              w="full"
+              isInvalid={errors.variant}
+            >
+              <FormLabel htmlFor="variant">Item Variant </FormLabel>
+              <Input id="variant" {...register("variant")} />
+              <FormHelperText>e.g 250ml, 250g, black, small</FormHelperText>
+              <FormErrorMessage>{errors?.variant?.message}</FormErrorMessage>
+            </FormControl>
+          </GridItem>
 
-            <GridItem colSpan={[12, 6]}>
-              <FormControl
-                isDisabled={loading}
-                isRequired
-                isInvalid={errors.unit}
-              >
-                <FormLabel htmlFor="unit">Unit</FormLabel>
-                <Input
-                  id="unit"
-                  {...register("unit", {
-                    required: { value: true, message: "Required" },
-                  })}
-                  list="unitList"
-                />
-                <datalist id="unitList">
-                  {units.map((unit, i) => {
-                    return (
-                      <Box
-                        as="option"
-                        textTransform="uppercase"
-                        key={i}
-                        value={unit}
-                      >
-                        {unit}
-                      </Box>
-                    );
-                  })}
-                </datalist>
-                <FormErrorMessage>
-                  {errors?.costAccount?.message}
-                </FormErrorMessage>
-                <FormHelperText>
-                  Select or type in your custom unit.
-                </FormHelperText>
-              </FormControl>
-            </GridItem>
+          <GridItem colSpan={[12, 6]}>
+            <FormControl
+              isDisabled={loading}
+              isReadOnly
+              w="full"
+              isInvalid={errors.sku}
+            >
+              <FormLabel htmlFor="sku">SKU</FormLabel>
+              <Input
+                id="sku"
+                {...register("sku", {
+                  required: { value: true, message: "*Required!" },
+                })}
+              />
+              <FormHelperText>
+                (Stock Keeping Unit) Unique Item Identifier
+              </FormHelperText>
+              <FormErrorMessage>{errors?.sku?.message}</FormErrorMessage>
+            </FormControl>
+          </GridItem>
 
-            <GridItem colSpan={[12, 6]}>
-              <FormControl
-                isDisabled={loading}
-                isInvalid={errors.itemDescription}
-              >
-                <FormLabel htmlFor="itemDescription">Item Details</FormLabel>
-                <Textarea
-                  id="itemDescription"
-                  {...register("itemDescription")}
-                />
-              </FormControl>
-            </GridItem>
-          </Grid>
+          <GridItem colSpan={[12, 6]}>
+            <FormControl
+              isDisabled={loading}
+              isRequired
+              isInvalid={errors.unit}
+            >
+              <FormLabel htmlFor="unit">Unit</FormLabel>
+              <Input
+                id="unit"
+                {...register("unit", {
+                  required: { value: true, message: "Required" },
+                })}
+                list="unitList"
+              />
+              <datalist id="unitList">
+                {units.map((unit, i) => {
+                  return (
+                    <Box
+                      as="option"
+                      textTransform="uppercase"
+                      key={i}
+                      value={unit}
+                    >
+                      {unit}
+                    </Box>
+                  );
+                })}
+              </datalist>
+              <FormErrorMessage>
+                {errors?.costAccount?.message}
+              </FormErrorMessage>
+              <FormHelperText>
+                Select or type in your custom unit.
+              </FormHelperText>
+            </FormControl>
+          </GridItem>
+          <GridItem colSpan={[12, 6]}>
+            <FormControl
+              isDisabled={loading}
+              isRequired
+              isInvalid={errors.costPrice}
+            >
+              <FormLabel htmlFor="costPrice">Cost Price (ksh)</FormLabel>
+              <NumInput
+                name="costPrice"
+                min={0}
+                rules={{
+                  required: { value: true, message: "*Required!" },
+                  min: {
+                    value: 0,
+                    message: "Value should not be less than zero(0)!",
+                  },
+                }}
+              />
 
-          <Flex pt={4} justify="center">
-            <Button colorScheme="cyan" type="submit" isLoading={loading}>
-              next
-            </Button>
-          </Flex>
-        </VStack>
+              <FormErrorMessage>{errors?.costPrice?.message}</FormErrorMessage>
+            </FormControl>
+          </GridItem>
+
+          <GridItem colSpan={12}>
+            <FormControl
+              isDisabled={loading}
+              isInvalid={errors.itemDescription}
+            >
+              <FormLabel htmlFor="itemDescription">Item Details</FormLabel>
+              <Textarea id="itemDescription" {...register("itemDescription")} />
+            </FormControl>
+          </GridItem>
+        </Grid>
+
+        <Flex pt={4} justify="center">
+          <Button colorScheme="cyan" type="submit" isLoading={loading}>
+            next
+          </Button>
+        </Flex>
       </Box>
     </FormProvider>
   );
