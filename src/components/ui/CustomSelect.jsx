@@ -4,7 +4,6 @@ import {
   MenuList,
   MenuOptionGroup,
   MenuItemOption,
-  MenuDivider,
   Button,
   Text,
 } from "@chakra-ui/react";
@@ -12,10 +11,7 @@ import PropTypes from "prop-types";
 import { Controller, useFormContext } from "react-hook-form";
 import { RiArrowUpSLine, RiArrowDownSLine } from "react-icons/ri";
 
-Option.propTypes = {
-  children: PropTypes.any.isRequired,
-  value: PropTypes.string.isRequired,
-};
+import { sortStrings } from "../../utils/functions";
 
 function Grouped(props) {
   const { options, onChange, value } = props;
@@ -30,6 +26,13 @@ function Grouped(props) {
         groupName,
       });
     }
+  });
+
+  groups.sort((a, b) => {
+    const groupA = String(a.groupName).toLowerCase();
+    const groupB = String(b.groupName).toLowerCase();
+
+    return sortStrings(groupA, groupB);
   });
 
   groups = groups.map((group) => {
@@ -65,7 +68,6 @@ function Grouped(props) {
             </MenuItemOption>
           );
         })}
-        {i + 1 < arr.length && <MenuDivider />}
       </MenuOptionGroup>
     );
   });
