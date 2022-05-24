@@ -120,7 +120,7 @@ function EditInvoicePaymentForm(props) {
 EditInvoicePaymentForm.propTypes = {
   handleFormSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func,
-  taxDeducted: PropTypes.oneOf(["yes", "no"]).isRequired,
+  taxDeducted: PropTypes.oneOf(["yes", "no"]),
   paymentId: PropTypes.string.isRequired,
   invoice: PropTypes.shape({
     customer: PropTypes.shape({
@@ -138,7 +138,7 @@ EditInvoicePaymentForm.propTypes = {
   }),
   summary: PropTypes.shape({
     amount: PropTypes.number.isRequired,
-    paidAmount: PropTypes.number.isRequired,
+    payments: PropTypes.number.isRequired,
     excess: PropTypes.number.isRequired,
   }),
 };

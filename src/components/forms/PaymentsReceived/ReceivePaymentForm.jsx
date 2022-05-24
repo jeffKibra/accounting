@@ -5,7 +5,6 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Select,
   FormErrorMessage,
   FormHelperText,
   Button,
@@ -17,14 +16,13 @@ import PropTypes from "prop-types";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-import PaymentsContext from "../../../contexts/PaymentsContext";
 import StepperContext from "../../../contexts/StepperContext";
 
 import NumInput from "../../ui/NumInput";
-import RadioInput from "../../ui/RadioInput";
+// import RadioInput from "../../ui/RadioInput";
+import CustomSelect from "../../ui/CustomSelect";
 
-import { paymentsReceived } from "../../../utils/constants";
-const { accounts, paymentModes, tdsTaxAccounts } = paymentsReceived;
+import { paymentModes } from "../../../utils/constants";
 
 const schema = Yup.object().shape({
   customerId: Yup.string().required("*Required!"),
@@ -39,33 +37,45 @@ const schema = Yup.object().shape({
     .typeError("Value must be a number!")
     .min(0, "Minimum value accepted is zero(0)!"),
   account: Yup.string().required("*Required!"),
-  taxDeducted: Yup.string().required("*Required!"),
-  tdsTaxAccount: Yup.string().when("taxDeducted", {
-    is: "yes",
-    then: Yup.string().required("*Required!"),
-  }),
+  // taxDeducted: Yup.string().required("*Required!"),
+  // tdsTaxAccount: Yup.string().when("taxDeducted", {
+  //   is: "yes",
+  //   then: Yup.string().required("*Required!"),
+  // }),
 });
 
 function ReceivePaymentForm(props) {
-  const { customers, loading } = props;
-  const { updateFormValues, formValues } = useContext(PaymentsContext);
+  const { customers, loading, accounts, handleFormSubmit, defaultValues } =
+    props;
+
   const { nextStep } = useContext(StepperContext);
+
+  const paymentAccounts = accounts.filter((account) => {
+    const {
+      accountType: { id },
+      tags,
+    } = account;
+    const index = tags.findIndex((tag) => tag === "receivable");
+
+    return (id === "cash" || id === "other_current_liability") && index > -1;
+  });
+  // console.log({ paymentAccounts });
 
   const formMethods = useForm({
     mode: "onChange",
     resolver: yupResolver(schema),
-    defaultValues: formValues || {},
+    defaultValues: defaultValues || {},
   });
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
+    // watch,
   } = formMethods;
 
   function onSubmit(data) {
-    console.log({ data });
+    // console.log({ data });
     const { customerId } = data;
     const customer = customers.find(
       (customer) => customer.customerId === customerId
@@ -75,12 +85,14 @@ function ReceivePaymentForm(props) {
       customer,
     };
 
-    console.log({ newData });
+    // console.log({ newData });
     //update form values
-    updateFormValues(newData);
+    handleFormSubmit(newData);
     //go to the next step
     nextStep();
   }
+
+  // console.log({ errors });
 
   return (
     <FormProvider {...formMethods}>
@@ -102,21 +114,14 @@ function ReceivePaymentForm(props) {
               isInvalid={errors.customerId}
             >
               <FormLabel htmlFor="customerId">Customer</FormLabel>
-              <Select
-                placeholder="---select customer---"
-                id="customerId"
-                {...register("customerId")}
-              >
-                {customers.map((customer, i) => {
-                  const { customerId, displayName } = customer;
-
-                  return (
-                    <option key={i} value={customerId}>
-                      {displayName}
-                    </option>
-                  );
+              <CustomSelect
+                name="customerId"
+                placeholder="--select customer--"
+                options={customers.map((customer) => {
+                  const { displayName, customerId } = customer;
+                  return { name: displayName, value: customerId };
                 })}
-              </Select>
+              />
               <FormErrorMessage>{errors.customerId?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
@@ -168,24 +173,11 @@ function ReceivePaymentForm(props) {
               isInvalid={errors.paymentMode}
             >
               <FormLabel htmlFor="paymentMode">Payment Mode</FormLabel>
-              <Select
-                placeholder="---select payment mode---"
-                id="paymentMode"
-                {...register("paymentMode")}
-              >
-                {paymentModes.map((mode, i) => {
-                  return (
-                    <Box
-                      as="option"
-                      textTransform="capitalize"
-                      key={i}
-                      value={mode}
-                    >
-                      {mode}
-                    </Box>
-                  );
-                })}
-              </Select>
+              <CustomSelect
+                name="paymentMode"
+                options={paymentModes}
+                placeholder="select payment mode"
+              />
               <FormErrorMessage>{errors.paymentMode?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
@@ -210,29 +202,23 @@ function ReceivePaymentForm(props) {
               isInvalid={errors.account}
             >
               <FormLabel htmlFor="account">Deposit To</FormLabel>
-              <Select
+              <CustomSelect
+                name="account"
                 placeholder="---select account---"
-                id="account"
-                {...register("account")}
-              >
-                {accounts.map((account, i) => {
-                  return (
-                    <Box
-                      as="option"
-                      textTransform="capitalize"
-                      key={i}
-                      value={account}
-                    >
-                      {account}
-                    </Box>
-                  );
+                groupedOptions={paymentAccounts.map((account) => {
+                  const { name, accountId, accountType } = account;
+                  return {
+                    name,
+                    value: accountId,
+                    groupName: accountType.name,
+                  };
                 })}
-              </Select>
+              />
               <FormErrorMessage>{errors.account?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
 
-          <GridItem colSpan={[12, 6]}>
+          {/* <GridItem colSpan={[12, 6]}>
             <FormControl
               isDisabled={loading}
               required
@@ -247,9 +233,9 @@ function ReceivePaymentForm(props) {
               <FormErrorMessage>{errors.taxDeducted?.message}</FormErrorMessage>
               <FormHelperText>TDS || Withholding Tax</FormHelperText>
             </FormControl>
-          </GridItem>
+          </GridItem> */}
 
-          {watch("taxDeducted") === "yes" && (
+          {/* {watch("taxDeducted") === "yes" && (
             <GridItem colSpan={[12, 6]}>
               <FormControl
                 isDisabled={loading}
@@ -283,7 +269,7 @@ function ReceivePaymentForm(props) {
                 </FormHelperText>
               </FormControl>
             </GridItem>
-          )}
+          )} */}
         </Grid>
 
         <Flex justify="center">
@@ -297,9 +283,11 @@ function ReceivePaymentForm(props) {
 }
 
 ReceivePaymentForm.propTypes = {
-  // handleFormSubmit: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
   customers: PropTypes.array.isRequired,
+  accounts: PropTypes.array.isRequired,
+  handleFormSubmit: PropTypes.func.isRequired,
+  defaultValues: PropTypes.object.isRequired,
 };
 
 export default ReceivePaymentForm;

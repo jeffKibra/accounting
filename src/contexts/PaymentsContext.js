@@ -22,6 +22,7 @@ const initialState = {
   formValues: {},
   updateFormValues: () => {},
   finish: () => {},
+  accounts: [],
 };
 
 const PaymentsContext = createContext({ ...initialState });
@@ -40,6 +41,7 @@ function Provider(props) {
     action,
     invoices,
     getInvoices,
+    accounts,
   } = props;
 
   const [selectedInvoices, setSelectedInvoices] = useState(invoices || []);
@@ -261,6 +263,7 @@ function Provider(props) {
         formValues,
         updateFormValues,
         finish,
+        accounts,
       }}
     >
       {children}
@@ -278,8 +281,9 @@ Provider.propTypes = {
 
 function mapStateToProps(state) {
   const { loading, action, invoices } = state.invoicesReducer;
+  const { accounts } = state.accountsReducer;
 
-  return { loading, action, invoices };
+  return { loading, action, invoices, accounts };
 }
 
 function mapDispatchToProps(dispatch) {

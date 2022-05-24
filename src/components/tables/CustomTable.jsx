@@ -29,8 +29,13 @@ function CustomTable(props) {
               <Tr {...getHeaderGroupProps()}>
                 {headers.map((column) => {
                   const { render, getHeaderProps } = column;
+                  const { isNumeric } = column;
 
-                  return <Th {...getHeaderProps()}>{render("Header")}</Th>;
+                  return (
+                    <Th isNumeric={isNumeric} {...getHeaderProps()}>
+                      {render("Header")}
+                    </Th>
+                  );
                 })}
               </Tr>
             );
@@ -41,13 +46,22 @@ function CustomTable(props) {
             prepareRow(row);
             // console.log({ row });
             const { getRowProps, cells } = row;
-
             return (
               <Tr {...getRowProps()}>
                 {cells.map((cell) => {
-                  const { getCellProps, render } = cell;
+                  const { getCellProps, render, column } = cell;
+                  // console.log(getCellProps(), { cell });
+                  const { isNumeric, width } = column;
 
-                  return <Td {...getCellProps()}>{render("Cell")}</Td>;
+                  return (
+                    <Td
+                      isNumeric={isNumeric}
+                      {...(width ? { width } : {})}
+                      {...getCellProps()}
+                    >
+                      {render("Cell")}
+                    </Td>
+                  );
                 })}
               </Tr>
             );
