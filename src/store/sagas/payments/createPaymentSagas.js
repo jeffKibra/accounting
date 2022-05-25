@@ -106,8 +106,10 @@ function* createPayment({ data }) {
                 throw new Error("Invoice data not found!");
               }
 
+              const { org, customer, ...invoiceData } = invoiceDoc.data();
+
               return {
-                ...invoiceDoc.data(),
+                ...invoiceData,
                 invoiceId,
               };
             })
@@ -126,6 +128,7 @@ function* createPayment({ data }) {
          */
         const transactionDetails = {
           ...data,
+          invoices,
           status: "active",
           paymentNumber,
           paymentSlug,

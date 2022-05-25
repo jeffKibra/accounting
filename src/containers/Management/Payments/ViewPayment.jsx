@@ -2,6 +2,7 @@ import React from "react";
 import {
   Container,
   VStack,
+  Flex,
   Box,
   Grid,
   GridItem,
@@ -14,23 +15,26 @@ import {
 } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 
-import InvoicePdfItems from "../../../components/tables/Invoices/InvoicePdfItems";
-import InvoicePdfSummary from "../../../components/tables/Invoices/InvoicePdfSummary";
+import { getPaymentsTotal } from "../../../utils/payments";
+
+import PaymentInvoicesTable from "../../../components/tables/Payments/PaymentInvoicesTable";
 
 function ViewPayment(props) {
-  const { invoice } = props;
+  const { payment } = props;
   const {
     org,
     customer,
-    selectedItems,
-    invoiceSlug,
-    summary,
-    invoiceDate,
-    dueDate,
-    customerNotes,
-  } = invoice;
-  const { totalAmount } = summary;
-  console.log({ invoice });
+    paymentDate,
+    paymentMode,
+    reference,
+    amount,
+    payments,
+    invoices,
+  } = payment;
+
+  const paymentsTotal = getPaymentsTotal(payments);
+  const excess = amount - paymentsTotal;
+
   return (
     <Container
       borderRadius="md"
@@ -44,7 +48,10 @@ function ViewPayment(props) {
       <VStack color="#333" w="full" h="full">
         <Grid w="full" gap={1} templateColumns="repeat(12, 1fr)">
           <GridItem colSpan={[12, 6]}>
-            <VStack align="flex-start" w="full">
+            {/* add a logo for the company */}
+          </GridItem>
+          <GridItem colSpan={[12, 6]}>
+            <VStack align="flex-end" w="full">
               <Heading color="#333" as="h2" size="sm">
                 {org?.name}
               </Heading>
@@ -52,24 +59,13 @@ function ViewPayment(props) {
               <Text>{org?.city}</Text>
             </VStack>
           </GridItem>
-          <GridItem colSpan={[12, 6]}>
-            <VStack align="flex-end" w="full">
-              <Heading as="h1" size="xl">
-                INVOICE
-              </Heading>
-              <Heading color="#333" size="xs">
-                # {invoiceSlug}
-              </Heading>
-              <VStack w="full" mt="20px!important" align="flex-end">
-                <Text fontSize="sm">Balance Due</Text>
-                <Heading mt="0px !important" size="sm">
-                  KES {Number(totalAmount).toLocaleString()}
-                  {}
-                </Heading>
-              </VStack>
-            </VStack>
-          </GridItem>
         </Grid>
+
+        <Flex mt="30px!important" w="full" justify="center">
+          <Heading as="h1" size="md">
+            PAYMENT RECEIPT
+          </Heading>
+        </Flex>
 
         <Grid
           mt="30px !important"
@@ -78,48 +74,69 @@ function ViewPayment(props) {
           templateColumns="repeat(12, 1fr)"
         >
           <GridItem colSpan={[12, 6]}>
-            <VStack justify="flex-end" align="flex-start" w="full" h="full">
-              <Text>Bill To</Text>
-              <Heading color="#333" as="h4" size="xs">
-                {customer?.displayName}
-              </Heading>
-            </VStack>
-          </GridItem>
-
-          <GridItem colSpan={[12, 6]}>
             <Table size="sm">
               <Tbody>
                 <Tr>
-                  <Td isNumeric>Invoice Date:</Td>
-                  <Td pr="0px !important" isNumeric>
-                    {new Date(invoiceDate).toDateString()}
-                  </Td>
+                  <Td pl={0}>Customer</Td>
+                  <Td>{customer?.displayName}</Td>
                 </Tr>
                 <Tr>
-                  <Td isNumeric>Due Date:</Td>
-                  <Td pr="0px !important" isNumeric>
-                    {new Date(dueDate).toDateString()}
-                  </Td>
+                  <Td pl={0}>Date</Td>
+                  <Td>{new Date(paymentDate).toDateString()}</Td>
                 </Tr>
+                <Tr>
+                  <Td pl={0}>Payment Mode</Td>
+                  <Td>{paymentMode?.name}</Td>
+                </Tr>
+                <Tr>
+                  <Td pl={0}>Reference#</Td>
+                  <Td>{reference}</Td>
+                </Tr>
+                {excess > 0 && (
+                  <Tr>
+                    <Td pl={0}>Over Payment</Td>
+                    <Td fontWeight="semibold" bg="gray.50">
+                      {Number(excess).toLocaleString()}
+                    </Td>
+                  </Tr>
+                )}
               </Tbody>
             </Table>
           </GridItem>
-        </Grid>
-        <Box w="full" mt="20px!important">
-          <InvoicePdfItems items={selectedItems} />
-        </Box>
-        <Grid w="full" columnGap={3} templateColumns="repeat(12, 1fr)">
-          <GridItem colSpan={[1, 6]}></GridItem>
-          <GridItem colSpan={[11, 6]}>
-            <InvoicePdfSummary summary={summary} />
+
+          <GridItem
+            colSpan={[12, 6]}
+            display="flex"
+            justifyContent="flex-end"
+            alignItems="center"
+          >
+            <VStack
+              w="fit-content"
+              bg="cyan.100"
+              justify="center"
+              align="center"
+              p="24px"
+              h="130px"
+            >
+              <Text fontSize="sm">Amount Received</Text>
+              <Heading mt="0px !important" size="md">
+                KES {Number(amount).toLocaleString()}
+                {}
+              </Heading>
+            </VStack>
           </GridItem>
         </Grid>
-        {customerNotes && (
-          <VStack align="flex-start" w="full" mt="50px!important">
-            <Text>Notes</Text>
-            <Text>{customerNotes}</Text>
-          </VStack>
-        )}
+
+        <Flex w="full" pt="50px">
+          <Heading size="md" color="gray.600">
+            Payment For
+          </Heading>
+        </Flex>
+
+        <Box w="full" pt={3}>
+          <PaymentInvoicesTable invoices={invoices} payments={payments} />
+        </Box>
+
         <Box w="full" minH="200px" />
       </VStack>
     </Container>
@@ -127,22 +144,16 @@ function ViewPayment(props) {
 }
 
 ViewPayment.propTypes = {
-  invoice: PropTypes.shape({
+  payment: PropTypes.shape({
     customer: PropTypes.object.isRequired,
     org: PropTypes.object.isRequired,
-    summary: PropTypes.shape({
-      shipping: PropTypes.number.isRequired,
-      adjustment: PropTypes.number.isRequired,
-      totalAmount: PropTypes.number.isRequired,
-      subTotal: PropTypes.number.isRequired,
-      totalTax: PropTypes.number.isRequired,
-      taxes: PropTypes.array.isRequired,
-    }),
-    invoiceDate: PropTypes.string.isRequired,
-    dueDate: PropTypes.string.isRequired,
-    invoiceSlug: PropTypes.string.isRequired,
+    amount: PropTypes.number.isRequired,
+    paymentDate: PropTypes.string.isRequired,
+    paymentSlug: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,
-    selectedItems: PropTypes.array.isRequired,
+    invoices: PropTypes.array.isRequired,
+    payments: PropTypes.object.isRequired,
+    reference: PropTypes.string,
   }),
 };
 

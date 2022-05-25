@@ -4,12 +4,12 @@ import { connect } from "react-redux";
 import { Box, Text } from "@chakra-ui/react";
 
 import {
-  DELETE_INVOICE,
-  GET_INVOICE,
-} from "../../../store/actions/invoicesActions";
-import { reset } from "../../../store/slices/invoicesSlice";
+  DELETE_PAYMENT,
+  GET_PAYMENT,
+} from "../../../store/actions/paymentsActions";
+import { reset } from "../../../store/slices/paymentsSlice";
 
-import { INVOICES } from "../../../nav/routes";
+import { PAYMENTS_RECEIVED } from "../../../nav/routes";
 
 import useSavedLocation from "../../../hooks/useSavedLocation";
 import PageLayout from "../../../components/layout/PageLayout";
@@ -26,51 +26,52 @@ function ViewPaymentPage(props) {
     loading,
     action,
     isModified,
-    invoice,
-    deleteInvoice,
-    resetInvoice,
-    getInvoice,
+    payment,
+    deletePayment,
+    resetPayment,
+    getPayment,
   } = props;
-  const { invoiceId } = useParams();
+  const { paymentId } = useParams();
   const navigate = useNavigate();
   useSavedLocation().setLocation();
 
   useEffect(() => {
-    getInvoice(invoiceId);
-  }, [getInvoice, invoiceId]);
+    getPayment(paymentId);
+  }, [getPayment, paymentId]);
 
   useEffect(() => {
     if (isModified) {
-      resetInvoice();
-      navigate(INVOICES);
+      resetPayment();
+      navigate(PAYMENTS_RECEIVED);
     }
-  }, [isModified, resetInvoice, navigate]);
+  }, [isModified, resetPayment, navigate]);
 
   return (
     <PageLayout
-      pageTitle={invoice?.invoiceSlug || "View Invoice"}
+      pageTitle={payment?.paymentSlug || "View Payment"}
       actions={
-        invoice && (
+        payment && (
           <>
             <TableActions
-              editRoute={`/invoices/${invoiceId}/edit`}
+              editRoute={`/payments/${paymentId}/edit`}
               deleteDialog={{
                 isDeleted: isModified,
-                loading: loading && action === DELETE_INVOICE,
-                title: "Delete Invoice",
-                onConfirm: () => deleteInvoice(invoiceId),
+                loading: loading && action === DELETE_PAYMENT,
+                title: "Delete Payment",
+                onConfirm: () => deletePayment(paymentId),
                 message: (
                   <Box>
-                    <Text>Are you sure you want to delete this Invoice</Text>
+                    <Text>Are you sure you want to delete this Payment</Text>
                     <Box p={1} pl={5}>
                       <Text>
-                        Invoice#: <b>{invoice?.invoiceSlug}</b>
+                        Payment#: <b>{payment?.paymentSlug}</b>
                       </Text>
                       <Text>
-                        Customer Name: <b>{invoice?.customer?.displayName}</b>
+                        Customer Name: <b>{payment?.customer?.displayName}</b>
                       </Text>
                       <Text>
-                        Invoice Date : <b>{invoice?.invoiceDate}</b>
+                        Payment Date :{" "}
+                        <b>{new Date(payment?.paymentDate).toDateString()}</b>
                       </Text>
                     </Box>
                     <Text>NOTE:::THIS ACTION CANNOT BE UNDONE!</Text>
@@ -84,26 +85,26 @@ function ViewPaymentPage(props) {
     >
       {loading ? (
         <SkeletonLoader />
-      ) : invoice ? (
-        <ViewPayment invoice={invoice} />
+      ) : payment ? (
+        <ViewPayment payment={payment} />
       ) : (
-        <Empty message="Invoice not found!" />
+        <Empty message="payment not found!" />
       )}
     </PageLayout>
   );
 }
 
 function mapStateToProps(state) {
-  const { loading, action, isModified, invoice } = state.invoicesReducer;
+  const { loading, action, isModified, payment } = state.paymentsReducer;
 
-  return { loading, action, isModified, invoice };
+  return { loading, action, isModified, payment };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    deleteInvoice: (invoiceId) => dispatch({ type: DELETE_INVOICE, invoiceId }),
-    resetInvoice: () => dispatch(reset()),
-    getInvoice: (invoiceId) => dispatch({ type: GET_INVOICE, invoiceId }),
+    deletePayment: (paymentId) => dispatch({ type: DELETE_PAYMENT, paymentId }),
+    resetPayment: () => dispatch(reset()),
+    getPayment: (paymentId) => dispatch({ type: GET_PAYMENT, paymentId }),
   };
 }
 

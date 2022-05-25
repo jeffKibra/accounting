@@ -363,7 +363,7 @@ service cloud.firestore {
 
         function verifyPaymentData(){
           let form=['accountId', 'amount', 'customerId', 'paymentDate', "paymentModeId"];
-          let details=["payments", "account", 'customer', "paymentMode"];
+          let details=["payments", "invoices", "account", 'customer', "paymentMode",];
           let additional=['status', 'org', 'paymentSlug', 'paymentNumber', 'createdBy', "createdAt", 'modifiedBy', "modifiedAt"];
           let required=form.concat(details).concat(additional);
           let optional=['reference'];
@@ -380,6 +380,7 @@ service cloud.firestore {
             request.resource.data.paymentModeId is string &&
             request.resource.data.paymentMode is map &&
             request.resource.data.payments is map &&
+            request.resource.data.invoices is list &&
             request.resource.data.status is string &&
             request.resource.data.org is map &&
             request.resource.data.paymentSlug is string &&
@@ -397,7 +398,7 @@ service cloud.firestore {
 
         function allowPaymentUpdate(){
           let form=['accountId', 'amount', 'customerId', 'paymentDate', "paymentModeId"];
-          let details=["payments", "account", 'customer', "paymentMode"];
+          let details=["payments", "invoices", "account", 'customer', "paymentMode"];
           let additional=['status', 'modifiedBy', "modifiedAt"];
           let required=form.concat(details).concat(additional);
           let optional=['reference'];

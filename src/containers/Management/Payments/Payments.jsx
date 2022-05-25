@@ -2,46 +2,46 @@ import { useEffect } from "react";
 import { connect } from "react-redux";
 
 import {
-  GET_INVOICES,
-  DELETE_INVOICE,
-} from "../../../store/actions/invoicesActions";
-import { reset } from "../../../store/slices/invoicesSlice";
+  GET_PAYMENTS,
+  DELETE_PAYMENT,
+} from "../../../store/actions/paymentsActions";
+import { reset } from "../../../store/slices/paymentsSlice";
 
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
 import Empty from "../../../components/ui/Empty";
 
-import InvoicesTable from "../../../components/tables/Invoices/InvoicesTable";
+import PaymentsTable from "../../../components/tables/Payments/PaymentsTable";
 
-function Invoices(props) {
+function Payments(props) {
   const {
     loading,
-    invoices,
+    payments,
     action,
     isModified,
-    getInvoices,
-    deleteInvoice,
-    resetInvoices,
+    getPayments,
+    deletePayment,
+    resetPayment,
   } = props;
 
   useEffect(() => {
-    getInvoices();
-  }, [getInvoices]);
+    getPayments();
+  }, [getPayments]);
 
   useEffect(() => {
     if (isModified) {
-      resetInvoices();
-      getInvoices();
+      resetPayment();
+      getPayments();
     }
-  }, [isModified, resetInvoices, getInvoices]);
+  }, [isModified, resetPayment, getPayments]);
 
-  return loading && action === GET_INVOICES ? (
+  return loading && action === GET_PAYMENTS ? (
     <SkeletonLoader />
-  ) : invoices?.length > 0 ? (
-    <InvoicesTable
-      deleting={loading && action === DELETE_INVOICE}
+  ) : payments?.length > 0 ? (
+    <PaymentsTable
+      deleting={loading && action === DELETE_PAYMENT}
       isDeleted={isModified}
-      handleDelete={deleteInvoice}
-      invoices={invoices}
+      handleDelete={deletePayment}
+      payments={payments}
     />
   ) : (
     <Empty />
@@ -49,17 +49,17 @@ function Invoices(props) {
 }
 
 function mapStateToProps(state) {
-  const { loading, invoices, action, isModified } = state.invoicesReducer;
+  const { loading, payments, action, isModified } = state.paymentsReducer;
 
-  return { loading, invoices, action, isModified };
+  return { loading, payments, action, isModified };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    getInvoices: () => dispatch({ type: GET_INVOICES }),
-    deleteInvoice: (invoiceId) => dispatch({ type: DELETE_INVOICE, invoiceId }),
-    resetInvoices: () => dispatch(reset()),
+    getPayments: () => dispatch({ type: GET_PAYMENTS }),
+    deletePayment: (paymentId) => dispatch({ type: DELETE_PAYMENT, paymentId }),
+    resetPayment: () => dispatch(reset()),
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Invoices);
+export default connect(mapStateToProps, mapDispatchToProps)(Payments);

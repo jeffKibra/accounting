@@ -5,8 +5,8 @@ import PropTypes from "prop-types";
 
 import StepperContext from "../../../contexts/StepperContext";
 
-import UnpaidInvoicesTable from "../../tables/PaymentsReceived/UnpaidInvoicesTable";
-import PaymentsSummaryTable from "../../tables/PaymentsReceived/PaymentsSummaryTable";
+import UnpaidInvoicesTable from "../../tables/Payments/UnpaidInvoicesTable";
+import PaymentsSummaryTable from "../../tables/Payments/PaymentsSummaryTable";
 
 function InvoicesPaymentForm(props) {
   // console.log({ props });
