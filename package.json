@@ -32,10 +32,29 @@
     "yup": "^0.32.11"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "getfunctionsenv": "firebase functions:config:get > .runtimeconfig.json",
+    "setfunctionsenv:dev": "firebase functions:config:set app.env=development&& npm run getfunctionsenv",
+    "setfunctionsenv:prod": "firebase functions:config:set app.env=production&& npm run getfunctionsenv",
+    "prepfunctions:dev": "npm run build:server && firebase use default && npm run setfunctionsenv:dev",
+    "prepfunctions:prod": "npm run build:server && firebase use live && npm run setfunctionsenv:prod",
+    "start": "cross-env REACT_APP_ENV=development react-scripts start",
+    "start:prod": "cross-env REACT_APP_ENV=production react-scripts start",
+    "build": "cross-env REACT_APP_ENV=development react-scripts build",
+    "build:prod": "cross-env REACT_APP_ENV=production react-scripts build",
+    "build:server": "babel functions --out-dir build/functions --copy-files",
+    "startfunctions": "firebase emulators:start --only functions",
+    "startfunctions:dev": "npm run prepfunctions:dev && npm run startfunctions",
+    "startfunctions:prod": "npm run prepfunctions:prod && npm run startfunctions",
+    "predeploy:dev": "rimraf build/ && npm run build",
+    "predeploy:prod": "rimraf build/ && npm run build:prod",
+    "deploy:dev": "firebase use default && npm run setfunctionsenv:dev && firebase deploy -P default --only functions,hosting",
+    "deploy:prod": "firebase use live && npm run setfunctionsenv:prod && firebase deploy -P live --only functions,hosting",
+    "deployfunctions:dev": "npm run prepfunctions:dev && firebase deploy -P default --only functions",
+    "deployfunctions:prod": "npm run prepfunctions:prod && firebase deploy -P live --only functions",
+    "deployhosting:dev": "npm run build && firebase use default && firebase deploy -P default --only hosting",
+    "deployhosting:prod": "npm run build:prod && firebase use live && firebase deploy -P live --only hosting"
   },
   "eslintConfig": {
     "extends": [
@@ -54,5 +73,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
   }
 }
