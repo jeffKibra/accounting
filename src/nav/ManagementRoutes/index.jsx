@@ -11,7 +11,7 @@ import Items from "./Items";
 import Customers from "./Customers";
 import Invoices from "./Invoices";
 import Taxes from "./Taxes";
-import PaymentsReceived from "./PaymentsReceived";
+import Payments from "./Payments";
 import Estimates from "./Estimates";
 import Expenses from "./Expenses";
 import SalesReceipts from "./SalesReceipts";
@@ -35,7 +35,7 @@ function ManagementRoutes() {
     ...Customers(),
     ...Invoices(),
     ...Taxes(),
-    ...PaymentsReceived(),
+    ...Payments(),
     ...Estimates(),
     ...Expenses(),
     ...SalesReceipts(),

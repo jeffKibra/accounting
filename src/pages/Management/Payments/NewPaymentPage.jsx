@@ -9,7 +9,7 @@ import { reset } from "../../../store/slices/paymentsSlice";
 import useSavedLocation from "../../../hooks/useSavedLocation";
 
 import PageLayout from "../../../components/layout/PageLayout";
-import EditPayment from "../../../containers/Management/PaymentsReceived/EditPayment";
+import EditPayment from "../../../containers/Management/Payments/EditPayment";
 
 function NewPaymentPage(props) {
   const { loading, action, isModified, createPayment, resetPayment } = props;

@@ -4,12 +4,12 @@ import * as routes from "../routes";
 import ManagementRoute from "../ManagementRoute";
 
 //payments received
-import PaymentsPage from "../../pages/Management/PaymentsReceived/PaymentsPage";
-import NewPaymentPage from "../../pages/Management/PaymentsReceived/NewPaymentPage";
-import EditPaymentPage from "../../pages/Management/PaymentsReceived/EditPaymentPage";
-import ViewPaymentPage from "../../pages/Management/PaymentsReceived/ViewPaymentPage";
+import PaymentsPage from "../../pages/Management/Payments/PaymentsPage";
+import NewPaymentPage from "../../pages/Management/Payments/NewPaymentPage";
+import EditPaymentPage from "../../pages/Management/Payments/EditPaymentPage";
+import ViewPaymentPage from "../../pages/Management/Payments/ViewPaymentPage";
 
-function PaymentsReceived() {
+function Payments() {
   return [
     <Route
       path={routes.PAYMENTS_RECEIVED}
@@ -54,4 +54,4 @@ function PaymentsReceived() {
   ];
 }
 
-export default PaymentsReceived;
+export default Payments;

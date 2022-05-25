@@ -14,8 +14,9 @@ import ControlledDialog from "../../../components/ui/ControlledDialog";
 import Empty from "../../../components/ui/Empty";
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
 
-import InvoicesPaymentForm from "../../../components/forms/PaymentsReceived/InvoicesPaymentForm";
-import ReceivePaymentForm from "../../../components/forms/PaymentsReceived/ReceivePaymentForm";
+import InvoicesPaymentForm from "../../../components/forms/Payments/InvoicesPaymentForm";
+import ReceivePaymentForm from "../../../components/forms/Payments/ReceivePaymentForm";
+
 function EditPayment(props) {
   const {
     payment,
@@ -89,13 +90,20 @@ function EditPayment(props) {
   return loading && action === GET_CUSTOMERS ? (
     <SkeletonLoader />
   ) : customers?.length > 0 ? (
-    <Box w="full">
+    <Box w="full" h="full">
       <Stepper
         steps={[
           {
             label: "Receive Payment",
             content: (
-              <Flex mt={1} w="full" justify="center">
+              <Flex
+                mt={1}
+                w="full"
+                justify="center"
+                h="full"
+                overflowY="auto"
+                pb="100px"
+              >
                 <ReceivePaymentForm
                   handleFormSubmit={updateFormValues}
                   customers={customers}

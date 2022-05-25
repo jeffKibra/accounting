@@ -14,7 +14,7 @@ import PageLayout from "../../../components/layout/PageLayout";
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
 import Empty from "../../../components/ui/Empty";
 
-import EditPayment from "../../../containers/Management/PaymentsReceived/EditPayment";
+import EditPayment from "../../../containers/Management/Payments/EditPayment";
 
 function EditPaymentPage(props) {
   const {

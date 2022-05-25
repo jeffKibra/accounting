@@ -6,7 +6,6 @@ import {
   FormLabel,
   Input,
   FormErrorMessage,
-  FormHelperText,
   Button,
   Grid,
   GridItem,
@@ -32,11 +31,11 @@ const schema = Yup.object().shape({
     .min(1, "Amount cannot be less than one(1)!")
     .required("*Required!"),
   reference: Yup.string(),
-  paymentMode: Yup.string().required("*Required!"),
+  paymentModeId: Yup.string().required("*Required!"),
   bankCharges: Yup.number()
     .typeError("Value must be a number!")
     .min(0, "Minimum value accepted is zero(0)!"),
-  account: Yup.string().required("*Required!"),
+  accountId: Yup.string().required("*Required!"),
   // taxDeducted: Yup.string().required("*Required!"),
   // tdsTaxAccount: Yup.string().when("taxDeducted", {
   //   is: "yes",
@@ -76,13 +75,22 @@ function ReceivePaymentForm(props) {
 
   function onSubmit(data) {
     // console.log({ data });
-    const { customerId } = data;
+    const { customerId, accountId, paymentModeId } = data;
     const customer = customers.find(
       (customer) => customer.customerId === customerId
     );
+    const paymentMode = paymentModes.find(
+      (mode) => mode.value === paymentModeId
+    );
+    const account = paymentAccounts.find(
+      (account) => account.accountId === accountId
+    );
+    const { name, accountType } = account;
     const newData = {
       ...data,
       customer,
+      paymentMode,
+      account: { name, accountId, accountType },
     };
 
     // console.log({ newData });
@@ -158,52 +166,11 @@ function ReceivePaymentForm(props) {
             <FormControl
               isDisabled={loading}
               required
-              isInvalid={errors.reference}
+              isInvalid={errors.accountId}
             >
-              <FormLabel htmlFor="reference">Reference#</FormLabel>
-              <Input id="reference" {...register("reference")} />
-              <FormErrorMessage>{errors.reference?.message}</FormErrorMessage>
-            </FormControl>
-          </GridItem>
-
-          <GridItem colSpan={[12, 6]}>
-            <FormControl
-              isDisabled={loading}
-              required
-              isInvalid={errors.paymentMode}
-            >
-              <FormLabel htmlFor="paymentMode">Payment Mode</FormLabel>
+              <FormLabel htmlFor="accountId">Deposit To</FormLabel>
               <CustomSelect
-                name="paymentMode"
-                options={paymentModes}
-                placeholder="select payment mode"
-              />
-              <FormErrorMessage>{errors.paymentMode?.message}</FormErrorMessage>
-            </FormControl>
-          </GridItem>
-
-          <GridItem colSpan={[12, 6]}>
-            <FormControl
-              isDisabled={loading}
-              required
-              isInvalid={errors.bankCharges}
-            >
-              <FormLabel htmlFor="bankCharges">Bank Charges</FormLabel>
-              <NumInput name="bankCharges" />
-              <FormErrorMessage>{errors.bankCharges?.message}</FormErrorMessage>
-              <FormHelperText>optional</FormHelperText>
-            </FormControl>
-          </GridItem>
-
-          <GridItem colSpan={[12, 6]}>
-            <FormControl
-              isDisabled={loading}
-              required
-              isInvalid={errors.account}
-            >
-              <FormLabel htmlFor="account">Deposit To</FormLabel>
-              <CustomSelect
-                name="account"
+                name="accountId"
                 placeholder="---select account---"
                 groupedOptions={paymentAccounts.map((account) => {
                   const { name, accountId, accountType } = account;
@@ -214,9 +181,52 @@ function ReceivePaymentForm(props) {
                   };
                 })}
               />
-              <FormErrorMessage>{errors.account?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors.accountId?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
+
+          <GridItem colSpan={[12, 6]}>
+            <FormControl
+              isDisabled={loading}
+              required
+              isInvalid={errors.paymentModeId}
+            >
+              <FormLabel htmlFor="paymentModeId">Payment Mode</FormLabel>
+              <CustomSelect
+                name="paymentModeId"
+                options={paymentModes}
+                placeholder="select payment mode"
+              />
+              <FormErrorMessage>
+                {errors.paymentModeId?.message}
+              </FormErrorMessage>
+            </FormControl>
+          </GridItem>
+
+          <GridItem colSpan={[12, 6]}>
+            <FormControl
+              isDisabled={loading}
+              required
+              isInvalid={errors.reference}
+            >
+              <FormLabel htmlFor="reference">Reference#</FormLabel>
+              <Input id="reference" {...register("reference")} />
+              <FormErrorMessage>{errors.reference?.message}</FormErrorMessage>
+            </FormControl>
+          </GridItem>
+
+          {/* <GridItem colSpan={[12, 6]}>
+            <FormControl
+              isDisabled={loading}
+              required
+              isInvalid={errors.bankCharges}
+            >
+              <FormLabel htmlFor="bankCharges">Bank Charges </FormLabel>
+              <NumInput name="bankCharges" />
+              <FormErrorMessage>{errors.bankCharges?.message}</FormErrorMessage>
+              <FormHelperText>if any</FormHelperText>
+            </FormControl>
+          </GridItem> */}
 
           {/* <GridItem colSpan={[12, 6]}>
             <FormControl

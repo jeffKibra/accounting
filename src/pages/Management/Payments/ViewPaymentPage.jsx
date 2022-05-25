@@ -19,7 +19,7 @@ import Empty from "../../../components/ui/Empty";
 
 import TableActions from "../../../components/tables/TableActions";
 
-import ViewPayment from "../../../containers/Management/PaymentsReceived/ViewPayment";
+import ViewPayment from "../../../containers/Management/Payments/ViewPayment";
 
 function ViewPaymentPage(props) {
   const {

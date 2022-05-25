@@ -7,7 +7,6 @@ import {
   query,
   where,
   orderBy,
-  limit,
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
@@ -23,26 +22,6 @@ import {
   fail,
 } from "../../slices/paymentsSlice";
 import { error as toastError } from "../../slices/toastSlice";
-
-export async function getLatestPayment(orgId, customerId) {
-  console.log({ orgId, customerId });
-  const q = query(
-    collection(db, "organizations", orgId, "payments"),
-    orderBy("createdAt", "desc"),
-    where("customerId", "==", customerId),
-    limit(1)
-  );
-  const snap = await getDocs(q);
-  if (snap.empty) {
-    return null;
-  }
-
-  const paymentDoc = snap.docs[0];
-  return {
-    ...paymentDoc.data(),
-    paymentId: paymentDoc.id,
-  };
-}
 
 function* getPayment({ paymentId }) {
   yield put(start(GET_PAYMENT));
@@ -86,7 +65,7 @@ function* getPayments({ statuses }) {
     const q = query(
       collection(db, "organizations", orgId, "payments"),
       orderBy("createdAt", "desc"),
-      where("status", "in", statuses || ["pending", "paid", "draft", "sent"])
+      where("status", "==", "active")
     );
     const payments = [];
     const snap = await getDocs(q);
@@ -117,16 +96,16 @@ export function* watchGetPayments() {
   yield takeLatest(GET_PAYMENTS, getPayments);
 }
 
-function* getCustomerPayments({ customerId, statuses }) {
+function* getCustomerPayments({ customerId }) {
   yield put(start(GET_CUSTOMER_PAYMENTS));
   const orgId = yield select((state) => state.orgsReducer.org.id);
-  console.log({ customerId, statuses });
+  console.log({ customerId });
   async function get() {
     const q = query(
       collection(db, "organizations", orgId, "payments"),
       orderBy("createdAt", "asc"),
       where("customerId", "==", customerId),
-      where("status", "in", statuses || ["pending", "paid", "draft", "sent"])
+      where("status", "==", "active")
     );
     const payments = [];
     const snap = await getDocs(q);
