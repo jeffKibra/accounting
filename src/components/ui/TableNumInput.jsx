@@ -20,7 +20,7 @@ function TableNumInput(props) {
       max={max}
       defaultValue={defaultValue || 0}
       size="sm"
-      isDisabled={loading}
+      isReadOnly={loading}
     >
       <NumberInputField
         minW="90px"

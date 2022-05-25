@@ -1,4 +1,4 @@
-import { useContext, useCallback } from "react";
+import { useContext, useCallback, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { Box, Button, Flex, Grid, GridItem, VStack } from "@chakra-ui/react";
 import PropTypes from "prop-types";
@@ -42,15 +42,16 @@ function InvoicesPaymentForm(props) {
     return {};
   }, []);
 
-  const defaultPayments = autoFill(invoices, amount);
-
-  // console.log({ defaultPayments });
-
   const formMethods = useForm({
     mode: "onChange",
-    defaultValues: formValues.payments || defaultPayments,
+    defaultValues: formValues.payments || autoFill(invoices, amount),
   });
   const { handleSubmit, watch, reset } = formMethods;
+
+  useEffect(() => {
+    const defaults = formValues.payments || autoFill(invoices, amount);
+    reset(defaults);
+  }, [formValues.payments, autoFill, amount, invoices, reset]);
 
   const payments = watch();
   function goBack() {
