@@ -325,6 +325,7 @@ service cloud.firestore {
             numberValue(request.resource.data.summary.subTotal) &&
             numberValue(request.resource.data.summary.totalAmount) &&
             numberValue(request.resource.data.summary.balance) &&
+            request.resource.data.summary.balance >= 0 && 
             numberValue(request.resource.data.summary.totalTaxes) &&
             request.resource.data.summary.taxes is list &&
             request.resource.data.customer is map &&

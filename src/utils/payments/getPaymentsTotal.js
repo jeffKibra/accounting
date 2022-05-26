@@ -3,7 +3,7 @@
  * @param {{}} payments
  * @returns {0} paymentsTotal
  */
-export function getPaymentsTotal(payments) {
+export default function getPaymentsTotal(payments) {
   if (!payments) return 0;
 
   const invoicesIds = Object.keys(payments);

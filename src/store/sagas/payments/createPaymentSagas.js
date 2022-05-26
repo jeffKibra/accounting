@@ -7,6 +7,8 @@ import {
   increment,
 } from "firebase/firestore";
 
+import { getAccountData } from "../../../utils/accounts";
+import { getPaymentsTotal } from "../../../utils/payments";
 import { assetEntry, liabilityEntry } from "../journals";
 
 import { db } from "../../../utils/firebase";
@@ -24,7 +26,7 @@ function* createPayment({ data }) {
     const orgId = org.id;
     const userProfile = yield select((state) => state.authReducer.userProfile);
     const { email } = userProfile;
-    const allAccounts = yield select((state) => state.accountsReducer.accounts);
+    const accounts = yield select((state) => state.accountsReducer.accounts);
     // console.log({ data, orgId, userProfile });
     const { payments, customerId, amount, accountId, reference } = data;
     console.log({ payments });
@@ -36,10 +38,7 @@ function* createPayment({ data }) {
     });
     console.log({ payments });
     const invoicesIds = Object.keys(payments);
-    const paymentsTotal = invoicesIds.reduce((sum, id) => {
-      return sum + payments[id];
-    }, 0);
-
+    const paymentsTotal = getPaymentsTotal(payments);
     if (paymentsTotal > amount) {
       throw new Error(
         "Invoices payments cannot be more than customer payment!"
@@ -48,28 +47,10 @@ function* createPayment({ data }) {
     const excess = amount - paymentsTotal;
     console.log({ paymentsTotal, excess });
 
-    function getAccount(accountId) {
-      const found = allAccounts.find(
-        (account) => account.accountId === accountId
-      );
-
-      if (!found) {
-        throw new Error(
-          `Journal entries data for account ${accountId} not found!`
-        );
-      }
-      const { accountType, name } = found;
-      return {
-        name,
-        accountId,
-        accountType,
-      };
-    }
-
     //accounts data
-    const accounts_receivable = getAccount("accounts_receivable");
-    const paymentAccount = getAccount(accountId);
-    const unearned_revenue = getAccount("unearned_revenue");
+    const accounts_receivable = getAccountData("accounts_receivable", accounts);
+    const paymentAccount = getAccountData(accountId, accounts);
+    const unearned_revenue = getAccountData("unearned_revenue", accounts);
 
     async function create() {
       const newDocRef = doc(collection(db, "organizations", orgId, "payments"));
@@ -87,6 +68,7 @@ function* createPayment({ data }) {
         "customers",
         customerId
       );
+      const paymentId = newDocRef.id;
 
       await runTransaction(db, async (transaction) => {
         const [customerDoc, invoices] = await Promise.all([
@@ -126,8 +108,10 @@ function* createPayment({ data }) {
         /**
          * start docs writing!
          */
+
         const transactionDetails = {
           ...data,
+          paymentId,
           invoices,
           status: "active",
           paymentNumber,
@@ -167,11 +151,15 @@ function* createPayment({ data }) {
 
           if (paymentAmount > 0) {
             //update invoice
+            const { customer, org, invoices, ...tDetails } = transactionDetails;
             transaction.update(invoiceRef, {
-              "summary.balance": increment(paymentAmount),
+              "summary.balance": increment(0 - paymentAmount),
               payments: {
                 ...invoiceData.payments,
-                [newDocRef.id]: paymentAmount,
+                [newDocRef.id]: {
+                  paymentAmount,
+                  ...tDetails,
+                },
               },
               modifiedBy: email,
               modifiedAt: serverTimestamp(),
@@ -233,7 +221,9 @@ function* createPayment({ data }) {
           );
         }
 
-        transaction.set(newDocRef, { ...transactionDetails }, { merge: true });
+        //create new payment
+        const { paymentId: pid, ...tDetails } = transactionDetails;
+        transaction.set(newDocRef, { ...tDetails }, { merge: true });
       });
     }
 
