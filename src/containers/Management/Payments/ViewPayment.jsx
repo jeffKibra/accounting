@@ -29,7 +29,7 @@ function ViewPayment(props) {
     reference,
     amount,
     payments,
-    invoices,
+    paidInvoices,
   } = payment;
 
   const paymentsTotal = getPaymentsTotal(payments);
@@ -134,7 +134,7 @@ function ViewPayment(props) {
         </Flex>
 
         <Box w="full" pt={3}>
-          <PaymentInvoicesTable invoices={invoices} payments={payments} />
+          <PaymentInvoicesTable invoices={paidInvoices} payments={payments} />
         </Box>
 
         <Box w="full" minH="200px" />
@@ -151,7 +151,7 @@ ViewPayment.propTypes = {
     paymentDate: PropTypes.string.isRequired,
     paymentSlug: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,
-    invoices: PropTypes.array.isRequired,
+    paidInvoices: PropTypes.array.isRequired,
     payments: PropTypes.object.isRequired,
     reference: PropTypes.string,
   }),

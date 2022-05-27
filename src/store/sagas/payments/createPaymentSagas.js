@@ -10,7 +10,7 @@ import {
 import { getAccountData } from "../../../utils/accounts";
 import { getPaymentsTotal, payInvoices } from "../../../utils/payments";
 import { getCustomerData } from "../../../utils/customers";
-import { liabilityEntry } from "../journals";
+import { liabilityEntry } from "../../../utils/journals";
 
 import { db } from "../../../utils/firebase";
 import { CREATE_PAYMENT } from "../../actions/paymentsActions";
@@ -29,15 +29,7 @@ function* createPayment({ data }) {
     const { email } = userProfile;
     const accounts = yield select((state) => state.accountsReducer.accounts);
     // console.log({ data, orgId, userProfile });
-    const { payments, customerId, amount, reference, invoices } = data;
-    console.log({ payments });
-    Object.keys(payments).forEach((key) => {
-      const value = payments[key];
-      if (value === 0) {
-        delete payments[key];
-      }
-    });
-    console.log({ payments });
+    const { payments, customerId, amount, reference } = data;
 
     const paymentsTotal = getPaymentsTotal(payments);
     if (paymentsTotal > amount) {
@@ -46,7 +38,7 @@ function* createPayment({ data }) {
       );
     }
     const excess = amount - paymentsTotal;
-    console.log({ paymentsTotal, excess });
+    // console.log({ paymentsTotal, excess });
 
     //accounts data
     const unearned_revenue = getAccountData("unearned_revenue", accounts);
@@ -97,7 +89,7 @@ function* createPayment({ data }) {
           modifiedBy: email,
           modifiedAt: serverTimestamp(),
         };
-        console.log({ transactionDetails });
+        // console.log({ transactionDetails });
 
         transaction.update(countersRef, {
           payments: increment(1),

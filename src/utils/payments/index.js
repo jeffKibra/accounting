@@ -7,3 +7,4 @@ export { default as payInvoices } from "./payInvoices";
 export { default as selectPaidInvoices } from "./selectPaidInvoices";
 export { default as updateCustomersPayments } from "./updateCustomersPayments";
 export { default as updateInvoicesPayments } from "./updateInvoicesPayments";
+export { default as changePaymentAccount } from "./changePaymentAccount";

@@ -3,10 +3,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { connect } from "react-redux";
 
 import {
-  UPDATE_INVOICE,
-  GET_INVOICE,
-} from "../../../store/actions/invoicesActions";
-import { reset } from "../../../store/slices/invoicesSlice";
+  UPDATE_PAYMENT,
+  GET_PAYMENT,
+} from "../../../store/actions/paymentsActions";
+import { reset } from "../../../store/slices/paymentsSlice";
 
 import useSavedLocation from "../../../hooks/useSavedLocation";
 import PageLayout from "../../../components/layout/PageLayout";
@@ -21,62 +21,62 @@ function EditPaymentPage(props) {
     loading,
     action,
     isModified,
-    invoice,
-    updateInvoice,
-    resetInvoice,
-    getInvoice,
+    payment,
+    updatePayment,
+    resetPayment,
+    getPayment,
   } = props;
-  const { invoiceId } = useParams();
+  const { paymentId } = useParams();
   const navigate = useNavigate();
   useSavedLocation().setLocation();
 
   useEffect(() => {
-    getInvoice(invoiceId);
-  }, [getInvoice, invoiceId]);
+    getPayment(paymentId);
+  }, [getPayment, paymentId]);
 
   useEffect(() => {
     if (isModified) {
-      resetInvoice();
+      resetPayment();
       navigate(-1);
     }
-  }, [isModified, resetInvoice, navigate]);
+  }, [isModified, resetPayment, navigate]);
 
   function update(data) {
     console.log({ data });
-    updateInvoice({
+    updatePayment({
       ...data,
-      invoiceId,
+      paymentId,
     });
   }
 
   return (
-    <PageLayout pageTitle={`Edit Payment ${invoice?.invoiceSlug}`}>
-      {loading && action === GET_INVOICE ? (
+    <PageLayout pageTitle={`Edit Payment ${payment?.paymentSlug || ""}`}>
+      {loading && action === GET_PAYMENT ? (
         <SkeletonLoader />
-      ) : invoice ? (
+      ) : payment ? (
         <EditPayment
-          updating={loading && action === UPDATE_INVOICE}
-          handleFormSubmit={update}
-          invoice={invoice}
+          updating={loading && action === UPDATE_PAYMENT}
+          saveData={update}
+          payment={payment}
         />
       ) : (
-        <Empty message="Invoice not found!" />
+        <Empty message="payment not found!" />
       )}
     </PageLayout>
   );
 }
 
 function mapStateToProps(state) {
-  const { loading, action, isModified, invoice } = state.invoicesReducer;
+  const { loading, action, isModified, payment } = state.paymentsReducer;
 
-  return { loading, action, isModified, invoice };
+  return { loading, action, isModified, payment };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    updateInvoice: (data) => dispatch({ type: UPDATE_INVOICE, data }),
-    resetInvoice: () => dispatch(reset()),
-    getInvoice: (invoiceId) => dispatch({ type: GET_INVOICE, invoiceId }),
+    updatePayment: (data) => dispatch({ type: UPDATE_PAYMENT, data }),
+    resetPayment: () => dispatch(reset()),
+    getPayment: (paymentId) => dispatch({ type: GET_PAYMENT, paymentId }),
   };
 }
 

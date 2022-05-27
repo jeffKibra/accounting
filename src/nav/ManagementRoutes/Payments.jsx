@@ -12,8 +12,8 @@ import ViewPaymentPage from "../../pages/Management/Payments/ViewPaymentPage";
 function Payments() {
   return [
     <Route
-      path={routes.PAYMENTS_RECEIVED}
-      key={routes.PAYMENTS_RECEIVED}
+      path={routes.PAYMENTS}
+      key={routes.PAYMENTS}
       exact
       element={
         <ManagementRoute>
@@ -22,8 +22,8 @@ function Payments() {
       }
     />,
     <Route
-      path={routes.NEW_PAYMENT_RECEIVED}
-      key={routes.NEW_PAYMENT_RECEIVED}
+      path={routes.NEW_PAYMENT}
+      key={routes.NEW_PAYMENT}
       exact
       element={
         <ManagementRoute>
@@ -32,8 +32,8 @@ function Payments() {
       }
     />,
     <Route
-      path={routes.EDIT_PAYMENT_RECEIVED}
-      key={routes.EDIT_PAYMENT_RECEIVED}
+      path={routes.EDIT_PAYMENT}
+      key={routes.EDIT_PAYMENT}
       exact
       element={
         <ManagementRoute>
@@ -42,8 +42,8 @@ function Payments() {
       }
     />,
     <Route
-      path={routes.VIEW_PAYMENT_RECEIVED}
-      key={routes.VIEW_PAYMENT_RECEIVED}
+      path={routes.VIEW_PAYMENT}
+      key={routes.VIEW_PAYMENT}
       exact
       element={
         <ManagementRoute>

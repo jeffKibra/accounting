@@ -1,4 +1,6 @@
-import { newEntry, updateEntry, deleteEntry } from "./general";
+import newEntry from "./newEntry";
+import updateEntry from "./updateEntry";
+import deleteEntry from "./deleteEntry";
 /**
  * credit on increase (amount to be added)
  * debit on decrease (amount to be subtracted)

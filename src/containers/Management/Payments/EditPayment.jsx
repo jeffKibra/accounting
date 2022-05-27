@@ -121,8 +121,8 @@ EditPayment.propTypes = {
   updating: PropTypes.bool.isRequired,
   payment: PropTypes.shape({
     reference: PropTypes.string,
-    paymentMode: PropTypes.string,
-    account: PropTypes.string,
+    paymentModeId: PropTypes.string,
+    accountId: PropTypes.string,
     bankCharges: PropTypes.number,
     amount: PropTypes.number,
     customerId: PropTypes.string,

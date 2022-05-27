@@ -14,8 +14,7 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
-
-import { assetEntry } from "../journals";
+import { assetEntry } from "../../../utils/journals";
 
 import {
   UPDATE_CUSTOMER,

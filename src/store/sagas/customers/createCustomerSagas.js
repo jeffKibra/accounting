@@ -16,7 +16,7 @@ import {
   error as toastError,
 } from "../../slices/toastSlice";
 
-import { assetEntry } from "../../sagas/journals";
+import { assetEntry } from "../../../utils/journals";
 
 function* createCustomer({ data }) {
   yield put(start(CREATE_CUSTOMER));

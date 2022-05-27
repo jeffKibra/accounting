@@ -35,13 +35,14 @@ import {
 } from "./invoices/getInvoicesSagas";
 import { watchUpdateInvoice } from "./invoices/updateInvoiceSagas";
 import { watchDeleteInvoice } from "./invoices/deleteInvoiceSagas";
-//payments received
+//payments
 import { watchCreatePayment } from "./payments/createPaymentSagas";
 import {
   watchGetCustomerPayments,
   watchGetPayments,
   watchGetPayment,
 } from "./payments/getPaymentsSagas";
+import { watchUpdatePayment } from "./payments/updatePaymentSagas";
 //accounts
 import { watchGetAccounts } from "./accounts/getAccountsSagas";
 import { watchCheckAccounts } from "./accounts/checkAccountsSagas";
@@ -84,6 +85,7 @@ export default function* rootSaga() {
     watchGetCustomerPayments(),
     watchGetPayments(),
     watchGetPayment(),
+    watchUpdatePayment(),
     watchGetAccounts(),
     watchCheckAccounts(),
     watchCreateItemCategory(),

@@ -14,7 +14,12 @@ import {
   success as toastSuccess,
 } from "../../slices/toastSlice";
 
-import { incomeEntry, assetEntry, liabilityEntry } from "../journals";
+import {
+  incomeEntry,
+  assetEntry,
+  liabilityEntry,
+} from "../../../utils/journals";
+
 import {
   getInvoiceData,
   getItemsEntriesToUpdate,

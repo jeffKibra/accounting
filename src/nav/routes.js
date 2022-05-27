@@ -30,10 +30,10 @@ export const NEW_INVOICE = "/invoices/new";
 export const EDIT_INVOICE = "/invoices/:invoiceId/edit";
 export const VIEW_INVOICE = "/invoices/:invoiceId/view";
 //payments received
-export const PAYMENTS_RECEIVED = "/payments-received";
-export const NEW_PAYMENT_RECEIVED = "/payments-received/new";
-export const EDIT_PAYMENT_RECEIVED = "/payments-received/:paymentId/edit";
-export const VIEW_PAYMENT_RECEIVED = "/payments-received/:paymentId/view";
+export const PAYMENTS = "/payments";
+export const NEW_PAYMENT = "/payments/new";
+export const EDIT_PAYMENT = "/payments/:paymentId/edit";
+export const VIEW_PAYMENT = "/payments/:paymentId/view";
 
 //receipts
 export const SALES_RECEIPTS = "/sales-receipts";

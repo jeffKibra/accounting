@@ -9,7 +9,7 @@ import {
 } from "../../../store/actions/paymentsActions";
 import { reset } from "../../../store/slices/paymentsSlice";
 
-import { PAYMENTS_RECEIVED } from "../../../nav/routes";
+import { PAYMENTS } from "../../../nav/routes";
 
 import useSavedLocation from "../../../hooks/useSavedLocation";
 import PageLayout from "../../../components/layout/PageLayout";
@@ -42,7 +42,7 @@ function ViewPaymentPage(props) {
   useEffect(() => {
     if (isModified) {
       resetPayment();
-      navigate(PAYMENTS_RECEIVED);
+      navigate(PAYMENTS);
     }
   }, [isModified, resetPayment, navigate]);
 

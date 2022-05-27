@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { PAYMENTS_RECEIVED } from "../../../nav/routes";
+import { PAYMENTS } from "../../../nav/routes";
 import { CREATE_PAYMENT } from "../../../store/actions/paymentsActions";
 import { reset } from "../../../store/slices/paymentsSlice";
 
@@ -19,7 +19,7 @@ function NewPaymentPage(props) {
   useEffect(() => {
     if (isModified) {
       resetPayment();
-      navigate(PAYMENTS_RECEIVED);
+      navigate(PAYMENTS);
     }
   }, [isModified, resetPayment, navigate]);
 

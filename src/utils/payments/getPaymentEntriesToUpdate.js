@@ -2,20 +2,14 @@ import { getCustomerEntryData } from "../journals";
 
 export default async function getPaymentEntriesToUpdate(
   orgId = "",
-  payment = {
-    customerId: "",
-    invoices: [],
-    accountId: "",
-  },
-  payments = []
+  customerId = "",
+  invoices = [],
+  accountId = "",
+  payments = [{ invoiceId: "", current: 0, incoming: 0 }]
 ) {
   /**
-   * get items to update
-   *
+   * get payment entries data to update
    */
-
-  const { customerId, invoices, accountId } = payment;
-
   const entries = await Promise.all(
     payments.map(async (payment) => {
       const { invoiceId, current, incoming } = payment;
@@ -28,33 +22,21 @@ export default async function getPaymentEntriesToUpdate(
       }
       const { invoiceSlug } = invoice;
       /**
-       * 2 journal entries per invoice payment
-       * 1. accounts_receivable entry
-       * 2. paymentAccount entry
+       * get customer entry data for the given account
        */
-      const [accountsReceivable, paymentAccount] = await Promise.all([
-        getCustomerEntryData(
-          orgId,
-          customerId,
-          "accounts_receivable",
-          invoiceSlug,
-          "customer payment"
-        ),
-        getCustomerEntryData(
-          orgId,
-          customerId,
-          accountId,
-          invoiceSlug,
-          "customer payment"
-        ),
-      ]);
+      const entry = await getCustomerEntryData(
+        orgId,
+        customerId,
+        accountId,
+        invoiceSlug,
+        "customer payment"
+      );
 
       return {
         current,
         incoming,
         invoiceId,
-        accountsReceivable,
-        paymentAccount,
+        entry,
       };
     })
   );

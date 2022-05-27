@@ -7,16 +7,17 @@ import {
   increment,
 } from "firebase/firestore";
 
-import { assetEntry, liabilityEntry } from "../journals";
+import { assetEntry, liabilityEntry } from "../../../utils/journals";
 import {
   getPaymentsTotal,
   getPaymentData,
   getPaymentEntriesToUpdate,
   getPaymentsMapping,
   updateCustomersPayments,
-  updateInvoicesPayment,
-  createInvoicesPayment,
-  deleteInvoicesPayment,
+  updateInvoicesPayments,
+  payInvoices,
+  deleteInvoicesPayments,
+  changePaymentAccount,
 } from "../../../utils/payments";
 import { getAccountData } from "../../../utils/accounts";
 import { getInvoiceData } from "../../../utils/invoices";
@@ -38,12 +39,12 @@ function* updatePayment({ data }) {
     const orgId = org.id;
     const userProfile = yield select((state) => state.authReducer.userProfile);
     const { email } = userProfile;
-    const allAccounts = yield select((state) => state.accountsReducer.accounts);
+    const accounts = yield select((state) => state.accountsReducer.accounts);
     // console.log({ data, orgId, userProfile });
     const {
       paymentId,
       payments,
-      invoices,
+      paidInvoices,
       customerId,
       amount,
       accountId,
@@ -71,7 +72,7 @@ function* updatePayment({ data }) {
     console.log({ paymentsTotal, excess });
 
     //accounts data
-    const unearned_revenue = getAccountData("unearned_revenue", allAccounts);
+    const unearned_revenue = getAccountData("unearned_revenue", accounts);
 
     async function update() {
       const paymentRef = doc(db, "organizations", orgId, "payments", paymentId);
@@ -111,36 +112,67 @@ function* updatePayment({ data }) {
           paymentsToDelete,
         } = getPaymentsMapping(paymentData.payments, payments);
         /**
-         * if customer has changed, updates include:
-         * paymentsToUpdate && similaPayments
-         * else, paymentsToUpdate
+         * create two different update values based on the accounts:
+         * 1. accountsReceivable account
+         * 2. deposit account
+         * if either customer or deposit account has changed:
+         * values include paymentsToUpdate and similarPayments
+         * else, paymentsToUpdate only
          */
-        const updates =
+        const accountsReceivablePaymentsToUpdate = customerHasChanged
+          ? [...paymentsToUpdate, ...similarPayments]
+          : paymentsToUpdate;
+        const accountPaymentsToUpdate =
           customerHasChanged || paymentAccountHasChanged
             ? [...paymentsToUpdate, ...similarPayments]
             : paymentsToUpdate;
-
-        //get entries for each payments that needs updating
-        const paymentEntriesToUpdate = await getPaymentEntriesToUpdate(
-          orgId,
-          paymentData,
-          updates
-        );
-        //get entries for payments to be deleted
-        const paymentEntriesToDelete = await getPaymentEntriesToUpdate(
-          orgId,
-          paymentData,
-          paymentsToDelete
-        );
-
+        /**
+         * divide the payments entries into:
+         * 1. accounts_receivable account
+         * 2. selected paymentAccount
+         * get entries for each payments that needs updating
+         */
+        const [
+          paymentAccountEntries,
+          paymentAccountEntriesToDelete,
+          accountsReceivableEntries,
+          accountsReceivableEntriesToDelete,
+        ] = await Promise.all([
+          getPaymentEntriesToUpdate(
+            orgId,
+            customerId,
+            paidInvoices,
+            accountId,
+            accountPaymentsToUpdate
+          ),
+          getPaymentEntriesToUpdate(
+            orgId,
+            customerId,
+            paidInvoices,
+            accountId,
+            paymentsToDelete
+          ),
+          getPaymentEntriesToUpdate(
+            orgId,
+            customerId,
+            paidInvoices,
+            "accounts_received",
+            accountsReceivablePaymentsToUpdate
+          ),
+          getPaymentEntriesToUpdate(
+            orgId,
+            customerId,
+            paidInvoices,
+            "accounts_received",
+            paymentsToDelete
+          ),
+        ]);
         /**
          * start docs writing!
          */
-
         const transactionDetails = {
           ...data,
           paymentId,
-          invoices,
           modifiedBy: email,
           modifiedAt: serverTimestamp(),
           ...(customerHasChanged
@@ -165,41 +197,69 @@ function* updatePayment({ data }) {
           paymentData,
           data
         );
-
         /**
          * update invoices
+         */
+        /**
+         * update accounts receivable entries
+         * they are not factored in if deposit account has changed
+         */
+        updateInvoicesPayments(
+          transaction,
+          userProfile,
+          orgId,
+          paymentData,
+          transactionDetails,
+          accountsReceivableEntries
+        );
+        /**
          * check is paymentAccountId has changed
          */
         if (paymentAccountHasChanged) {
-          //delete payment entries for previous
-          deleteInvoicesPayment(
-            transaction,
-            userProfile,
-            orgId,
-            paymentData,
-            paymentEntriesToDelete
-          );
           //create new payment entries for the new account
-          createInvoicesPayment(
-            transaction,
-            userProfile,
-            orgId,
-            paymentData,
-            paymentsToCreate
-          );
+          changePaymentAccount(transaction, userProfile, orgId);
         } else {
           //update payment entries
-          updateInvoicesPayment(
+          updateInvoicesPayments(
             transaction,
             userProfile,
             orgId,
             paymentData,
             transactionDetails,
-            paymentEntriesToUpdate
+            paymentAccountEntries
           );
         }
+        /**
+         * create new invoice payments
+         */
+        payInvoices(
+          transaction,
+          userProfile,
+          orgId,
+          transactionDetails,
+          accounts
+        );
+        /**
+         * delete deleted invoices
+         */
+        deleteInvoicesPayments(
+          transaction,
+          userProfile,
+          orgId,
+          paymentData,
+          paymentAccountEntriesToDelete
+        );
+        deleteInvoicesPayments(
+          transaction,
+          userProfile,
+          orgId,
+          paymentData,
+          accountsReceivableEntriesToDelete
+        );
 
-        //excess amount - credit account with the excess amount
+        /**
+         * excess amount - credit account with the excess amount
+         */
         if (excess > 0) {
           liabilityEntry.newEntry(
             transaction,
@@ -217,9 +277,11 @@ function* updatePayment({ data }) {
           );
         }
 
-        //create new payment
+        /**
+         * update payment
+         */
         const { paymentId: pid, ...tDetails } = transactionDetails;
-        transaction.update(paymentRef, { ...tDetails }, { merge: true });
+        transaction.update(paymentRef, { ...tDetails });
       });
     }
 

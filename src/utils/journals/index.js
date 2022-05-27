@@ -42,3 +42,5 @@ export const incomeEntry = {
   updateEntry: updateCreditOnIncrease,
   deleteEntry: deleteCreditOnIncrease,
 };
+
+export { default as changeAccount } from "./changeAccount";

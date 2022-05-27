@@ -9,34 +9,41 @@ export default function payInvoices(
   userProfile,
   orgId,
   transactionDetails,
+  payments = [{ current: 0, incoming: 0, invoiceId: "" }],
   accounts
 ) {
   const { email } = userProfile;
-  const { reference, paymentId, accountId, invoices, payments } =
-    transactionDetails;
+  const { reference, paymentId, accountId, paidInvoices } = transactionDetails;
   const accounts_receivable = getAccountData("accounts_receivable", accounts);
   const paymentAccount = getAccountData(accountId, accounts);
 
-  Object.keys(payments).forEach((invoiceId) => {
-    const invoice = invoices.find((invoice) => invoice.invoiceId === invoiceId);
+  payments.forEach((payment) => {
+    const { invoiceId, incoming } = payment;
+    const invoice = paidInvoices.find(
+      (invoice) => invoice.invoiceId === invoiceId
+    );
 
     if (!invoice) {
       throw new Error(`Invoice data with id ${invoiceId} not found!`);
     }
 
     const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
-    const paymentAmount = payments[invoiceId];
-    console.log({ paymentAmount });
 
-    if (paymentAmount > 0) {
+    if (incoming > 0) {
       //update invoice
-      const { customer, org, invoices: inv, ...tDetails } = transactionDetails;
+      const {
+        customer,
+        org,
+        paidInvoices: inv,
+        ...tDetails
+      } = transactionDetails;
+
       transaction.update(invoiceRef, {
-        "summary.balance": increment(0 - paymentAmount),
+        "summary.balance": increment(0 - incoming),
         payments: {
           ...invoice.payments,
           [paymentId]: {
-            paymentAmount,
+            paymentAmount: incoming,
             ...tDetails,
           },
         },
@@ -56,7 +63,7 @@ export default function payInvoices(
         orgId,
         paymentAccount.accountId,
         {
-          amount: paymentAmount,
+          amount: incoming,
           account: paymentAccount,
           reference,
           transactionId: invoiceSlug,
@@ -71,7 +78,7 @@ export default function payInvoices(
         orgId,
         accounts_receivable.accountId,
         {
-          amount: 0 - paymentAmount,
+          amount: 0 - incoming,
           reference,
           account: accounts_receivable,
           transactionId: invoiceSlug,

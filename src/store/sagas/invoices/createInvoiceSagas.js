@@ -15,7 +15,11 @@ import {
   success as toastSuccess,
 } from "../../slices/toastSlice";
 
-import { assetEntry, liabilityEntry, incomeEntry } from "../journals";
+import {
+  assetEntry,
+  liabilityEntry,
+  incomeEntry,
+} from "../../../utils/journals";
 import { getSalesAccounts, getAccountData } from "./utils";
 
 function* createInvoice({ data }) {

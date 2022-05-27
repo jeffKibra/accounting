@@ -1,3 +1,9 @@
+/**
+ *
+ * @param {{}} payments
+ * @param {{}} incomingPayments
+ * @returns {{current:0,incoming:0, invoiceId:""}[]}
+ */
 export default function getPaymentsMapping(
   payments = {},
   incomingPayments = {}
