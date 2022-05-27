@@ -12,8 +12,7 @@ import {
 import { put, call, takeLatest, select } from "redux-saga/effects";
 
 import { db } from "../../../utils/firebase";
-import accounts from "../../../utils/accounts";
-import accountTypes from "../../../utils/accountTypes";
+import { accounts, accountTypes } from "../../../constants";
 
 import { start, success, fail } from "../../slices/orgsSlice";
 import { CREATE_ORG } from "../../actions/orgsActions";

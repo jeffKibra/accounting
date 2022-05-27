@@ -16,7 +16,7 @@ import { RiMenu2Fill } from "react-icons/ri";
 import MainSidebar from "./MainSidebar";
 import Title from "./Title";
 import SidebarFooter from "./SidebarFooter";
-import { DRAWER_WIDTH, BAR_HEIGHT } from "../../utils/constants";
+import { DRAWER_WIDTH, BAR_HEIGHT } from "../../constants";
 
 function SideDrawer() {
   const { isOpen, onOpen, onClose } = useDisclosure();

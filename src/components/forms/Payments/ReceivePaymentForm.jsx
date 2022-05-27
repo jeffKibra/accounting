@@ -21,7 +21,7 @@ import NumInput from "../../ui/NumInput";
 // import RadioInput from "../../ui/RadioInput";
 import CustomSelect from "../../ui/CustomSelect";
 
-import { paymentModes } from "../../../utils/constants";
+import { paymentModes } from "../../../constants";
 
 const schema = Yup.object().shape({
   customerId: Yup.string().required("*Required!"),

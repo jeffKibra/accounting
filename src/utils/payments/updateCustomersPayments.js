@@ -3,7 +3,7 @@ import { doc, increment, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 import getPaymentsTotal from "./getPaymentsTotal";
 
-export function updateCustomers(
+export default function updateCustomersPayments(
   transaction,
   orgId,
   userProfile,

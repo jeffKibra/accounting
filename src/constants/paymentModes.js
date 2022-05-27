@@ -1,6 +1,4 @@
-export const DRAWER_WIDTH = 210;
-export const BAR_HEIGHT = 48;
-export const paymentModes = [
+const paymentModes = [
   { name: "Cash", value: "cash" },
   { name: "M-pesa", value: "m_pesa" },
   { name: "Cheque", value: "cheque" },
@@ -8,3 +6,5 @@ export const paymentModes = [
   { name: "Bank Remittance", value: "bank_remittance" },
   { name: "Credit Card", value: "credit_card" },
 ];
+
+export default paymentModes;

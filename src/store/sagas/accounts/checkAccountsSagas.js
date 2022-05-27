@@ -1,5 +1,5 @@
 import { put, call, takeLatest, select } from "redux-saga/effects";
-import accounts from "../../../utils/accounts";
+import { accounts } from "../../../constants";
 
 import { CHECK_ACCOUNTS } from "../../actions/accountsActions";
 import { start, accountsSuccess, fail } from "../../slices/accountsSlice";

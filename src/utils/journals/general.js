@@ -4,8 +4,8 @@ import {
   serverTimestamp,
   increment,
 } from "firebase/firestore";
-import { db } from "../../../utils/firebase";
-import getMonth from "../../../utils/getMonth";
+import { db } from "../firebase";
+import getMonth from "../getMonth";
 
 function getAmountState(amount = 0) {
   /**

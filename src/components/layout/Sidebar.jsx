@@ -6,7 +6,7 @@ import useOrg from "../../hooks/useOrg";
 
 import MainSidebar from "./MainSidebar";
 
-import { DRAWER_WIDTH } from "../../utils/constants";
+import { DRAWER_WIDTH } from "../../constants";
 import SidebarFooter from "./SidebarFooter";
 
 export default function Sidebar() {
