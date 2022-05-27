@@ -4,7 +4,7 @@ import { db } from "../firebase";
 import { assetEntry } from "../journals";
 import { getAccountData } from "../accounts";
 
-export default function createInvoicesPayment(
+export default function payInvoices(
   transaction,
   userProfile,
   orgId,
@@ -17,19 +17,24 @@ export default function createInvoicesPayment(
   const accounts_receivable = getAccountData("accounts_receivable", accounts);
   const paymentAccount = getAccountData(accountId, accounts);
 
-  invoices.forEach((invoice) => {
-    const { invoiceId, ...invoiceData } = invoice;
+  Object.keys(payments).forEach((invoiceId) => {
+    const invoice = invoices.find((invoice) => invoice.invoiceId === invoiceId);
+
+    if (!invoice) {
+      throw new Error(`Invoice data with id ${invoiceId} not found!`);
+    }
+
     const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
     const paymentAmount = payments[invoiceId];
     console.log({ paymentAmount });
 
     if (paymentAmount > 0) {
       //update invoice
-      const { customer, org, invoices, ...tDetails } = transactionDetails;
+      const { customer, org, invoices: inv, ...tDetails } = transactionDetails;
       transaction.update(invoiceRef, {
         "summary.balance": increment(0 - paymentAmount),
         payments: {
-          ...invoiceData.payments,
+          ...invoice.payments,
           [paymentId]: {
             paymentAmount,
             ...tDetails,
@@ -39,7 +44,7 @@ export default function createInvoicesPayment(
         modifiedAt: serverTimestamp(),
       });
 
-      const { invoiceSlug } = invoiceData;
+      const { invoiceSlug } = invoice;
 
       /**
        * create journal entries

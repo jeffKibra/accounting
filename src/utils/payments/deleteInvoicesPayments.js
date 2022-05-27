@@ -3,17 +3,15 @@ import { doc, increment, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 import { assetEntry } from "../journals";
 
-export default function updateInvoicesPayment(
+export default function deleteInvoicesPayments(
   transaction,
   userProfile,
   orgId,
-  payment,
-  incomingPayment,
-  payments
+  paymentDetails = { paymentId: 0, invoices: [], accountId: "" },
+  payments = []
 ) {
   const { email } = userProfile;
-  const { accountId } = payment;
-  const { invoices, paymentId } = incomingPayment;
+  const { paymentId, invoices, accountId } = paymentDetails;
 
   payments.forEach((payment) => {
     const { current, incoming, invoiceId, accountsReceivable, paymentAccount } =
@@ -30,21 +28,18 @@ export default function updateInvoicesPayment(
      */
     const adjustment = incoming - current;
     //update invoice
-    const { customer, org, ...tDetails } = incomingPayment;
     /**
      * subtract adjustment from zero(0) before incrementing to invert the sign
      * NB::: when payment increases, balance reduces and vise versa
      */
-    //update invoice
+    //update invoice by deleting payment entry
+    const invoicePayments = invoiceData.payments;
+    delete invoicePayments[paymentId];
+    console.log({ invoicePayments, paymentId });
+
     transaction.update(invoiceRef, {
       "summary.balance": increment(0 - adjustment),
-      payments: {
-        ...invoiceData.payments,
-        [paymentId]: {
-          paymentAmount: incoming,
-          ...tDetails,
-        },
-      },
+      payments: invoicePayments,
       modifiedBy: email,
       modifiedAt: serverTimestamp(),
     });
@@ -54,27 +49,22 @@ export default function updateInvoicesPayment(
      * debit selected account
      */
     //paymentAccount
-    assetEntry.updateEntry(
+    assetEntry.deleteEntry(
       transaction,
       userProfile,
       orgId,
-      accountId,
       paymentAccount.entryId,
-      incoming,
-      {
-        debit: paymentAccount.debit,
-        credit: paymentAccount.credit,
-      }
+      accountId,
+      { debit: paymentAccount.debit, credit: paymentAccount.credit }
     );
 
     //credit accounts receivable- make amount negative to credit it
-    assetEntry.updateEntry(
+    assetEntry.deleteEntry(
       transaction,
       userProfile,
       orgId,
-      "accounts_receivable",
       accountsReceivable.entryId,
-      0 - incoming,
+      "accounts_receivable",
       {
         debit: accountsReceivable.debit,
         credit: accountsReceivable.credit,

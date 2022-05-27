@@ -1,9 +1,21 @@
-import { useContext, useCallback, useEffect } from "react";
+import { useContext, useCallback, useEffect, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import { Box, Button, Flex, Grid, GridItem, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Grid,
+  GridItem,
+  VStack,
+  useDisclosure,
+} from "@chakra-ui/react";
 import PropTypes from "prop-types";
 
+import useToasts from "../../../hooks/useToasts";
+import { selectPaidInvoices, getPaymentsTotal } from "../../../utils/payments";
+
 import StepperContext from "../../../contexts/StepperContext";
+import ControlledDialog from "../../../components/ui/ControlledDialog";
 
 import UnpaidInvoicesTable from "../../tables/Payments/UnpaidInvoicesTable";
 import PaymentsSummaryTable from "../../tables/Payments/PaymentsSummaryTable";
@@ -14,6 +26,9 @@ function InvoicesPaymentForm(props) {
     props;
   const { amount } = formValues;
   const { prevStep } = useContext(StepperContext);
+  const { isOpen, onClose, onOpen } = useDisclosure();
+  const [data, setData] = useState(null);
+  const toasts = useToasts();
 
   const autoFill = useCallback((invoices, amount) => {
     if (invoices?.length > 0) {
@@ -54,14 +69,14 @@ function InvoicesPaymentForm(props) {
   }, [formValues.payments, autoFill, amount, invoices, reset]);
 
   const payments = watch();
+  const paymentsTotal = getPaymentsTotal(payments);
+  /**
+   * methods
+   */
   function goBack() {
     updateFormValues(payments);
     prevStep();
   }
-
-  const paymentsTotal = Object.keys(payments).reduce((sum, key) => {
-    return sum + +payments[key];
-  }, 0);
 
   function clear() {
     if (invoices?.length > 0) {
@@ -78,6 +93,31 @@ function InvoicesPaymentForm(props) {
   function autoPay() {
     const values = autoFill(invoices, amount);
     reset(values);
+  }
+
+  function checkOverPayment(formData) {
+    if (amount < paymentsTotal) {
+      toasts.error(
+        "Amounts assigned to paying Invoices should not be greater than the Customer payment!"
+      );
+    } else if (amount > paymentsTotal) {
+      setData(formData);
+      onOpen();
+    } else {
+      submitData(formData);
+    }
+  }
+
+  function submitData(paymentsData) {
+    //remove zero(0) payments
+    Object.keys(paymentsData).forEach((key) => {
+      if (paymentsData[key] <= 0) {
+        delete paymentsData[key];
+      }
+    });
+    const paidInvoices = selectPaidInvoices(paymentsData, invoices);
+
+    handleFormSubmit({ payments: paymentsData, paidInvoices });
   }
 
   return (
@@ -105,7 +145,7 @@ function InvoicesPaymentForm(props) {
       </Flex>
 
       <FormProvider {...formMethods}>
-        <Box as="form" role="form" onSubmit={handleSubmit(handleFormSubmit)}>
+        <Box as="form" role="form" onSubmit={handleSubmit(checkOverPayment)}>
           <Grid w="full" gap={2} templateColumns="repeat(12, 1fr)">
             <GridItem colSpan={12}>
               <UnpaidInvoicesTable
@@ -145,6 +185,18 @@ function InvoicesPaymentForm(props) {
           </Flex>
         </Box>
       </FormProvider>
+      <ControlledDialog
+        isOpen={isOpen}
+        onClose={onClose}
+        title="OverPayment"
+        message={`The Excess amount of ${
+          amount - paymentsTotal
+        } will be added to the customers Account!`}
+        onConfirm={() => {
+          submitData(data);
+          onClose();
+        }}
+      />
     </VStack>
   );
 }

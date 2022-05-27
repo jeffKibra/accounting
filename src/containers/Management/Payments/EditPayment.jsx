@@ -1,16 +1,13 @@
 import { useEffect, useState } from "react";
-import { Box, Flex, useDisclosure } from "@chakra-ui/react";
+import { Box, Flex } from "@chakra-ui/react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-
-import useToasts from "../../../hooks/useToasts";
 
 import { GET_ITEMS } from "../../../store/actions/itemsActions";
 import { GET_CUSTOMERS } from "../../../store/actions/customersActions";
 import { GET_CUSTOMER_INVOICES } from "../../../store/actions/invoicesActions";
 
 import Stepper from "../../../components/ui/Stepper";
-import ControlledDialog from "../../../components/ui/ControlledDialog";
 import Empty from "../../../components/ui/Empty";
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
 
@@ -34,11 +31,8 @@ function EditPayment(props) {
   } = props;
   // console.log({ props });
   const [formValues, setFormValues] = useState(payment || {});
-  const [paymentsTotal, setPaymentsTotal] = useState(0);
-  const { isOpen, onClose, onOpen } = useDisclosure();
-  const toasts = useToasts();
 
-  const { amount, customerId } = formValues;
+  const { customerId } = formValues;
 
   useEffect(() => {
     getCustomers();
@@ -54,35 +48,16 @@ function EditPayment(props) {
     setFormValues((current) => ({ ...current, ...data }));
   }
 
-  function saveAll(payments) {
-    // console.log({ payments });
-    updateFormValues({ payments });
+  function saveAll(data) {
+    //update form values so that incase saving fails, data is not lost
+    updateFormValues(data);
+    //create new all inclusive data
     const allData = {
       ...formValues,
-      payments,
+      ...data,
     };
     // console.log({ allData });
     saveData(allData);
-  }
-
-  function savePayments(payments) {
-    updateFormValues({ payments });
-    const sum = Object.keys(payments).reduce((sum, key) => {
-      return sum + +payments[key];
-    }, 0);
-    setPaymentsTotal(sum);
-
-    if (sum > amount) {
-      toasts.error(
-        "Amounts assigned to paying Invoices should not be greater than the Customer payment!"
-      );
-    } else {
-      if (sum < amount) {
-        onOpen();
-      } else {
-        saveAll(payments);
-      }
-    }
   }
 
   // console.log({ UnpaidInvoices, ReceivePaymentForm });
@@ -122,7 +97,7 @@ function EditPayment(props) {
               formValues.amount > 0 && (
                 <InvoicesPaymentForm
                   paymentId={paymentId}
-                  handleFormSubmit={savePayments}
+                  handleFormSubmit={saveAll}
                   updateFormValues={(payments) =>
                     updateFormValues({ payments })
                   }
@@ -134,19 +109,6 @@ function EditPayment(props) {
             ),
           },
         ]}
-      />
-
-      <ControlledDialog
-        isOpen={isOpen}
-        onClose={onClose}
-        title="OverPayment"
-        message={`The Excess amount of ${
-          formValues.amount - paymentsTotal
-        } will be added to the customers Account!`}
-        onConfirm={() => {
-          saveData(formValues);
-          onClose();
-        }}
       />
     </Box>
   ) : (

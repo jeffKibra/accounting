@@ -8,8 +8,9 @@ import {
 } from "firebase/firestore";
 
 import { getAccountData } from "../../../utils/accounts";
-import { getPaymentsTotal } from "../../../utils/payments";
-import { assetEntry, liabilityEntry } from "../journals";
+import { getPaymentsTotal, payInvoices } from "../../../utils/payments";
+import { getCustomerData } from "../../../utils/customers";
+import { liabilityEntry } from "../journals";
 
 import { db } from "../../../utils/firebase";
 import { CREATE_PAYMENT } from "../../actions/paymentsActions";
@@ -28,7 +29,7 @@ function* createPayment({ data }) {
     const { email } = userProfile;
     const accounts = yield select((state) => state.accountsReducer.accounts);
     // console.log({ data, orgId, userProfile });
-    const { payments, customerId, amount, accountId, reference } = data;
+    const { payments, customerId, amount, reference, invoices } = data;
     console.log({ payments });
     Object.keys(payments).forEach((key) => {
       const value = payments[key];
@@ -37,7 +38,7 @@ function* createPayment({ data }) {
       }
     });
     console.log({ payments });
-    const invoicesIds = Object.keys(payments);
+
     const paymentsTotal = getPaymentsTotal(payments);
     if (paymentsTotal > amount) {
       throw new Error(
@@ -48,8 +49,6 @@ function* createPayment({ data }) {
     console.log({ paymentsTotal, excess });
 
     //accounts data
-    const accounts_receivable = getAccountData("accounts_receivable", accounts);
-    const paymentAccount = getAccountData(accountId, accounts);
     const unearned_revenue = getAccountData("unearned_revenue", accounts);
 
     async function create() {
@@ -71,48 +70,24 @@ function* createPayment({ data }) {
       const paymentId = newDocRef.id;
 
       await runTransaction(db, async (transaction) => {
-        const [customerDoc, invoices] = await Promise.all([
-          transaction.get(customerRef),
-          Promise.all(
-            invoicesIds.map(async (invoiceId) => {
-              const invoiceRef = doc(
-                db,
-                "organizations",
-                orgId,
-                "invoices",
-                invoiceId
-              );
-
-              const invoiceDoc = await transaction.get(invoiceRef);
-              if (!invoiceDoc.exists) {
-                throw new Error("Invoice data not found!");
-              }
-
-              const { org, customer, ...invoiceData } = invoiceDoc.data();
-
-              return {
-                ...invoiceData,
-                invoiceId,
-              };
-            })
-          ),
+        /**
+         * get current customer data.
+         * dont use submitted customer as data might be outdated
+         */
+        const [customerData] = await Promise.all([
+          getCustomerData(transaction, orgId, customerId),
         ]);
 
-        if (!customerDoc.exists) {
-          throw new Error("Customer data not found!");
-        }
-        const paymentNumber = (customerDoc.data().summary?.payments || 0) + 1;
+        const paymentNumber = (customerData.summary?.payments || 0) + 1;
         const paymentSlug = `PR-${String(paymentNumber).padStart(6, 0)}`;
 
         // console.log({ latestPayment, paymentNumber, paymentSlug });
         /**
          * start docs writing!
          */
-
         const transactionDetails = {
           ...data,
           paymentId,
-          invoices,
           status: "active",
           paymentNumber,
           paymentSlug,
@@ -137,71 +112,13 @@ function* createPayment({ data }) {
         });
 
         // update invoices
-        invoices.forEach((invoice) => {
-          const { invoiceId, ...invoiceData } = invoice;
-          const invoiceRef = doc(
-            db,
-            "organizations",
-            orgId,
-            "invoices",
-            invoiceId
-          );
-          const paymentAmount = payments[invoiceId];
-          console.log({ paymentAmount });
-
-          if (paymentAmount > 0) {
-            //update invoice
-            const { customer, org, invoices, ...tDetails } = transactionDetails;
-            transaction.update(invoiceRef, {
-              "summary.balance": increment(0 - paymentAmount),
-              payments: {
-                ...invoiceData.payments,
-                [newDocRef.id]: {
-                  paymentAmount,
-                  ...tDetails,
-                },
-              },
-              modifiedBy: email,
-              modifiedAt: serverTimestamp(),
-            });
-
-            const { invoiceSlug } = invoiceData;
-
-            /**
-             * create journal entries
-             * debit selected account
-             */
-            assetEntry.newEntry(
-              transaction,
-              userProfile,
-              orgId,
-              paymentAccount.accountId,
-              {
-                amount: paymentAmount,
-                account: paymentAccount,
-                reference,
-                transactionId: invoiceSlug,
-                transactionType: "customer payment",
-                transactionDetails,
-              }
-            );
-            //credit accounts receivable- make amount negative to credit it
-            assetEntry.newEntry(
-              transaction,
-              userProfile,
-              orgId,
-              accounts_receivable.accountId,
-              {
-                amount: 0 - paymentAmount,
-                reference,
-                account: accounts_receivable,
-                transactionId: invoiceSlug,
-                transactionType: "customer payment",
-                transactionDetails,
-              }
-            );
-          }
-        });
+        payInvoices(
+          transaction,
+          userProfile,
+          orgId,
+          transactionDetails,
+          accounts
+        );
 
         //excess amount - credit account with the excess amount
         if (excess > 0) {

@@ -1,8 +1,9 @@
-export { default as createInvoicesPayment } from "./createInvoicesPayment";
-export { default as deleteInvoicesPayment } from "./deleteInvoicesPayment";
+export { default as deleteInvoicesPayments } from "./deleteInvoicesPayments";
 export { default as getPaymentData } from "./getPaymentData";
 export { default as getPaymentEntriesToUpdate } from "./getPaymentEntriesToUpdate";
 export { default as getPaymentsMapping } from "./getPaymentsMapping";
 export { default as getPaymentsTotal } from "./getPaymentsTotal";
+export { default as payInvoices } from "./payInvoices";
+export { default as selectPaidInvoices } from "./selectPaidInvoices";
 export { default as updateCustomersPayments } from "./updateCustomersPayments";
-export { default as updateInvoicesPayment } from "./updateInvoicesPayment";
+export { default as updateInvoicesPayments } from "./updateInvoicesPayments";
