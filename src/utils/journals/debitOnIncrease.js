@@ -1,6 +1,6 @@
 import newEntry from "./newEntry";
-import updateEntry from "./updateEntry";
-import deleteEntry from "./deleteEntry";
+import updateEntry from "./updateEntry1";
+import deleteEntry from "./deleteEntry1";
 /**
  * debit on increase (amount to be added)
  * credit on decrease (amount to be subtracted)

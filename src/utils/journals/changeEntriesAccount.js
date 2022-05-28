@@ -2,10 +2,10 @@ import { doc, increment } from "firebase/firestore";
 
 import { db } from "../firebase";
 import getRawAmount from "./getRawAmount";
-import updateEntries from "./updateEntries";
+import updateEntry from "./updateEntry";
 import { verifyAccountId, verifyEntryData } from "./helpers";
 
-export default function changeAccount(
+export default function changeEntriesAccount(
   transaction,
   userProfile,
   orgId,
@@ -42,9 +42,29 @@ export default function changeAccount(
     );
   }
   /**
-   * generate entries with some edits
+   * compute adjustments for the two main accounts
    */
-  const newEntries = entries.map((entry) => {
+  const { fromAdjustment, toAdjustment } = getAccountsAdjustments(entries);
+  /**
+   * update previous account
+   * subtract the adjustment from the accounts ammount
+   */
+  const fromRef = doc(db, "organizations", orgId, "accounts", from.accountId);
+  transaction.update(fromRef, {
+    amount: increment(0 - fromAdjustment),
+  });
+  /**
+   * update new account
+   * add adjustment to the accounts amount
+   */
+  const toRef = doc(db, "organizations", orgId, "accounts", to.accountId);
+  transaction.update(toRef, {
+    amount: increment(toAdjustment),
+  });
+  /**
+   * update entries
+   */
+  entries.forEach((entry) => {
     const { entryId, credit, debit, account } = entry;
     /**
      * verify entry data is valid
@@ -55,53 +75,38 @@ export default function changeAccount(
      */
     verifyAccountId(from.accountId, account.accountId);
     /**
-     * compute the previous raw value that was added to the
+     * update current entry
+     * change account to the new account
      */
-    const prevAmount = getRawAmount(from.account.accountType, from.entryData);
-    /**
-     * update amount to update.
-     * if no amount is given, use the previous amount
-     */
-    return {
-      ...entry,
-      prevAmount,
-      account: to,
-    };
+    updateEntry(transaction, userProfile, orgId, { ...entry, account: to });
   });
-  /**
-   * compute adjustments for the two main accounts
-   */
-  const { fromAdjustment, toAdjustment } = getAccountsAdjustments(newEntries);
-  /**
-   * create main accounts refs
-   */
-  const fromRef = doc(db, "organizations", orgId, "accounts", from.accountId);
-  const toRef = doc(db, "organizations", orgId, "accounts", to.accountId);
-  /**
-   * update previous account
-   * subtract the adjustment from the accounts ammount
-   */
-  transaction.update(fromRef, {
-    amount: increment(0 - fromAdjustment),
-  });
-  /**
-   * update new account
-   * add adjustment to the accounts amount
-   */
-  transaction.update(toRef, {
-    amount: increment(toAdjustment),
-  });
-  /**
-   * update entries
-   */
-  updateEntries(transaction, userProfile, orgId, newEntries);
 }
 
-function getAccountsAdjustments(entries = [{ prevAmount: 0, amount: 0 }]) {
+function getAccountsAdjustments(
+  entries = [
+    {
+      amount: 0,
+      debit: 0,
+      credit: 0,
+      account: { accountType: { id: "", main: "" } },
+    },
+  ]
+) {
   return entries.reduce(
     (summary, entry) => {
-      const { prevAmount, amount } = entry;
+      const {
+        amount,
+        credit,
+        debit,
+        account: { accountType },
+      } = entry;
+
       const { fromAdjustment, toAdjustment } = summary;
+
+      /**
+       * compute the previous raw value that was added to the entry
+       */
+      const prevAmount = getRawAmount(accountType, { credit, debit });
 
       return {
         fromAdjustment: fromAdjustment + prevAmount,

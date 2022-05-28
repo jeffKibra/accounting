@@ -8,7 +8,11 @@ import {
 } from "firebase/firestore";
 
 import { getAccountData } from "../../../utils/accounts";
-import { getPaymentsTotal, payInvoices } from "../../../utils/payments";
+import {
+  getPaymentsTotal,
+  payInvoices,
+  getPaymentsMapping,
+} from "../../../utils/payments";
 import { getCustomerData } from "../../../utils/customers";
 import { liabilityEntry } from "../../../utils/journals";
 
@@ -42,6 +46,8 @@ function* createPayment({ data }) {
 
     //accounts data
     const unearned_revenue = getAccountData("unearned_revenue", accounts);
+    //get payments to create formatted
+    const { paymentsToCreate } = getPaymentsMapping({}, payments);
 
     async function create() {
       const newDocRef = doc(collection(db, "organizations", orgId, "payments"));

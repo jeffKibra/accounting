@@ -27,8 +27,6 @@ export default function payInvoices(
       throw new Error(`Invoice data with id ${invoiceId} not found!`);
     }
 
-    const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
-
     if (incoming > 0) {
       //update invoice
       const {
@@ -38,6 +36,7 @@ export default function payInvoices(
         ...tDetails
       } = transactionDetails;
 
+      const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
       transaction.update(invoiceRef, {
         "summary.balance": increment(0 - incoming),
         payments: {
@@ -52,7 +51,6 @@ export default function payInvoices(
       });
 
       const { invoiceSlug } = invoice;
-
       /**
        * create journal entries
        * debit selected account

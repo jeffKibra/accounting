@@ -43,4 +43,10 @@ export const incomeEntry = {
   deleteEntry: deleteCreditOnIncrease,
 };
 
-export { default as changeAccount } from "./changeAccount";
+export { default as changeEntriesAccount } from "./changeEntriesAccount";
+export { default as createEntry } from "./createEntry";
+export { default as createSimilarAccountEntries } from "./createSimilarAccountEntries";
+export { default as updateEntry } from "./updateEntry";
+export { default as updateSimilarAccountEntries } from "./updateSimilarAccountEntries";
+export { default as deleteEntry } from "./deleteEntry";
+export { default as deleteSimilarAccountEntries } from "./deleteSimilarAccountEntries";

@@ -7,7 +7,7 @@ import {
   increment,
 } from "firebase/firestore";
 
-import { assetEntry, liabilityEntry } from "../../../utils/journals";
+import { liabilityEntry } from "../../../utils/journals";
 import {
   getPaymentsTotal,
   getPaymentData,

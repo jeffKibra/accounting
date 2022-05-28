@@ -1,8 +1,8 @@
 /**
  *
- * @param {{}} payments
+ * @param {{}} prevPayments
  * @param {{}} incomingPayments
- * @returns {{current:0,incoming:0, invoiceId:""}[]}
+ * @returns {{uniquePayments:{current:0,incoming:0, invoiceId:""}[],similarPayments:{current:0,incoming:0, invoiceId:""}[], paymentsToCreate:{current:0,incoming:0, invoiceId:""}[],paymentsToUpdate:{current:0,incoming:0, invoiceId:""}[],paymentsToDelete:{current:0,incoming:0, invoiceId:""}[]}}
  */
 export default function getPaymentsMapping(
   payments = {},

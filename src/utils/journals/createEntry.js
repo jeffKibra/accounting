@@ -1,20 +1,24 @@
 import { doc, serverTimestamp } from "firebase/firestore";
-import { db } from "../firebase";
+import { db, collection } from "../firebase";
 
 import { getAmountState } from "./newEntry";
 import createDebitAndCredit from "./createDebitAndCredit";
+import getDateDetails from "../getDateDetails";
 
 /**
  * debit on increase (amount to be added)
  * credit on decrease (amount to be subtracted)
  */
-export default function updateEntry(
+export default function createEntry(
   transaction,
   userProfile = { email: "" },
   orgId,
   entry = {
-    entryId: "",
     amount: 0,
+    transactionType: "",
+    transactionId: "",
+    transactionDetails: "",
+    reference: "",
     account: {
       accountId: "",
       accountType: { id: "", main: "", name: "" },
@@ -23,11 +27,10 @@ export default function updateEntry(
   }
 ) {
   // console.log({ data });
-  const { entryId, ...rest } = entry;
   const {
     amount,
     account: { accountType },
-  } = rest;
+  } = entry;
   /**
    * is the value +ve, -ve or zero(0)
    * to aid with querying
@@ -42,14 +45,19 @@ export default function updateEntry(
   /**
    * update entry
    */
-  const entryRef = doc(db, "organizations", orgId, "journals", entryId);
+  const entryRef = doc(collection(db, "organizations", orgId, "journals"));
   const { email } = userProfile;
+  const date = getDateDetails();
 
   transaction.update(entryRef, {
-    ...rest,
+    ...entry,
+    status: "active",
     credit,
     debit,
     amountState,
+    date,
+    createdAt: serverTimestamp(),
+    createdBy: email,
     modifiedAt: serverTimestamp(),
     modifiedBy: email,
   });
