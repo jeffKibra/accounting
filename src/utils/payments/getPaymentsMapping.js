@@ -66,7 +66,11 @@ export default function getPaymentsMapping(
    */
   if (incomingIds.length > 0) {
     incomingIds.forEach((invoiceId) => {
-      const dataMapping = { current: 0, incoming: incomingPayments[invoiceId] };
+      const dataMapping = {
+        current: 0,
+        incoming: incomingPayments[invoiceId],
+        invoiceId,
+      };
 
       paymentsToCreate.push(dataMapping);
     });

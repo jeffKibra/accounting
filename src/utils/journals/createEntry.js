@@ -1,14 +1,10 @@
-import { doc, serverTimestamp } from "firebase/firestore";
-import { db, collection } from "../firebase";
+import { doc, serverTimestamp, collection } from "firebase/firestore";
+import { db } from "../firebase";
 
 import { getAmountState } from "./newEntry";
 import createDebitAndCredit from "./createDebitAndCredit";
 import getDateDetails from "../getDateDetails";
 
-/**
- * debit on increase (amount to be added)
- * credit on decrease (amount to be subtracted)
- */
 export default function createEntry(
   transaction,
   userProfile = { email: "" },
@@ -26,7 +22,6 @@ export default function createEntry(
     },
   }
 ) {
-  // console.log({ data });
   const {
     amount,
     account: { accountType },
@@ -40,8 +35,6 @@ export default function createEntry(
    * determine whether value is a debit or a credit
    */
   const { credit, debit } = createDebitAndCredit(accountType, amount);
-
-  // console.log({ accountId, entryId });
   /**
    * update entry
    */
@@ -49,7 +42,7 @@ export default function createEntry(
   const { email } = userProfile;
   const date = getDateDetails();
 
-  transaction.update(entryRef, {
+  transaction.set(entryRef, {
     ...entry,
     status: "active",
     credit,

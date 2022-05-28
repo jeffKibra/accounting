@@ -14,7 +14,7 @@ import {
   getPaymentsMapping,
 } from "../../../utils/payments";
 import { getCustomerData } from "../../../utils/customers";
-import { liabilityEntry } from "../../../utils/journals";
+import { createSimilarAccountEntries } from "../../../utils/journals";
 
 import { db } from "../../../utils/firebase";
 import { CREATE_PAYMENT } from "../../actions/paymentsActions";
@@ -81,7 +81,7 @@ function* createPayment({ data }) {
 
         // console.log({ latestPayment, paymentNumber, paymentSlug });
         /**
-         * start docs writing!
+         * create the all inclusive payment data
          */
         const transactionDetails = {
           ...data,
@@ -96,11 +96,22 @@ function* createPayment({ data }) {
           modifiedAt: serverTimestamp(),
         };
         // console.log({ transactionDetails });
+        /**
+         * start docs writing!
+         */
 
+        /**
+         * increment orgs counter for payments by one(1)
+         */
         transaction.update(countersRef, {
           payments: increment(1),
         });
-
+        /**
+         * update customer data
+         * increment summary.payments counter by 1
+         * increment summary.unusedCredits by the excess amount
+         * increment summary.invoicePayments by the paymentsTotal amount
+         */
         transaction.update(customerRef, {
           "summary.payments": increment(1),
           "summary.unusedCredits": increment(excess),
@@ -108,37 +119,43 @@ function* createPayment({ data }) {
           modifiedAt: serverTimestamp(),
           modifiedBy: email,
         });
-
-        // update invoices
+        /**
+         * make the needed invoice payments
+         */
         payInvoices(
           transaction,
           userProfile,
           orgId,
           transactionDetails,
+          paymentsToCreate,
           accounts
         );
-
-        //excess amount - credit account with the excess amount
+        /**
+         * excess amount - credit account with the excess amount
+         */
         if (excess > 0) {
-          liabilityEntry.newEntry(
+          createSimilarAccountEntries(
             transaction,
             userProfile,
             orgId,
-            unearned_revenue.accountId,
-            {
-              amount: excess,
-              reference,
-              account: unearned_revenue,
-              transactionId: paymentSlug,
-              transactionType: "customer payment",
-              transactionDetails,
-            }
+            unearned_revenue,
+            [
+              {
+                account: unearned_revenue,
+                amount: excess,
+                reference,
+                transactionId: paymentSlug,
+                transactionDetails,
+                transactionType: "customer payment",
+              },
+            ]
           );
         }
-
-        //create new payment
+        /**
+         * create new payment
+         */
         const { paymentId: pid, ...tDetails } = transactionDetails;
-        transaction.set(newDocRef, { ...tDetails }, { merge: true });
+        transaction.set(newDocRef, { ...tDetails });
       });
     }
 
