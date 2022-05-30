@@ -114,6 +114,12 @@ function* updatePayment({ data }) {
           paymentsToCreate,
           paymentsToDelete,
         } = getPaymentsMapping(currentPayment.payments, payments);
+        console.log({
+          similarPayments,
+          paymentsToUpdate,
+          paymentsToCreate,
+          paymentsToDelete,
+        });
         /**
          * create two different update values based on the accounts:
          * 1. accountsReceivable account

@@ -8,6 +8,8 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
+import { getIncomeAccountsMapping } from "../../../utils/invoices";
+
 import { CREATE_INVOICE } from "../../actions/invoicesActions";
 import { start, success, fail } from "../../slices/invoicesSlice";
 import {
@@ -15,14 +17,8 @@ import {
   success as toastSuccess,
 } from "../../slices/toastSlice";
 
-import {
-  assetEntry,
-  liabilityEntry,
-  incomeEntry,
-  createSimilarAccountEntries,
-} from "../../../utils/journals";
+import { createSimilarAccountEntries } from "../../../utils/journals";
 import { getAccountData } from "../../../utils/accounts";
-import { getSalesAccounts } from "./utils";
 
 function* createInvoice({ data }) {
   yield put(start(CREATE_INVOICE));
@@ -84,78 +80,131 @@ function* createInvoice({ data }) {
         org,
       };
       console.log({ invoiceData });
+      const transactionDetails = { ...invoiceData, invoiceId };
+      const transactionType = "invoice";
+      const transactionId = invoiceSlug;
+      const reference = "";
 
-      //create journal entries for income accounts
-      const salesAccounts = getSalesAccounts(selectedItems);
-      salesAccounts.forEach((salesAccount) => {
-        const { salesAmount, accountId } = salesAccount;
-        const account = getAccountData(accountId, accounts);
+      /**
+       * create journal entries for income accounts
+       */
+      const { newAccounts } = getIncomeAccountsMapping([], selectedItems);
 
-        incomeEntry.newEntry(transaction, userProfile, orgId, accountId, {
-          amount: salesAmount,
-          account,
-          reference: "",
-          transactionId: invoiceSlug,
-          transactionType: "invoice",
-          transactionDetails: { ...invoiceData, invoiceId },
-        });
+      newAccounts.forEach((newAccount) => {
+        const { accountId, incoming } = newAccount;
+        const salesAccount = getAccountData(accountId, accounts);
+
+        createSimilarAccountEntries(
+          transaction,
+          userProfile,
+          orgId,
+          salesAccount,
+          [
+            {
+              amount: incoming,
+              account: salesAccount,
+              reference,
+              transactionId,
+              transactionType,
+              transactionDetails,
+            },
+          ]
+        );
       });
       console.log({ summary });
-      //journal entry for invoice total-accounts receivable
-      assetEntry.newEntry(
+      /**
+       * journal entry for invoice total => accounts_receivable
+       */
+      createSimilarAccountEntries(
         transaction,
         userProfile,
         orgId,
-        "accounts_receivable",
-        {
-          reference: "",
-          transactionType: "invoice",
-          transactionId: invoiceSlug,
-          transactionDetails: { ...invoiceData, invoiceId },
-          account: accounts_receivable,
-          amount: summary.totalAmount,
-        }
+        accounts_receivable,
+        [
+          {
+            amount: summary.totalAmount,
+            account: accounts_receivable,
+            reference,
+            transactionId,
+            transactionType,
+            transactionDetails,
+          },
+        ]
       );
-      //journal entry for taxes-tax_payable-liability account
-      liabilityEntry.newEntry(transaction, userProfile, orgId, "tax_payable", {
-        amount: summary.totalTaxes,
-        reference: "",
-        transactionId: invoiceSlug,
-        transactionType: "invoice",
-        transactionDetails: { ...invoiceData, invoiceId },
-        account: tax_payable,
-      });
-      //shipping charge
-      incomeEntry.newEntry(transaction, userProfile, orgId, "shipping_charge", {
-        amount: summary.shipping,
-        reference: "",
-        transactionId: invoiceSlug,
-        transactionType: "invoice",
-        transactionDetails: { ...invoiceData, invoiceId },
-        account: shipping_charge,
-      });
 
-      //adjustments
-      incomeEntry.newEntry(transaction, userProfile, orgId, "other_charges", {
-        account: other_charges,
-        amount: summary.adjustment,
-        reference: "",
-        transactionId: invoiceSlug,
-        transactionType: "invoice",
-        transactionDetails: { ...invoiceData, invoiceId },
-      });
-
-      //update customer summaries
+      /**
+       * journal entry for taxes => tax_payable-liability account
+       */
+      createSimilarAccountEntries(
+        transaction,
+        userProfile,
+        orgId,
+        tax_payable,
+        [
+          {
+            amount: summary.totalTaxes,
+            account: tax_payable,
+            reference,
+            transactionId,
+            transactionType,
+            transactionDetails,
+          },
+        ]
+      );
+      /**
+       * shipping charge
+       */
+      createSimilarAccountEntries(
+        transaction,
+        userProfile,
+        orgId,
+        shipping_charge,
+        [
+          {
+            amount: summary.shipping,
+            account: shipping_charge,
+            reference,
+            transactionId,
+            transactionType,
+            transactionDetails,
+          },
+        ]
+      );
+      /**
+       * adjustments
+       */
+      createSimilarAccountEntries(
+        transaction,
+        userProfile,
+        orgId,
+        other_charges,
+        [
+          {
+            amount: summary.adjustment,
+            account: other_charges,
+            reference,
+            transactionDetails,
+            transactionId,
+            transactionType,
+          },
+        ]
+      );
+      /**
+       * update customer summaries
+       */
       transaction.update(customerRef, {
         "summary.invoices": increment(1),
         "summary.invoicedAmount": increment(summary.totalAmount),
       });
-      //update org summaries
+      /**
+       * update org summaries
+       */
       transaction.update(countersRef, {
         invoices: increment(1),
       });
-
-      //create invoice
+      /**
+       * create invoice
+       */
       transaction.set(newDocRef, {
         ...invoiceData,
         createdBy: email,

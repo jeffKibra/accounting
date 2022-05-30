@@ -1,7 +1,7 @@
 import { doc } from "firebase/firestore";
-import { db } from "./firebase";
+import { db } from "../firebase";
 
-export async function getCustomerData(transaction, orgId, customerId) {
+export default async function getCustomerData(transaction, orgId, customerId) {
   const customerRef = doc(db, "organizations", orgId, "customers", customerId);
   const customerDoc = await transaction.get(customerRef);
   const data = customerDoc.data();

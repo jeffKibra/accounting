@@ -310,9 +310,9 @@ service cloud.firestore {
       match /invoices/{invoiceId} {
         function verifyInvoiceData(){
           let req=['selectedItems', 'summary', 'payments', 'customer', 'customerId', 'invoiceDate', 'dueDate'];
-          let additional=['invoiceNumber', 'invoiceSlug', 'status', 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy', 'org'];
+          let additional=[ 'invoiceSlug', 'status', 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy', 'org'];
           let required=req.concat(additional);
-          let optional=['customerNotes', 'orderNumber', 'subject'];
+          let optional=['customerNotes', 'orderNumber', 'subject', 'invoiceNumber',];
           let allFields=required.concat(optional);
 
           return request.resource.data.keys().hasAll(required) &&
@@ -340,14 +340,13 @@ service cloud.firestore {
             request.resource.data.customerNotes is string &&
             request.resource.data.orderNumber is string &&
             request.resource.data.subject is string &&
-            request.resource.data.invoiceNumber is int &&
             request.resource.data.invoiceSlug is string &&
             request.resource.data.status is string
         }
 
         function allowInvoiceUpdate(){
           let req=['selectedItems', 'summary', 'payments', 'customer', 'customerId', 'invoiceDate', 'dueDate'];
-          let additional=['status','modifiedAt', 'modifiedBy'];
+          let additional=["invoiceSlug", 'status','modifiedAt', 'modifiedBy'];
           let required=req.concat(additional);
           let optional=['customerNotes', 'orderNumber', 'subject'];
           let allFields=required.concat(optional);

@@ -15,67 +15,79 @@ import {
 } from "../../slices/toastSlice";
 
 import {
-  incomeEntry,
-  assetEntry,
-  liabilityEntry,
+  updateSimilarAccountEntries,
+  deleteSimilarAccountEntries,
+  createSimilarAccountEntries,
 } from "../../../utils/journals";
-
 import {
   getInvoiceData,
-  getItemsEntriesToUpdate,
   getSummaryEntries,
-} from "./utils";
+  getIncomeAccountsMapping,
+  getIncomeEntries,
+  createInvoiceSlug,
+} from "../../../utils/invoices";
+import { getCustomerData } from "../../../utils/customers";
+import { getAccountData } from "../../../utils/accounts";
 
 function* updateInvoice({ data }) {
   yield put(start(UPDATE_INVOICE));
   const orgId = yield select((state) => state.orgsReducer.org.id);
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
+  const accounts = yield select((state) => state.accountsReducer.accounts);
+
   const { invoiceId, ...rest } = data;
-  const { summary, selectedItems } = rest;
+  const { summary, selectedItems, customerId } = rest;
   // console.log({ data, orgId, userProfile });
   const { totalTaxes, shipping, adjustment, totalAmount } = summary;
 
   async function update() {
     const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
-    const newCustomerRef = doc(
-      db,
-      "organizations",
-      orgId,
-      "customers",
-      data.customerId
-    );
 
     await runTransaction(db, async (transaction) => {
-      const [invoiceData] = await Promise.all([
+      const [currentInvoice, customer] = await Promise.all([
         getInvoiceData(transaction, orgId, invoiceId),
+        getCustomerData(transaction, orgId, customerId),
       ]);
-      const { customerId, invoiceSlug } = invoiceData;
+      const { customerId: currentCustomerId, selectedItems: items } =
+        currentInvoice;
       const currentCustomerRef = doc(
         db,
         "organizations",
         orgId,
         "customers",
-        customerId
+        currentCustomerId
       );
       //check if customer has been changed
-      const customerHasChanged = data.customerId !== customerId;
+      const customerHasChanged = currentCustomerId !== customerId;
+
+      const invoiceSlug = customerHasChanged
+        ? createInvoiceSlug(customer)
+        : currentInvoice.invoiceSlug;
 
       const { shippingEntry, adjustmentEntry, taxEntry, receivableEntry } =
         await getSummaryEntries(
           customerHasChanged,
           orgId,
-          invoiceData,
+          currentInvoice,
           summary
         );
 
-      const itemsEntries = await getItemsEntriesToUpdate(
-        transaction,
-        customerHasChanged,
-        orgId,
-        invoiceData,
-        selectedItems
-      );
+      const { deletedAccounts, newAccounts, updatedAccounts, similarAccounts } =
+        getIncomeAccountsMapping(items, selectedItems);
+
+      const accountsToUpdate = customerHasChanged
+        ? [...updatedAccounts, ...similarAccounts]
+        : updatedAccounts;
+
+      /**
+       * get entries data for deletedAccounts and accountsToUpdate
+       */
+      const [entriesToUpdate, entriesToDelete] = await Promise.all([
+        getIncomeEntries(orgId, currentInvoice, accountsToUpdate),
+        getIncomeEntries(orgId, currentInvoice, deletedAccounts),
+      ]);
+
       // console.log({ itemsEntries });
       // console.log({
       //   shippingEntry,
@@ -85,115 +97,203 @@ function* updateInvoice({ data }) {
       // });
 
       //invoiceSummary
-      const invoiceSummary = invoiceData.summary;
+      const invoiceSummary = currentInvoice.summary;
 
-      //update itemsEntries
-      itemsEntries.forEach((entry) => {
-        const { accountId, amount, entryData, accountData } = entry;
-        if (entryData) {
-          const { entryId, credit, debit } = entryData;
-          incomeEntry.updateEntry(
-            transaction,
-            userProfile,
-            orgId,
-            accountId,
-            entryId,
-            amount,
+      const transactionDetails = {
+        ...data,
+        invoiceSlug,
+        invoiceId,
+      };
+      const transactionId = invoiceSlug;
+
+      /**
+       * start writing
+       */
+
+      /**
+       * update entries
+       */
+      entriesToUpdate.forEach((entry) => {
+        const { accountId, incoming, credit, debit, entryId } = entry;
+        const entryAccount = getAccountData(accountId, accounts);
+
+        updateSimilarAccountEntries(
+          transaction,
+          userProfile,
+          orgId,
+          entryAccount,
+          [
             {
+              amount: incoming,
+              account: entryAccount,
               credit,
               debit,
+              entryId,
+              transactionDetails,
+              transactionId,
             },
-            data
-          );
-        } else {
-          incomeEntry.newEntry(transaction, userProfile, orgId, accountId, {
-            amount,
-            reference: "",
-            transactionId: invoiceSlug,
-            transactionType: "invoice",
-            account: accountData,
-            transactionDetails: data,
-          });
-        }
+          ]
+        );
+      });
+      /**
+       * delete deleted income accounts
+       */
+      entriesToDelete.forEach((entry) => {
+        const { accountId, credit, debit, entryId } = entry;
+        const entryAccount = getAccountData(accountId, accounts);
+
+        deleteSimilarAccountEntries(
+          transaction,
+          userProfile,
+          orgId,
+          entryAccount,
+          [
+            {
+              account: entryAccount,
+              credit,
+              debit,
+              entryId,
+            },
+          ]
+        );
+      });
+      /**
+       * create new entries for new income accounts
+       */
+      newAccounts.forEach((incomeAccount) => {
+        const { accountId, incoming } = incomeAccount;
+        const entryAccount = getAccountData(accountId, accounts);
+
+        createSimilarAccountEntries(
+          transaction,
+          userProfile,
+          orgId,
+          entryAccount,
+          [
+            {
+              amount: incoming,
+              account: entryAccount,
+              reference: "",
+              transactionDetails,
+              transactionId,
+              transactionType: "invoice",
+            },
+          ]
+        );
       });
 
       //shipping has changed?
       if (shippingEntry) {
         const { credit, debit, entryId } = shippingEntry;
+        const entryAccount = getAccountData("shipping_charge", accounts);
 
-        incomeEntry.updateEntry(
+        updateSimilarAccountEntries(
           transaction,
           userProfile,
           orgId,
-          "shipping_charge",
-          entryId,
-          shipping,
-          { credit, debit },
-          data
+          entryAccount,
+          [
+            {
+              amount: shipping,
+              account: entryAccount,
+              credit,
+              debit,
+              entryId,
+              transactionId,
+              transactionDetails,
+            },
+          ]
         );
       }
-      //adjustment entry
+      /**
+       * update adjustment entry
+       */
       if (adjustmentEntry) {
         const { entryId, credit, debit } = adjustmentEntry;
+        const entryAccount = getAccountData("other_charges", accounts);
 
-        incomeEntry.updateEntry(
+        updateSimilarAccountEntries(
           transaction,
           userProfile,
           orgId,
-          "other_charges",
-          entryId,
-          adjustment,
-          {
-            credit,
-            debit,
-          },
-          data
+          entryAccount,
+          [
+            {
+              amount: adjustment,
+              account: entryAccount,
+              credit,
+              debit,
+              entryId,
+              transactionId,
+              transactionDetails,
+            },
+          ]
         );
       }
-
-      //tax entry
+      /**
+       * update tax entry
+       */
       if (taxEntry) {
         const { entryId, credit, debit } = taxEntry;
+        const entryAccount = getAccountData("tax_payable", accounts);
 
-        liabilityEntry.updateEntry(
+        updateSimilarAccountEntries(
           transaction,
           userProfile,
           orgId,
-          "tax_payable",
-          entryId,
-          totalTaxes,
-          {
-            credit,
-            debit,
-          },
-          data
+          entryAccount,
+          [
+            {
+              amount: totalTaxes,
+              account: entryAccount,
+              credit,
+              debit,
+              entryId,
+              transactionId,
+              transactionDetails,
+            },
+          ]
         );
       }
-
-      //receivable entry - totalAmount
+      /**
+       * update accounts_receivable entry
+       * totalAmount
+       */
       if (receivableEntry) {
         const { entryId, credit, debit } = receivableEntry;
+        const entryAccount = getAccountData("accounts_receivable", accounts);
 
-        assetEntry.updateEntry(
+        updateSimilarAccountEntries(
           transaction,
           userProfile,
           orgId,
-          "accounts_receivable",
-          entryId,
-          totalAmount,
-          {
-            credit,
-            debit,
-          },
-          data
+          entryAccount,
+          [
+            {
+              amount: totalAmount,
+              account: entryAccount,
+              credit,
+              debit,
+              entryId,
+              transactionId,
+              transactionDetails,
+            },
+          ]
         );
       }
 
       //update customer summaries
+      const newCustomerRef = doc(
+        db,
+        "organizations",
+        orgId,
+        "customers",
+        customerId
+      );
       if (customerHasChanged) {
         //delete values from previous customer
         transaction.update(currentCustomerRef, {
-          "summary.invoicedAmount": increment(-invoiceSummary.totalAmount),
+          "summary.invoicedAmount": increment(0 - invoiceSummary.totalAmount),
           "summary.deletedInvoices": increment(1),
         });
         //add new values to the incoming customer
@@ -210,9 +310,12 @@ function* updateInvoice({ data }) {
           });
         }
       }
-
+      /**
+       * update invoice
+       */
       transaction.update(invoiceRef, {
         ...rest,
+        invoiceSlug,
         // classical: "plus",
         modifiedBy: email,
         modifiedAt: serverTimestamp(),

@@ -37,9 +37,9 @@ function EditInvoicePage(props) {
   useEffect(() => {
     if (isModified) {
       resetInvoice();
-      navigate(-1);
+      navigate(`/invoices/${invoiceId}/view`);
     }
-  }, [isModified, resetInvoice, navigate]);
+  }, [isModified, resetInvoice, navigate, invoiceId]);
 
   function update(data) {
     console.log({ data });

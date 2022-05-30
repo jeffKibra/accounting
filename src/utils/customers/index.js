@@ -1,1 +1,1 @@
-export { default as formats } from "./formats";
+export { default as getCustomerData } from "./getCustomerData";

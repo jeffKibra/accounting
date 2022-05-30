@@ -13,10 +13,11 @@ export default function payInvoices(
   accounts
 ) {
   const { email } = userProfile;
-  const { reference, paymentId, accountId, paidInvoices, paymentSlug } =
+  const { reference, paymentId, account, paidInvoices, paymentSlug } =
     transactionDetails;
+  console.log({ account });
   const accounts_receivable = getAccountData("accounts_receivable", accounts);
-  const paymentAccount = getAccountData(accountId, accounts);
+  const paymentAccount = getAccountData(account.accountId, accounts);
   /**
    * map payments to invoices
    */

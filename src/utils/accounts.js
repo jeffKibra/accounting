@@ -8,8 +8,9 @@
  * @returns {{name:"",accountId:"",accountType:{},}}
  */
 export function getAccountData(accountId = "", accounts = []) {
-  const found = accounts.find((account) => account.accountId === accountId);
+  console.log({ accountId, accounts });
 
+  const found = accounts.find((account) => account.accountId === accountId);
   if (!found) {
     throw new Error(`Account data with id ${accountId} not found!`);
   }
