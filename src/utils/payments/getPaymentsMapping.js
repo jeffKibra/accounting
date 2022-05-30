@@ -50,7 +50,7 @@ export default function getPaymentsMapping(
         paymentsToUpdate.push(dataMapping);
       }
       //use splice function to remove invoice from incomingIds array.
-      incoming.splice(index, 1);
+      incomingIds.splice(index, 1);
     } else {
       /**
        * invoice not in incoming payments

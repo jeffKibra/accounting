@@ -14,7 +14,7 @@ export async function getCustomerEntryData(
   accountId = "",
   transactionId = "",
   transactionType = "",
-  status = "active"
+  statuses = ["active"]
 ) {
   // console.log({
   //   transactionType,
@@ -22,7 +22,7 @@ export async function getCustomerEntryData(
   //   accountId,
   //   customerId,
   //   transactionId,
-  //   status,
+  //   statuses,
   // });
   const q = query(
     collection(db, "organizations", orgId, "journals"),
@@ -31,7 +31,7 @@ export async function getCustomerEntryData(
     where("transactionId", "==", transactionId),
     where("account.accountId", "==", accountId),
     where("transactionType", "==", transactionType),
-    where("status", "==", status),
+    where("status", "in", statuses),
     limit(1)
   );
 
@@ -49,11 +49,12 @@ export async function getCustomerEntryData(
 
   const entryDoc = snap.docs[0];
   const entryId = entryDoc.id;
-  const { credit, debit } = entryDoc.data();
+  const { credit, debit, status } = entryDoc.data();
 
   return {
     credit,
     debit,
     entryId,
+    status,
   };
 }

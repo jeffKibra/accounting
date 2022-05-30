@@ -1,13 +1,12 @@
 import { put, call, select, takeLatest } from "redux-saga/effects";
-import {
-  doc,
-  collection,
-  serverTimestamp,
-  runTransaction,
-  increment,
-} from "firebase/firestore";
+import { doc, serverTimestamp, runTransaction } from "firebase/firestore";
 
-import { liabilityEntry } from "../../../utils/journals";
+import {
+  getCustomerEntryData,
+  deleteSimilarAccountEntries,
+  updateSimilarAccountEntries,
+  changeEntriesAccount,
+} from "../../../utils/journals";
 import {
   getPaymentsTotal,
   getPaymentData,
@@ -17,10 +16,9 @@ import {
   updateInvoicesPayments,
   payInvoices,
   deleteInvoicesPayments,
-  changePaymentAccount,
+  overPay,
 } from "../../../utils/payments";
 import { getAccountData } from "../../../utils/accounts";
-import { getInvoiceData } from "../../../utils/invoices";
 import { getCustomerData } from "../../../utils/customers";
 
 import { db } from "../../../utils/firebase";
@@ -30,6 +28,7 @@ import {
   error as toastError,
   success as toastSuccess,
 } from "../../slices/toastSlice";
+import formats from "../../../utils/formats";
 
 function* updatePayment({ data }) {
   yield put(start(UPDATE_PAYMENT));
@@ -73,15 +72,17 @@ function* updatePayment({ data }) {
 
     //accounts data
     const unearned_revenue = getAccountData("unearned_revenue", accounts);
+    const accounts_receivable = getAccountData("accounts_receivable", accounts);
+    const depositAccount = getAccountData(accountId, accounts);
 
     async function update() {
       const paymentRef = doc(db, "organizations", orgId, "payments", paymentId);
 
       await runTransaction(db, async (transaction) => {
         /**
-         * get current paymentData and incoming customer details
+         * get current currentPayment and incoming customer details
          */
-        const [paymentData, customerData] = await Promise.all([
+        const [currentPayment, customerData] = await Promise.all([
           getPaymentData(transaction, orgId, paymentId),
           getCustomerData(transaction, orgId, customerId),
         ]);
@@ -89,7 +90,7 @@ function* updatePayment({ data }) {
          * check if the customer has changed. if yes
          * generate new payment number and slug
          */
-        const customerHasChanged = customerId !== paymentData.customerId;
+        const customerHasChanged = customerId !== currentPayment.customerId;
 
         const paymentNumber = customerHasChanged
           ? (customerData?.summary?.payments || 0) + 1
@@ -97,20 +98,22 @@ function* updatePayment({ data }) {
         const paymentSlug = customerHasChanged
           ? `PR-${String(paymentNumber).padStart(6, 0)}`
           : null;
+        console.log({ paymentNumber, paymentSlug });
+
         if (customerHasChanged) {
-          console.log({ paymentNumber, paymentSlug });
+          console.log("customer has changed");
         }
         /**
          * check if payment account has been changed
          */
-        const paymentAccountHasChanged = accountId !== paymentData.accountId;
+        const paymentAccountHasChanged = accountId !== currentPayment.accountId;
 
         const {
           similarPayments,
           paymentsToUpdate,
           paymentsToCreate,
           paymentsToDelete,
-        } = getPaymentsMapping(paymentData.payments, payments);
+        } = getPaymentsMapping(currentPayment.payments, payments);
         /**
          * create two different update values based on the accounts:
          * 1. accountsReceivable account
@@ -137,6 +140,7 @@ function* updatePayment({ data }) {
           paymentAccountEntriesToDelete,
           accountsReceivableEntries,
           accountsReceivableEntriesToDelete,
+          overPayEntry,
         ] = await Promise.all([
           getPaymentEntriesToUpdate(
             orgId,
@@ -156,21 +160,29 @@ function* updatePayment({ data }) {
             orgId,
             customerId,
             paidInvoices,
-            "accounts_received",
+            accounts_receivable.accountId,
             accountsReceivablePaymentsToUpdate
           ),
           getPaymentEntriesToUpdate(
             orgId,
             customerId,
             paidInvoices,
-            "accounts_received",
+            accounts_receivable.accountId,
             paymentsToDelete
           ),
+          getCustomerEntryData(
+            orgId,
+            customerId,
+            unearned_revenue.accountId,
+            currentPayment.paymentSlug,
+            "customer payment"
+          ),
         ]);
+
         /**
          * start docs writing!
          */
-        const transactionDetails = {
+        const newDetails = {
           ...data,
           paymentId,
           modifiedBy: email,
@@ -185,102 +197,218 @@ function* updatePayment({ data }) {
               }
             : {}),
         };
-        console.log({ transactionDetails });
+        const transactionDetails = formats.formatTransactionDetails(newDetails);
 
+        console.log({ newDetails, transactionDetails });
         /**
          * update customers
+         * function also handles a change of customer situation.
          */
         updateCustomersPayments(
           transaction,
           orgId,
           userProfile,
-          paymentData,
+          currentPayment,
           data
         );
         /**
          * update invoices
-         */
-        /**
-         * update accounts receivable entries
-         * they are not factored in if deposit account has changed
+         * 1. update the necessary invoice payments
+         * 2. updates accountsReceivableEntries for the updated payments
+         * 3. updates paymentAccount entries fro the same
          */
         updateInvoicesPayments(
           transaction,
           userProfile,
           orgId,
-          paymentData,
           transactionDetails,
-          accountsReceivableEntries
+          paymentsToUpdate
         );
-        /**
+        /**2
+         * update accounts receivable entries
+         * they are not factored in if deposit account has changed
+         */
+        updateSimilarAccountEntries(
+          transaction,
+          userProfile,
+          orgId,
+          accounts_receivable,
+          accountsReceivableEntries.map((entry) => {
+            const {
+              entry: { credit, debit, entryId },
+            } = entry;
+            return {
+              account: accounts_receivable,
+              amount,
+              credit,
+              debit,
+              entryId,
+              transactionDetails,
+              ...(customerHasChanged ? { transactionId: paymentSlug } : {}),
+            };
+          })
+        );
+        /**3
          * check is paymentAccountId has changed
          */
         if (paymentAccountHasChanged) {
-          //create new payment entries for the new account
-          changePaymentAccount(transaction, userProfile, orgId);
-        } else {
-          //update payment entries
-          updateInvoicesPayments(
+          /**
+           * change the entries details and update associated accounts
+           */
+          console.log("account has changed", {
+            depositAccount,
+            prev: currentPayment.account,
+          });
+          changeEntriesAccount(
             transaction,
             userProfile,
             orgId,
-            paymentData,
-            transactionDetails,
-            paymentAccountEntries
+            currentPayment.account,
+            depositAccount,
+            paymentAccountEntries.map((entry) => {
+              return {
+                amount,
+                prevAccount: currentPayment.account,
+                prevEntry: entry.entry,
+                transactionDetails,
+                reference,
+                ...(customerHasChanged ? { transactionId: paymentSlug } : {}),
+              };
+            })
+          );
+        } else {
+          /**
+           * do a normal update
+           */
+          console.log("normal update");
+          updateSimilarAccountEntries(
+            transaction,
+            userProfile,
+            orgId,
+            depositAccount,
+            paymentAccountEntries.map((entry) => {
+              const {
+                entry: { credit, debit, entryId },
+              } = entry;
+              return {
+                account: depositAccount,
+                amount,
+                credit,
+                debit,
+                entryId,
+                transactionDetails,
+                ...(customerHasChanged ? { transactionId: paymentSlug } : {}),
+              };
+            })
           );
         }
         /**
-         * create new invoice payments
+         * create new invoice payments if any
+         * the function also creates all the necessary journal entries
          */
-        payInvoices(
-          transaction,
-          userProfile,
-          orgId,
-          transactionDetails,
-          accounts
-        );
+        if (paymentsToCreate.length > 0) {
+          console.log("creating payments");
+          payInvoices(
+            transaction,
+            userProfile,
+            orgId,
+            transactionDetails,
+            paymentsToCreate,
+            accounts
+          );
+        }
         /**
-         * delete deleted invoices
+         * delete deleted payments
+         * 1. delete payments in invoices
+         * 2. delete paymentAccount entries
+         * 3. delete accountsReceivable entries
          */
-        deleteInvoicesPayments(
-          transaction,
-          userProfile,
-          orgId,
-          paymentData,
-          paymentAccountEntriesToDelete
-        );
-        deleteInvoicesPayments(
-          transaction,
-          userProfile,
-          orgId,
-          paymentData,
-          accountsReceivableEntriesToDelete
-        );
+        if (paymentsToDelete.length > 0) {
+          console.log("deleting i");
+          deleteInvoicesPayments(
+            transaction,
+            userProfile,
+            orgId,
+            currentPayment,
+            paymentsToDelete
+          );
+        }
+        if (paymentAccountEntriesToDelete.length > 0) {
+          console.log("deleting j");
 
+          deleteSimilarAccountEntries(
+            transaction,
+            userProfile,
+            orgId,
+            currentPayment.account,
+            paymentAccountEntriesToDelete.map((entry) => {
+              const {
+                entry: { credit, debit, entryId },
+              } = entry;
+              return {
+                account: currentPayment.account,
+                credit,
+                debit,
+                entryId,
+              };
+            })
+          );
+        }
+        if (accountsReceivableEntriesToDelete.length > 0) {
+          console.log("deleting k");
+
+          deleteSimilarAccountEntries(
+            transaction,
+            userProfile,
+            orgId,
+            currentPayment.account,
+            accountsReceivableEntriesToDelete.map((entry) => {
+              const {
+                entry: { credit, debit, entryId },
+              } = entry;
+              return {
+                account: currentPayment.account,
+                credit,
+                debit,
+                entryId,
+              };
+            })
+          );
+        }
         /**
          * excess amount - credit account with the excess amount
          */
-        if (excess > 0) {
-          liabilityEntry.newEntry(
+        if (overPayEntry) {
+          console.log("overpayment i");
+
+          overPay.updateEntry(
             transaction,
             userProfile,
             orgId,
-            unearned_revenue.accountId,
-            {
-              amount: excess,
-              reference,
-              account: unearned_revenue,
-              transactionId: paymentSlug,
-              transactionType: "customer payment",
-              transactionDetails,
-            }
+            excess,
+            transactionDetails,
+            overPayEntry,
+            accounts
           );
-        }
+        } else {
+          if (excess > 0) {
+            console.log("overpayment j");
 
+            overPay.createEntry(
+              transaction,
+              userProfile,
+              orgId,
+              excess,
+              transactionDetails,
+              accounts
+            );
+          }
+        }
         /**
          * update payment
          */
-        const { paymentId: pid, ...tDetails } = transactionDetails;
+        const { paymentId: pid, org, ...tDetails } = transactionDetails;
+        console.log({ tDetails });
         transaction.update(paymentRef, { ...tDetails });
       });
     }

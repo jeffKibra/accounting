@@ -13,7 +13,8 @@ export default function payInvoices(
   accounts
 ) {
   const { email } = userProfile;
-  const { reference, paymentId, accountId, paidInvoices } = transactionDetails;
+  const { reference, paymentId, accountId, paidInvoices, paymentSlug } =
+    transactionDetails;
   const accounts_receivable = getAccountData("accounts_receivable", accounts);
   const paymentAccount = getAccountData(accountId, accounts);
   /**
@@ -74,10 +75,7 @@ export default function payInvoices(
     orgId,
     accounts_receivable,
     invoicesPayments.map((payment) => {
-      const {
-        incoming,
-        invoice: { invoiceSlug },
-      } = payment;
+      const { incoming } = payment;
       /**
        * accounts receivable account should be credited
        * supply amount as a negative value
@@ -86,7 +84,7 @@ export default function payInvoices(
         amount: 0 - incoming,
         reference,
         account: accounts_receivable,
-        transactionId: invoiceSlug,
+        transactionId: paymentSlug,
         transactionType: "customer payment",
         transactionDetails,
       };
@@ -101,10 +99,7 @@ export default function payInvoices(
     orgId,
     paymentAccount,
     invoicesPayments.map((payment) => {
-      const {
-        incoming,
-        invoice: { invoiceSlug },
-      } = payment;
+      const { incoming } = payment;
       /**
        * payment account should be increased
        * amount should be positive
@@ -113,7 +108,7 @@ export default function payInvoices(
         amount: incoming,
         account: paymentAccount,
         reference,
-        transactionId: invoiceSlug,
+        transactionId: paymentSlug,
         transactionType: "customer payment",
         transactionDetails,
       };

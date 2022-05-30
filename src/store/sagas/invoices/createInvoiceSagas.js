@@ -19,8 +19,10 @@ import {
   assetEntry,
   liabilityEntry,
   incomeEntry,
+  createSimilarAccountEntries,
 } from "../../../utils/journals";
-import { getSalesAccounts, getAccountData } from "./utils";
+import { getAccountData } from "../../../utils/accounts";
+import { getSalesAccounts } from "./utils";
 
 function* createInvoice({ data }) {
   yield put(start(CREATE_INVOICE));
@@ -28,9 +30,18 @@ function* createInvoice({ data }) {
   const orgId = org.id;
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
+  const accounts = yield select((state) => state.accountsReducer.accounts);
   console.log({ data });
   const { customerId, summary, selectedItems } = data;
   //group sales accounts
+
+  /**
+   * accounts details
+   */
+  const accounts_receivable = getAccountData("accounts_receivable", accounts);
+  const tax_payable = getAccountData("tax_payable", accounts);
+  const shipping_charge = getAccountData("shipping_charge", accounts);
+  const other_charges = getAccountData("other_charges", accounts);
 
   async function create() {
     const customerRef = doc(
@@ -52,22 +63,8 @@ function* createInvoice({ data }) {
     const invoiceId = newDocRef.id;
 
     await runTransaction(db, async (transaction) => {
-      const [
-        customerDoc,
-        salesAccounts,
-        accounts_receivable,
-        tax_payable,
-        other_charges,
-        shipping_charge,
-      ] = await Promise.all([
-        transaction.get(customerRef),
-        getSalesAccounts(transaction, orgId, selectedItems),
-        getAccountData(transaction, orgId, "accounts_receivable"),
-        getAccountData(transaction, orgId, "tax_payable"),
-        getAccountData(transaction, orgId, "other_charges"),
-        getAccountData(transaction, orgId, "shipping_charge"),
-      ]);
-      console.log({ salesAccounts, selectedItems });
+      const [customerDoc] = await Promise.all([transaction.get(customerRef)]);
+      console.log({ selectedItems });
       if (!customerDoc.exists) {
         throw new Error("Selected customer not found!");
       }
@@ -89,13 +86,14 @@ function* createInvoice({ data }) {
       console.log({ invoiceData });
 
       //create journal entries for income accounts
-      salesAccounts.forEach((account) => {
-        const { salesAmount, ...rest } = account;
-        const { accountId } = rest;
+      const salesAccounts = getSalesAccounts(selectedItems);
+      salesAccounts.forEach((salesAccount) => {
+        const { salesAmount, accountId } = salesAccount;
+        const account = getAccountData(accountId, accounts);
 
         incomeEntry.newEntry(transaction, userProfile, orgId, accountId, {
           amount: salesAmount,
-          account: rest,
+          account,
           reference: "",
           transactionId: invoiceSlug,
           transactionType: "invoice",

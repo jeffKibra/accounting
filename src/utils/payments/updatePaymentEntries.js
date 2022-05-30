@@ -1,10 +1,9 @@
-import { changeEntriesAccount } from "../journals";
+import { updateSimilarAccountEntries } from "../journals";
 
-export default function changePaymentAccount(
+export default function updatePaymentEntries(
   transaction,
   userProfile = { email: "" },
   orgId = "",
-  payment = { account: {} },
   transactionDetails = { account: {} },
   entries = [
     {
@@ -16,18 +15,22 @@ export default function changePaymentAccount(
   ]
 ) {
   const { account, reference, paymentSlug } = transactionDetails;
-  changeEntriesAccount(
+  updateSimilarAccountEntries(
     transaction,
     userProfile,
     orgId,
-    payment.account,
     account,
     entries.map((entry) => {
-      const { incoming, entry: prevEntry } = entry;
+      const {
+        incoming,
+        entry: { credit, debit, entryId },
+      } = entry;
       return {
         amount: incoming,
-        prevAccount: payment.account,
-        prevEntry,
+        account,
+        credit,
+        debit,
+        entryId,
         reference,
         transactionDetails,
         transactionId: paymentSlug,

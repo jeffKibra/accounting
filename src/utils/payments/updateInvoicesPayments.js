@@ -1,45 +1,40 @@
 import { doc, increment, serverTimestamp } from "firebase/firestore";
 
 import { db } from "../firebase";
-import { assetEntry } from "../journals";
+import formats from "../formats";
 
 export default function updateInvoicesPayments(
   transaction,
-  userProfile,
-  orgId,
-  payment,
-  incomingPayment,
-  payments
+  userProfile = {},
+  orgId = "",
+  incomingPayment = { paidInvoices: [{}] },
+  payments = [{ current: 0, incoming: 0, invoiceId: "" }]
 ) {
   const { email } = userProfile;
-  const { accountId } = payment;
-  const { invoices, paymentId } = incomingPayment;
+  const { paidInvoices: invoices, paymentId } = incomingPayment;
 
   payments.forEach((payment) => {
-    const { current, incoming, invoiceId, accountsReceivable, paymentAccount } =
-      payment;
+    const { current, incoming, invoiceId } = payment;
     const invoice = invoices.find((inv) => inv.invoiceId === invoiceId);
     if (!invoice) {
       throw new Error(`Invoice data with id ${invoiceId} not found`);
     }
-    const { ...invoiceData } = invoice;
-    const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
-
     /**
      * calculate adjustment
      */
     const adjustment = incoming - current;
-    //update invoice
-    const { customer, org, ...tDetails } = incomingPayment;
+    const tDetails = formats.formatInvoicePayment(incomingPayment);
     /**
+     * update invoice
      * subtract adjustment from zero(0) before incrementing to invert the sign
      * NB::: when payment increases, balance reduces and vise versa
      */
-    //update invoice
+    const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
+    console.log({ tDetails, incoming });
     transaction.update(invoiceRef, {
       "summary.balance": increment(0 - adjustment),
       payments: {
-        ...invoiceData.payments,
+        ...invoice.payments,
         [paymentId]: {
           paymentAmount: incoming,
           ...tDetails,
@@ -48,37 +43,5 @@ export default function updateInvoicesPayments(
       modifiedBy: email,
       modifiedAt: serverTimestamp(),
     });
-
-    /**
-     * update journal entries
-     * debit selected account
-     */
-    //paymentAccount
-    assetEntry.updateEntry(
-      transaction,
-      userProfile,
-      orgId,
-      accountId,
-      paymentAccount.entryId,
-      incoming,
-      {
-        debit: paymentAccount.debit,
-        credit: paymentAccount.credit,
-      }
-    );
-
-    //credit accounts receivable- make amount negative to credit it
-    assetEntry.updateEntry(
-      transaction,
-      userProfile,
-      orgId,
-      "accounts_receivable",
-      accountsReceivable.entryId,
-      0 - incoming,
-      {
-        debit: accountsReceivable.debit,
-        credit: accountsReceivable.credit,
-      }
-    );
   });
 }

@@ -34,31 +34,22 @@ function groupItemsBasedOnAccounts(itemsList = []) {
 }
 
 export async function getSalesAccounts(
-  transaction,
-  orgId,
   selectedItems = [],
   salesAmountKey = "taxExclusiveAmount"
 ) {
   let salesAccounts = groupItemsBasedOnAccounts(selectedItems);
 
-  salesAccounts = await Promise.all(
-    salesAccounts.map(async (account) => {
-      const { accountId, items } = account;
-      const accountData = await getAccountData(transaction, orgId, accountId);
-      const { name, accountType } = accountData;
+  salesAccounts = salesAccounts.map((account) => {
+    const { items } = account;
+    const salesAmount = items.reduce((sum, item) => {
+      return sum + item[salesAmountKey];
+    }, 0);
 
-      const salesAmount = items.reduce((sum, item) => {
-        return sum + item[salesAmountKey];
-      }, 0);
-
-      return {
-        ...account,
-        salesAmount,
-        name,
-        accountType,
-      };
-    })
-  );
+    return {
+      ...account,
+      salesAmount,
+    };
+  });
 
   return salesAccounts;
 }

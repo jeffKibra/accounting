@@ -22,14 +22,16 @@ export default function changeEntriesAccount(
       transactionId: "",
       transactionDetails: "",
       reference: "",
-      account: {
+      prevAccount: {
         accountId: "",
         accountType: { id: "", main: "", name: "" },
         name: "",
       },
-      entryId: "",
-      debit: 0,
-      credit: 0,
+      prevEntry: {
+        entryId: "",
+        debit: 0,
+        credit: 0,
+      },
     },
   ]
 ) {
@@ -45,6 +47,7 @@ export default function changeEntriesAccount(
    * compute adjustments for the two main accounts
    */
   const { fromAdjustment, toAdjustment } = getAccountsAdjustments(entries);
+  console.log({ fromAdjustment, toAdjustment });
   /**
    * update previous account
    * subtract the adjustment from the accounts ammount
@@ -65,20 +68,26 @@ export default function changeEntriesAccount(
    * update entries
    */
   entries.forEach((entry) => {
-    const { entryId, credit, debit, account } = entry;
+    const { prevEntry, prevAccount, amount, ...rest } = entry;
+    console.log({ amount });
     /**
      * verify entry data is valid
      */
-    verifyEntryData({ entryId, credit, debit });
+    verifyEntryData(prevEntry);
     /**
      * check to ensure all entries have same account as the previous account
      */
-    verifyAccountId(from.accountId, account.accountId);
+    verifyAccountId(from.accountId, prevAccount.accountId);
     /**
      * update current entry
      * change account to the new account
      */
-    updateEntry(transaction, userProfile, orgId, { ...entry, account: to });
+    updateEntry(transaction, userProfile, orgId, {
+      ...rest,
+      amount,
+      account: to,
+      entryId: prevEntry.entryId,
+    });
   });
 }
 
@@ -86,9 +95,11 @@ function getAccountsAdjustments(
   entries = [
     {
       amount: 0,
-      debit: 0,
-      credit: 0,
-      account: { accountType: { id: "", main: "" } },
+      prevEntry: {
+        debit: 0,
+        credit: 0,
+      },
+      prevAccount: { accountType: { id: "", main: "" } },
     },
   ]
 ) {
@@ -96,9 +107,8 @@ function getAccountsAdjustments(
     (summary, entry) => {
       const {
         amount,
-        credit,
-        debit,
-        account: { accountType },
+        prevEntry: { credit, debit },
+        prevAccount: { accountType },
       } = entry;
 
       const { fromAdjustment, toAdjustment } = summary;

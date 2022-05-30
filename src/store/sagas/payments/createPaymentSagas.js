@@ -23,6 +23,7 @@ import {
   error as toastError,
   success as toastSuccess,
 } from "../../slices/toastSlice";
+import formats from "../../../utils/formats";
 
 function* createPayment({ data }) {
   yield put(start(CREATE_PAYMENT));
@@ -83,7 +84,7 @@ function* createPayment({ data }) {
         /**
          * create the all inclusive payment data
          */
-        const transactionDetails = {
+        const newDetails = {
           ...data,
           paymentId,
           status: "active",
@@ -95,6 +96,7 @@ function* createPayment({ data }) {
           modifiedBy: email,
           modifiedAt: serverTimestamp(),
         };
+        const transactionDetails = formats.formatTransactionDetails(newDetails);
         // console.log({ transactionDetails });
         /**
          * start docs writing!
@@ -154,7 +156,7 @@ function* createPayment({ data }) {
         /**
          * create new payment
          */
-        const { paymentId: pid, ...tDetails } = transactionDetails;
+        const { paymentId: pid, ...tDetails } = newDetails;
         transaction.set(newDocRef, { ...tDetails });
       });
     }

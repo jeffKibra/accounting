@@ -22,7 +22,7 @@ export default function updateEntry(
     },
   }
 ) {
-  // console.log({ data });
+  console.log({ entry });
   const { entryId, ...rest } = entry;
   const {
     amount,
