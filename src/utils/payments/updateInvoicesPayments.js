@@ -11,14 +11,10 @@ export default function updateInvoicesPayments(
   payments = [{ current: 0, incoming: 0, invoiceId: "" }]
 ) {
   const { email } = userProfile;
-  const { paidInvoices: invoices, paymentId } = incomingPayment;
+  const { paymentId } = incomingPayment;
 
   payments.forEach((payment) => {
     const { current, incoming, invoiceId } = payment;
-    const invoice = invoices.find((inv) => inv.invoiceId === invoiceId);
-    if (!invoice) {
-      throw new Error(`Invoice data with id ${invoiceId} not found`);
-    }
     /**
      * calculate adjustment
      */
@@ -30,15 +26,12 @@ export default function updateInvoicesPayments(
      * NB::: when payment increases, balance reduces and vise versa
      */
     const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
-    console.log({ tDetails, incoming });
+    // console.log({ tDetails, incoming });
     transaction.update(invoiceRef, {
       "summary.balance": increment(0 - adjustment),
-      payments: {
-        ...invoice.payments,
-        [paymentId]: {
-          paymentAmount: incoming,
-          ...tDetails,
-        },
+      [`payments.${paymentId}`]: {
+        paymentAmount: incoming,
+        ...tDetails,
       },
       modifiedBy: email,
       modifiedAt: serverTimestamp(),

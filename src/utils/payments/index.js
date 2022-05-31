@@ -10,3 +10,7 @@ export { default as updateInvoicesPayments } from "./updateInvoicesPayments";
 export { default as changePaymentAccount } from "./changePaymentAccount";
 export { default as updatePaymentEntries } from "./updatePaymentEntries";
 export { default as overPay } from "./overPay";
+export { default as createPaymentSlug } from "./createPaymentSlug";
+export { default as getInvoiceFromArray } from "./getInvoiceFromArray";
+export { default as getPaymentEntry } from "./getPaymentEntry";
+export { default as combineInvoices } from "./combineInvoices";

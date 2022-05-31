@@ -58,7 +58,6 @@ function formatTransactionDetails(details) {
     amount,
     account,
     customer: formatCustomerData(customer),
-    org: formatOrgData(org),
     paidInvoices: formatInvoices(paidInvoices),
     paymentMode,
     paymentSlug,
@@ -66,6 +65,7 @@ function formatTransactionDetails(details) {
     reference,
     paymentDate,
     paymentId,
+    ...(org ? { org: formatOrgData(org) } : {}),
   };
 }
 

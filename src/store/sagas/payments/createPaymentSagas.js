@@ -12,6 +12,7 @@ import {
   getPaymentsTotal,
   payInvoices,
   getPaymentsMapping,
+  createPaymentSlug,
 } from "../../../utils/payments";
 import { getCustomerData } from "../../../utils/customers";
 import { createSimilarAccountEntries } from "../../../utils/journals";
@@ -34,7 +35,7 @@ function* createPayment({ data }) {
     const { email } = userProfile;
     const accounts = yield select((state) => state.accountsReducer.accounts);
     // console.log({ data, orgId, userProfile });
-    const { payments, customerId, amount, reference } = data;
+    const { payments, customerId, amount, reference, paidInvoices } = data;
 
     const paymentsTotal = getPaymentsTotal(payments);
     if (paymentsTotal > amount) {
@@ -77,8 +78,7 @@ function* createPayment({ data }) {
           getCustomerData(transaction, orgId, customerId),
         ]);
 
-        const paymentNumber = (customerData.summary?.payments || 0) + 1;
-        const paymentSlug = `PR-${String(paymentNumber).padStart(6, 0)}`;
+        const paymentSlug = createPaymentSlug(customerData);
 
         // console.log({ latestPayment, paymentNumber, paymentSlug });
         /**
@@ -86,11 +86,12 @@ function* createPayment({ data }) {
          */
         const newDetails = {
           ...data,
+          customer: formats.formatCustomerData(customerData),
+          paidInvoices: formats.formatInvoices(paidInvoices),
           paymentId,
           status: "active",
-          paymentNumber,
           paymentSlug,
-          org,
+          org: formats.formatOrgData(org),
           createdBy: email,
           createdAt: serverTimestamp(),
           modifiedBy: email,

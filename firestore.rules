@@ -240,8 +240,8 @@ service cloud.firestore {
         }
 
         function allowJournalUpdate(){
-          let req=["amount", "amountState", "month", "transactionType", "debit", "credit", "transactionId", "transactionDetails", "reference"];
-          let additional=["status", "modifiedAt", "modifiedBy"];
+          let req=["amount", "account", "amountState", "transactionType", "debit", "credit", "transactionId", "transactionDetails", "reference"];
+          let additional=["date", "status", "modifiedAt", "modifiedBy"];
           let required= req.concat(additional);
 
           return request.resource.data.diff(resource.data).affectedKeys().hasOnly(required)
@@ -364,7 +364,7 @@ service cloud.firestore {
         function verifyPaymentData(){
           let form=['accountId', 'amount', 'customerId', 'paymentDate', "paymentModeId"];
           let details=["payments", "paidInvoices", "account", 'customer', "paymentMode",];
-          let additional=['status', 'org', 'paymentSlug', 'paymentNumber', 'createdBy', "createdAt", 'modifiedBy', "modifiedAt"];
+          let additional=['status', 'org', 'paymentSlug', 'createdBy', "createdAt", 'modifiedBy', "modifiedAt"];
           let required=form.concat(details).concat(additional);
           let optional=['reference'];
           let allFields=required.concat(optional);
@@ -384,7 +384,6 @@ service cloud.firestore {
             request.resource.data.status is string &&
             request.resource.data.org is map &&
             request.resource.data.paymentSlug is string &&
-            request.resource.data.paymentNumber is int &&
             request.resource.data.createdBy is string &&
             request.resource.data.createdAt is timestamp &&
             request.resource.data.modifiedBy is string &&
@@ -399,7 +398,7 @@ service cloud.firestore {
         function allowPaymentUpdate(){
           let form=['accountId', 'amount', 'customerId', 'paymentDate', "paymentModeId"];
           let details=["payments", "paidInvoices", "account", 'customer', "paymentMode"];
-          let additional=['status', 'modifiedBy', "modifiedAt"];
+          let additional=['status', "paymentSlug", 'modifiedBy', "modifiedAt"];
           let required=form.concat(details).concat(additional);
           let optional=['reference'];
           let allFields=required.concat(optional);

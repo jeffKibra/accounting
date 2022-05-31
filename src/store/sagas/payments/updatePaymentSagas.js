@@ -2,7 +2,6 @@ import { put, call, select, takeLatest } from "redux-saga/effects";
 import { doc, serverTimestamp, runTransaction } from "firebase/firestore";
 
 import {
-  getCustomerEntryData,
   deleteSimilarAccountEntries,
   updateSimilarAccountEntries,
   changeEntriesAccount,
@@ -17,6 +16,9 @@ import {
   payInvoices,
   deleteInvoicesPayments,
   overPay,
+  createPaymentSlug,
+  getPaymentEntry,
+  combineInvoices,
 } from "../../../utils/payments";
 import { getAccountData } from "../../../utils/accounts";
 import { getCustomerData } from "../../../utils/customers";
@@ -49,15 +51,13 @@ function* updatePayment({ data }) {
       accountId,
       reference,
     } = data;
-    console.log({ payments });
 
-    Object.keys(payments).forEach((key) => {
-      const value = payments[key];
-      if (value === 0) {
-        delete payments[key];
-      }
-    });
-    console.log({ payments });
+    // Object.keys(payments).forEach((key) => {
+    //   const value = payments[key];
+    //   if (value === 0) {
+    //     delete payments[key];
+    //   }
+    // });
 
     // const invoicesIds = Object.keys(payments);
     const paymentsTotal = getPaymentsTotal(payments);
@@ -68,7 +68,6 @@ function* updatePayment({ data }) {
       );
     }
     const excess = amount - paymentsTotal;
-    console.log({ paymentsTotal, excess });
 
     //accounts data
     const unearned_revenue = getAccountData("unearned_revenue", accounts);
@@ -92,13 +91,13 @@ function* updatePayment({ data }) {
          */
         const customerHasChanged = customerId !== currentPayment.customerId;
 
-        const paymentNumber = customerHasChanged
-          ? (customerData?.summary?.payments || 0) + 1
-          : null;
         const paymentSlug = customerHasChanged
-          ? `PR-${String(paymentNumber).padStart(6, 0)}`
-          : null;
-        console.log({ paymentNumber, paymentSlug });
+          ? createPaymentSlug(customerData)
+          : currentPayment.paymentSlug;
+        const allInvoices = combineInvoices(
+          [...currentPayment.paidInvoices],
+          [...paidInvoices]
+        );
 
         if (customerHasChanged) {
           console.log("customer has changed");
@@ -150,62 +149,55 @@ function* updatePayment({ data }) {
         ] = await Promise.all([
           getPaymentEntriesToUpdate(
             orgId,
-            customerId,
-            paidInvoices,
-            accountId,
-            accountPaymentsToUpdate
+            paymentId,
+            [...allInvoices],
+            currentPayment.accountId, //use current payment accountId
+            [...accountPaymentsToUpdate]
           ),
           getPaymentEntriesToUpdate(
             orgId,
-            customerId,
-            paidInvoices,
-            accountId,
-            paymentsToDelete
+            paymentId,
+            [...allInvoices],
+            currentPayment.accountId,
+            [...paymentsToDelete]
           ),
           getPaymentEntriesToUpdate(
             orgId,
-            customerId,
-            paidInvoices,
+            paymentId,
+            [...allInvoices],
             accounts_receivable.accountId,
-            accountsReceivablePaymentsToUpdate
+            [...accountsReceivablePaymentsToUpdate]
           ),
           getPaymentEntriesToUpdate(
             orgId,
-            customerId,
-            paidInvoices,
+            paymentId,
+            [...allInvoices],
             accounts_receivable.accountId,
-            paymentsToDelete
+            [...paymentsToDelete]
           ),
-          getCustomerEntryData(
+          getPaymentEntry(
             orgId,
-            customerId,
+            paymentId,
             unearned_revenue.accountId,
-            currentPayment.paymentSlug,
-            "customer payment"
+            currentPayment.paymentSlug
           ),
         ]);
-
         /**
          * start docs writing!
          */
         const newDetails = {
           ...data,
+          customer: formats.formatCustomerData({ ...customerData }),
+          paidInvoices: formats.formatInvoices([...paidInvoices]),
           paymentId,
           modifiedBy: email,
           modifiedAt: serverTimestamp(),
-          ...(customerHasChanged
-            ? {
-                status: "active",
-                paymentNumber,
-                paymentSlug,
-                createdBy: email,
-                createdAt: serverTimestamp(),
-              }
-            : {}),
+          status: "active",
+          paymentSlug,
         };
-        const transactionDetails = formats.formatTransactionDetails(newDetails);
-
-        console.log({ newDetails, transactionDetails });
+        const transactionDetails = formats.formatTransactionDetails({
+          ...newDetails,
+        });
         /**
          * update customers
          * function also handles a change of customer situation.
@@ -227,8 +219,8 @@ function* updatePayment({ data }) {
           transaction,
           userProfile,
           orgId,
-          transactionDetails,
-          paymentsToUpdate
+          { ...transactionDetails },
+          [...paymentsToUpdate]
         );
         /**2
          * update accounts receivable entries
@@ -241,16 +233,18 @@ function* updatePayment({ data }) {
           accounts_receivable,
           accountsReceivableEntries.map((entry) => {
             const {
+              incoming,
               entry: { credit, debit, entryId },
+              invoice,
             } = entry;
             return {
               account: accounts_receivable,
-              amount,
+              amount: incoming,
               credit,
               debit,
               entryId,
+              transactionId: invoice.invoiceSlug,
               transactionDetails,
-              ...(customerHasChanged ? { transactionId: paymentSlug } : {}),
             };
           })
         );
@@ -272,13 +266,15 @@ function* updatePayment({ data }) {
             currentPayment.account,
             depositAccount,
             paymentAccountEntries.map((entry) => {
+              const { invoice, incoming } = entry;
               return {
-                amount,
+                amount: incoming,
                 prevAccount: currentPayment.account,
                 prevEntry: entry.entry,
                 transactionDetails,
+                transactionId: invoice.invoiceSlug,
+                transactionType: "customer payment",
                 reference,
-                ...(customerHasChanged ? { transactionId: paymentSlug } : {}),
               };
             })
           );
@@ -295,15 +291,17 @@ function* updatePayment({ data }) {
             paymentAccountEntries.map((entry) => {
               const {
                 entry: { credit, debit, entryId },
+                incoming,
+                invoice,
               } = entry;
               return {
                 account: depositAccount,
-                amount,
+                amount: incoming,
                 credit,
                 debit,
                 entryId,
+                transactionId: invoice.invoiceSlug,
                 transactionDetails,
-                ...(customerHasChanged ? { transactionId: paymentSlug } : {}),
               };
             })
           );
@@ -413,7 +411,7 @@ function* updatePayment({ data }) {
         /**
          * update payment
          */
-        const { paymentId: pid, org, ...tDetails } = transactionDetails;
+        const { paymentId: pid, org, ...tDetails } = newDetails;
         console.log({ tDetails });
         transaction.update(paymentRef, { ...tDetails });
       });

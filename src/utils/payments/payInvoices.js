@@ -3,6 +3,7 @@ import { doc, increment, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 import { createSimilarAccountEntries } from "../journals";
 import { getAccountData } from "../accounts";
+import formats from "../formats";
 
 export default function payInvoices(
   transaction,
@@ -13,16 +14,16 @@ export default function payInvoices(
   accounts
 ) {
   const { email } = userProfile;
-  const { reference, paymentId, account, paidInvoices, paymentSlug } =
-    transactionDetails;
-  console.log({ account });
+  const { reference, paymentId, account, paidInvoices } =
+    formats.formatTransactionDetails(transactionDetails);
+  // console.log({ account });
   const accounts_receivable = getAccountData("accounts_receivable", accounts);
   const paymentAccount = getAccountData(account.accountId, accounts);
   /**
    * map payments to invoices
    */
   const invoicesPayments = payments.map((payment) => {
-    console.log({ payment });
+    // console.log({ payment });
     const { invoiceId } = payment;
 
     const invoice = paidInvoices.find(
@@ -41,7 +42,7 @@ export default function payInvoices(
    * update invoices with the current payment
    */
   invoicesPayments.forEach((payment) => {
-    const { invoice, invoiceId, incoming } = payment;
+    const { invoiceId, incoming } = payment;
 
     if (incoming > 0) {
       //update invoice
@@ -55,12 +56,9 @@ export default function payInvoices(
       const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
       transaction.update(invoiceRef, {
         "summary.balance": increment(0 - incoming),
-        payments: {
-          ...invoice.payments,
-          [paymentId]: {
-            paymentAmount: incoming,
-            ...tDetails,
-          },
+        [`payments.${paymentId}`]: {
+          paymentAmount: incoming,
+          ...tDetails,
         },
         modifiedBy: email,
         modifiedAt: serverTimestamp(),
@@ -76,7 +74,8 @@ export default function payInvoices(
     orgId,
     accounts_receivable,
     invoicesPayments.map((payment) => {
-      const { incoming } = payment;
+      const { incoming, invoice } = payment;
+      const { invoiceSlug } = invoice;
       /**
        * accounts receivable account should be credited
        * supply amount as a negative value
@@ -85,7 +84,7 @@ export default function payInvoices(
         amount: 0 - incoming,
         reference,
         account: accounts_receivable,
-        transactionId: paymentSlug,
+        transactionId: invoiceSlug,
         transactionType: "customer payment",
         transactionDetails,
       };
@@ -100,7 +99,8 @@ export default function payInvoices(
     orgId,
     paymentAccount,
     invoicesPayments.map((payment) => {
-      const { incoming } = payment;
+      const { incoming, invoice } = payment;
+      const { invoiceSlug } = invoice;
       /**
        * payment account should be increased
        * amount should be positive
@@ -109,7 +109,7 @@ export default function payInvoices(
         amount: incoming,
         account: paymentAccount,
         reference,
-        transactionId: paymentSlug,
+        transactionId: invoiceSlug,
         transactionType: "customer payment",
         transactionDetails,
       };

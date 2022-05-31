@@ -1,8 +1,8 @@
-import { getCustomerEntryData } from "../journals";
+import { getInvoiceFromArray, getPaymentEntry } from ".";
 
 export default async function getPaymentEntriesToUpdate(
   orgId = "",
-  customerId = "",
+  paymentId = "",
   invoices = [],
   accountId = "",
   payments = [{ invoiceId: "", current: 0, incoming: 0 }]
@@ -13,23 +13,17 @@ export default async function getPaymentEntriesToUpdate(
   const entries = await Promise.all(
     payments.map(async (payment) => {
       const { invoiceId, current, incoming } = payment;
-      const invoice = invoices.find((inv) => inv.invoiceId === invoiceId);
+      const invoice = getInvoiceFromArray(invoiceId, invoices);
 
-      if (!invoice) {
-        return Promise.reject(
-          `Payment data for invoice with id ${invoiceId} not found!`
-        );
-      }
       const { invoiceSlug } = invoice;
       /**
        * get customer entry data for the given account
        */
-      const entry = await getCustomerEntryData(
+      const entry = await getPaymentEntry(
         orgId,
-        customerId,
+        paymentId,
         accountId,
-        invoiceSlug,
-        "customer payment"
+        invoiceSlug
       );
 
       return {
@@ -37,6 +31,7 @@ export default async function getPaymentEntriesToUpdate(
         incoming,
         invoiceId,
         entry,
+        invoice,
       };
     })
   );
