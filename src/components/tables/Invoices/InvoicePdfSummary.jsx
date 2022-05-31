@@ -4,7 +4,8 @@ import PropTypes from "prop-types";
 function InvoicePdfSummary(props) {
   const { summary } = props;
 
-  const { subTotal, taxes, totalAmount, shipping, adjustment } = summary;
+  const { subTotal, taxes, totalAmount, balance, shipping, adjustment } =
+    summary;
   console.log({ summary });
   return (
     <TableContainer>
@@ -52,7 +53,7 @@ function InvoicePdfSummary(props) {
               <b>Balance Due</b>
             </Td>
             <Td isNumeric>
-              <b>{Number(totalAmount).toLocaleString()}</b>
+              <b>{Number(balance).toLocaleString()}</b>
             </Td>
           </Tr>
         </Tbody>
@@ -76,6 +77,7 @@ InvoicePdfSummary.propTypes = {
     adjustment: PropTypes.number.isRequired,
     totalTaxes: PropTypes.number,
     totalAmount: PropTypes.number,
+    balance: PropTypes.number,
   }),
 };
 

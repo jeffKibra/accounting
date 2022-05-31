@@ -365,13 +365,13 @@ function* updatePayment({ data }) {
             transaction,
             userProfile,
             orgId,
-            currentPayment.account,
+            accounts_receivable,
             accountsReceivableEntriesToDelete.map((entry) => {
               const {
                 entry: { credit, debit, entryId },
               } = entry;
               return {
-                account: currentPayment.account,
+                account: accounts_receivable,
                 credit,
                 debit,
                 entryId,

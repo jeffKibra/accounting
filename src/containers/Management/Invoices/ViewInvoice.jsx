@@ -29,7 +29,7 @@ function ViewInvoice(props) {
     dueDate,
     customerNotes,
   } = invoice;
-  const { totalAmount } = summary;
+  const { balance } = summary;
   console.log({ invoice });
   return (
     <Container
@@ -63,7 +63,7 @@ function ViewInvoice(props) {
               <VStack w="full" mt="20px!important" align="flex-end">
                 <Text fontSize="sm">Balance Due</Text>
                 <Heading mt="0px !important" size="sm">
-                  KES {Number(totalAmount).toLocaleString()}
+                  KES {Number(balance).toLocaleString()}
                   {}
                 </Heading>
               </VStack>

@@ -27,7 +27,7 @@ function EditItem(props) {
   const [formValues, setFormValues] = useState(item || {});
 
   const incomeAccounts = useMemo(() => {
-    return accounts.filter(({ accountType: { id } }) => id === "income");
+    return accounts?.filter(({ accountType: { id } }) => id === "income");
   }, [accounts]);
 
   useEffect(() => {
