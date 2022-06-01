@@ -311,10 +311,16 @@ function* updateInvoice({ data }) {
         }
       }
       /**
+       * calculate balance adjustment
+       */
+      const balanceAdjustment = totalAmount - invoiceSummary.totalAmount;
+
+      /**
        * update invoice
        */
       transaction.update(invoiceRef, {
         ...rest,
+        balance: increment(balanceAdjustment),
         invoiceSlug,
         // classical: "plus",
         modifiedBy: email,

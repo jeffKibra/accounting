@@ -28,9 +28,10 @@ function ViewInvoice(props) {
     invoiceDate,
     dueDate,
     customerNotes,
+    balance,
+    payments,
   } = invoice;
-  const { balance } = summary;
-  console.log({ invoice });
+  // console.log({ invoice });
   return (
     <Container
       borderRadius="md"
@@ -111,7 +112,7 @@ function ViewInvoice(props) {
         <Grid w="full" columnGap={3} templateColumns="repeat(12, 1fr)">
           <GridItem colSpan={[1, 6]}></GridItem>
           <GridItem colSpan={[11, 6]}>
-            <InvoicePdfSummary summary={summary} />
+            <InvoicePdfSummary payments={payments} summary={summary} />
           </GridItem>
         </Grid>
         {customerNotes && (
@@ -143,6 +144,7 @@ ViewInvoice.propTypes = {
     invoiceSlug: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,
     selectedItems: PropTypes.array.isRequired,
+    balance: PropTypes.number.isRequired,
   }),
 };
 

@@ -309,23 +309,26 @@ service cloud.firestore {
 
       match /invoices/{invoiceId} {
         function verifyInvoiceData(){
-          let req=['selectedItems', 'summary', 'payments', 'customer', 'customerId', 'invoiceDate', 'dueDate'];
-          let additional=[ 'invoiceSlug', 'status', 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy', 'org'];
-          let required=req.concat(additional);
-          let optional=['customerNotes', 'orderNumber', 'subject', 'invoiceNumber',];
+          let form=['customerId', 'orderNumber', 'invoiceDate', 'dueDate', 'subject', 'customerNotes'];
+          let formExtras=['customer', 'selectedItems', 'summary'];
+          let additional=[ 'invoiceSlug', "balance", 'payments', 'paymentsCount', 'status', "isSent", 'org'];
+          let meta=['createdAt', 'modifiedAt', 'createdBy', 'modifiedBy'];
+          let required=form.concat(formExtras).concat(additional).concat(meta);
+          let optional=[];
           let allFields=required.concat(optional);
 
           return request.resource.data.keys().hasAll(required) &&
             request.resource.data.keys().hasOnly(allFields) &&
             request.resource.data.selectedItems is list &&
             request.resource.data.payments is map &&
+            request.resource.data.paymentsCount is int &&
+            numberValue(request.resource.data.balance) &&
+            request.resource.data.balance >= 0 && 
             request.resource.data.summary is map &&
             numberValue(request.resource.data.summary.shipping) &&
             numberValue(request.resource.data.summary.adjustment) &&
             numberValue(request.resource.data.summary.subTotal) &&
             numberValue(request.resource.data.summary.totalAmount) &&
-            numberValue(request.resource.data.summary.balance) &&
-            request.resource.data.summary.balance >= 0 && 
             numberValue(request.resource.data.summary.totalTaxes) &&
             request.resource.data.summary.taxes is list &&
             request.resource.data.customer is map &&
@@ -341,14 +344,17 @@ service cloud.firestore {
             request.resource.data.orderNumber is string &&
             request.resource.data.subject is string &&
             request.resource.data.invoiceSlug is string &&
-            request.resource.data.status is string
+            request.resource.data.status is string &&
+            request.resource.data.isSent is bool
         }
 
         function allowInvoiceUpdate(){
-          let req=['selectedItems', 'summary', 'payments', 'customer', 'customerId', 'invoiceDate', 'dueDate'];
-          let additional=["invoiceSlug", 'status','modifiedAt', 'modifiedBy'];
-          let required=req.concat(additional);
-          let optional=['customerNotes', 'orderNumber', 'subject'];
+          let form=['customerId', 'orderNumber', 'invoiceDate', 'dueDate', 'subject', 'customerNotes'];
+          let formExtras=['customer', 'selectedItems', 'summary'];
+          let additional=[ 'invoiceSlug', "balance", 'payments', 'paymentsCount', 'status', "isSent"];
+          let meta=['modifiedAt', 'modifiedBy'];
+          let required=form.concat(formExtras).concat(additional).concat(meta);
+          let optional=[];
           let allFields=required.concat(optional);
 
           return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)

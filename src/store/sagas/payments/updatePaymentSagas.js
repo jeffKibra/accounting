@@ -207,7 +207,7 @@ function* updatePayment({ data }) {
           orgId,
           userProfile,
           currentPayment,
-          data
+          newDetails
         );
         /**
          * update invoices
@@ -334,7 +334,8 @@ function* updatePayment({ data }) {
             userProfile,
             orgId,
             currentPayment,
-            paymentsToDelete
+            paymentsToDelete,
+            allInvoices
           );
         }
         if (paymentAccountEntriesToDelete.length > 0) {

@@ -7,7 +7,7 @@ export default function updateInvoicesPayments(
   transaction,
   userProfile = {},
   orgId = "",
-  incomingPayment = { paidInvoices: [{}] },
+  incomingPayment = { paymentId: "" },
   payments = [{ current: 0, incoming: 0, invoiceId: "" }]
 ) {
   const { email } = userProfile;
@@ -28,7 +28,7 @@ export default function updateInvoicesPayments(
     const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
     // console.log({ tDetails, incoming });
     transaction.update(invoiceRef, {
-      "summary.balance": increment(0 - adjustment),
+      balance: increment(0 - adjustment),
       [`payments.${paymentId}`]: {
         paymentAmount: incoming,
         ...tDetails,

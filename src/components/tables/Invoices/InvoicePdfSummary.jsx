@@ -2,11 +2,13 @@ import { TableContainer, Table, Tbody, Td, Tr } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 
 function InvoicePdfSummary(props) {
-  const { summary } = props;
+  const { summary, payments } = props;
+  const paymentsTotal = Object.keys(payments).reduce((sum, key) => {
+    return sum + +payments[key].paymentAmount;
+  }, 0);
 
-  const { subTotal, taxes, totalAmount, balance, shipping, adjustment } =
-    summary;
-  console.log({ summary });
+  const { subTotal, taxes, totalAmount, shipping, adjustment } = summary;
+
   return (
     <TableContainer>
       <Table color="black" size="sm">
@@ -48,12 +50,22 @@ function InvoicePdfSummary(props) {
               <b>{Number(totalAmount).toLocaleString()}</b>
             </Td>
           </Tr>
+          {paymentsTotal > 0 && (
+            <Tr>
+              <Td isNumeric>
+                <b>Payments</b>
+              </Td>
+              <Td isNumeric>
+                <b>(-) {Number(paymentsTotal).toLocaleString()}</b>
+              </Td>
+            </Tr>
+          )}
           <Tr bg="#f5f4f3">
             <Td isNumeric>
               <b>Balance Due</b>
             </Td>
             <Td isNumeric>
-              <b>{Number(balance).toLocaleString()}</b>
+              <b>{Number(totalAmount - paymentsTotal).toLocaleString()}</b>
             </Td>
           </Tr>
         </Tbody>
@@ -77,8 +89,8 @@ InvoicePdfSummary.propTypes = {
     adjustment: PropTypes.number.isRequired,
     totalTaxes: PropTypes.number,
     totalAmount: PropTypes.number,
-    balance: PropTypes.number,
   }),
+  payments: PropTypes.object.isRequired,
 };
 
 export default InvoicePdfSummary;

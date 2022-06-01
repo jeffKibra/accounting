@@ -16,6 +16,32 @@ import Empty from "../../../components/ui/Empty";
 
 import EditInvoice from "../../../containers/Management/Invoices/EditInvoice";
 
+function getFormValuesOnly(invoice = {}) {
+  const {
+    customerId,
+    customerNotes,
+    dueDate,
+    invoiceDate,
+    invoiceSlug,
+    invoiceId,
+    summary,
+    subject,
+    selectedItems,
+  } = invoice;
+
+  return {
+    customerId,
+    customerNotes,
+    dueDate,
+    invoiceDate,
+    invoiceSlug,
+    invoiceId,
+    summary,
+    subject,
+    selectedItems,
+  };
+}
+
 function EditInvoicePage(props) {
   const {
     loading,
@@ -57,7 +83,7 @@ function EditInvoicePage(props) {
         <EditInvoice
           updating={loading && action === UPDATE_INVOICE}
           handleFormSubmit={update}
-          invoice={invoice}
+          invoice={getFormValuesOnly(invoice)}
         />
       ) : (
         <Empty message="Invoice not found!" />

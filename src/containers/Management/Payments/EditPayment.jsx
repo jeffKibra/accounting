@@ -40,7 +40,7 @@ function EditPayment(props) {
 
   useEffect(() => {
     if (customerId) {
-      getInvoices(customerId, ["sent"]);
+      getInvoices(customerId, ["active", "sent", "partially paid"]);
     }
   }, [customerId, getInvoices]);
 

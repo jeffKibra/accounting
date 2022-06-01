@@ -128,7 +128,6 @@ function Provider(props) {
       adjustment,
       shipping,
       totalAmount: +totalAmount.toFixed(2),
-      balance: +totalAmount.toFixed(2),
     };
   }, [selectedItems, adjustment, shipping]);
 

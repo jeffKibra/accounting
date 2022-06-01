@@ -24,7 +24,14 @@ import {
 } from "../../slices/invoicesSlice";
 import { error as toastError } from "../../slices/toastSlice";
 
-const allStatuses = ["pending", "partially paid", "paid", "draft", "sent"];
+const allStatuses = [
+  "pending",
+  "active",
+  "partially paid",
+  "paid",
+  "draft",
+  "sent",
+];
 
 export async function getLatestInvoice(orgId) {
   console.log({ orgId });

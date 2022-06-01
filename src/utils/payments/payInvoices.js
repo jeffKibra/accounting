@@ -55,7 +55,8 @@ export default function payInvoices(
 
       const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
       transaction.update(invoiceRef, {
-        "summary.balance": increment(0 - incoming),
+        balance: increment(0 - incoming),
+        paymentsCount: increment(1),
         [`payments.${paymentId}`]: {
           paymentAmount: incoming,
           ...tDetails,

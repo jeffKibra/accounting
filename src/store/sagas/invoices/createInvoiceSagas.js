@@ -8,7 +8,10 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
-import { getIncomeAccountsMapping } from "../../../utils/invoices";
+import {
+  createInvoiceSlug,
+  getIncomeAccountsMapping,
+} from "../../../utils/invoices";
 
 import { CREATE_INVOICE } from "../../actions/invoicesActions";
 import { start, success, fail } from "../../slices/invoicesSlice";
@@ -19,6 +22,8 @@ import {
 
 import { createSimilarAccountEntries } from "../../../utils/journals";
 import { getAccountData } from "../../../utils/accounts";
+import { getCustomerData } from "../../../utils/customers";
+import formats from "../../../utils/formats";
 
 function* createInvoice({ data }) {
   yield put(start(CREATE_INVOICE));
@@ -59,25 +64,22 @@ function* createInvoice({ data }) {
     const invoiceId = newDocRef.id;
 
     await runTransaction(db, async (transaction) => {
-      const [customerDoc] = await Promise.all([transaction.get(customerRef)]);
+      const [customer] = await Promise.all([
+        getCustomerData(transaction, orgId, customerId),
+      ]);
       console.log({ selectedItems });
-      if (!customerDoc.exists) {
-        throw new Error("Selected customer not found!");
-      }
 
-      const customer = customerDoc.data();
-      const customerSummary = customer.summary;
-
-      const invoiceNumber = (customerSummary?.invoices || 0) + 1;
-      const invoiceSlug = `INV-${String(invoiceNumber).padStart(6, 0)}`;
+      const invoiceSlug = createInvoiceSlug(customer);
 
       const invoiceData = {
         ...data,
+        balance: summary.totalAmount,
         payments: {},
-        status: "sent",
-        invoiceNumber,
+        paymentsCount: 0,
+        status: "active",
+        isSent: false,
         invoiceSlug,
-        org,
+        org: formats.formatOrgData(org),
       };
       console.log({ invoiceData });
       const transactionDetails = { ...invoiceData, invoiceId };

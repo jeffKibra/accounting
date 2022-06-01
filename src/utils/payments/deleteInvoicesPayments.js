@@ -30,7 +30,8 @@ export default function deleteInvoicesPayments(
      */
     const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
     transaction.update(invoiceRef, {
-      "summary.balance": increment(0 - adjustment),
+      balance: increment(0 - adjustment),
+      paymentsCount: increment(-1),
       [`payments.${paymentId}`]: deleteField(),
       modifiedBy: email,
       modifiedAt: serverTimestamp(),
