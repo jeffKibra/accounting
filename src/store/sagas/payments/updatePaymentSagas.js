@@ -187,6 +187,7 @@ function* updatePayment({ data }) {
          */
         const newDetails = {
           ...data,
+          excess,
           customer: formats.formatCustomerData({ ...customerData }),
           paidInvoices: formats.formatInvoices([...paidInvoices]),
           paymentId,

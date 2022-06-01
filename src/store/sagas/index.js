@@ -43,6 +43,7 @@ import {
   watchGetPayment,
 } from "./payments/getPaymentsSagas";
 import { watchUpdatePayment } from "./payments/updatePaymentSagas";
+import { watchDeletePayment } from "./payments/deletePaymentSagas";
 //accounts
 import { watchGetAccounts } from "./accounts/getAccountsSagas";
 import { watchCheckAccounts } from "./accounts/checkAccountsSagas";
@@ -86,6 +87,7 @@ export default function* rootSaga() {
     watchGetPayments(),
     watchGetPayment(),
     watchUpdatePayment(),
+    watchDeletePayment(),
     watchGetAccounts(),
     watchCheckAccounts(),
     watchCreateItemCategory(),

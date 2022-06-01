@@ -68,6 +68,7 @@ function formatTransactionDetails(details) {
     reference,
     paymentId,
     paymentDate,
+    excess,
   } = details;
   return {
     amount,
@@ -80,6 +81,7 @@ function formatTransactionDetails(details) {
     reference,
     paymentDate,
     paymentId,
+    excess,
     ...(org ? { org: formatOrgData(org) } : {}),
   };
 }

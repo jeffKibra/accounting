@@ -50,3 +50,4 @@ export { default as updateEntry } from "./updateEntry";
 export { default as updateSimilarAccountEntries } from "./updateSimilarAccountEntries";
 export { default as deleteEntry } from "./deleteEntry";
 export { default as deleteSimilarAccountEntries } from "./deleteSimilarAccountEntries";
+export { default as groupEntriesIntoAccounts } from "./groupEntriesIntoAccounts";

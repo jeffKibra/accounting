@@ -14,3 +14,4 @@ export { default as createPaymentSlug } from "./createPaymentSlug";
 export { default as getInvoiceFromArray } from "./getInvoiceFromArray";
 export { default as getPaymentEntry } from "./getPaymentEntry";
 export { default as combineInvoices } from "./combineInvoices";
+export { default as getAllPaymentEntries } from "./getAllPaymentEntries";
