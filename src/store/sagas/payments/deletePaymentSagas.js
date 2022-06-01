@@ -151,7 +151,7 @@ function* deletePayment({ paymentId }) {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess("Payment sucessfully created!"));
+    yield put(toastSuccess("Payment sucessfully deleted!"));
   } catch (error) {
     console.log(error);
     yield put(fail(error));

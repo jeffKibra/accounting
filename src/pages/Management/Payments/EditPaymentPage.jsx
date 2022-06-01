@@ -37,9 +37,9 @@ function EditPaymentPage(props) {
   useEffect(() => {
     if (isModified) {
       resetPayment();
-      navigate(-1);
+      navigate(`/payments/${paymentId}/view`);
     }
-  }, [isModified, resetPayment, navigate]);
+  }, [isModified, resetPayment, navigate, paymentId]);
 
   function update(data) {
     console.log({ data });

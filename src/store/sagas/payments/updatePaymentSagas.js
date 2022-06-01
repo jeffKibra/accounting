@@ -226,6 +226,7 @@ function* updatePayment({ data }) {
         /**2
          * update accounts receivable entries
          * they are not factored in if deposit account has changed
+         * NOTE:::pass income as a negative value to be credited
          */
         updateSimilarAccountEntries(
           transaction,
@@ -240,7 +241,7 @@ function* updatePayment({ data }) {
             } = entry;
             return {
               account: accounts_receivable,
-              amount: incoming,
+              amount: 0 - incoming,
               credit,
               debit,
               entryId,
@@ -422,7 +423,7 @@ function* updatePayment({ data }) {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess("Payment sucessfully created!"));
+    yield put(toastSuccess("Payment sucessfully updated!"));
   } catch (error) {
     console.log(error);
     yield put(fail(error));

@@ -40,7 +40,7 @@ export default function groupEntriesIntoAccounts(
           const { entries } = account;
           return {
             ...account,
-            entries: entries.push(entry),
+            entries: [...entries, entry],
           };
         } else {
           return account;
