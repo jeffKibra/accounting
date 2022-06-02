@@ -14,21 +14,17 @@ import {
   success as toastSuccess,
 } from "../../slices/toastSlice";
 
-import { deleteSimilarAccountEntries } from "../../../utils/journals";
 import {
-  getInvoiceData,
-  getSummaryEntries,
-  getIncomeAccountsMapping,
-  getIncomeEntries,
-} from "../../../utils/invoices";
-import { getAccountData } from "../../../utils/accounts";
+  deleteSimilarAccountEntries,
+  groupEntriesIntoAccounts,
+} from "../../../utils/journals";
+import { getInvoiceData, getAllInvoiceEntries } from "../../../utils/invoices";
 
 function* deleteInvoice({ invoiceId }) {
   yield put(start(DELETE_INVOICE));
   const orgId = yield select((state) => state.orgsReducer.org.id);
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
-  const accounts = yield select((state) => state.accountsReducer.accounts);
   //   console.log({ invoiceId, orgId, userProfile });
 
   async function update() {
@@ -42,150 +38,37 @@ function* deleteInvoice({ invoiceId }) {
     );
 
     await runTransaction(db, async (transaction) => {
-      const invoiceData = await getInvoiceData(transaction, orgId, invoiceId);
-      const { shippingEntry, adjustmentEntry, taxEntry, receivableEntry } =
-        await getSummaryEntries(true, orgId, invoiceData, {
-          shipping: 0,
-          adjustment: 0,
-          totalTaxes: 0,
-          totalAmount: 0,
-        });
+      const [invoiceData, allEntries] = await Promise.all([
+        getInvoiceData(transaction, orgId, invoiceId),
+        getAllInvoiceEntries(orgId, invoiceId),
+      ]);
+
+      const accounts = groupEntriesIntoAccounts(allEntries);
+
       const {
         customerId,
         summary: { totalAmount },
       } = invoiceData;
-      const { deletedAccounts } = getIncomeAccountsMapping(
-        invoiceData.selectedItems,
-        []
-      );
-      const entriesToDelete = await getIncomeEntries(
-        orgId,
-        invoiceData,
-        deletedAccounts
-      );
-
-      //   console.log({ itemsEntries });
-      //   console.log({
-      //     shippingEntry,
-      //     adjustmentEntry,
-      //     taxEntry,
-      //     receivableEntry,
-      //   });
 
       /**
        * start writing
        */
 
       /**
-       * delete income accounts entries
+       * delete entries and update accounts summaries
        */
-      entriesToDelete.forEach((entry) => {
-        const { accountId, credit, debit, entryId } = entry;
-        const entryAccount = getAccountData(accountId, accounts);
-
+      accounts.forEach((group) => {
+        const { entries, ...account } = group;
+        console.log({ entries, account });
         deleteSimilarAccountEntries(
           transaction,
           userProfile,
           orgId,
-          entryAccount,
-          [
-            {
-              account: entryAccount,
-              credit,
-              debit,
-              entryId,
-            },
-          ]
+          account,
+          entries
         );
       });
-      /**
-       * delete shipping entry
-       */
-      if (shippingEntry) {
-        const { entryId, credit, debit } = shippingEntry;
-        const entryAccount = getAccountData("shipping_charge", accounts);
 
-        deleteSimilarAccountEntries(
-          transaction,
-          userProfile,
-          orgId,
-          entryAccount,
-          [
-            {
-              account: entryAccount,
-              credit,
-              debit,
-              entryId,
-            },
-          ]
-        );
-      }
-      /**
-       * delete other_charges entry=>account for adjustments
-       */
-      if (adjustmentEntry) {
-        const { entryId, credit, debit } = adjustmentEntry;
-        const entryAccount = getAccountData("other_charges", accounts);
-
-        deleteSimilarAccountEntries(
-          transaction,
-          userProfile,
-          orgId,
-          entryAccount,
-          [
-            {
-              account: entryAccount,
-              credit,
-              debit,
-              entryId,
-            },
-          ]
-        );
-      }
-      /**
-       * delete taxes entry
-       */
-      if (taxEntry) {
-        const { entryId, credit, debit } = taxEntry;
-        const entryAccount = getAccountData("tax_payable", accounts);
-
-        deleteSimilarAccountEntries(
-          transaction,
-          userProfile,
-          orgId,
-          entryAccount,
-          [
-            {
-              account: entryAccount,
-              credit,
-              debit,
-              entryId,
-            },
-          ]
-        );
-      }
-      /**
-       * delete accounts_receivable entry
-       */
-      if (receivableEntry) {
-        const { entryId, credit, debit } = receivableEntry;
-        const entryAccount = getAccountData("accounts_receivable", accounts);
-
-        deleteSimilarAccountEntries(
-          transaction,
-          userProfile,
-          orgId,
-          entryAccount,
-          [
-            {
-              account: entryAccount,
-              credit,
-              debit,
-              entryId,
-            },
-          ]
-        );
-      }
       /**
        * update customer summaries
        */
@@ -198,10 +81,10 @@ function* deleteInvoice({ invoiceId }) {
       );
       transaction.update(customerRef, {
         "summary.deletedInvoices": increment(1),
-        "summary.invoicedAmount": increment(-totalAmount),
+        "summary.invoicedAmount": increment(0 - totalAmount),
       });
       /**
-       * update org summaries
+       * update org counters summaries
        */
       transaction.update(countersRef, {
         deletedInvoices: increment(1),
