@@ -22,8 +22,14 @@ import PaymentsSummaryTable from "../../tables/Payments/PaymentsSummaryTable";
 
 function InvoicesPaymentForm(props) {
   // console.log({ props });
-  const { invoices, updateFormValues, handleFormSubmit, loading, formValues } =
-    props;
+  const {
+    invoices,
+    updatePayments,
+    handleFormSubmit,
+    loading,
+    formValues,
+    payments,
+  } = props;
   const { amount } = formValues;
   const { prevStep } = useContext(StepperContext);
   const { isOpen, onClose, onOpen } = useDisclosure();
@@ -59,22 +65,22 @@ function InvoicesPaymentForm(props) {
 
   const formMethods = useForm({
     mode: "onChange",
-    defaultValues: formValues.payments || autoFill(invoices, amount),
+    defaultValues: payments || autoFill(invoices, amount),
   });
   const { handleSubmit, watch, reset } = formMethods;
 
   useEffect(() => {
-    const defaults = formValues.payments || autoFill(invoices, amount);
+    const defaults = payments || autoFill(invoices, amount);
     reset(defaults);
-  }, [formValues.payments, autoFill, amount, invoices, reset]);
+  }, [payments, autoFill, amount, invoices, reset]);
 
-  const payments = watch();
-  const paymentsTotal = getPaymentsTotal(payments);
+  const newPayments = watch();
+  const paymentsTotal = getPaymentsTotal(newPayments);
   /**
    * methods
    */
   function goBack() {
-    updateFormValues(payments);
+    updatePayments(newPayments);
     prevStep();
   }
 
@@ -203,7 +209,7 @@ function InvoicesPaymentForm(props) {
 
 InvoicesPaymentForm.propTypes = {
   handleFormSubmit: PropTypes.func.isRequired,
-  updateFormValues: PropTypes.func.isRequired,
+  updatePayments: PropTypes.func.isRequired,
   invoices: PropTypes.array.isRequired,
   loading: PropTypes.bool.isRequired,
   formValues: PropTypes.shape({

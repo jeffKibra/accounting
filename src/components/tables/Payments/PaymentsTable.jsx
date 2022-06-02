@@ -88,7 +88,6 @@ PaymentsTable.propTypes = {
       }),
       amount: PropTypes.number.isRequired,
       reference: PropTypes.string,
-      paymentNumber: PropTypes.number.isRequired,
       paymentSlug: PropTypes.string.isRequired,
       payments: PropTypes.object,
       paymentDate: PropTypes.string.isRequired,

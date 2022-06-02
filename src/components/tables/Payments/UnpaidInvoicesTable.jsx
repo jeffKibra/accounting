@@ -25,7 +25,7 @@ function UnpaidInvoicesTable(props) {
       { Header: "Date", accessor: "invoiceDate" },
       { Header: "Invoice#", accessor: "invoiceSlug" },
       { Header: "Amount", accessor: "summary.totalAmount", isNumeric: true },
-      { Header: "Amount Due", accessor: "summary.balance", isNumeric: true },
+      { Header: "Amount Due", accessor: "balance", isNumeric: true },
       // ...(taxDeducted === "yes"
       //   ? [{ Header: "Withholding Tax", accessor: "withholdingTax" }]
       //   : []),

@@ -29,8 +29,10 @@ function EditPayment(props) {
     getInvoices,
     invoices,
   } = props;
-  // console.log({ props });
-  const [formValues, setFormValues] = useState(payment || {});
+  const [formValues, setFormValues] = useState(payment ? { ...payment } : {});
+  const [payments, setPayments] = useState(
+    payment?.payments ? { ...payment.payments } : null
+  );
 
   const { customerId } = formValues;
 
@@ -44,13 +46,42 @@ function EditPayment(props) {
     }
   }, [customerId, getInvoices]);
 
+  useEffect(() => {
+    const payments = formValues?.payments;
+    if (payments && invoices?.length > 0) {
+      const currentPayments = { ...payments };
+
+      Object.keys(currentPayments).forEach((invoiceId) => {
+        //check if this invoice is in the list of invoices
+        const found = invoices.find(
+          (invoice) => invoice.invoiceId === invoiceId
+        );
+
+        if (!found) {
+          //delete the invoice payment if it has not been found
+          delete currentPayments[invoiceId];
+        }
+      });
+
+      setPayments(
+        Object.keys(currentPayments).length > 0 ? currentPayments : null
+      );
+    }
+  }, [invoices, setPayments, formValues.payments]);
+
   function updateFormValues(data) {
     setFormValues((current) => ({ ...current, ...data }));
   }
 
   function saveAll(data) {
+    const { payments, ...rest } = data;
     //update form values so that incase saving fails, data is not lost
-    updateFormValues(data);
+    // console.log({ data });
+    /**
+     * update states. helpful incase saving fails, all the data is preserved
+     */
+    updateFormValues(rest);
+    setPayments(payments);
     //create new all inclusive data
     const allData = {
       ...formValues,
@@ -98,10 +129,9 @@ function EditPayment(props) {
                 <InvoicesPaymentForm
                   paymentId={paymentId}
                   handleFormSubmit={saveAll}
-                  updateFormValues={(payments) =>
-                    updateFormValues({ payments })
-                  }
+                  updatePayments={setPayments}
                   formValues={formValues}
+                  payments={payments}
                   invoices={invoices || []}
                   loading={updating}
                 />
