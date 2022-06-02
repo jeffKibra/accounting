@@ -51,22 +51,18 @@ function* updatePayment({ data }) {
       accountId,
       reference,
     } = data;
-
-    // Object.keys(payments).forEach((key) => {
-    //   const value = payments[key];
-    //   if (value === 0) {
-    //     delete payments[key];
-    //   }
-    // });
-
-    // const invoicesIds = Object.keys(payments);
+    /**
+     * get payments total
+     */
     const paymentsTotal = getPaymentsTotal(payments);
-
     if (paymentsTotal > amount) {
       throw new Error(
         "Invoices payments cannot be more than customer payment!"
       );
     }
+    /**
+     * compute excess amount if any
+     */
     const excess = amount - paymentsTotal;
 
     //accounts data
@@ -113,12 +109,12 @@ function* updatePayment({ data }) {
           paymentsToCreate,
           paymentsToDelete,
         } = getPaymentsMapping(currentPayment.payments, payments);
-        console.log({
-          similarPayments,
-          paymentsToUpdate,
-          paymentsToCreate,
-          paymentsToDelete,
-        });
+        // console.log({
+        //   similarPayments,
+        //   paymentsToUpdate,
+        //   paymentsToCreate,
+        //   paymentsToDelete,
+        // });
         /**
          * create two different update values based on the accounts:
          * 1. accountsReceivable account
@@ -257,10 +253,7 @@ function* updatePayment({ data }) {
           /**
            * change the entries details and update associated accounts
            */
-          console.log("account has changed", {
-            depositAccount,
-            prev: currentPayment.account,
-          });
+          console.log("account has changed");
           changeEntriesAccount(
             transaction,
             userProfile,
@@ -330,7 +323,7 @@ function* updatePayment({ data }) {
          * 3. delete accountsReceivable entries
          */
         if (paymentsToDelete.length > 0) {
-          console.log("deleting i");
+          console.log("deleting payments");
           deleteInvoicesPayments(
             transaction,
             userProfile,
@@ -341,7 +334,7 @@ function* updatePayment({ data }) {
           );
         }
         if (paymentAccountEntriesToDelete.length > 0) {
-          console.log("deleting j");
+          console.log("deleting deposit account entries");
 
           deleteSimilarAccountEntries(
             transaction,
@@ -362,7 +355,7 @@ function* updatePayment({ data }) {
           );
         }
         if (accountsReceivableEntriesToDelete.length > 0) {
-          console.log("deleting k");
+          console.log("deleting accounts_receivebale entries");
 
           deleteSimilarAccountEntries(
             transaction,
@@ -386,7 +379,7 @@ function* updatePayment({ data }) {
          * excess amount - credit account with the excess amount
          */
         if (overPayEntry) {
-          console.log("overpayment i");
+          console.log("updating overpayment");
 
           overPay.updateEntry(
             transaction,
@@ -399,7 +392,7 @@ function* updatePayment({ data }) {
           );
         } else {
           if (excess > 0) {
-            console.log("overpayment j");
+            console.log("creating overpayment");
 
             overPay.createEntry(
               transaction,
@@ -415,7 +408,6 @@ function* updatePayment({ data }) {
          * update payment
          */
         const { paymentId: pid, org, ...tDetails } = newDetails;
-        console.log({ tDetails });
         transaction.update(paymentRef, { ...tDetails });
       });
     }

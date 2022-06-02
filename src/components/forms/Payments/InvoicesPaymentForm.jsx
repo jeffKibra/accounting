@@ -42,10 +42,7 @@ function InvoicesPaymentForm(props) {
       const balances = {};
 
       invoices.forEach((invoice) => {
-        const {
-          summary: { balance: invoiceBalance },
-          invoiceId,
-        } = invoice;
+        const { balance: invoiceBalance, invoiceId } = invoice;
         let autoFill = 0;
 
         if (invoiceBalance <= balance) {

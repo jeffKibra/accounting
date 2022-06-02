@@ -1,11 +1,11 @@
 import { TableContainer, Table, Tbody, Td, Tr } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 
+import { getInvoicePaymentsTotal } from "../../../utils/invoices";
+
 function InvoicePdfSummary(props) {
   const { summary, payments } = props;
-  const paymentsTotal = Object.keys(payments).reduce((sum, key) => {
-    return sum + +payments[key].paymentAmount;
-  }, 0);
+  const paymentsTotal = getInvoicePaymentsTotal(payments);
 
   const { subTotal, taxes, totalAmount, shipping, adjustment } = summary;
 

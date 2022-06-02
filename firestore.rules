@@ -308,6 +308,12 @@ service cloud.firestore {
       }
 
       match /invoices/{invoiceId} {
+        function balanceIsValid(){
+           return numberValue(request.resource.data.balance) &&
+            request.resource.data.balance >= 0 && 
+            request.resource.data.balance <= request.resource.data.summary.totalAmount
+        }
+
         function verifyInvoiceData(){
           let form=['customerId', 'orderNumber', 'invoiceDate', 'dueDate', 'subject', 'customerNotes'];
           let formExtras=['customer', 'selectedItems', 'summary'];
@@ -322,8 +328,6 @@ service cloud.firestore {
             request.resource.data.selectedItems is list &&
             request.resource.data.payments is map &&
             request.resource.data.paymentsCount is int &&
-            numberValue(request.resource.data.balance) &&
-            request.resource.data.balance >= 0 && 
             request.resource.data.summary is map &&
             numberValue(request.resource.data.summary.shipping) &&
             numberValue(request.resource.data.summary.adjustment) &&
@@ -345,7 +349,8 @@ service cloud.firestore {
             request.resource.data.subject is string &&
             request.resource.data.invoiceSlug is string &&
             request.resource.data.status is string &&
-            request.resource.data.isSent is bool
+            request.resource.data.isSent is bool &&
+            balanceIsValid()
         }
 
         function allowInvoiceUpdate(){
@@ -360,10 +365,30 @@ service cloud.firestore {
           return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
         }
 
+        function invoiceIsPaid(){
+          return request.resource.data.paymentsCount > 0 ||
+            request.resource.data.balance < request.resource.data.summary.totalAmount
+        }
+        function allowCustomerChange(){
+          return !invoiceIsPaid() &&
+            request.resource.data.customerId != resource.data.customerId
+        }
+        function allowDelete(){
+          return !invoiceIsPaid() &&
+            request.resource.data.status == "deleted"
+        }
+        function allowNormalUpdate(){
+          return request.resource.data.status != "deleted" &&
+            request.resource.data.customerId == resource.data.customerId
+        }
+
         allow read: if isOwner()
         allow create: if isOwner() && verifyInvoiceData()
-        allow update: if isOwner() && verifyInvoiceData() && allowInvoiceUpdate()
+        allow update: if isOwner() && verifyInvoiceData() && allowInvoiceUpdate() &&
+          (allowNormalUpdate() || allowCustomerChange() || allowDelete())
       }
+
+     
 
       match /payments/{paymentId} {
 

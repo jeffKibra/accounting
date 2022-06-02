@@ -34,7 +34,7 @@ function* deletePayment({ paymentId }) {
     const orgId = org.id;
     const userProfile = yield select((state) => state.authReducer.userProfile);
     const { email } = userProfile;
-    console.log({ paymentId });
+    // console.log({ paymentId });
 
     // const invoicesIds = Object.keys(payments);
 
@@ -59,33 +59,17 @@ function* deletePayment({ paymentId }) {
         ]);
         const { customerId, payments, excess } = paymentData;
         const paymentsTotal = getPaymentsTotal(payments);
-        console.log({ allEntries });
+        // console.log({ allEntries });
         /**
-         * fetch customer data
+         * group entries into accounts
          */
-        const customerRef = doc(
-          db,
-          "organizations",
-          orgId,
-          "customers",
-          customerId
-        );
-
         const groupedEntries = groupEntriesIntoAccounts(allEntries);
-        console.log({ groupedEntries });
+        // console.log({ groupedEntries });
 
-        const {
-          similarPayments,
-          paymentsToUpdate,
-          paymentsToCreate,
-          paymentsToDelete,
-        } = getPaymentsMapping(payments, {});
-        console.log({
-          similarPayments,
-          paymentsToUpdate,
-          paymentsToCreate,
-          paymentsToDelete,
-        });
+        const { paymentsToDelete } = getPaymentsMapping(payments, {});
+        // console.log({
+        //   paymentsToDelete,
+        // });
 
         /**
          * start docs writing!
@@ -96,7 +80,6 @@ function* deletePayment({ paymentId }) {
          */
         groupedEntries.forEach((group) => {
           const { entries, ...account } = group;
-          console.log({ entries, account });
 
           deleteSimilarAccountEntries(
             transaction,
@@ -111,7 +94,7 @@ function* deletePayment({ paymentId }) {
          * delete deleted payments from linked invoices
          */
         if (paymentsToDelete.length > 0) {
-          console.log("deleting i");
+          // console.log("deleting i");
           deleteInvoicesPayments(
             transaction,
             userProfile,
@@ -124,6 +107,13 @@ function* deletePayment({ paymentId }) {
          * update customers
          * function also handles a change of customer situation.
          */
+        const customerRef = doc(
+          db,
+          "organizations",
+          orgId,
+          "customers",
+          customerId
+        );
         transaction.update(customerRef, {
           "summary.deletedPayments": increment(1),
           "summary.unusedCredits": increment(0 - excess),

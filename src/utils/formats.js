@@ -88,7 +88,18 @@ function formatTransactionDetails(details) {
 
 function formatInvoiceItems(items = []) {
   return items.map((item) => {
-    const { createdAt, createdBy, modifiedBy, modifiedAt, ...rest } = item;
+    const {
+      createdAt,
+      createdBy,
+      modifiedBy,
+      modifiedAt,
+      itemDescription,
+      sellingDetails,
+      status,
+      salesAccountId,
+      salesTaxId,
+      ...rest
+    } = item;
 
     return { ...rest };
   });

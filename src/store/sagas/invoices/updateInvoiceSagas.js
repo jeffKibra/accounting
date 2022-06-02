@@ -25,9 +25,11 @@ import {
   getIncomeAccountsMapping,
   getIncomeEntries,
   createInvoiceSlug,
+  getInvoicePaymentsTotal,
 } from "../../../utils/invoices";
 import { getCustomerData } from "../../../utils/customers";
 import { getAccountData } from "../../../utils/accounts";
+import formats from "../../../utils/formats";
 
 function* updateInvoice({ data }) {
   yield put(start(UPDATE_INVOICE));
@@ -38,7 +40,7 @@ function* updateInvoice({ data }) {
 
   const { invoiceId, ...rest } = data;
   const { summary, selectedItems, customerId } = rest;
-  // console.log({ data, orgId, userProfile });
+  // console.log({ data });
   const { totalTaxes, shipping, adjustment, totalAmount } = summary;
 
   async function update() {
@@ -49,18 +51,40 @@ function* updateInvoice({ data }) {
         getInvoiceData(transaction, orgId, invoiceId),
         getCustomerData(transaction, orgId, customerId),
       ]);
-      const { customerId: currentCustomerId, selectedItems: items } =
-        currentInvoice;
-      const currentCustomerRef = doc(
-        db,
-        "organizations",
-        orgId,
-        "customers",
-        currentCustomerId
-      );
-      //check if customer has been changed
-      const customerHasChanged = currentCustomerId !== customerId;
 
+      const {
+        customerId: currentCustomerId,
+        selectedItems: items,
+        payments,
+      } = currentInvoice;
+      /**
+       * check to ensure the new total balance is not less than payments made.
+       */
+      const paymentsTotal = getInvoicePaymentsTotal(payments);
+      /**
+       * trying to update invoice total with an amount less than paymentsTotal
+       * throw an error
+       */
+      if (paymentsTotal > totalAmount) {
+        throw new Error(
+          `Invoice Update Failed! The new Invoice Total is less than the invoice payments. If you are sure you want to edit, delete the associated payments or adjust them to be less than or equal to the new invoice total`
+        );
+      }
+      /**
+       * check if customer has been changed
+       */
+      const customerHasChanged = currentCustomerId !== customerId;
+      /**
+       * customer cannot be changed if the invoice has some payments made to it
+       */
+      if (paymentsTotal > 0 && customerHasChanged) {
+        throw new Error(
+          `CUSTOMER cannot be changed in an invoice that has payments! This is because all the payments are from the PREVIOUS customer. If you are sure you want to change the customer, DELETE the associated payments first!`
+        );
+      }
+      /**
+       * if customer has changed, create new invoice slug
+       */
       const invoiceSlug = customerHasChanged
         ? createInvoiceSlug(customer)
         : currentInvoice.invoiceSlug;
@@ -98,10 +122,15 @@ function* updateInvoice({ data }) {
 
       //invoiceSummary
       const invoiceSummary = currentInvoice.summary;
+      const invoiceData = {
+        ...rest,
+        invoiceSlug,
+        customer: formats.formatCustomerData(customer),
+        selectedItems: formats.formatInvoiceItems(selectedItems),
+      };
 
       const transactionDetails = {
-        ...data,
-        invoiceSlug,
+        ...invoiceData,
         invoiceId,
       };
       const transactionId = invoiceSlug;
@@ -290,6 +319,13 @@ function* updateInvoice({ data }) {
         "customers",
         customerId
       );
+      const currentCustomerRef = doc(
+        db,
+        "organizations",
+        orgId,
+        "customers",
+        currentCustomerId
+      );
       if (customerHasChanged) {
         //delete values from previous customer
         transaction.update(currentCustomerRef, {
@@ -319,7 +355,7 @@ function* updateInvoice({ data }) {
        * update invoice
        */
       transaction.update(invoiceRef, {
-        ...rest,
+        ...invoiceData,
         balance: increment(balanceAdjustment),
         invoiceSlug,
         // classical: "plus",

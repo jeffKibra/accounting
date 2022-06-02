@@ -18,7 +18,11 @@ import {
   deleteSimilarAccountEntries,
   groupEntriesIntoAccounts,
 } from "../../../utils/journals";
-import { getInvoiceData, getAllInvoiceEntries } from "../../../utils/invoices";
+import {
+  getInvoiceData,
+  getAllInvoiceEntries,
+  getInvoicePaymentsTotal,
+} from "../../../utils/invoices";
 
 function* deleteInvoice({ invoiceId }) {
   yield put(start(DELETE_INVOICE));
@@ -42,7 +46,19 @@ function* deleteInvoice({ invoiceId }) {
         getInvoiceData(transaction, orgId, invoiceId),
         getAllInvoiceEntries(orgId, invoiceId),
       ]);
-
+      /**
+       * check if the invoice has payments
+       */
+      const paymentsTotal = getInvoicePaymentsTotal(invoiceData.payments);
+      if (paymentsTotal > 0) {
+        //deletion not allowed
+        throw new Error(
+          `Invoice Deletion Failed! You cannot delete an invoice that has payments! If you are sure you want to delete it, Please DELETE all the associated PAYMENTS first!`
+        );
+      }
+      /**
+       * group entries into accounts
+       */
       const accounts = groupEntriesIntoAccounts(allEntries);
 
       const {
@@ -59,7 +75,7 @@ function* deleteInvoice({ invoiceId }) {
        */
       accounts.forEach((group) => {
         const { entries, ...account } = group;
-        console.log({ entries, account });
+
         deleteSimilarAccountEntries(
           transaction,
           userProfile,

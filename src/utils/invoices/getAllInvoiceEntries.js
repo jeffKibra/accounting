@@ -20,9 +20,6 @@ export default async function getAllInvoiceEntries(
   );
 
   const snap = await getDocs(q);
-  if (snap.empty) {
-    return null;
-  }
   const entries = [];
 
   snap.forEach((entryDoc) => {

@@ -43,7 +43,6 @@ function* getPayment({ paymentId }) {
 
   try {
     const payment = yield call(get);
-    console.log({ payment });
 
     yield put(paymentSuccess(payment));
   } catch (error) {
@@ -82,7 +81,6 @@ function* getPayments({ statuses }) {
 
   try {
     const payments = yield call(get);
-    console.log({ payments });
 
     yield put(paymentsSuccess(payments));
   } catch (error) {
@@ -99,7 +97,7 @@ export function* watchGetPayments() {
 function* getCustomerPayments({ customerId }) {
   yield put(start(GET_CUSTOMER_PAYMENTS));
   const orgId = yield select((state) => state.orgsReducer.org.id);
-  console.log({ customerId });
+  // console.log({ customerId });
   async function get() {
     const q = query(
       collection(db, "organizations", orgId, "payments"),
@@ -122,7 +120,6 @@ function* getCustomerPayments({ customerId }) {
 
   try {
     const payments = yield call(get);
-    console.log({ payments });
 
     yield put(paymentsSuccess(payments));
   } catch (error) {

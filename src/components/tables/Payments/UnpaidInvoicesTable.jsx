@@ -40,11 +40,11 @@ function UnpaidInvoicesTable(props) {
 
   const data = useMemo(() => {
     return invoices.map((invoice) => {
-      const { invoiceId, invoiceDate, dueDate, summary } = invoice;
+      const { invoiceId, invoiceDate, dueDate, balance } = invoice;
       const overDue = Date.now() - new Date(dueDate).getTime() > 0;
       const payment = invoice.payments[paymentId]?.amount || 0;
-      const balance = summary.balance + payment;
-      const max = Math.min(amount, balance);
+      const currentBalance = balance + payment;
+      const max = Math.min(amount, currentBalance);
       // console.log({ max, summary, amount, payment });
 
       return {

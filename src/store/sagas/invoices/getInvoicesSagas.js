@@ -7,7 +7,6 @@ import {
   query,
   where,
   orderBy,
-  limit,
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
@@ -33,26 +32,6 @@ const allStatuses = [
   "sent",
 ];
 
-export async function getLatestInvoice(orgId) {
-  console.log({ orgId });
-  const q = query(
-    collection(db, "organizations", orgId, "invoices"),
-    orderBy("createdAt", "desc"),
-    where("status", "in", allStatuses),
-    limit(1)
-  );
-  const snap = await getDocs(q);
-  if (snap.empty) {
-    return null;
-  }
-
-  const invoiceDoc = snap.docs[0];
-  return {
-    ...invoiceDoc.data(),
-    invoiceId: invoiceDoc.id,
-  };
-}
-
 function* getInvoice({ invoiceId }) {
   yield put(start(GET_INVOICE));
   const orgId = yield select((state) => state.orgsReducer.org.id);
@@ -73,7 +52,6 @@ function* getInvoice({ invoiceId }) {
 
   try {
     const invoice = yield call(get);
-    console.log({ invoice });
 
     yield put(invoiceSuccess(invoice));
   } catch (error) {
@@ -112,7 +90,6 @@ function* getInvoices({ statuses }) {
 
   try {
     const invoices = yield call(get);
-    console.log({ invoices });
 
     yield put(invoicesSuccess(invoices));
   } catch (error) {
@@ -129,7 +106,7 @@ export function* watchGetInvoices() {
 function* getCustomerInvoices({ customerId, statuses }) {
   yield put(start(GET_CUSTOMER_INVOICES));
   const orgId = yield select((state) => state.orgsReducer.org.id);
-  console.log({ customerId, statuses });
+  // console.log({ customerId, statuses });
   async function get() {
     const q = query(
       collection(db, "organizations", orgId, "invoices"),
@@ -152,7 +129,7 @@ function* getCustomerInvoices({ customerId, statuses }) {
 
   try {
     const invoices = yield call(get);
-    console.log({ invoices });
+    // console.log({ invoices });
 
     yield put(invoicesSuccess(invoices));
   } catch (error) {

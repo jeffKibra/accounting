@@ -32,7 +32,7 @@ function* createInvoice({ data }) {
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
   const accounts = yield select((state) => state.accountsReducer.accounts);
-  console.log({ data });
+  // console.log({ data });
   const { customerId, summary, selectedItems } = data;
   //group sales accounts
 
@@ -67,7 +67,7 @@ function* createInvoice({ data }) {
       const [customer] = await Promise.all([
         getCustomerData(transaction, orgId, customerId),
       ]);
-      console.log({ selectedItems });
+      // console.log({ selectedItems });
 
       const invoiceSlug = createInvoiceSlug(customer);
 
@@ -80,8 +80,10 @@ function* createInvoice({ data }) {
         isSent: false,
         invoiceSlug,
         org: formats.formatOrgData(org),
+        customer: formats.formatCustomerData(customer),
+        selectedItems: formats.formatInvoiceItems(selectedItems),
       };
-      console.log({ invoiceData });
+      // console.log({ invoiceData });
       const transactionDetails = { ...invoiceData, invoiceId };
       const transactionType = "invoice";
       const transactionId = invoiceSlug;
@@ -113,7 +115,7 @@ function* createInvoice({ data }) {
           ]
         );
       });
-      console.log({ summary });
+      // console.log({ summary });
       /**
        * journal entry for invoice total => accounts_receivable
        */
