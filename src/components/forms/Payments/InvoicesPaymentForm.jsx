@@ -132,7 +132,7 @@ function InvoicesPaymentForm(props) {
           variant="outline"
           size="xs"
           mr={2}
-          isLoading={loading}
+          isDisabled={loading}
         >
           clear
         </Button>
@@ -141,7 +141,7 @@ function InvoicesPaymentForm(props) {
           colorScheme="cyan"
           variant="outline"
           size="xs"
-          isLoading={loading}
+          isDisabled={loading}
         >
           auto pay
         </Button>

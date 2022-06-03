@@ -16,7 +16,11 @@ function CustomersTable(props) {
       { Header: "Company Name", accessor: "companyName" },
       { Header: "Email", accessor: "email" },
       { Header: "Work Phone", accessor: "workPhone" },
-      { Header: "Opening Balance", accessor: "openingBalance" },
+      {
+        Header: "Opening Balance",
+        accessor: "openingBalance",
+        isNumeric: true,
+      },
     ];
   }, []);
 

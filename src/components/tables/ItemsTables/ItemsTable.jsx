@@ -16,8 +16,8 @@ function ItemsTable(props) {
       { Header: "Variant", accessor: "variant" },
       { Header: "Unit", accessor: "unit" },
       { Header: "Type", accessor: "type" },
-      { Header: "Rate", accessor: "sellingPrice" },
-      { Header: "Cost", accessor: "costPrice" },
+      { Header: "Rate", accessor: "sellingPrice", isNumeric: true },
+      { Header: "Cost", accessor: "costPrice", isNumeric: true },
     ];
   }, []);
 

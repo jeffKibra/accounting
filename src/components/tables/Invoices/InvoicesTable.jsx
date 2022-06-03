@@ -5,6 +5,9 @@ import { Box, Text } from "@chakra-ui/react";
 import CustomTable from "../CustomTable";
 import TableActions from "../TableActions";
 
+import InvoiceDates from "./InvoiceDates";
+
+import getInvoiceStatus from "../../../utils/invoices/getInvoiceStatus";
 function InvoicesTable(props) {
   const { invoices, deleting, isDeleted, handleDelete } = props;
   // console.log({ invoices });
@@ -12,11 +15,10 @@ function InvoicesTable(props) {
   const columns = useMemo(() => {
     return [
       { Header: "", accessor: "actions" },
-      { Header: "Date", accessor: "invoiceDate" },
+      { Header: "Date", accessor: "date" },
       { Header: "Invoice#", accessor: "invoiceSlug" },
       { Header: "Customer", accessor: "customer.displayName" },
       { Header: "Status", accessor: "status" },
-      { Header: "Due Date", accessor: "dueDate" },
       { Header: "Amount", accessor: "summary.totalAmount" },
       //   { Header: "Opening Balance", accessor: "openingBalance" },
     ];
@@ -28,6 +30,8 @@ function InvoicesTable(props) {
 
       return {
         ...invoice,
+        status: getInvoiceStatus(invoice).message,
+        date: <InvoiceDates invoice={invoice} />,
         actions: (
           <TableActions
             viewRoute={`${invoiceId}/view`}
@@ -47,7 +51,10 @@ function InvoicesTable(props) {
                       Customer Name: <b>{customer.displayName}</b>
                     </Text>
                     <Text>
-                      Invoice Date : <b>{invoiceDate}</b>
+                      Invoice Date :{" "}
+                      <b>
+                        {new Date(invoiceDate.seconds * 1000).toDateString()}
+                      </b>
                     </Text>
                   </Box>
                   <Text>NOTE:::THIS ACTION CANNOT BE UNDONE!</Text>
@@ -73,8 +80,8 @@ InvoicesTable.propTypes = {
       summary: PropTypes.shape({
         totalAmount: PropTypes.number.isRequired,
       }),
-      invoiceDate: PropTypes.string.isRequired,
-      dueDate: PropTypes.string.isRequired,
+      invoiceDate: PropTypes.instanceOf(Date).isRequired,
+      dueDate: PropTypes.instanceOf(Date).isRequired,
       status: PropTypes.string.isRequired,
       invoiceId: PropTypes.string.isRequired,
     })

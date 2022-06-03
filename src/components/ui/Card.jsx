@@ -2,7 +2,7 @@ import { Box, Heading } from "@chakra-ui/react";
 
 export default function Card({ children }) {
   return (
-    <Box bg="card" borderRadius={4} shadow="md">
+    <Box w="full" bg="card" borderRadius={4} shadow="md">
       {children}
     </Box>
   );

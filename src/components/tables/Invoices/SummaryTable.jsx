@@ -17,7 +17,7 @@ import AdjustmentForm from "../../forms/Invoice/AdjustmentForm";
 import ShippingForm from "../../forms/Invoice/ShippingForm";
 
 function SummaryTable(props) {
-  const { summary, setShipping, setAdjustment } = props;
+  const { summary, setShipping, setAdjustment, loading } = props;
 
   const { subTotal, taxes, totalAmount, shipping, adjustment } = summary;
   // console.log({ summary });
@@ -50,6 +50,7 @@ function SummaryTable(props) {
                       size="xs"
                       icon={<RiAddLine />}
                       onClick={onOpen}
+                      isDisabled={loading}
                     />
                   );
                 }}
@@ -99,6 +100,7 @@ function SummaryTable(props) {
                       size="xs"
                       icon={<RiAddLine />}
                       onClick={onOpen}
+                      isDisabled={loading}
                     />
                   );
                 }}
@@ -131,6 +133,7 @@ function SummaryTable(props) {
 }
 
 SummaryTable.propTypes = {
+  loading: PropTypes.bool.isRequired,
   summary: PropTypes.shape({
     subTotal: PropTypes.number,
     taxes: PropTypes.arrayOf(

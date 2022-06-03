@@ -3,23 +3,23 @@ import PropTypes from "prop-types";
 import { Stack, IconButton, Text } from "@chakra-ui/react";
 import { RiDeleteBin4Line, RiEdit2Line } from "react-icons/ri";
 
-import CustomModal from "../../ui/CustomModal";
 import CustomTable from "../CustomTable";
+import CustomModal from "../../ui/CustomModal";
 import ItemQtyForm from "../../forms/Invoice/ItemQtyForm";
 
 function AddedItemsTable(props) {
-  const { items, handleDelete, handleEdit } = props;
+  const { items, handleDelete, handleEdit, loading } = props;
   // console.log({ items });
 
   const columns = useMemo(() => {
     return [
       { Header: "", accessor: "actions" },
       { Header: "Name", accessor: "displayName" },
-      { Header: "Quantity", accessor: "quantity" },
-      { Header: "Rate", accessor: "rate" },
-      { Header: "Discount", accessor: "discount" },
-      { Header: "Tax", accessor: "tax" },
-      { Header: "Amount", accessor: "totalAmount" },
+      { Header: "Quantity", accessor: "quantity", isNumeric: true },
+      { Header: "Rate", accessor: "rate", isNumeric: true },
+      { Header: "Discount", accessor: "discount", isNumeric: true },
+      { Header: "Tax", accessor: "tax", isNumeric: true },
+      { Header: "Amount", accessor: "totalAmount", isNumeric: true },
     ];
   }, []);
 
@@ -63,6 +63,7 @@ function AddedItemsTable(props) {
                     colorScheme="cyan"
                     icon={<RiEdit2Line />}
                     title="Edit"
+                    isDisabled={loading}
                   />
                 );
               }}
@@ -84,17 +85,19 @@ function AddedItemsTable(props) {
               colorScheme="red"
               icon={<RiDeleteBin4Line />}
               title="Delete"
+              isDisabled={loading}
             />
           </Stack>
         ),
       };
     });
-  }, [items, handleDelete, handleEdit]);
+  }, [items, handleDelete, handleEdit, loading]);
 
   return <CustomTable data={data} columns={columns} />;
 }
 
 AddedItemsTable.propTypes = {
+  loading: PropTypes.bool.isRequired,
   items: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,

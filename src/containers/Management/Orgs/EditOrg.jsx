@@ -28,6 +28,7 @@ function EditOrg(props) {
 
   return (
     <Stepper
+      responsive
       steps={[
         {
           label: "Organization Details",

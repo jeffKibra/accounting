@@ -22,12 +22,12 @@ function EditInvoice(props) {
         <Stepper
           steps={[
             {
-              label: "Add Items",
-              content: <InvoiceItems />,
-            },
-            {
               label: "Invoice Details",
               content: <InvoiceDetailsForm />,
+            },
+            {
+              label: "Add Items",
+              content: <InvoiceItems />,
             },
           ]}
         />
@@ -50,8 +50,8 @@ EditInvoice.propTypes = {
     }),
     selectedItems: PropTypes.array,
     customerId: PropTypes.string,
-    invoiceDate: PropTypes.string,
-    dueDate: PropTypes.string,
+    invoiceDate: PropTypes.instanceOf(Date),
+    dueDate: PropTypes.instanceOf(Date),
     subject: PropTypes.string,
     customerNotes: PropTypes.string,
     invoiceSlug: PropTypes.string,

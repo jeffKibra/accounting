@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 
 import { GET_ITEMS } from "../../../store/actions/itemsActions";
 import { GET_CUSTOMERS } from "../../../store/actions/customersActions";
-import { GET_CUSTOMER_INVOICES } from "../../../store/actions/invoicesActions";
+import { GET_UNPAID_CUSTOMER_INVOICES } from "../../../store/actions/invoicesActions";
 
 import Stepper from "../../../components/ui/Stepper";
 import Empty from "../../../components/ui/Empty";
@@ -42,7 +42,7 @@ function EditPayment(props) {
 
   useEffect(() => {
     if (customerId) {
-      getInvoices(customerId, ["active", "sent", "partially paid"]);
+      getInvoices(customerId);
     }
   }, [customerId, getInvoices]);
 
@@ -170,7 +170,7 @@ function mapStateToProps(state) {
   const { accounts } = state.accountsReducer;
   const { loading: l, action: a, invoices } = state.invoicesReducer;
 
-  const loadingInvoices = l && a === GET_CUSTOMER_INVOICES;
+  const loadingInvoices = l && a === GET_UNPAID_CUSTOMER_INVOICES;
 
   return {
     loading,
@@ -186,8 +186,8 @@ function mapDispatchToProps(dispatch) {
   return {
     getItems: () => dispatch({ type: GET_ITEMS }),
     getCustomers: () => dispatch({ type: GET_CUSTOMERS }),
-    getInvoices: (customerId, statuses) =>
-      dispatch({ type: GET_CUSTOMER_INVOICES, customerId, statuses }),
+    getInvoices: (customerId) =>
+      dispatch({ type: GET_UNPAID_CUSTOMER_INVOICES, customerId }),
   };
 }
 

@@ -337,8 +337,8 @@ service cloud.firestore {
             request.resource.data.summary.taxes is list &&
             request.resource.data.customer is map &&
             request.resource.data.customerId is string &&
-            request.resource.data.invoiceDate is string &&
-            request.resource.data.dueDate is string &&
+            request.resource.data.invoiceDate is timestamp &&
+            request.resource.data.dueDate is timestamp &&
             request.resource.data.createdAt is timestamp &&
             request.resource.data.modifiedAt is timestamp &&
             request.resource.data.createdBy is string &&
@@ -408,7 +408,7 @@ service cloud.firestore {
             numberValue(request.resource.data.excess) &&
             request.resource.data.customerId is string &&
             request.resource.data.customer is map &&
-            request.resource.data.paymentDate is string &&
+            request.resource.data.paymentDate is timestamp &&
             request.resource.data.paymentModeId is string &&
             request.resource.data.paymentMode is map &&
             request.resource.data.payments is map &&

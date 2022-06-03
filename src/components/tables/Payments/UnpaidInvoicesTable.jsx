@@ -1,9 +1,10 @@
 import { useMemo } from "react";
 import PropTypes from "prop-types";
-import { Text } from "@chakra-ui/react";
 
 import CustomTable from "../CustomTable";
 import TableNumInput from "../../ui/TableNumInput";
+
+import InvoiceDates from "../Invoices/InvoiceDates";
 
 // import { RiEdit2Line } from "react-icons/ri";
 // import CustomModal from "../../ui/CustomModal";
@@ -40,8 +41,7 @@ function UnpaidInvoicesTable(props) {
 
   const data = useMemo(() => {
     return invoices.map((invoice) => {
-      const { invoiceId, invoiceDate, dueDate, balance } = invoice;
-      const overDue = Date.now() - new Date(dueDate).getTime() > 0;
+      const { invoiceId, balance } = invoice;
       const payment = invoice.payments[paymentId]?.amount || 0;
       const currentBalance = balance + payment;
       const max = Math.min(amount, currentBalance);
@@ -58,20 +58,7 @@ function UnpaidInvoicesTable(props) {
             loading={loading}
           />
         ),
-        invoiceDate: (
-          <>
-            {new Date(invoiceDate).toDateString()} <br />{" "}
-            {overDue ? (
-              <Text color="red" fontSize="xs">
-                OVERDUE
-              </Text>
-            ) : (
-              <Text fontSize="xs">
-                Due Date: {new Date(dueDate).toDateString()}
-              </Text>
-            )}{" "}
-          </>
-        ),
+        invoiceDate: <InvoiceDates invoice={invoice} />,
       };
     });
   }, [invoices, paymentId, amount, loading]);
@@ -95,8 +82,8 @@ UnpaidInvoicesTable.propTypes = {
       summary: PropTypes.shape({
         totalAmount: PropTypes.number.isRequired,
       }),
-      invoiceDate: PropTypes.string.isRequired,
-      dueDate: PropTypes.string.isRequired,
+      invoiceDate: PropTypes.instanceOf(Date).isRequired,
+      dueDate: PropTypes.instanceOf(Date).isRequired,
       status: PropTypes.string.isRequired,
       invoiceId: PropTypes.string.isRequired,
     })

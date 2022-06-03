@@ -4,15 +4,15 @@ import PropTypes from "prop-types";
 import StepperContext from "../../contexts/StepperContext";
 
 function Stepper(props) {
-  const { steps } = props;
+  const { steps, responsive } = props;
   const { activeStep, nextStep, prevStep } = useSteps({ initialStep: 0 });
 
   return (
     <StepperContext.Provider value={{ nextStep, prevStep }}>
-      <Steps activeStep={activeStep}>
+      <Steps responsive={responsive || false} size="sm" activeStep={activeStep}>
         {steps.map(({ label, content }, i) => {
           return (
-            <Step label={label} key={i}>
+            <Step pl="0px!important" label={label} key={i}>
               {content}
             </Step>
           );
@@ -29,6 +29,7 @@ Stepper.propTypes = {
       content: PropTypes.node.isRequired,
     })
   ),
+  responsive: PropTypes.bool,
 };
 
 export default Stepper;

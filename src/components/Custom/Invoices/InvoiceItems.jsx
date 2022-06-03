@@ -20,8 +20,9 @@ function InvoiceItems() {
     setAdjustment,
     setShipping,
     loading,
+    finish,
   } = useContext(InvoicesContext);
-  const { nextStep } = useContext(StepperContext);
+  const { prevStep } = useContext(StepperContext);
   const toasts = useToasts();
 
   function saveItems() {
@@ -29,7 +30,7 @@ function InvoiceItems() {
       return toasts.error("You must add atleast one item to an Invoice!");
     }
 
-    nextStep();
+    finish();
   }
 
   return (
@@ -37,6 +38,7 @@ function InvoiceItems() {
       <AddItem loading={loading} addItem={addItem} items={items || []} />
 
       <AddedItemsTable
+        loading={loading}
         handleEdit={addItem}
         handleDelete={removeItem}
         items={selectedItems}
@@ -60,9 +62,17 @@ function InvoiceItems() {
         </GridItem>
       </Grid>
 
-      <Flex mt={4} pb={5}>
-        <Button mt={4} colorScheme="cyan" onClick={saveItems}>
-          next
+      <Flex w="full" py={4} justify="space-evenly">
+        <Button
+          isLoading={loading}
+          variant="outline"
+          colorScheme="cyan"
+          onClick={prevStep}
+        >
+          prev
+        </Button>
+        <Button isLoading={loading} colorScheme="cyan" onClick={saveItems}>
+          save
         </Button>
       </Flex>
     </VStack>

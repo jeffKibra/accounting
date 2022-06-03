@@ -60,7 +60,7 @@ function Provider(props) {
     getCustomers();
   }, [getItems, getCustomers]);
 
-  const [formValues, setFormValues] = useState(invoice || {});
+  const [formValues, setFormValues] = useState(invoice || null);
   const [selectedItems, setSelectedItems] = useState(
     invoice?.selectedItems || []
   );
@@ -233,10 +233,9 @@ function Provider(props) {
     });
   }
 
-  function finish(data) {
-    updateFormValues(data);
+  function finish() {
     const all = {
-      ...data,
+      ...formValues,
       selectedItems,
       summary,
     };
@@ -246,6 +245,7 @@ function Provider(props) {
   }
 
   // console.log({ selectedItems });
+  console.log({ formValues });
 
   return (loadingItems && itemsAction === GET_ITEMS) ||
     (loadingCustomers && customersAction === GET_CUSTOMERS) ? (
@@ -288,8 +288,8 @@ Provider.propTypes = {
     }),
     selectedItems: PropTypes.array,
     customerId: PropTypes.string,
-    invoiceDate: PropTypes.string,
-    dueDate: PropTypes.string,
+    invoiceDate: PropTypes.instanceOf(Date),
+    dueDate: PropTypes.instanceOf(Date),
     subject: PropTypes.string,
     customerNotes: PropTypes.string,
     invoiceSlug: PropTypes.string,

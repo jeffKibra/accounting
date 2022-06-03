@@ -14,6 +14,7 @@ import {
   GET_INVOICE,
   GET_INVOICES,
   GET_CUSTOMER_INVOICES,
+  GET_UNPAID_CUSTOMER_INVOICES,
 } from "../../actions/invoicesActions";
 import {
   start,
@@ -22,6 +23,20 @@ import {
   fail,
 } from "../../slices/invoicesSlice";
 import { error as toastError } from "../../slices/toastSlice";
+
+import { dateFromTimestamp } from "../../../utils/datesFunctions";
+
+function formatInvoiceDates(invoice) {
+  const { invoiceDate, dueDate, createdAt, modifiedAt } = invoice;
+
+  return {
+    ...invoice,
+    invoiceDate: dateFromTimestamp(invoiceDate),
+    dueDate: dateFromTimestamp(dueDate),
+    createdAt: dateFromTimestamp(createdAt),
+    modifiedAt: dateFromTimestamp(modifiedAt),
+  };
+}
 
 const allStatuses = [
   "pending",
@@ -45,7 +60,7 @@ function* getInvoice({ invoiceId }) {
     }
 
     return {
-      ...invoiceDoc.data(),
+      ...formatInvoiceDates(invoiceDoc.data()),
       invoiceId: invoiceDoc.id,
     };
   }
@@ -80,7 +95,7 @@ function* getInvoices({ statuses }) {
 
     snap.forEach((invoiceDoc) => {
       invoices.push({
-        ...invoiceDoc.data(),
+        ...formatInvoiceDates(invoiceDoc.data()),
         invoiceId: invoiceDoc.id,
       });
     });
@@ -119,7 +134,7 @@ function* getCustomerInvoices({ customerId, statuses }) {
 
     snap.forEach((invoiceDoc) => {
       invoices.push({
-        ...invoiceDoc.data(),
+        ...formatInvoiceDates(invoiceDoc.data()),
         invoiceId: invoiceDoc.id,
       });
     });
@@ -141,4 +156,61 @@ function* getCustomerInvoices({ customerId, statuses }) {
 
 export function* watchGetCustomerInvoices() {
   yield takeLatest(GET_CUSTOMER_INVOICES, getCustomerInvoices);
+}
+
+function* getUnpaidCustomerInvoices({ type, customerId }) {
+  yield put(start(type));
+
+  const orgId = yield select((state) => state.orgsReducer.org.id);
+  // console.log({ customerId, statuses });
+  async function get() {
+    const q = query(
+      collection(db, "organizations", orgId, "invoices"),
+      // orderBy("createdAt", "asc"),
+      where("customerId", "==", customerId),
+      where("status", "in", ["active", "pending", "sent"]),
+      where("balance", ">", 0)
+    );
+
+    const invoices = [];
+    const snap = await getDocs(q);
+
+    snap.forEach((invoiceDoc) => {
+      invoices.push({
+        ...formatInvoiceDates(invoiceDoc.data()),
+        invoiceId: invoiceDoc.id,
+      });
+    });
+    /**
+     * sort by date
+     */
+    invoices.sort((invoice1, invoice2) => {
+      console.log({ invoice1, invoice2 });
+      const {
+        createdAt: { seconds: seconds1 },
+      } = invoice1;
+      const {
+        createdAt: { seconds: seconds2 },
+      } = invoice2;
+
+      return seconds1 - seconds2;
+    });
+
+    return invoices;
+  }
+
+  try {
+    const invoices = yield call(get);
+    // console.log({ invoices });
+
+    yield put(invoicesSuccess(invoices));
+  } catch (error) {
+    console.log(error);
+    yield put(fail(error));
+    yield put(toastError(error.message));
+  }
+}
+
+export function* watchGetUnpaidCustomerInvoices() {
+  yield takeLatest(GET_UNPAID_CUSTOMER_INVOICES, getUnpaidCustomerInvoices);
 }

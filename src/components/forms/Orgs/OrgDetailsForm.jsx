@@ -87,6 +87,7 @@ function OrgDetailsForm(props) {
             <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
+
         <GridItem colSpan={[12, 6]}>
           <FormControl
             isDisabled={loading}
@@ -102,6 +103,7 @@ function OrgDetailsForm(props) {
             <FormErrorMessage>{errors.industry?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
+
         <GridItem colSpan={[12, 6]}>
           <FormControl
             isDisabled={loading}
@@ -126,6 +128,7 @@ function OrgDetailsForm(props) {
           </FormControl>
         </GridItem>
       </Grid>
+
       <Flex mt={4} justify="center">
         <Button isLoading={loading} colorScheme="cyan" type="submit">
           next

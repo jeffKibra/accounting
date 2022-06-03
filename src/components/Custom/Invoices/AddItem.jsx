@@ -6,7 +6,7 @@ import ItemQtyForm from "../../forms/Invoice/ItemQtyForm";
 import CustomModal from "../../ui/CustomModal";
 
 function AddItem(props) {
-  const { addItem, items } = props;
+  const { addItem, items, loading } = props;
 
   return (
     <CustomModal
@@ -23,6 +23,7 @@ function AddItem(props) {
           right="30px"
           zIndex="banner"
           title="add item"
+          isDisabled={loading}
         />
       )}
       renderContent={(onClose) => {
@@ -40,6 +41,7 @@ function AddItem(props) {
 
 AddItem.propTypes = {
   addItem: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired,
   items: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
