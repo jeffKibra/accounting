@@ -181,20 +181,20 @@ function* updatePayment({ data }) {
         /**
          * start docs writing!
          */
-        const newDetails = {
+
+        const transactionDetails = formats.formatTransactionDetails({
           ...data,
+          paidInvoicesIds: paidInvoices.map((invoice) => invoice.invoiceId),
           excess,
-          customer: formats.formatCustomerData({ ...customerData }),
-          paidInvoices: formats.formatInvoices([...paidInvoices]),
           paymentId,
-          modifiedBy: email,
-          modifiedAt: serverTimestamp(),
           status: "active",
           paymentSlug,
-        };
-        const transactionDetails = formats.formatTransactionDetails({
-          ...newDetails,
         });
+        const newDetails = {
+          ...transactionDetails,
+          modifiedBy: email,
+          modifiedAt: serverTimestamp(),
+        };
         /**
          * update customers
          * function also handles a change of customer situation.
@@ -408,6 +408,7 @@ function* updatePayment({ data }) {
          * update payment
          */
         const { paymentId: pid, org, ...tDetails } = newDetails;
+        // console.log({ tDetails });
         transaction.update(paymentRef, { ...tDetails });
       });
     }

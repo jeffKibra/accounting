@@ -23,6 +23,27 @@ import {
 } from "../../slices/paymentsSlice";
 import { error as toastError } from "../../slices/toastSlice";
 
+import { dateFromTimestamp } from "../../../utils/datesFunctions";
+
+function formatPaymentDates(payment) {
+  const { paymentDate, createdAt, modifiedAt, paidInvoices } = payment;
+
+  return {
+    ...payment,
+    paymentDate: dateFromTimestamp(paymentDate),
+    createdAt: dateFromTimestamp(createdAt),
+    modifiedAt: dateFromTimestamp(modifiedAt),
+    paidInvoices: paidInvoices.map((invoice) => {
+      const { invoiceDate, dueDate } = invoice;
+      return {
+        ...invoice,
+        invoiceDate: dateFromTimestamp(invoiceDate),
+        dueDate: dateFromTimestamp(dueDate),
+      };
+    }),
+  };
+}
+
 function* getPayment({ paymentId }) {
   yield put(start(GET_PAYMENT));
   const orgId = yield select((state) => state.orgsReducer.org.id);
@@ -36,7 +57,7 @@ function* getPayment({ paymentId }) {
     }
 
     return {
-      ...paymentDoc.data(),
+      ...formatPaymentDates(paymentDoc.data()),
       paymentId: paymentDoc.id,
     };
   }
@@ -71,7 +92,7 @@ function* getPayments({ statuses }) {
 
     snap.forEach((paymentDoc) => {
       payments.push({
-        ...paymentDoc.data(),
+        ...formatPaymentDates(paymentDoc.data()),
         paymentId: paymentDoc.id,
       });
     });
@@ -110,7 +131,7 @@ function* getCustomerPayments({ customerId }) {
 
     snap.forEach((paymentDoc) => {
       payments.push({
-        ...paymentDoc.data(),
+        ...formatPaymentDates(paymentDoc.data()),
         paymentId: paymentDoc.id,
       });
     });

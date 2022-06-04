@@ -56,32 +56,12 @@ function formatOrgData(org) {
 }
 
 function formatTransactionDetails(details) {
-  const {
-    amount,
-    account,
-    customer,
-    org,
-    paidInvoices,
-    paymentMode,
-    paymentSlug,
-    payments,
-    reference,
-    paymentId,
-    paymentDate,
-    excess,
-  } = details;
+  const { createdAt, createdBy, modifiedAt, modifiedBy, ...rest } = details;
+  const { customer, org, paidInvoices } = rest;
   return {
-    amount,
-    account,
+    ...rest,
     customer: formatCustomerData(customer),
     paidInvoices: formatInvoices(paidInvoices),
-    paymentMode,
-    paymentSlug,
-    payments,
-    reference,
-    paymentDate,
-    paymentId,
-    excess,
     ...(org ? { org: formatOrgData(org) } : {}),
   };
 }

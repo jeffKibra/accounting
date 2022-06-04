@@ -20,17 +20,31 @@ function InvoicesTable(props) {
       { Header: "Customer", accessor: "customer.displayName" },
       { Header: "Status", accessor: "status" },
       { Header: "Amount", accessor: "summary.totalAmount" },
-      //   { Header: "Opening Balance", accessor: "openingBalance" },
+      { Header: "Balance", accessor: "balance" },
     ];
   }, []);
 
   const data = useMemo(() => {
     return invoices.map((invoice) => {
       const { invoiceId, customer, invoiceDate, invoiceSlug } = invoice;
+      const { message, status } = getInvoiceStatus(invoice);
 
       return {
         ...invoice,
-        status: getInvoiceStatus(invoice).message,
+        status: (
+          <Text
+            fontSize="sm"
+            color={
+              status === "OVERDUE"
+                ? "red"
+                : status === "PARTIALLY PAID" || status === "PAID"
+                ? "green"
+                : "blue"
+            }
+          >
+            {message}
+          </Text>
+        ),
         date: <InvoiceDates invoice={invoice} />,
         actions: (
           <TableActions

@@ -316,8 +316,8 @@ service cloud.firestore {
 
         function verifyInvoiceData(){
           let form=['customerId', 'orderNumber', 'invoiceDate', 'dueDate', 'subject', 'customerNotes'];
-          let formExtras=['customer', 'selectedItems', 'summary'];
-          let additional=[ 'invoiceSlug', "balance", 'payments', 'paymentsCount', 'status', "isSent", 'org'];
+          let formExtras=['customer', 'selectedItems', 'summary', 'invoiceSlug', "balance"];
+          let additional=['payments', 'paymentsIds', 'paymentsCount', 'status', "isSent", 'org'];
           let meta=['createdAt', 'modifiedAt', 'createdBy', 'modifiedBy'];
           let required=form.concat(formExtras).concat(additional).concat(meta);
           let optional=[];
@@ -327,6 +327,7 @@ service cloud.firestore {
             request.resource.data.keys().hasOnly(allFields) &&
             request.resource.data.selectedItems is list &&
             request.resource.data.payments is map &&
+            request.resource.data.paymentsIds is list &&
             request.resource.data.paymentsCount is int &&
             request.resource.data.summary is map &&
             numberValue(request.resource.data.summary.shipping) &&
@@ -355,8 +356,8 @@ service cloud.firestore {
 
         function allowInvoiceUpdate(){
           let form=['customerId', 'orderNumber', 'invoiceDate', 'dueDate', 'subject', 'customerNotes'];
-          let formExtras=['customer', 'selectedItems', 'summary'];
-          let additional=[ 'invoiceSlug', "balance", 'payments', 'paymentsCount', 'status', "isSent"];
+          let formExtras=['customer', 'selectedItems', 'summary', 'invoiceSlug', "balance"];
+          let additional=['payments', 'paymentsIds', 'paymentsCount', 'status', "isSent"];
           let meta=['modifiedAt', 'modifiedBy'];
           let required=form.concat(formExtras).concat(additional).concat(meta);
           let optional=[];
@@ -394,7 +395,7 @@ service cloud.firestore {
 
         function verifyPaymentData(){
           let form=['accountId', 'amount', 'customerId', 'paymentDate', "paymentModeId"];
-          let details=["payments", "paidInvoices", "account", 'customer', "paymentMode", 'excess'];
+          let details=["payments", "paidInvoices", "paidInvoicesIds", "account", 'customer', "paymentMode", 'excess'];
           let additional=['status', 'org', 'paymentSlug', 'createdBy', "createdAt", 'modifiedBy', "modifiedAt"];
           let required=form.concat(details).concat(additional);
           let optional=['reference'];
@@ -413,6 +414,7 @@ service cloud.firestore {
             request.resource.data.paymentMode is map &&
             request.resource.data.payments is map &&
             request.resource.data.paidInvoices is list &&
+            request.resource.data.paidInvoicesIds is list &&
             request.resource.data.status is string &&
             request.resource.data.org is map &&
             request.resource.data.paymentSlug is string &&
@@ -429,7 +431,7 @@ service cloud.firestore {
 
         function allowPaymentUpdate(){
           let form=['accountId', 'amount', 'customerId', 'paymentDate', "paymentModeId"];
-          let details=["payments", "paidInvoices", "account", 'customer', "paymentMode"];
+          let details=["payments", "paidInvoices", "paidInvoicesIds", "account", 'customer', "paymentMode"];
           let additional=['status', "paymentSlug", 'modifiedBy', "modifiedAt", 'excess'];
           let required=form.concat(details).concat(additional);
           let optional=['reference'];

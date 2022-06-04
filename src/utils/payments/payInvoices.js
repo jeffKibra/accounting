@@ -1,4 +1,9 @@
-import { doc, increment, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  increment,
+  serverTimestamp,
+  arrayUnion,
+} from "firebase/firestore";
 
 import { db } from "../firebase";
 import { createSimilarAccountEntries } from "../journals";
@@ -57,6 +62,7 @@ export default function payInvoices(
       transaction.update(invoiceRef, {
         balance: increment(0 - incoming),
         paymentsCount: increment(1),
+        paymentsIds: arrayUnion(paymentId),
         [`payments.${paymentId}`]: {
           paymentAmount: incoming,
           ...tDetails,

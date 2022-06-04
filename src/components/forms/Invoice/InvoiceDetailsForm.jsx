@@ -6,7 +6,6 @@ import {
   FormLabel,
   Input,
   Textarea,
-  Select,
   FormHelperText,
   FormErrorMessage,
   Button,
@@ -19,6 +18,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import InvoicesContext from "../../../contexts/InvoicesContext";
 import StepperContext from "../../../contexts/StepperContext";
 
+import CustomSelect from "../../ui/CustomSelect";
 import CustomDatePicker from "../../ui/CustomDatePicker";
 
 function InvoiceDetailsForm() {
@@ -51,7 +51,7 @@ function InvoiceDetailsForm() {
       ...data,
       customer,
     };
-    // console.log({ newData });
+    console.log({ newData });
     updateFormValues(newData);
     nextStep();
   }
@@ -78,22 +78,16 @@ function InvoiceDetailsForm() {
                 isInvalid={errors.customerId}
               >
                 <FormLabel htmlFor="customerId">Customer</FormLabel>
-                <Select
-                  id="customerId"
-                  {...register("customerId", {
-                    required: { value: true, message: "*Required" },
+                <CustomSelect
+                  name="customerId"
+                  placeholder="--select customer--"
+                  rules={{ required: { value: true, message: "*Required!" } }}
+                  options={customers.map((customer) => {
+                    const { customerId, displayName } = customer;
+
+                    return { name: displayName, value: customerId };
                   })}
-                  placeholder="---select customer---"
-                >
-                  {customers.map((customer, i) => {
-                    const { displayName, customerId } = customer;
-                    return (
-                      <option value={customerId} key={i}>
-                        {displayName}
-                      </option>
-                    );
-                  })}
-                </Select>
+                />
                 <FormErrorMessage>{errors.customer?.message}</FormErrorMessage>
               </FormControl>
             </GridItem>

@@ -89,6 +89,7 @@ function* createPayment({ data }) {
           excess,
           customer: formats.formatCustomerData(customerData),
           paidInvoices: formats.formatInvoices(paidInvoices),
+          paidInvoicesIds: paidInvoices.map((invoice) => invoice.invoiceId),
           paymentId,
           status: "active",
           paymentSlug,

@@ -90,7 +90,7 @@ PaymentInvoicesTable.propTypes = {
   invoices: PropTypes.arrayOf(
     PropTypes.shape({
       invoiceSlug: PropTypes.string.isRequired,
-      invoiceDate: PropTypes.string.isRequired,
+      invoiceDate: PropTypes.instanceOf(Date).isRequired,
       summary: PropTypes.shape({
         totalAmount: PropTypes.number.isRequired,
       }),

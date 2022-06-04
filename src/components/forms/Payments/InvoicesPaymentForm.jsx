@@ -13,6 +13,7 @@ import PropTypes from "prop-types";
 
 import useToasts from "../../../hooks/useToasts";
 import { selectPaidInvoices, getPaymentsTotal } from "../../../utils/payments";
+import { getInvoiceBalance } from "../../../utils/invoices";
 
 import StepperContext from "../../../contexts/StepperContext";
 import ControlledDialog from "../../../components/ui/ControlledDialog";
@@ -29,6 +30,7 @@ function InvoicesPaymentForm(props) {
     loading,
     formValues,
     payments,
+    paymentId,
   } = props;
   const { amount } = formValues;
   const { prevStep } = useContext(StepperContext);
@@ -36,29 +38,34 @@ function InvoicesPaymentForm(props) {
   const [data, setData] = useState(null);
   const toasts = useToasts();
 
-  const autoFill = useCallback((invoices, amount) => {
-    if (invoices?.length > 0) {
-      let balance = amount;
-      const balances = {};
+  const autoFill = useCallback(
+    (invoices, amount) => {
+      if (invoices?.length > 0) {
+        let balance = amount;
+        const balances = {};
 
-      invoices.forEach((invoice) => {
-        const { balance: invoiceBalance, invoiceId } = invoice;
-        let autoFill = 0;
+        invoices.forEach((invoice) => {
+          const { invoiceId } = invoice;
+          let autoFill = 0;
+          const invoiceBalance = getInvoiceBalance(invoice, paymentId);
+          console.log({ invoiceBalance });
 
-        if (invoiceBalance <= balance) {
-          autoFill = invoiceBalance;
-          balance = balance - invoiceBalance;
-        } else {
-          autoFill = balance;
-          balance = balance - balance;
-        }
-        balances[invoiceId] = autoFill;
-      });
+          if (invoiceBalance <= balance) {
+            autoFill = invoiceBalance;
+            balance = balance - invoiceBalance;
+          } else {
+            autoFill = balance;
+            balance = balance - balance;
+          }
+          balances[invoiceId] = autoFill;
+        });
 
-      return balances;
-    }
-    return {};
-  }, []);
+        return balances;
+      }
+      return {};
+    },
+    [paymentId]
+  );
 
   const formMethods = useForm({
     mode: "onChange",
@@ -154,7 +161,7 @@ function InvoicesPaymentForm(props) {
               <UnpaidInvoicesTable
                 invoices={invoices}
                 amount={amount}
-                paymentId=""
+                paymentId={paymentId || ""}
                 loading={loading}
                 // taxDeducted={taxDeducted}
               />
@@ -209,6 +216,7 @@ InvoicesPaymentForm.propTypes = {
   updatePayments: PropTypes.func.isRequired,
   invoices: PropTypes.array.isRequired,
   loading: PropTypes.bool.isRequired,
+  paymentId: PropTypes.string,
   formValues: PropTypes.shape({
     amount: PropTypes.number.isRequired,
     payments: PropTypes.object,

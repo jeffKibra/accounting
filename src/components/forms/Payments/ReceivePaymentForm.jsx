@@ -20,12 +20,15 @@ import StepperContext from "../../../contexts/StepperContext";
 import NumInput from "../../ui/NumInput";
 // import RadioInput from "../../ui/RadioInput";
 import CustomSelect from "../../ui/CustomSelect";
+import CustomDatePicker from "../../ui/CustomDatePicker";
 
 import { paymentModes } from "../../../constants";
 
 const schema = Yup.object().shape({
   customerId: Yup.string().required("*Required!"),
-  paymentDate: Yup.string().required("*Required!"),
+  paymentDate: Yup.date()
+    .typeError("Value must be a valid date!")
+    .required("*Required!"),
   amount: Yup.number()
     .typeError("Value must be a number!")
     .min(1, "Amount cannot be less than one(1)!")
@@ -59,11 +62,13 @@ function ReceivePaymentForm(props) {
     return (id === "cash" || id === "other_current_liability") && index > -1;
   });
   // console.log({ paymentAccounts });
-
+  console.log({ defaultValues });
   const formMethods = useForm({
     mode: "onChange",
     resolver: yupResolver(schema),
-    defaultValues: defaultValues || {},
+    defaultValues: defaultValues || {
+      paymentDate: new Date(),
+    },
   });
 
   const {
@@ -92,6 +97,8 @@ function ReceivePaymentForm(props) {
       paymentMode,
       account: { name, accountId, accountType },
     };
+
+    console.log({ newData, data });
 
     // console.log({ newData });
     //update form values
@@ -141,11 +148,12 @@ function ReceivePaymentForm(props) {
               isInvalid={errors.paymentDate}
             >
               <FormLabel htmlFor="paymentDate">Payment Date</FormLabel>
-              <Input
+              <CustomDatePicker name="paymentDate" />
+              {/* <Input
                 type="date"
                 id="paymentDate"
                 {...register("paymentDate")}
-              />
+              /> */}
               <FormErrorMessage>{errors.paymentDate?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
@@ -297,7 +305,7 @@ ReceivePaymentForm.propTypes = {
   customers: PropTypes.array.isRequired,
   accounts: PropTypes.array.isRequired,
   handleFormSubmit: PropTypes.func.isRequired,
-  defaultValues: PropTypes.object.isRequired,
+  defaultValues: PropTypes.object,
 };
 
 export default ReceivePaymentForm;

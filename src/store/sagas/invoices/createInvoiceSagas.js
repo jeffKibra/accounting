@@ -75,6 +75,7 @@ function* createInvoice({ data }) {
         ...data,
         balance: summary.totalAmount,
         payments: {},
+        paymentsIds: [],
         paymentsCount: 0,
         status: "active",
         isSent: false,

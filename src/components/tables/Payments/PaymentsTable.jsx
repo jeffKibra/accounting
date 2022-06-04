@@ -7,7 +7,7 @@ import TableActions from "../TableActions";
 
 function PaymentsTable(props) {
   const { payments, deleting, isDeleted, handleDelete } = props;
-  // console.log({ invoices });
+  console.log({ payments });
 
   const columns = useMemo(() => {
     return [
@@ -63,7 +63,7 @@ function PaymentsTable(props) {
                       Customer Name: <b>{customer.displayName}</b>
                     </Text>
                     <Text>
-                      Payment Date : <b>{paymentDate}</b>
+                      Payment Date : <b>{paymentDate.toDateString()}</b>
                     </Text>
                   </Box>
                   <Text>NOTE:::THIS ACTION CANNOT BE UNDONE!</Text>
@@ -90,7 +90,7 @@ PaymentsTable.propTypes = {
       reference: PropTypes.string,
       paymentSlug: PropTypes.string.isRequired,
       payments: PropTypes.object,
-      paymentDate: PropTypes.string.isRequired,
+      paymentDate: PropTypes.instanceOf(Date).isRequired,
       paymentMode: PropTypes.object.isRequired,
       account: PropTypes.object.isRequired,
       paymentId: PropTypes.string.isRequired,

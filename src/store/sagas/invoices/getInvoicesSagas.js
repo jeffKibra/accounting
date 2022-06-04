@@ -15,6 +15,7 @@ import {
   GET_INVOICES,
   GET_CUSTOMER_INVOICES,
   GET_UNPAID_CUSTOMER_INVOICES,
+  GET_PAYMENT_INVOICES_TO_EDIT,
 } from "../../actions/invoicesActions";
 import {
   start,
@@ -168,7 +169,7 @@ function* getUnpaidCustomerInvoices({ type, customerId }) {
       collection(db, "organizations", orgId, "invoices"),
       // orderBy("createdAt", "asc"),
       where("customerId", "==", customerId),
-      where("status", "in", ["active", "pending", "sent"]),
+      where("status", "==", "active"),
       where("balance", ">", 0)
     );
 
@@ -213,4 +214,77 @@ function* getUnpaidCustomerInvoices({ type, customerId }) {
 
 export function* watchGetUnpaidCustomerInvoices() {
   yield takeLatest(GET_UNPAID_CUSTOMER_INVOICES, getUnpaidCustomerInvoices);
+}
+
+function* getPaymentInvoicesToEdit({ type, paymentId, customerId }) {
+  yield put(start(type));
+  console.log("fetching invoices to edit");
+  const orgId = yield select((state) => state.orgsReducer.org.id);
+  // console.log({ customerId, statuses });
+  async function get() {
+    //paid invoices to edit
+    const q1 = query(
+      collection(db, "organizations", orgId, "invoices"),
+      orderBy("createdAt", "asc"),
+      where("paymentsIds", "array-contains", paymentId),
+      where("status", "==", "active"),
+      where("balance", "==", 0)
+    );
+    //unpaid customer invoices
+    const q2 = query(
+      collection(db, "organizations", orgId, "invoices"),
+      // orderBy("createdAt", "asc"),
+      where("customerId", "==", customerId),
+      where("status", "==", "active"),
+      where("balance", ">", 0)
+    );
+
+    const invoices1 = [];
+    const invoices2 = [];
+    const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+
+    snap1.forEach((invoiceDoc) => {
+      invoices1.push({
+        ...formatInvoiceDates(invoiceDoc.data()),
+        invoiceId: invoiceDoc.id,
+      });
+    });
+    snap2.forEach((invoiceDoc) => {
+      invoices2.push({
+        ...formatInvoiceDates(invoiceDoc.data()),
+        invoiceId: invoiceDoc.id,
+      });
+    });
+    /**
+     * sort by date
+     */
+    invoices2.sort((invoice1, invoice2) => {
+      console.log({ invoice1, invoice2 });
+      const {
+        createdAt: { seconds: seconds1 },
+      } = invoice1;
+      const {
+        createdAt: { seconds: seconds2 },
+      } = invoice2;
+
+      return seconds1 - seconds2;
+    });
+
+    return [...invoices1, ...invoices2];
+  }
+
+  try {
+    const invoices = yield call(get);
+    // console.log({ invoices });
+
+    yield put(invoicesSuccess(invoices));
+  } catch (error) {
+    console.log(error);
+    yield put(fail(error));
+    yield put(toastError(error.message));
+  }
+}
+
+export function* watchGetPaymentInvoicesToEdit() {
+  yield takeLatest(GET_PAYMENT_INVOICES_TO_EDIT, getPaymentInvoicesToEdit);
 }

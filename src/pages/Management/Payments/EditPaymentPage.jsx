@@ -58,6 +58,7 @@ function EditPaymentPage(props) {
           updating={loading && action === UPDATE_PAYMENT}
           saveData={update}
           payment={payment}
+          paymentId={paymentId}
         />
       ) : (
         <Empty message="payment not found!" />

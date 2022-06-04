@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 import CustomTable from "../CustomTable";
 import TableNumInput from "../../ui/TableNumInput";
 
+import { getInvoiceBalance } from "../../../utils/invoices";
+
 import InvoiceDates from "../Invoices/InvoiceDates";
 
 // import { RiEdit2Line } from "react-icons/ri";
@@ -41,14 +43,20 @@ function UnpaidInvoicesTable(props) {
 
   const data = useMemo(() => {
     return invoices.map((invoice) => {
-      const { invoiceId, balance } = invoice;
-      const payment = invoice.payments[paymentId]?.amount || 0;
-      const currentBalance = balance + payment;
-      const max = Math.min(amount, currentBalance);
-      // console.log({ max, summary, amount, payment });
+      const { invoiceId } = invoice;
+      const balance = getInvoiceBalance(invoice, paymentId);
+      const max = Math.min(amount, balance);
+      // console.log({
+      //   paymentId,
+      //   max,
+      //   amount,
+      //   balance,
+      //   pp: invoice.payments,
+      // });
 
       return {
         ...invoice,
+        balance,
         payment: (
           <TableNumInput
             name={invoiceId}

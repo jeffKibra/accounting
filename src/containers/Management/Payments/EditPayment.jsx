@@ -5,7 +5,10 @@ import PropTypes from "prop-types";
 
 import { GET_ITEMS } from "../../../store/actions/itemsActions";
 import { GET_CUSTOMERS } from "../../../store/actions/customersActions";
-import { GET_UNPAID_CUSTOMER_INVOICES } from "../../../store/actions/invoicesActions";
+import {
+  GET_UNPAID_CUSTOMER_INVOICES,
+  GET_PAYMENT_INVOICES_TO_EDIT,
+} from "../../../store/actions/invoicesActions";
 
 import Stepper from "../../../components/ui/Stepper";
 import Empty from "../../../components/ui/Empty";
@@ -27,24 +30,29 @@ function EditPayment(props) {
     updating,
     loadingInvoices,
     getInvoices,
+    getInvoicesToEdit,
     invoices,
   } = props;
-  const [formValues, setFormValues] = useState(payment ? { ...payment } : {});
+  const [formValues, setFormValues] = useState(payment ? { ...payment } : null);
   const [payments, setPayments] = useState(
     payment?.payments ? { ...payment.payments } : null
   );
-
-  const { customerId } = formValues;
+  console.log({ paymentId });
+  const customerId = formValues?.customerId;
 
   useEffect(() => {
     getCustomers();
   }, [getCustomers]);
 
   useEffect(() => {
-    if (customerId) {
+    if (customerId && paymentId) {
+      console.log({ customerId, paymentId });
+      getInvoicesToEdit(customerId, paymentId);
+    } else if (customerId) {
+      console.log({ customerId });
       getInvoices(customerId);
     }
-  }, [customerId, getInvoices]);
+  }, [customerId, paymentId, getInvoices, getInvoicesToEdit]);
 
   useEffect(() => {
     const payments = formValues?.payments;
@@ -67,10 +75,10 @@ function EditPayment(props) {
         Object.keys(currentPayments).length > 0 ? currentPayments : null
       );
     }
-  }, [invoices, setPayments, formValues.payments]);
+  }, [invoices, setPayments, formValues?.payments]);
 
   function updateFormValues(data) {
-    setFormValues((current) => ({ ...current, ...data }));
+    setFormValues((current) => ({ ...(current ? current : {}), ...data }));
   }
 
   function saveAll(data) {
@@ -116,6 +124,7 @@ function EditPayment(props) {
                   loading={updating}
                   defaultValues={formValues}
                   accounts={accounts}
+                  paymentId={paymentId}
                 />
               </Flex>
             ),
@@ -125,7 +134,7 @@ function EditPayment(props) {
             content: loadingInvoices ? (
               <SkeletonLoader />
             ) : (
-              formValues.amount > 0 && (
+              formValues?.amount > 0 && (
                 <InvoicesPaymentForm
                   paymentId={paymentId}
                   handleFormSubmit={saveAll}
@@ -149,6 +158,7 @@ function EditPayment(props) {
 EditPayment.propTypes = {
   saveData: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,
+  paymentId: PropTypes.string,
   payment: PropTypes.shape({
     reference: PropTypes.string,
     paymentModeId: PropTypes.string,
@@ -157,7 +167,7 @@ EditPayment.propTypes = {
     amount: PropTypes.number,
     customerId: PropTypes.string,
     paymentId: PropTypes.string,
-    paymentDate: PropTypes.string,
+    paymentDate: PropTypes.instanceOf(Date),
     paymentSlug: PropTypes.string,
     taxDeducted: PropTypes.string,
     tdsTaxAccount: PropTypes.string,
@@ -170,7 +180,9 @@ function mapStateToProps(state) {
   const { accounts } = state.accountsReducer;
   const { loading: l, action: a, invoices } = state.invoicesReducer;
 
-  const loadingInvoices = l && a === GET_UNPAID_CUSTOMER_INVOICES;
+  const loadingInvoices =
+    l &&
+    (a === GET_UNPAID_CUSTOMER_INVOICES || a === GET_PAYMENT_INVOICES_TO_EDIT);
 
   return {
     loading,
@@ -188,6 +200,8 @@ function mapDispatchToProps(dispatch) {
     getCustomers: () => dispatch({ type: GET_CUSTOMERS }),
     getInvoices: (customerId) =>
       dispatch({ type: GET_UNPAID_CUSTOMER_INVOICES, customerId }),
+    getInvoicesToEdit: (customerId, paymentId) =>
+      dispatch({ type: GET_PAYMENT_INVOICES_TO_EDIT, customerId, paymentId }),
   };
 }
 

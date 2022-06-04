@@ -132,7 +132,7 @@ function Provider(props) {
   }, [selectedItems, adjustment, shipping]);
 
   function updateFormValues(data) {
-    setFormValues((current) => ({ ...current, ...data }));
+    setFormValues((current) => ({ ...(current ? current : {}), ...data }));
   }
 
   function addItem(data) {

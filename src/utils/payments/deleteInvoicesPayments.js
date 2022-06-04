@@ -3,6 +3,7 @@ import {
   increment,
   serverTimestamp,
   deleteField,
+  arrayRemove,
 } from "firebase/firestore";
 
 import { db } from "../firebase";
@@ -32,6 +33,7 @@ export default function deleteInvoicesPayments(
     transaction.update(invoiceRef, {
       balance: increment(0 - adjustment),
       paymentsCount: increment(-1),
+      paymentsIds: arrayRemove(paymentId),
       [`payments.${paymentId}`]: deleteField(),
       modifiedBy: email,
       modifiedAt: serverTimestamp(),

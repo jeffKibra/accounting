@@ -115,7 +115,7 @@ Normal.propTypes = {
 function CustomSelect(props) {
   //   console.log({ props });
 
-  const { name, options, groupedOptions, placeholder } = props;
+  const { name, options, groupedOptions, placeholder, rules } = props;
   const { control } = useFormContext();
   const currentOptions = groupedOptions || options || [];
 
@@ -123,6 +123,9 @@ function CustomSelect(props) {
     <Controller
       name={name}
       control={control}
+      rules={{
+        ...rules,
+      }}
       render={({ field: { name, onBlur, onChange, ref, value } }) => {
         return (
           <Menu matchWidth onClose={onBlur}>
@@ -183,6 +186,7 @@ CustomSelect.propTypes = {
   groupedOptions: Grouped.propTypes.options,
   name: PropTypes.string.isRequired,
   placeholder: PropTypes.string.isRequired,
+  rules: PropTypes.object,
 };
 
 export default CustomSelect;
