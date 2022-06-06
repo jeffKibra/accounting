@@ -1,6 +1,10 @@
 import { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { connect } from "react-redux";
+import { RiCloseLine } from "react-icons/ri";
+import { IconButton } from "@chakra-ui/react";
+
+import { ITEMS } from "../../../nav/routes";
 
 import useSavedLocation from "../../../hooks/useSavedLocation";
 
@@ -29,7 +33,7 @@ function EditItemPage(props) {
   useEffect(() => {
     if (isModified) {
       resetItem();
-      navigate("/items");
+      navigate(ITEMS);
     }
   }, [isModified, resetItem, navigate]);
 
@@ -42,7 +46,20 @@ function EditItemPage(props) {
   }
 
   return (
-    <PageLayout pageTitle="Edit Item">
+    <PageLayout
+      pageTitle="Edit Item"
+      actions={
+        <Link to={ITEMS}>
+          <IconButton
+            colorScheme="red"
+            variant="outline"
+            size="sm"
+            title="cancel"
+            icon={<RiCloseLine />}
+          />
+        </Link>
+      }
+    >
       {loading && action === GET_ITEM ? (
         <SkeletonLoader />
       ) : item ? (

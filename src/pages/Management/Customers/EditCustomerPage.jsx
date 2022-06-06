@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { connect } from "react-redux";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { RiCloseLine } from "react-icons/ri";
+import { IconButton } from "@chakra-ui/react";
 
 import useSavedLocation from "../../../hooks/useSavedLocation";
 import { CUSTOMERS } from "../../../nav/routes";
@@ -46,7 +48,20 @@ function EditCustomerPage(props) {
   }
 
   return (
-    <PageLayout pageTitle="Edit Customer">
+    <PageLayout
+      pageTitle="Edit Customer"
+      actions={
+        <Link to={CUSTOMERS}>
+          <IconButton
+            colorScheme="red"
+            variant="outline"
+            size="sm"
+            title="cancel"
+            icon={<RiCloseLine />}
+          />
+        </Link>
+      }
+    >
       {loading && action === GET_CUSTOMER ? (
         <SkeletonLoader />
       ) : customer ? (

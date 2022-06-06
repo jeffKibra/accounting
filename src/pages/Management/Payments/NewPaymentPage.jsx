@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { connect } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { RiCloseLine } from "react-icons/ri";
+import { IconButton } from "@chakra-ui/react";
 
 import { PAYMENTS } from "../../../nav/routes";
 import { CREATE_PAYMENT } from "../../../store/actions/paymentsActions";
@@ -24,7 +26,20 @@ function NewPaymentPage(props) {
   }, [isModified, resetPayment, navigate]);
 
   return (
-    <PageLayout pageTitle="Receive Payment">
+    <PageLayout
+      pageTitle="Receive Payment"
+      actions={
+        <Link to={PAYMENTS}>
+          <IconButton
+            colorScheme="red"
+            variant="outline"
+            size="sm"
+            title="cancel"
+            icon={<RiCloseLine />}
+          />
+        </Link>
+      }
+    >
       <EditPayment
         updating={loading && action === CREATE_PAYMENT}
         saveData={createPayment}

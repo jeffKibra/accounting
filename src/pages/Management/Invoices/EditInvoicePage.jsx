@@ -1,6 +1,8 @@
 import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { connect } from "react-redux";
+import { IconButton } from "@chakra-ui/react";
+import { RiCloseFill } from "react-icons/ri";
 
 import {
   UPDATE_INVOICE,
@@ -55,6 +57,7 @@ function EditInvoicePage(props) {
   const { invoiceId } = useParams();
   const navigate = useNavigate();
   useSavedLocation().setLocation();
+  const viewRoute = `/invoices/${invoiceId}/view`;
 
   useEffect(() => {
     getInvoice(invoiceId);
@@ -63,9 +66,9 @@ function EditInvoicePage(props) {
   useEffect(() => {
     if (isModified) {
       resetInvoice();
-      navigate(`/invoices/${invoiceId}/view`);
+      navigate(viewRoute);
     }
-  }, [isModified, resetInvoice, navigate, invoiceId]);
+  }, [isModified, resetInvoice, navigate, viewRoute]);
 
   function update(data) {
     console.log({ data });
@@ -76,7 +79,20 @@ function EditInvoicePage(props) {
   }
 
   return (
-    <PageLayout pageTitle={`Edit Invoice ${invoice?.invoiceSlug}`}>
+    <PageLayout
+      pageTitle={`Edit Invoice ${invoice?.invoiceSlug}`}
+      actions={
+        <Link to={viewRoute}>
+          <IconButton
+            colorScheme="red"
+            variant="outline"
+            size="sm"
+            title="cancel"
+            icon={<RiCloseFill />}
+          />
+        </Link>
+      }
+    >
       {loading && action === GET_INVOICE ? (
         <SkeletonLoader />
       ) : invoice ? (

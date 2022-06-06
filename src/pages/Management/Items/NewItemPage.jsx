@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { connect } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { RiCloseLine } from "react-icons/ri";
+import { IconButton } from "@chakra-ui/react";
 
 import { CREATE_ITEM } from "../../../store/actions/itemsActions";
 import { reset } from "../../../store/slices/itemsSlice";
@@ -26,7 +28,20 @@ function NewItemPage(props) {
   }, [isModified, resetItem, navigate]);
 
   return (
-    <PageLayout pageTitle="Add New Item">
+    <PageLayout
+      pageTitle="Add New Item"
+      actions={
+        <Link to={ITEMS}>
+          <IconButton
+            colorScheme="red"
+            variant="outline"
+            size="sm"
+            title="cancel"
+            icon={<RiCloseLine />}
+          />
+        </Link>
+      }
+    >
       <EditItem
         updating={loading && action === CREATE_ITEM}
         saveData={createItem}

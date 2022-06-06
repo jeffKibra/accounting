@@ -1,6 +1,8 @@
 import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { connect } from "react-redux";
+import { RiCloseLine } from "react-icons/ri";
+import { IconButton } from "@chakra-ui/react";
 
 import {
   UPDATE_PAYMENT,
@@ -29,6 +31,7 @@ function EditPaymentPage(props) {
   const { paymentId } = useParams();
   const navigate = useNavigate();
   useSavedLocation().setLocation();
+  const viewRoute = `/payments/${paymentId}/view`;
 
   useEffect(() => {
     getPayment(paymentId);
@@ -37,9 +40,9 @@ function EditPaymentPage(props) {
   useEffect(() => {
     if (isModified) {
       resetPayment();
-      navigate(`/payments/${paymentId}/view`);
+      navigate(viewRoute);
     }
-  }, [isModified, resetPayment, navigate, paymentId]);
+  }, [isModified, resetPayment, navigate, viewRoute]);
 
   function update(data) {
     console.log({ data });
@@ -50,7 +53,20 @@ function EditPaymentPage(props) {
   }
 
   return (
-    <PageLayout pageTitle={`Edit Payment ${payment?.paymentSlug || ""}`}>
+    <PageLayout
+      pageTitle={`Edit Payment ${payment?.paymentSlug || ""}`}
+      actions={
+        <Link to={viewRoute}>
+          <IconButton
+            colorScheme="red"
+            variant="outline"
+            size="sm"
+            title="cancel"
+            icon={<RiCloseLine />}
+          />
+        </Link>
+      }
+    >
       {loading && action === GET_PAYMENT ? (
         <SkeletonLoader />
       ) : payment ? (

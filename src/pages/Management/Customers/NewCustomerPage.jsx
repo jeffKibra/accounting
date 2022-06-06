@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { connect } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { IconButton } from "@chakra-ui/react";
+import { RiCloseLine } from "react-icons/ri";
 
 import { CUSTOMERS } from "../../../nav/routes";
 
@@ -27,7 +29,20 @@ function NewCustomerPage(props) {
   }, [isModified, resetCustomer, navigate]);
 
   return (
-    <PageLayout pageTitle="New Customer">
+    <PageLayout
+      pageTitle="New Customer"
+      actions={
+        <Link to={CUSTOMERS}>
+          <IconButton
+            colorScheme="red"
+            variant="outline"
+            size="sm"
+            title="cancel"
+            icon={<RiCloseLine />}
+          />
+        </Link>
+      }
+    >
       <EditCustomer
         loading={loading && action === CREATE_CUSTOMER}
         saveData={createCustomer}
