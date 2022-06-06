@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import {
   AccordionButton,
   AccordionItem,
@@ -11,6 +12,8 @@ import {
 import { RiAddLine, RiSubtractLine } from "react-icons/ri";
 import { Link, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
+
+import DrawerContext from "../../contexts/DrawerContext";
 
 function ExpandableDrawerItem(props) {
   const { icon, subRoutes, title } = props;
@@ -92,8 +95,17 @@ export default ExpandableDrawerItem;
 
 function AccordionPanelItem({ route, children }) {
   const { pathname } = useLocation();
+  const { isOpen, onClose } = useContext(DrawerContext);
+
+  function closeDrawer() {
+    if (isOpen) {
+      onClose();
+    }
+  }
+
   return (
     <Box
+      onClick={closeDrawer}
       as={Link}
       to={route}
       w="full"

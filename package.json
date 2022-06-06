@@ -39,7 +39,7 @@
     "setfunctionsenv:dev": "firebase functions:config:set app.env=development&& npm run getfunctionsenv",
     "setfunctionsenv:prod": "firebase functions:config:set app.env=production&& npm run getfunctionsenv",
     "prepfunctions:dev": "npm run build:server && firebase use default && npm run setfunctionsenv:dev",
-    "prepfunctions:prod": "npm run build:server && firebase use live && npm run setfunctionsenv:prod",
+    "prepfunctions:prod": "npm run build:server && firebase use prod && npm run setfunctionsenv:prod",
     "start": "cross-env REACT_APP_ENV=development react-scripts start",
     "start:prod": "cross-env REACT_APP_ENV=production react-scripts start",
     "build": "cross-env REACT_APP_ENV=development react-scripts build",
@@ -51,11 +51,11 @@
     "predeploy:dev": "rimraf build/ && npm run build",
     "predeploy:prod": "rimraf build/ && npm run build:prod",
     "deploy:dev": "firebase use default && npm run setfunctionsenv:dev && firebase deploy -P default --only functions,hosting",
-    "deploy:prod": "firebase use live && npm run setfunctionsenv:prod && firebase deploy -P live --only functions,hosting",
+    "deploy:prod": "firebase use prod && npm run setfunctionsenv:prod && firebase deploy -P prod --only functions,hosting",
     "deployfunctions:dev": "npm run prepfunctions:dev && firebase deploy -P default --only functions",
-    "deployfunctions:prod": "npm run prepfunctions:prod && firebase deploy -P live --only functions",
+    "deployfunctions:prod": "npm run prepfunctions:prod && firebase deploy -P prod --only functions",
     "deployhosting:dev": "npm run build && firebase use default && firebase deploy -P default --only hosting",
-    "deployhosting:prod": "npm run build:prod && firebase use live && firebase deploy -P live --only hosting"
+    "deployhosting:prod": "npm run build:prod && firebase use prod && firebase deploy -P prod --only hosting"
   },
   "eslintConfig": {
     "extends": [
