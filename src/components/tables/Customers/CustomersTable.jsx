@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 import PropTypes from "prop-types";
-import { Box, Text } from "@chakra-ui/react";
+
+import CustomerOptions from "../../../containers/Management/Customers/CustomerOptions";
 
 import CustomTable from "../CustomTable";
-import TableActions from "../TableActions";
 
 function CustomersTable(props) {
-  const { customers, deleting, isDeleted, handleDelete } = props;
+  const { customers } = props;
   // console.log({ customers });
 
   const columns = useMemo(() => {
@@ -26,41 +26,12 @@ function CustomersTable(props) {
 
   const data = useMemo(() => {
     return customers.map((customer) => {
-      const { customerId, displayName, type } = customer;
-
       return {
         ...customer,
-        actions: (
-          <TableActions
-            editRoute={`${customerId}/edit`}
-            deleteDialog={{
-              isDeleted: isDeleted,
-              title: "Delete Customer",
-              onConfirm: () => handleDelete(customerId),
-              loading: deleting,
-              message: (
-                <Box>
-                  <Text>Are you sure you want to delete this Customer</Text>
-                  <Box p={1} pl={5}>
-                    <Text>
-                      Customer ID: <b>{customerId}</b>
-                    </Text>
-                    <Text>
-                      Customer Name: <b>{displayName}</b>
-                    </Text>
-                    <Text>
-                      Customer Type: <b>{type}</b>
-                    </Text>
-                  </Box>
-                  <Text>NOTE:::THIS ACTION CANNOT BE UNDONE!</Text>
-                </Box>
-              ),
-            }}
-          />
-        ),
+        actions: <CustomerOptions customer={customer} edit deletion />,
       };
     });
-  }, [customers, deleting, isDeleted, handleDelete]);
+  }, [customers]);
 
   return <CustomTable data={data} columns={columns} />;
 }

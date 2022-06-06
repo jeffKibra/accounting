@@ -1,13 +1,11 @@
 import { useMemo } from "react";
 import PropTypes from "prop-types";
-import { Box, Text } from "@chakra-ui/react";
 
+import PaymentOptions from "../../../containers/Management/Payments/PaymentOptions";
 import CustomTable from "../CustomTable";
-import TableActions from "../TableActions";
 
 function PaymentsTable(props) {
-  const { payments, deleting, isDeleted, handleDelete } = props;
-  console.log({ payments });
+  const { payments } = props;
 
   const columns = useMemo(() => {
     return [
@@ -25,14 +23,7 @@ function PaymentsTable(props) {
 
   const data = useMemo(() => {
     return payments.map((payment) => {
-      const {
-        paymentId,
-        customer,
-        paymentDate,
-        paymentSlug,
-        payments,
-        amount,
-      } = payment;
+      const { paymentDate, payments, amount } = payment;
       const invoicesIds = payments ? Object.keys(payments) : [];
       const paymentsTotal = invoicesIds.reduce((sum, key) => {
         return sum + +payments[key];
@@ -44,37 +35,10 @@ function PaymentsTable(props) {
         invoices: [...invoicesIds].join(","),
         excess,
         paymentDate: new Date(paymentDate).toDateString(),
-        actions: (
-          <TableActions
-            viewRoute={`${paymentId}/view`}
-            deleteDialog={{
-              isDeleted: isDeleted,
-              title: "Delete payment",
-              onConfirm: () => handleDelete(paymentId),
-              loading: deleting,
-              message: (
-                <Box>
-                  <Text>Are you sure you want to delete this payment</Text>
-                  <Box p={1} pl={5}>
-                    <Text>
-                      Payment#: <b>{paymentSlug}</b>
-                    </Text>
-                    <Text>
-                      Customer Name: <b>{customer.displayName}</b>
-                    </Text>
-                    <Text>
-                      Payment Date : <b>{paymentDate.toDateString()}</b>
-                    </Text>
-                  </Box>
-                  <Text>NOTE:::THIS ACTION CANNOT BE UNDONE!</Text>
-                </Box>
-              ),
-            }}
-          />
-        ),
+        actions: <PaymentOptions payment={payment} edit view deletion />,
       };
     });
-  }, [payments, deleting, isDeleted, handleDelete]);
+  }, [payments]);
 
   return <CustomTable data={data} columns={columns} />;
 }

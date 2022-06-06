@@ -1,15 +1,18 @@
 import { useMemo } from "react";
 import PropTypes from "prop-types";
-import { Box, Text } from "@chakra-ui/react";
+import { Text } from "@chakra-ui/react";
+
+// import useDeleteInvoice from "../../../hooks/useDeleteInvoice";
+import InvoiceOptions from "../../../containers/Management/Invoices/InvoiceOptions";
 
 import CustomTable from "../CustomTable";
-import TableActions from "../TableActions";
+// import TableActions from "../TableActions";
 
 import InvoiceDates from "./InvoiceDates";
 
 import getInvoiceStatus from "../../../utils/invoices/getInvoiceStatus";
 function InvoicesTable(props) {
-  const { invoices, deleting, isDeleted, handleDelete } = props;
+  const { invoices } = props;
   // console.log({ invoices });
 
   const columns = useMemo(() => {
@@ -26,7 +29,6 @@ function InvoicesTable(props) {
 
   const data = useMemo(() => {
     return invoices.map((invoice) => {
-      const { invoiceId, customer, invoiceDate, invoiceSlug } = invoice;
       const { message, status } = getInvoiceStatus(invoice);
 
       return {
@@ -46,40 +48,10 @@ function InvoicesTable(props) {
           </Text>
         ),
         date: <InvoiceDates invoice={invoice} />,
-        actions: (
-          <TableActions
-            viewRoute={`${invoiceId}/view`}
-            deleteDialog={{
-              isDeleted: isDeleted,
-              title: "Delete Invoice",
-              onConfirm: () => handleDelete(invoiceId),
-              loading: deleting,
-              message: (
-                <Box>
-                  <Text>Are you sure you want to delete this Invoice</Text>
-                  <Box p={1} pl={5}>
-                    <Text>
-                      Invoice#: <b>{invoiceSlug}</b>
-                    </Text>
-                    <Text>
-                      Customer Name: <b>{customer.displayName}</b>
-                    </Text>
-                    <Text>
-                      Invoice Date :{" "}
-                      <b>
-                        {new Date(invoiceDate.seconds * 1000).toDateString()}
-                      </b>
-                    </Text>
-                  </Box>
-                  <Text>NOTE:::THIS ACTION CANNOT BE UNDONE!</Text>
-                </Box>
-              ),
-            }}
-          />
-        ),
+        actions: <InvoiceOptions invoice={invoice} edit view deletion />,
       };
     });
-  }, [invoices, deleting, isDeleted, handleDelete]);
+  }, [invoices]);
 
   return <CustomTable data={data} columns={columns} />;
 }
@@ -106,3 +78,18 @@ InvoicesTable.propTypes = {
 };
 
 export default InvoicesTable;
+
+// function InvoiceTableActions(props) {
+//   const { invoice } = props;
+
+//   const { details } = useDeleteInvoice(invoice);
+
+//   const { invoiceId } = invoice;
+
+//   return (
+//     <TableActions
+//       viewRoute={`${invoiceId}/view`}
+//       deleteDialog={{ ...details }}
+//     />
+//   );
+// }
