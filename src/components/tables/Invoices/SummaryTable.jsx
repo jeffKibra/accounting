@@ -1,76 +1,28 @@
-import {
-  TableContainer,
-  Table,
-  Tbody,
-  Th,
-  Td,
-  Tr,
-  IconButton,
-  Text,
-} from "@chakra-ui/react";
+import { TableContainer, Table, Tbody, Td, Th, Tr } from "@chakra-ui/react";
 import PropTypes from "prop-types";
-import { RiAddLine } from "react-icons/ri";
 
-import CustomModal from "../../ui/CustomModal";
-
-import AdjustmentForm from "../../forms/Invoice/AdjustmentForm";
-import ShippingForm from "../../forms/Invoice/ShippingForm";
+import TableNumInput from "../../ui/TableNumInput";
 
 function SummaryTable(props) {
-  const { summary, setShipping, setAdjustment, loading } = props;
-
-  const { subTotal, taxes, totalAmount, shipping, adjustment } = summary;
-  // console.log({ summary });
+  const { summary, loading, taxType, totalAmount } = props;
+  const { subTotal, taxes, totalTaxes } = summary;
 
   return (
     <TableContainer>
       <Table size="sm">
         <Tbody>
           <Tr>
-            <Td>
-              Sub Total <br />{" "}
-              <Text fontSize="xs" color="gray.800">
-                (Tax Inclusive)
-              </Text>{" "}
+            <Td>Sub Total</Td>
+            <Td isNumeric>
+              {taxType === "taxInclusive" ? subTotal + totalTaxes : subTotal}
             </Td>
-            <Td isNumeric>{subTotal}</Td>
           </Tr>
 
           <Tr>
-            <Td>
-              Shipping Charges{" "}
-              <CustomModal
-                closeOnOverlayClick={false}
-                title="Shipping Charges"
-                renderTrigger={(onOpen) => {
-                  return (
-                    <IconButton
-                      fontSize="16px"
-                      colorScheme="cyan"
-                      size="xs"
-                      icon={<RiAddLine />}
-                      onClick={onOpen}
-                      isDisabled={loading}
-                    />
-                  );
-                }}
-                renderContent={(onClose) => {
-                  function handleFormSubmit(data) {
-                    setShipping(data.shipping);
-                  }
-
-                  return (
-                    <ShippingForm
-                      shipping={shipping}
-                      handleFormSubmit={handleFormSubmit}
-                      onClose={onClose}
-                    />
-                  );
-                }}
-              />
+            <Td>Shipping Charges </Td>
+            <Td w="16%" isNumeric>
+              <TableNumInput name="shipping" min={0} loading={loading} />
             </Td>
-
-            <Td isNumeric>{shipping}</Td>
           </Tr>
 
           {taxes.map((tax, i) => {
@@ -87,39 +39,10 @@ function SummaryTable(props) {
           })}
 
           <Tr>
-            <Td>
-              Adjustments{" "}
-              <CustomModal
-                closeOnOverlayClick={false}
-                title="Adjustment"
-                renderTrigger={(onOpen) => {
-                  return (
-                    <IconButton
-                      fontSize="16px"
-                      colorScheme="cyan"
-                      size="xs"
-                      icon={<RiAddLine />}
-                      onClick={onOpen}
-                      isDisabled={loading}
-                    />
-                  );
-                }}
-                renderContent={(onClose) => {
-                  function handleFormSubmit(data) {
-                    setAdjustment(data.adjustment);
-                  }
-
-                  return (
-                    <AdjustmentForm
-                      adjustment={adjustment}
-                      handleFormSubmit={handleFormSubmit}
-                      onClose={onClose}
-                    />
-                  );
-                }}
-              />
+            <Td>Adjustments </Td>
+            <Td w="16%" isNumeric>
+              <TableNumInput name="adjustment" loading={loading} />
             </Td>
-            <Td isNumeric>{adjustment}</Td>
           </Tr>
 
           <Tr>
@@ -145,12 +68,8 @@ SummaryTable.propTypes = {
       })
     ),
     totalTaxes: PropTypes.number,
-    totalAmount: PropTypes.number,
-    shipping: PropTypes.number.isRequired,
-    adjustment: PropTypes.number.isRequired,
   }),
-  setShipping: PropTypes.func.isRequired,
-  setAdjustment: PropTypes.func.isRequired,
+  taxType: PropTypes.string.isRequired,
 };
 
 export default SummaryTable;

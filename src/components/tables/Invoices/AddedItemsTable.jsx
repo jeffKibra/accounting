@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import PropTypes from "prop-types";
-import { Stack, IconButton, Text } from "@chakra-ui/react";
+import { Stack, IconButton } from "@chakra-ui/react";
 import { RiDeleteBin4Line, RiEdit2Line } from "react-icons/ri";
 
 import CustomTable from "../CustomTable";
@@ -8,7 +8,7 @@ import CustomModal from "../../ui/CustomModal";
 import ItemQtyForm from "../../forms/Invoice/ItemQtyForm";
 
 function AddedItemsTable(props) {
-  const { items, handleDelete, handleEdit, loading } = props;
+  const { items, handleDelete, handleEdit, loading, taxType } = props;
   // console.log({ items });
 
   const columns = useMemo(() => {
@@ -16,7 +16,7 @@ function AddedItemsTable(props) {
       { Header: "", accessor: "actions" },
       { Header: "Name", accessor: "displayName" },
       { Header: "Quantity", accessor: "quantity", isNumeric: true },
-      { Header: "Rate", accessor: "rate", isNumeric: true },
+      { Header: "Rate", accessor: "itemRate", isNumeric: true },
       { Header: "Discount", accessor: "discount", isNumeric: true },
       { Header: "Tax", accessor: "tax", isNumeric: true },
       { Header: "Amount", accessor: "totalAmount", isNumeric: true },
@@ -24,32 +24,31 @@ function AddedItemsTable(props) {
   }, []);
 
   const data = useMemo(() => {
-    return items.map((item) => {
+    return [...items].map((item) => {
       const {
         itemId,
         name,
         variant,
         salesTax,
-        salesTaxType,
         discount,
         discountType,
+        totalAmount,
+        totalTax,
+        itemRate,
+        itemTax,
       } = item;
+
+      const rate = taxType === "taxInclusive" ? itemRate + itemTax : itemRate;
+      const amount =
+        taxType === "taxInclusive" ? totalAmount + totalTax : totalAmount;
 
       return {
         ...item,
+        itemRate: rate,
+        totalAmount: amount,
         displayName: `${name}-${variant}`,
         discount: `${discount} (${discountType})`,
-        tax: salesTax?.name ? (
-          <>
-            {salesTax?.name} ({salesTax?.rate}%)
-            <br />
-            <Text color="gray.600" textTransform="capitalize" fontSize="xs">
-              {salesTaxType}
-            </Text>
-          </>
-        ) : (
-          ""
-        ),
+        tax: salesTax?.name ? `${salesTax?.name} (${salesTax?.rate}%)` : "",
         actions: (
           <Stack direction="row" spacing={1}>
             <CustomModal
@@ -91,7 +90,7 @@ function AddedItemsTable(props) {
         ),
       };
     });
-  }, [items, handleDelete, handleEdit, loading]);
+  }, [items, handleDelete, handleEdit, loading, taxType]);
 
   return <CustomTable data={data} columns={columns} />;
 }
@@ -112,7 +111,8 @@ AddedItemsTable.propTypes = {
         }),
       ]),
       totalAmount: PropTypes.number.isRequired,
-      taxExclusiveAmount: PropTypes.number.isRequired,
+      itemRate: PropTypes.number.isRequired,
+      itemTax: PropTypes.number.isRequired,
       totalTax: PropTypes.number.isRequired,
       totalDiscount: PropTypes.number.isRequired,
       quantity: PropTypes.number.isRequired,
@@ -120,6 +120,7 @@ AddedItemsTable.propTypes = {
   ),
   handleDelete: PropTypes.func.isRequired,
   handleEdit: PropTypes.func.isRequired,
+  taxType: PropTypes.string.isRequired,
 };
 
 export default AddedItemsTable;

@@ -7,7 +7,15 @@ function InvoicePdfSummary(props) {
   const { summary, payments } = props;
   const paymentsTotal = getInvoicePaymentsTotal(payments);
 
-  const { subTotal, taxes, totalAmount, shipping, adjustment } = summary;
+  const {
+    subTotal,
+    taxes,
+    totalAmount,
+    shipping,
+    adjustment,
+    totalTaxes,
+    taxType,
+  } = summary;
 
   return (
     <TableContainer>
@@ -15,7 +23,11 @@ function InvoicePdfSummary(props) {
         <Tbody>
           <Tr>
             <Td isNumeric>Sub Total</Td>
-            <Td isNumeric>{Number(subTotal).toLocaleString()}</Td>
+            <Td isNumeric>
+              {Number(
+                taxType === "taxInclusive" ? subTotal + totalTaxes : subTotal
+              ).toLocaleString()}
+            </Td>
           </Tr>
 
           <Tr>
@@ -89,6 +101,7 @@ InvoicePdfSummary.propTypes = {
     adjustment: PropTypes.number.isRequired,
     totalTaxes: PropTypes.number,
     totalAmount: PropTypes.number,
+    taxType: PropTypes.string.isRequired,
   }),
   payments: PropTypes.object.isRequired,
 };

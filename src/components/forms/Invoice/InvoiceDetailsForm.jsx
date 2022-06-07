@@ -51,7 +51,7 @@ function InvoiceDetailsForm() {
       ...data,
       customer,
     };
-    console.log({ newData });
+    // console.log({ newData });
     updateFormValues(newData);
     nextStep();
   }

@@ -84,7 +84,7 @@ function* createInvoice({ data }) {
         customer: formats.formatCustomerData(customer),
         selectedItems: formats.formatInvoiceItems(selectedItems),
       };
-      // console.log({ invoiceData });
+
       const transactionDetails = { ...invoiceData, invoiceId };
       const transactionType = "invoice";
       const transactionId = invoiceSlug;

@@ -6,7 +6,7 @@ import { InvoicesContextProvider } from "../../../contexts/InvoicesContext";
 import Stepper from "../../../components/ui/Stepper";
 
 import InvoiceDetailsForm from "../../../components/forms/Invoice/InvoiceDetailsForm";
-import InvoiceItems from "../../../components/Custom/Invoices/InvoiceItems";
+import InvoiceItemsForm from "../../../components/forms/Invoice/InvoiceItemsForm";
 
 function EditInvoice(props) {
   const { invoice, handleFormSubmit, updating } = props;
@@ -27,7 +27,7 @@ function EditInvoice(props) {
             },
             {
               label: "Add Items",
-              content: <InvoiceItems />,
+              content: <InvoiceItemsForm />,
             },
           ]}
         />

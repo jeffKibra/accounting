@@ -10,13 +10,13 @@ import {
 import PropTypes from "prop-types";
 
 function InvoicePdfItems(props) {
-  const { items } = props;
+  const { items, taxType } = props;
 
   const discounts = [].concat(items).some((item) => {
     return item.discount > 0;
   });
 
-  console.log({ discounts });
+  // console.log({ discounts });
 
   return (
     <>
@@ -76,17 +76,23 @@ function InvoicePdfItems(props) {
               const {
                 name,
                 quantity,
-                rate,
+                itemRate,
+                itemTax,
                 discount,
                 discountType,
                 totalAmount,
+                totalTax,
               } = item;
               return (
                 <Tr key={i}>
                   <Td>{i + 1}</Td>
                   <Td>{name}</Td>
                   <Td isNumeric>{Number(quantity).toLocaleString()}</Td>
-                  <Td isNumeric>{Number(rate).toLocaleString()}</Td>
+                  <Td isNumeric>
+                    {Number(
+                      taxType === "taxInclusive" ? itemRate + itemTax : itemRate
+                    ).toLocaleString()}
+                  </Td>
                   {discounts && (
                     <Td isNumeric>
                       {Number(discount).toLocaleString()}
@@ -94,7 +100,13 @@ function InvoicePdfItems(props) {
                     </Td>
                   )}
 
-                  <Td isNumeric>{Number(totalAmount).toLocaleString()}</Td>
+                  <Td isNumeric>
+                    {Number(
+                      taxType === "taxInclusive"
+                        ? totalAmount + totalTax
+                        : totalAmount
+                    ).toLocaleString()}
+                  </Td>
                 </Tr>
               );
             })}
@@ -121,9 +133,11 @@ InvoicePdfItems.propTypes = {
         PropTypes.string,
       ]),
       totalAmount: PropTypes.number.isRequired,
+      itemRate: PropTypes.number.isRequired,
       quantity: PropTypes.number.isRequired,
     })
   ),
+  taxType: PropTypes.string.isRequired,
 };
 
 export default InvoicePdfItems;

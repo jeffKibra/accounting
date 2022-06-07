@@ -7,24 +7,26 @@
 
 export default function getIncomeAccounts(
   items = [],
-  itemsKeyToSum = "taxExclusiveAmount"
+  itemsKeyToSum = "totalAmount"
 ) {
   let accounts = [];
 
   items.forEach((item) => {
-    const { salesAccountId } = item;
+    const {
+      salesAccount: { accountId },
+    } = item;
     const index = accounts.findIndex(
-      (account) => account.accountId === salesAccountId
+      (account) => account.accountId === accountId
     );
     if (index === -1) {
       //not in list-add it
-      accounts.push({ accountId: salesAccountId });
+      accounts.push({ accountId });
     }
   });
 
   return accounts.map(({ accountId }) => {
     const accountItems = items.filter(
-      (item) => item.salesAccountId === accountId
+      (item) => item.salesAccount?.accountId === accountId
     );
     const itemsTotal = accountItems.reduce((sum, item) => {
       return sum + item[itemsKeyToSum];

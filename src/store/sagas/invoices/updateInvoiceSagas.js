@@ -96,7 +96,6 @@ function* updateInvoice({ data }) {
           currentInvoice,
           summary
         );
-
       const { deletedAccounts, newAccounts, updatedAccounts, similarAccounts } =
         getIncomeAccountsMapping(items, selectedItems);
 

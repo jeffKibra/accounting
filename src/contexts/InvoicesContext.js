@@ -13,13 +13,7 @@ const initialState = {
     taxes: [],
     subTotal: 0,
     totalTaxes: 0,
-    adjustment: 0,
-    shipping: 0,
-    totalAmount: 0,
-    balance: 0,
   },
-  setShipping: () => {},
-  setAdjustment: () => {},
   removeItem: () => {},
   addItem: () => {},
   finish: () => {},
@@ -52,7 +46,7 @@ function Provider(props) {
     updating,
   } = props;
 
-  //   console.log({ invoice, customers });
+  // console.log({ invoice, customers, items });
   // console.log({ props });
 
   useEffect(() => {
@@ -60,28 +54,101 @@ function Provider(props) {
     getCustomers();
   }, [getItems, getCustomers]);
 
-  const [formValues, setFormValues] = useState(invoice || null);
-  const [selectedItems, setSelectedItems] = useState(
-    invoice?.selectedItems || []
+  const [formValues, setFormValues] = useState(invoice ? { ...invoice } : null);
+  const [addedItems, setAddedItems] = useState(
+    invoice?.selectedItems ? [...invoice.selectedItems] : []
   );
-  const [shipping, setShipping] = useState(invoice?.summary?.shipping || 0);
-  const [adjustment, setAdjustment] = useState(
-    invoice?.summary?.adjustment || 0
-  );
+  const [remainingItems, setRemainingItems] = useState(items ? [...items] : []);
+
+  const selectedItems = useMemo(() => {
+    function deriveData(data) {
+      // console.log({ data });
+      const { itemId, rate, quantity, discount, discountType } = data;
+      const item = items.find((item) => item.itemId === itemId);
+      let itemRate = rate;
+      let itemTax = 0;
+      let itemDiscount = discount;
+
+      const { salesTax, salesTaxType } = item;
+
+      //set all rates to be tax exclusive
+      if (salesTax?.rate) {
+        if (salesTaxType === "tax inclusive") {
+          //item rate is inclusive of tax
+          const tax = (salesTax.rate / (100 + salesTax.rate)) * rate;
+          itemRate = rate - tax;
+        }
+      }
+
+      //discounts
+      if (discount > 0) {
+        if (discountType === "KES") {
+          itemDiscount = discount;
+        } else {
+          itemDiscount = (discount * itemRate) / 100;
+        }
+      }
+      /**
+       * adjust item rate based on discount given
+       * for uniformity, discounts are applied to the tax exclusive amount
+       * ask user to consider giving the discount at transaction level
+       * instead of item level
+       */
+      if (itemDiscount && itemDiscount > 0) {
+        itemRate -= itemDiscount;
+      }
+
+      //compute final tax after discounts
+      if (salesTax?.rate) {
+        //item rate does not have tax
+        itemTax = (salesTax.rate / 100) * itemRate;
+      }
+      /**
+       * finally compute amounts based on item quantity
+       */
+      const totalAmount = itemRate * quantity;
+      const totalTax = itemTax * quantity;
+      const totalDiscount = itemDiscount * quantity;
+
+      const itemData = {
+        ...item,
+        ...data,
+        itemId,
+        itemRate: +itemRate.toFixed(2),
+        itemTax: +itemTax.toFixed(2),
+        itemDiscount: +itemDiscount.toFixed(2),
+        totalDiscount: +totalDiscount.toFixed(2),
+        totalAmount: +totalAmount.toFixed(2),
+        totalTax: +totalTax.toFixed(2),
+      };
+      // console.log({ itemData });
+
+      return itemData;
+    }
+
+    return items
+      ? addedItems.map((item) => {
+          return deriveData(item);
+        })
+      : addedItems;
+  }, [addedItems, items]);
+
   // console.log({ selectedItems, shipping, adjustment });
   //remove selected items from list
-  const remainingItems = useMemo(() => {
+  useEffect(() => {
+    let remaining = [];
+
     if (items) {
-      return items.filter((item) => {
-        const selectedItem = selectedItems.find(
+      remaining = items.filter((item) => {
+        const addedItem = addedItems.find(
           ({ itemId }) => itemId === item.itemId
         );
-        return !selectedItem;
+        return !addedItem;
       });
     }
 
-    return [];
-  }, [items, selectedItems]);
+    setRemainingItems(remaining);
+  }, [items, addedItems, setRemainingItems]);
 
   const summary = useMemo(() => {
     let taxes = [];
@@ -102,122 +169,53 @@ function Provider(props) {
         //get all items with this tax
         let totalTax = selectedItems
           .filter((obj) => obj.salesTax.taxId === taxId)
-          .reduce((prev, current) => {
-            const sum = current.totalTax + prev;
-            return sum;
+          .reduce((sum, item) => {
+            return sum + item.totalTax;
           }, 0);
         totalTax = +totalTax.toFixed(2);
 
         return { ...tax, totalTax };
       });
 
-    const totalTaxes = taxes.reduce((prev, current) => {
-      return prev + current.totalTax;
+    const totalTaxes = taxes.reduce((sum, taxGroup) => {
+      return sum + taxGroup.totalTax;
     }, 0);
 
-    const subTotal = selectedItems.reduce((prev, current) => {
-      return prev + current.totalAmount;
+    const subTotal = selectedItems.reduce((sum, item) => {
+      return sum + item.totalAmount;
     }, 0);
-
-    const totalAmount = subTotal + adjustment + shipping;
 
     return {
       taxes,
       subTotal: +subTotal.toFixed(2),
       totalTaxes: +totalTaxes.toFixed(2),
-      adjustment,
-      shipping,
-      totalAmount: +totalAmount.toFixed(2),
     };
-  }, [selectedItems, adjustment, shipping]);
+  }, [selectedItems]);
 
   function updateFormValues(data) {
     setFormValues((current) => ({ ...(current ? current : {}), ...data }));
   }
 
-  function addItem(data) {
-    // console.log({ data });
-    const { itemId, rate, quantity, discount, discountType } = data;
-    const item = items.find((item) => item.itemId === itemId);
-    let amount = rate * quantity;
-    let totalDiscount = 0;
-    /**
-     * initialize total amount with amount assuming amount is:
-     * tax exclusive
-     */
-    let totalAmount = 0;
-    //initialize assuming amount is tax exclusive
-    let taxExclusiveAmount = amount;
-    let totalTax = 0;
-    const { salesTax, salesTaxType } = item;
-
-    //set all values to be tax exclusive
-    if (salesTax?.rate) {
-      if (salesTaxType === "tax inclusive") {
-        //item rate is inclusive of tax
-        const tax = (salesTax.rate / (100 + salesTax.rate)) * amount;
-        taxExclusiveAmount = amount - tax;
-      }
-    }
-
-    //discounts
-    if (discount > 0) {
-      if (discountType === "KES") {
-        totalDiscount = discount;
-      } else {
-        totalDiscount = (discount * taxExclusiveAmount) / 100;
-      }
-    }
-    /**
-     * adjust tax exclusive amount based on discount given
-     * for uniformity, discounts are applied to the tax exclusive amount
-     * ask user to consider giving the discount at transaction level
-     * instead of item level
-     */
-    if (totalDiscount) {
-      taxExclusiveAmount -= totalDiscount;
-    }
-
-    //assing taxes
-    if (salesTax?.rate) {
-      //item rate does not have tax
-      totalTax = (salesTax.rate / 100) * taxExclusiveAmount;
-    }
-    //finaly assign total amount
-    totalAmount = taxExclusiveAmount + totalTax;
-
-    const itemData = {
-      itemId,
-      rate,
-      quantity,
-      discount,
-      discountType,
-      totalDiscount: +totalDiscount.toFixed(2),
-      totalAmount: +totalAmount.toFixed(2),
-      taxExclusiveAmount: +taxExclusiveAmount.toFixed(2),
-      totalTax: +totalTax.toFixed(2),
-    };
-
-    // console.log({ itemData });
-
-    setSelectedItems((current) => {
-      const index = current.findIndex((value) => value.itemId === itemId);
+  function addItem(itemData) {
+    const { itemId } = itemData;
+    setAddedItems((current) => {
+      const index = current.findIndex((item) => item.itemId === itemId);
       // console.log({ current, index, quantity });
       let newItems = [];
 
       if (index === -1) {
-        //value not in selected array
-        newItems = [...current, { ...item, ...itemData }];
+        //item not in selected array
+        newItems = [...current, { ...itemData }];
       } else {
-        //value is in the selected array
-        newItems = current.map((value, i) => {
+        //item is in the selected array
+        newItems = current.map((item, i) => {
           if (i === index) {
             return {
-              ...value,
+              ...item,
               ...itemData,
             };
           } else {
-            return value;
+            return item;
           }
         });
       }
@@ -228,24 +226,25 @@ function Provider(props) {
 
   function removeItem(itemId) {
     // console.log({ itemId });
-    setSelectedItems((current) => {
+    setAddedItems((current) => {
       return current.filter((item) => item.itemId !== itemId);
     });
   }
 
-  function finish() {
+  function finish(invoiceSummary) {
+    updateFormValues({ summary: invoiceSummary });
     const all = {
       ...formValues,
+      summary: invoiceSummary,
       selectedItems,
-      summary,
     };
-    // console.log({ data, all });
+    // console.log({ invoiceSummary, all });
 
     saveData(all);
   }
 
   // console.log({ selectedItems });
-  console.log({ formValues });
+  // console.log({ formValues });
 
   return (loadingItems && itemsAction === GET_ITEMS) ||
     (loadingCustomers && customersAction === GET_CUSTOMERS) ? (
@@ -254,8 +253,6 @@ function Provider(props) {
     <InvoicesContext.Provider
       value={{
         summary,
-        setShipping,
-        setAdjustment,
         removeItem,
         addItem,
         finish,

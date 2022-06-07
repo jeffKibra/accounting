@@ -107,7 +107,7 @@ function ViewInvoice(props) {
           </GridItem>
         </Grid>
         <Box w="full" mt="20px!important">
-          <InvoicePdfItems items={selectedItems} />
+          <InvoicePdfItems taxType={summary.taxType} items={selectedItems} />
         </Box>
         <Grid w="full" columnGap={3} templateColumns="repeat(12, 1fr)">
           <GridItem colSpan={[1, 6]}></GridItem>

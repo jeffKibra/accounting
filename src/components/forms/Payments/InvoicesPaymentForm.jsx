@@ -48,7 +48,7 @@ function InvoicesPaymentForm(props) {
           const { invoiceId } = invoice;
           let autoFill = 0;
           const invoiceBalance = getInvoiceBalance(invoice, paymentId);
-          console.log({ invoiceBalance });
+          // console.log({ invoiceBalance });
 
           if (invoiceBalance <= balance) {
             autoFill = invoiceBalance;

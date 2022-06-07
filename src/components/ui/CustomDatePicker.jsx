@@ -18,7 +18,7 @@ const DateInput = forwardRef((props, ref) => {
 function CustomDatePicker(props) {
   const { defaultDate, name, required } = props;
   const defaultValue = new Date(defaultDate || Date.now());
-  console.log({ defaultDate, defaultValue });
+  // console.log({ defaultDate, defaultValue });
 
   const { control } = useFormContext();
 

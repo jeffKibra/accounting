@@ -115,7 +115,15 @@ Normal.propTypes = {
 function CustomSelect(props) {
   //   console.log({ props });
 
-  const { name, options, groupedOptions, placeholder, rules } = props;
+  const {
+    name,
+    options,
+    groupedOptions,
+    placeholder,
+    rules,
+    size,
+    colorScheme,
+  } = props;
   const { control } = useFormContext();
   const currentOptions = groupedOptions || options || [];
 
@@ -136,6 +144,8 @@ function CustomSelect(props) {
                     ref={ref}
                     as={Button}
                     id={name}
+                    size={size || "md"}
+                    {...(colorScheme ? { colorScheme } : {})}
                     isActive={isOpen}
                     isFullWidth
                     variant="outline"
@@ -185,8 +195,10 @@ CustomSelect.propTypes = {
   options: Normal.propTypes.options,
   groupedOptions: Grouped.propTypes.options,
   name: PropTypes.string.isRequired,
-  placeholder: PropTypes.string.isRequired,
+  placeholder: PropTypes.string,
   rules: PropTypes.object,
+  size: PropTypes.oneOf(["xs", "sm", "md", "lg", "xl"]),
+  colorScheme: PropTypes.string,
 };
 
 export default CustomSelect;
