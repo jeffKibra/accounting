@@ -144,7 +144,7 @@ function CustomSelect(props) {
                     ref={ref}
                     as={Button}
                     id={name}
-                    size={size || "md"}
+                    size={size || "sm"}
                     {...(colorScheme ? { colorScheme } : {})}
                     isActive={isOpen}
                     isFullWidth

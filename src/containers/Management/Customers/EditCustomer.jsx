@@ -5,7 +5,7 @@ import Stepper from "../../../components/ui/Stepper";
 
 import DetailsForm from "../../../components/forms/CustomerForms/DetailsForm";
 import ExtraDetailsForm from "../../../components/forms/CustomerForms/ExtraDetailsForm";
-
+import AddressForm from "../../../components/forms/CustomerForms/AddressForm";
 function EditCustomer(props) {
   const { customer, loading, saveData } = props;
   const [formValues, setFormValues] = useState(customer || {});
@@ -27,7 +27,7 @@ function EditCustomer(props) {
     <Stepper
       steps={[
         {
-          label: "General Details",
+          label: "Details",
           content: (
             <DetailsForm
               handleFormSubmit={updateFormValues}
@@ -37,7 +37,18 @@ function EditCustomer(props) {
           ),
         },
         {
-          label: "Extra Details",
+          label: "Address",
+          content: (
+            <AddressForm
+              handleFormSubmit={finish}
+              loading={loading}
+              defaultValues={formValues}
+              updateFormValues={updateFormValues}
+            />
+          ),
+        },
+        {
+          label: "Extras",
           content: (
             <ExtraDetailsForm
               handleFormSubmit={finish}

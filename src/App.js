@@ -11,6 +11,27 @@ import CheckAccounts from "./containers/Management/Accounts/CheckAccounts";
 
 import Toasts from "./components/ui/Toasts";
 
+const Input = {
+  defaultProps: {
+    size: "sm",
+  },
+};
+const NumberInput = {
+  defaultProps: {
+    size: "sm",
+  },
+};
+const Textarea = {
+  defaultProps: {
+    size: "sm",
+  },
+};
+const Select = {
+  defaultProps: {
+    size: "sm",
+  },
+};
+
 const config = (theme) => {
   return {
     initialColorMode: "dark",
@@ -45,6 +66,10 @@ const styles = {
 
 const components = {
   Steps,
+  Input,
+  Textarea,
+  NumberInput,
+  Select,
 };
 
 const theme = extendTheme({ config, styles, colors, components });
