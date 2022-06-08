@@ -16,7 +16,8 @@ import {
   error as toastError,
 } from "../../slices/toastSlice";
 
-import { assetEntry } from "../../../utils/journals";
+import { createSimilarAccountEntries } from "../../../utils/journals";
+import { getAccountData } from "../../../utils/accounts";
 
 function* createCustomer({ data }) {
   yield put(start(CREATE_CUSTOMER));
@@ -24,9 +25,11 @@ function* createCustomer({ data }) {
   const orgId = yield select((state) => state.orgsReducer.org.id);
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
+  const accounts = yield select((state) => state.accountsReducer.accounts);
+
   const { openingBalance } = data;
 
-  console.log({ data });
+  // console.log({ data });
 
   async function create() {
     const newDocRef = doc(collection(db, "organizations", orgId, "customers"));
@@ -37,45 +40,9 @@ function* createCustomer({ data }) {
       "summaries",
       "counters"
     );
-    const accountRef = doc(
-      db,
-      "organizations",
-      orgId,
-      "accounts",
-      "accounts_receivable"
-    );
 
     await runTransaction(db, async (transaction) => {
-      const accountDoc = await transaction.get(accountRef);
-      if (!accountDoc.exists) {
-        throw new Error("Account data not found!");
-      }
-
-      const { accountType, name } = accountDoc.data();
-      const accountId = accountDoc.id;
-
-      transaction.update(countersRef, {
-        customers: increment(1),
-      });
-
-      if (openingBalance > 0) {
-        assetEntry.newEntry(
-          transaction,
-          userProfile,
-          orgId,
-          "accounts_receivable",
-          {
-            account: { accountType, accountId, name },
-            amount: openingBalance,
-            reference: "",
-            transactionId: newDocRef.id,
-            transactionDetails: data,
-            transactionType: "customer opening balance",
-          }
-        );
-      }
-
-      transaction.set(newDocRef, {
+      const transactionDetails = {
         ...data,
         status: "active",
         summary: {
@@ -87,6 +54,35 @@ function* createCustomer({ data }) {
           invoicedAmount: 0,
           invoicePayments: 0,
         },
+      };
+
+      transaction.update(countersRef, {
+        customers: increment(1),
+      });
+
+      const accounts_receivable = getAccountData(
+        "accounts_receivable",
+        accounts
+      );
+      createSimilarAccountEntries(
+        transaction,
+        userProfile,
+        orgId,
+        accounts_receivable,
+        [
+          {
+            amount: +openingBalance,
+            account: accounts_receivable,
+            reference: "",
+            transactionDetails,
+            transactionId: newDocRef.id,
+            transactionType: "customer opening balance",
+          },
+        ]
+      );
+
+      transaction.set(newDocRef, {
+        ...transactionDetails,
         createdBy: email,
         createdAt: serverTimestamp(),
         modifiedBy: email,

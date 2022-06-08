@@ -15,7 +15,7 @@ function CustomersTable(props) {
       { Header: "Name", accessor: "displayName" },
       { Header: "Company Name", accessor: "companyName" },
       { Header: "Email", accessor: "email" },
-      { Header: "Work Phone", accessor: "workPhone" },
+      { Header: "Phone", accessor: "phone" },
       {
         Header: "Opening Balance",
         accessor: "openingBalance",
@@ -43,7 +43,7 @@ CustomersTable.propTypes = {
       companyName: PropTypes.string,
       customerId: PropTypes.string.isRequired,
       type: PropTypes.oneOf(["individual", "business"]).isRequired,
-      workPhone: PropTypes.string.isRequired,
+      phone: PropTypes.string.isRequired,
       email: PropTypes.string,
       openingBalance: PropTypes.number,
     })

@@ -2,19 +2,21 @@ import { put, call, select, takeLatest } from "redux-saga/effects";
 import {
   doc,
   serverTimestamp,
-  writeBatch,
   increment,
   runTransaction,
-  getDocs,
-  collection,
-  query,
-  where,
-  orderBy,
-  limit,
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
-import { assetEntry } from "../../../utils/journals";
+import {
+  updateSimilarAccountEntries,
+  createSimilarAccountEntries,
+  deleteSimilarAccountEntries,
+} from "../../../utils/journals";
+import {
+  getCustomerData,
+  getOpeningBalanceEntry,
+} from "../../../utils/customers";
+import { getAccountData } from "../../../utils/accounts";
 
 import {
   UPDATE_CUSTOMER,
@@ -32,22 +34,11 @@ function* updateCustomer({ data }) {
   const orgId = yield select((state) => state.orgsReducer.org.id);
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
+  const accounts = yield select((state) => state.accountsReducer.accounts);
+
   const { customerId, ...rest } = data;
 
-  const accountId = "accounts_receivable";
-
   async function update() {
-    const q = query(
-      collection(db, "organizations", orgId, "journals"),
-      orderBy("createdAt", "desc"),
-      where("transactionId", "==", customerId),
-      where("account.accountId", "==", accountId),
-      where("transactionType", "==", "customer opening balance"),
-      where("status", "==", "active"),
-      limit(1)
-    );
-    const obSnap = await getDocs(q);
-
     const customerRef = doc(
       db,
       "organizations",
@@ -55,78 +46,69 @@ function* updateCustomer({ data }) {
       "customers",
       customerId
     );
-    const accountRef = doc(db, "organizations", orgId, "accounts", accountId);
+    const accounts_receivable = getAccountData("accounts_receivable", accounts);
 
     await runTransaction(db, async (transaction) => {
-      const [customerDoc, accountDoc] = await Promise.all([
-        transaction.get(customerRef),
-        transaction.get(accountRef),
+      const [customerData, openingBalanceEntry] = await Promise.all([
+        getCustomerData(transaction, orgId, customerId),
+        getOpeningBalanceEntry(
+          orgId,
+          customerId,
+          accounts_receivable.accountId
+        ),
       ]);
 
-      if (!customerDoc.exists) {
-        throw new Error("Customer data not found!");
-      }
-      if (!accountDoc.exists) {
-        throw new Error("Account data not found!");
-      }
-
-      const customerData = customerDoc.data();
       //incoming opening balance
       const newOpeningBalance = rest.openingBalance;
       //current opening balance
       const { openingBalance } = customerData;
 
-      //account data
-      const { accountType, name } = accountDoc.data();
+      const transactionDetails = {
+        ...data,
+      };
 
       if (openingBalance !== newOpeningBalance) {
-        //opening balance has changed
-        //check if new value is zero(0)... delete entry if is zero
-        if (obSnap.empty) {
-          //no journal entry found, create new entry
-          if (openingBalance === 0) {
-            //create new journal entry
-            assetEntry.newEntry(transaction, userProfile, orgId, accountId, {
-              transactionType: "customer opening balance",
-              transactionId: customerDoc.id,
-              reference: "",
-              transactionDetails: customerData,
-              amount: newOpeningBalance,
-              account: { accountId, accountType, name },
-            });
-          }
-        } else {
-          const obDoc = obSnap.docs[0];
-          const entryId = obDoc.id;
-          const { credit, debit } = obDoc.data();
-
-          if (newOpeningBalance === 0) {
-            assetEntry.deleteEntry(
-              transaction,
-              userProfile,
-              orgId,
-              entryId,
-              accountId,
-              { debit, credit }
-            );
-          } else {
-            assetEntry.updateEntry(
-              transaction,
-              userProfile,
-              orgId,
-              accountId,
-              entryId,
-              newOpeningBalance,
+        if (openingBalanceEntry) {
+          const { credit, debit, entryId } = openingBalanceEntry;
+          /**
+           * opening balance has changed
+           * update the entry
+           */
+          updateSimilarAccountEntries(
+            transaction,
+            userProfile,
+            orgId,
+            accounts_receivable,
+            [
               {
+                amount: newOpeningBalance,
+                account: accounts_receivable,
                 credit,
                 debit,
-              }
-            );
-          }
+                entryId,
+                transactionDetails,
+              },
+            ]
+          );
+        } else {
+          createSimilarAccountEntries(
+            transaction,
+            userProfile,
+            orgId,
+            accounts_receivable,
+            [
+              {
+                amount: newOpeningBalance,
+                account: accounts_receivable,
+                reference: "",
+                transactionDetails,
+                transactionId: customerId,
+                transactionType: "customer opening balance",
+              },
+            ]
+          );
         }
       }
-
-      console.log({ rest });
 
       transaction.update(customerRef, {
         ...rest,
@@ -158,6 +140,7 @@ function* deleteCustomer({ customerId }) {
   const orgId = yield select((state) => state.orgsReducer.org.id);
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
+  const accounts = yield select((state) => state.accountsReducer.accounts);
 
   async function update() {
     const customerRef = doc(
@@ -175,19 +158,46 @@ function* deleteCustomer({ customerId }) {
       "counters"
     );
 
-    const batch = writeBatch(db);
+    const accounts_receivable = getAccountData("accounts_receivable", accounts);
 
-    batch.update(countersRef, {
-      customers: increment(-1),
+    await runTransaction(db, async (transaction) => {
+      const [openingBalanceEntry] = await Promise.all([
+        getOpeningBalanceEntry(
+          orgId,
+          customerId,
+          accounts_receivable.accountId
+        ),
+      ]);
+
+      if (openingBalanceEntry) {
+        const { credit, debit, entryId } = openingBalanceEntry;
+
+        deleteSimilarAccountEntries(
+          transaction,
+          userProfile,
+          orgId,
+          accounts_receivable,
+          [
+            {
+              account: accounts_receivable,
+              credit,
+              debit,
+              entryId,
+            },
+          ]
+        );
+      }
+
+      transaction.update(countersRef, {
+        customers: increment(-1),
+      });
+
+      transaction.update(customerRef, {
+        status: "deleted",
+        modifiedBy: email,
+        modifiedAt: serverTimestamp(),
+      });
     });
-
-    batch.update(customerRef, {
-      status: "deleted",
-      modifiedBy: email,
-      modifiedAt: serverTimestamp(),
-    });
-
-    await batch.commit();
   }
 
   try {

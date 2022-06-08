@@ -1,12 +1,11 @@
 import { useState } from "react";
-
+import { Box, Flex, Heading, Container } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 
 import Stepper from "../../../components/ui/Stepper";
 
 import OrgDetailsForm from "../../../components/forms/Orgs/OrgDetailsForm";
-import ContactDetailsForm from "../../../components/forms/Orgs/ContactDetailsForm";
-import ContactPersonForm from "../../../components/forms/Orgs/ContactPersonForm";
+import AddressForm from "../../../components/forms/Orgs/AddressForm";
 
 function EditOrg(props) {
   const { loading, org, saveData } = props;
@@ -20,50 +19,65 @@ function EditOrg(props) {
   function finish(data) {
     updateFormValues(data);
 
-    saveData({
+    const newData = {
       ...formValues,
       ...data,
+    };
+    console.log({ newData });
+
+    saveData({
+      ...newData,
     });
   }
 
   return (
-    <Stepper
-      responsive
-      steps={[
-        {
-          label: "Organization Details",
-          content: (
-            <OrgDetailsForm
-              loading={loading}
-              defaultValues={formValues}
-              handleFormSubmit={updateFormValues}
-              isAdmin={false}
-            />
-          ),
-        },
-        {
-          label: "Organization Contacts",
-          content: (
-            <ContactDetailsForm
-              loading={loading}
-              defaultValues={formValues}
-              handleFormSubmit={updateFormValues}
-            />
-          ),
-        },
-        {
-          label: "Main Contact Person",
-          content: (
-            <ContactPersonForm
-              loading={loading}
-              defaultValues={formValues}
-              handleFormSubmit={finish}
-              updateFormValues={updateFormValues}
-            />
-          ),
-        },
-      ]}
-    />
+    <Flex w="full" justify="center" pt={6}>
+      <Container
+        maxW="container.sm"
+        bg="white"
+        p={4}
+        borderRadius="md"
+        shadow="md"
+        h="fit-content"
+      >
+        <Heading textAlign="center" as="h1" size="md" pb="30px">
+          Set up your organization profile
+        </Heading>
+        <Container>
+          <Stepper
+            responsive
+            steps={[
+              {
+                label: "Details",
+                content: (
+                  <Box py="20px">
+                    <OrgDetailsForm
+                      loading={loading}
+                      defaultValues={formValues}
+                      handleFormSubmit={updateFormValues}
+                      isAdmin={false}
+                    />
+                  </Box>
+                ),
+              },
+              {
+                label: "Address ",
+                content: (
+                  <Box py="20px">
+                    <AddressForm
+                      loading={loading}
+                      defaultValues={formValues}
+                      updateFormValues={updateFormValues}
+                      handleFormSubmit={finish}
+                    />
+                  </Box>
+                ),
+              },
+            ]}
+          />
+        </Container>
+      </Container>
+    </Flex>
   );
 }
 

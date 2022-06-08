@@ -33,13 +33,13 @@ function NewOrg(props) {
   }, [error, toasts]);
 
   return (
-    <div>
+    <Box>
       <OrgForm
         isAdmin={isAdmin(userProfile?.role)}
         loading={loading}
         onFormSubmit={createOrg}
       />
-    </div>
+    </Box>
   );
 }
 

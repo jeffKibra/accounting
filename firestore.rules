@@ -21,55 +21,40 @@ service cloud.firestore {
       }
 
       function verifyOrgData(){
-        let general=['name', 'size', 'industry', 'owner', 'status'];
-        let additional=["accountTypes", 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy'];
-        let info=['address', 'city', 'phone'];
-        let person=['firstName', 'lastName', 'contactPhone'];
-        let optional=['website'];
-        let required=general.concat(info).concat(person).concat(additional);
-        let allFields=required.concat(optional);
+        let details=['name', 'industry', "businessTypeId", "businessType", 'phone', 'website'];
+        let address=['country', 'state', 'city', 'postalCode', 'street'];
+        let additional=['owner', 'status', 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy'];
+        let allFields=details.concat(address).concat(additional);
 
-        return request.resource.data.keys().hasAll(required) &&
+        return request.resource.data.keys().hasAll(allFields) &&
           request.resource.data.keys().hasOnly(allFields) &&
           request.resource.data.name is string &&
-          request.resource.data.size is string &&
+          request.resource.data.businessTypeId is string &&
+          request.resource.data.businessType is map &&
           request.resource.data.industry is string &&
+          request.resource.data.phone is string &&
+          request.resource.data.website is string &&
+          request.resource.data.country is string &&
+          request.resource.data.state is string &&
+          request.resource.data.city is string &&
+          request.resource.data.postalCode is string &&
+          request.resource.data.street is string &&
           request.resource.data.owner is string &&
           request.resource.data.status is string &&
-          request.resource.data.address is string &&
-          request.resource.data.city is string &&
-          request.resource.data.phone is string &&
-          request.resource.data.firstName is string &&
-          request.resource.data.lastName is string &&
-          request.resource.data.contactPhone is string &&
-          request.resource.data.website is string &&
           request.resource.data.createdAt is timestamp &&
           request.resource.data.modifiedAt is timestamp &&
           request.resource.data.createdBy is string &&
-          request.resource.data.modifiedBy is string &&
-          request.resource.data.accountTypes is map
-          // request.resource.data.summary is map &&
-          // request.resource.data.summary.invoices is int &&
-          // request.resource.data.summary.invoicesTotal is int &&
-          // request.resource.data.summary.payments is int &&
-          // request.resource.data.summary.paymentsTotal is int &&
-          // request.resource.data.summary.items is int &&
-          // request.resource.data.summary.customers is int
+          request.resource.data.modifiedBy is string 
       }
 
       function allowOrgUpdate(){
-        let general=['name', 'size', 'industry', 'owner', 'status'];
-        let additional=['modifiedAt', 'modifiedBy'];
-        let info=['address', 'city', 'phone'];
-        let person=['firstName', 'lastName', 'contactPhone'];
-        let optional=['website'];
-        let required=general.concat(info).concat(person).concat(additional);
-        let allFields=required.concat(optional);
+        let details=['name', 'industry', "businessTypeId", "businessType", 'phone', 'website'];
+        let address=['country', 'state', 'city', 'postalCode', 'street'];
+        let additional=['status', 'modifiedAt', 'modifiedBy'];
+        let allFields=details.concat(address).concat(additional);
 
         return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
       }
-
-      
 
       allow read: if isOrgOwner()
       allow create: if request.auth != null && verifyOrgData()
@@ -100,6 +85,12 @@ service cloud.firestore {
         allow create: if request.auth != null && verifyCountersData()
         allow read: if isOwner()
         allow update: if isOwner() && verifyCountersData()
+      }
+
+      match /orgDetails/{detailId} {
+        allow create: if request.auth != null
+        allow read: if isOwner()
+        allow update: if isOwner() 
       }
 
       match /accounts/{accountId} {
@@ -254,33 +245,40 @@ service cloud.firestore {
 
       match /customers/{customerId} {
         function verifyCustomerData(){
-          let req=['type', 'salutation', 'firstName', 'lastName', 'displayName', 'workPhone', 'city', 'address'];
+          let details=['type','salutation','companyName','firstName','lastName','displayName','email','phone','mobile'];
+          let address1=['billingStreet','billingCity','billingState','billingPostalCode','billingCountry'];
+          let address2=['shippingStreet','shippingCity','shippingState','shippingPostalCode','shippingCountry'];
+          let extras=['openingBalance','paymentTermId','paymentTerm','website','remarks'];
           let additional=['status', "summary", 'createdAt', 'createdBy', 'modifiedAt', 'modifiedBy'];
-          let required=req.concat(additional);
-          let optional=['companyName', 'email', 'mobile', 'zipcode', 'website', 'remarks', 'openingBalance'];
-          let allFields=required.concat(optional);
+          let allFields=details.concat(address1).concat(address2).concat(extras).concat(additional);
 
-          return request.resource.data.keys().hasAll(required) &&
+          return request.resource.data.keys().hasAll(allFields) &&
             request.resource.data.keys().hasOnly(allFields) &&
-            request.resource.data.status is string &&
             request.resource.data.type is string &&
             request.resource.data.salutation is string &&
+            request.resource.data.companyName is string &&
             request.resource.data.firstName is string &&
             request.resource.data.lastName is string &&
-            request.resource.data.companyName is string &&
             request.resource.data.displayName is string &&
             request.resource.data.email is string &&
-            request.resource.data.workPhone is string &&
+            request.resource.data.phone is string &&
             request.resource.data.mobile is string &&
-            request.resource.data.city is string &&
-            request.resource.data.zipcode is string &&
+            request.resource.data.billingStreet is string &&
+            request.resource.data.billingCity is string &&
+            request.resource.data.billingState is string &&
+            request.resource.data.billingPostalCode is string &&
+            request.resource.data.billingCountry is string &&
+            request.resource.data.shippingStreet is string &&
+            request.resource.data.shippingCity is string &&
+            request.resource.data.shippingState is string &&
+            request.resource.data.shippingPostalCode is string &&
+            request.resource.data.shippingCountry is string &&
+            numberValue(request.resource.data.openingBalance) &&
+            request.resource.data.paymentTermId is string &&
+            request.resource.data.paymentTerm is map &&
             request.resource.data.website is string &&
-            request.resource.data.address is string &&
             request.resource.data.remarks is string &&
-            request.resource.data.createdAt is timestamp &&
-            request.resource.data.modifiedAt is timestamp &&
-            request.resource.data.createdBy is string &&
-            request.resource.data.modifiedBy is string &&
+            request.resource.data.status is string &&
             request.resource.data.summary is map &&
             request.resource.data.summary.invoices is int &&
             request.resource.data.summary.deletedInvoices is int &&
@@ -289,15 +287,20 @@ service cloud.firestore {
             numberValue(request.resource.data.summary.unusedCredits) &&
             numberValue(request.resource.data.summary.invoicedAmount) &&
             numberValue(request.resource.data.summary.invoicePayments) &&
-            numberValue(request.resource.data.openingBalance)
+            request.resource.data.createdAt is timestamp &&
+            request.resource.data.modifiedAt is timestamp &&
+            request.resource.data.createdBy is string &&
+            request.resource.data.modifiedBy is string
         }
 
         function allowCustomerUpdate(){
-          let req=['type', 'salutation', 'firstName', 'lastName', 'displayName', 'workPhone', 'city', 'address'];
-          let additional=['status', "summary", 'modifiedAt', 'modifiedBy', "summary"];
-          let required=req.concat(additional);
-          let optional=['companyName', 'email', 'mobile', 'zipcode', 'website', 'remarks', "openingBalance"];
-          let allFields=required.concat(optional);
+          let details=['type','salutation','companyName','firstName','lastName','displayName','email','phone','mobile'];
+          let address1=['billingStreet','billingCity','billingState','billingPostalCode','billingCountry'];
+          let address2=['shippingStreet','shippingCity','shippingState','shippingPostalCode','shippingCountry'];
+          let extras=['openingBalance','paymentTermId','paymentTerm','website','remarks'];
+          let additional=['status', "summary", 'modifiedAt', 'modifiedBy'];
+          let allFields=details.concat(address1).concat(address2).concat(extras).concat(additional);
+
 
           return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
         }

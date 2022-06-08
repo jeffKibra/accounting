@@ -12,7 +12,12 @@ import {
 import { put, call, takeLatest, select } from "redux-saga/effects";
 
 import { db } from "../../../utils/firebase";
-import { accounts, accountTypes } from "../../../constants";
+import {
+  accounts,
+  accountTypes,
+  paymentTerms,
+  paymentModes,
+} from "../../../constants";
 
 import { start, success, fail } from "../../slices/orgsSlice";
 import { CREATE_ORG } from "../../actions/orgsActions";
@@ -56,6 +61,9 @@ function* createOrg({ data }) {
   async function saveData() {
     const orgRef = doc(collection(db, "organizations"));
     const countersRef = doc(db, orgRef.path, "summaries", "counters");
+    const accountTypesRef = doc(db, orgRef.path, "orgDetails", "accountTypes");
+    const paymentModesRef = doc(db, orgRef.path, "orgDetails", "paymentModes");
+    const paymentTermsRef = doc(db, orgRef.path, "orgDetails", "paymentTerms");
 
     const batch = writeBatch(db);
 
@@ -73,6 +81,30 @@ function* createOrg({ data }) {
       });
     });
 
+    batch.set(accountTypesRef, {
+      accountTypes,
+      createdAt: serverTimestamp(),
+      createdBy: email,
+      modifiedAt: serverTimestamp(),
+      modifiedBy: email,
+    });
+
+    batch.set(paymentModesRef, {
+      paymentModes,
+      createdAt: serverTimestamp(),
+      createdBy: email,
+      modifiedAt: serverTimestamp(),
+      modifiedBy: email,
+    });
+
+    batch.set(paymentTermsRef, {
+      paymentTerms,
+      createdAt: serverTimestamp(),
+      createdBy: email,
+      modifiedAt: serverTimestamp(),
+      modifiedBy: email,
+    });
+
     batch.set(countersRef, {
       invoices: 0,
       deletedInvoices: 0,
@@ -85,7 +117,6 @@ function* createOrg({ data }) {
     batch.set(orgRef, {
       ...data,
       status: "active",
-      accountTypes,
       createdBy: email,
       modifiedBy: email,
       owner: user_id,
@@ -108,7 +139,7 @@ function* createOrg({ data }) {
     const userHasOrg = yield call(getOrg, user_id);
 
     if (userHasOrg) {
-      throw new Error("The User already has an orgnaization account!");
+      throw new Error("This User already has a Company account!");
     }
 
     const org = yield call(saveData);

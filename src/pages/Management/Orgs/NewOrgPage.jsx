@@ -9,7 +9,6 @@ import { CREATE_ORG } from "../../../store/actions/orgsActions";
 
 import useAuth from "../../../hooks/useAuth";
 
-import PageLayout from "../../../components/layout/PageLayout";
 import EditOrg from "../../../containers/Management/Orgs/EditOrg";
 
 function NewOrgPage(props) {
@@ -25,13 +24,11 @@ function NewOrgPage(props) {
   }, [isModified, resetOrg, navigate]);
 
   return (
-    <PageLayout pageTitle="Create Organization">
-      <EditOrg
-        isAdmin={isAdmin(userProfile?.role)}
-        loading={loading && action === CREATE_ORG}
-        saveData={createOrg}
-      />
-    </PageLayout>
+    <EditOrg
+      isAdmin={isAdmin(userProfile?.role)}
+      loading={loading && action === CREATE_ORG}
+      saveData={createOrg}
+    />
   );
 }
 

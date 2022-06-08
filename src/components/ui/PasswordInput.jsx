@@ -21,6 +21,7 @@ function PasswordInput(props) {
       <Input {...register()} type={visible ? "text" : "password"} pr="40px" />
       <InputRightElement>
         <IconButton
+          size="sm"
           onClick={changeVisibility}
           icon={visible ? <RiEyeOffLine /> : <RiEyeLine />}
         />

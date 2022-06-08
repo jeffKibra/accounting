@@ -123,6 +123,7 @@ function CustomSelect(props) {
     rules,
     size,
     colorScheme,
+    isDisabled,
   } = props;
   const { control } = useFormContext();
   const currentOptions = groupedOptions || options || [];
@@ -144,6 +145,7 @@ function CustomSelect(props) {
                     ref={ref}
                     as={Button}
                     id={name}
+                    isDisabled={isDisabled}
                     size={size || "sm"}
                     {...(colorScheme ? { colorScheme } : {})}
                     isActive={isOpen}
@@ -199,6 +201,7 @@ CustomSelect.propTypes = {
   rules: PropTypes.object,
   size: PropTypes.oneOf(["xs", "sm", "md", "lg", "xl"]),
   colorScheme: PropTypes.string,
+  isDisabled: PropTypes.bool.isRequired,
 };
 
 export default CustomSelect;
