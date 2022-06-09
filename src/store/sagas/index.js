@@ -18,10 +18,8 @@ import { watchGetTax, watchGetTaxes } from "./taxes/getTaxesSagas";
 import { watchUpdateTax, watchDeleteTax } from "./taxes/updateTaxSagas";
 //customers
 import { watchCreateCustomer } from "./customers/createCustomerSagas";
-import {
-  watchUpdateCustomer,
-  watchDeleteCustomer,
-} from "./customers/updateCustomerSagas";
+import { watchUpdateCustomer } from "./customers/updateCustomerSagas";
+import { watchDeleteCustomer } from "./customers/deleteCustomerSagas";
 import {
   watchGetCustomer,
   watchGetCustomers,

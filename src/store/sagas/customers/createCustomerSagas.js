@@ -27,12 +27,11 @@ function* createCustomer({ data }) {
   const { email } = userProfile;
   const accounts = yield select((state) => state.accountsReducer.accounts);
 
-  const { openingBalance } = data;
-
   // console.log({ data });
 
   async function create() {
     const newDocRef = doc(collection(db, "organizations", orgId, "customers"));
+    const customerId = newDocRef.id;
     const countersRef = doc(
       db,
       "organizations",
@@ -44,6 +43,7 @@ function* createCustomer({ data }) {
     await runTransaction(db, async (transaction) => {
       const transactionDetails = {
         ...data,
+        customerId,
         status: "active",
         summary: {
           invoices: 0,
@@ -55,11 +55,15 @@ function* createCustomer({ data }) {
           invoicePayments: 0,
         },
       };
+      const { openingBalance } = transactionDetails;
 
       transaction.update(countersRef, {
         customers: increment(1),
       });
 
+      /**
+       * create accounts receivable entry for customer opening balance
+       */
       const accounts_receivable = getAccountData(
         "accounts_receivable",
         accounts
@@ -71,18 +75,44 @@ function* createCustomer({ data }) {
         accounts_receivable,
         [
           {
-            amount: +openingBalance,
+            amount: openingBalance,
             account: accounts_receivable,
             reference: "",
             transactionDetails,
-            transactionId: newDocRef.id,
+            transactionId: customerId,
             transactionType: "customer opening balance",
           },
         ]
       );
-
+      /**
+       * create opening_balance_adjustments entry for customer opening balance
+       */
+      const obAdjustments = getAccountData(
+        "opening_balance_adjustments",
+        accounts
+      );
+      createSimilarAccountEntries(
+        transaction,
+        userProfile,
+        orgId,
+        obAdjustments,
+        [
+          {
+            amount: +openingBalance,
+            account: obAdjustments,
+            reference: "",
+            transactionDetails,
+            transactionId: customerId,
+            transactionType: "opening balance",
+          },
+        ]
+      );
+      /**
+       * create customer
+       */
+      const { customerId: cid, ...tDetails } = transactionDetails;
       transaction.set(newDocRef, {
-        ...transactionDetails,
+        ...tDetails,
         createdBy: email,
         createdAt: serverTimestamp(),
         modifiedBy: email,

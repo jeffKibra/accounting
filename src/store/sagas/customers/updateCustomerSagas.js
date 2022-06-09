@@ -1,27 +1,12 @@
 import { put, call, select, takeLatest } from "redux-saga/effects";
-import {
-  doc,
-  serverTimestamp,
-  increment,
-  runTransaction,
-} from "firebase/firestore";
+import { doc, serverTimestamp, runTransaction } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
-import {
-  updateSimilarAccountEntries,
-  createSimilarAccountEntries,
-  deleteSimilarAccountEntries,
-} from "../../../utils/journals";
-import {
-  getCustomerData,
-  getOpeningBalanceEntry,
-} from "../../../utils/customers";
-import { getAccountData } from "../../../utils/accounts";
 
-import {
-  UPDATE_CUSTOMER,
-  DELETE_CUSTOMER,
-} from "../../actions/customersActions";
+import { getCustomerData, getCustomerEntry } from "../../../utils/customers";
+import { updateSimilarAccountEntries } from "../../../utils/journals";
+
+import { UPDATE_CUSTOMER } from "../../actions/customersActions";
 import { start, success, fail } from "../../slices/customersSlice";
 import {
   success as toastSuccess,
@@ -34,7 +19,6 @@ function* updateCustomer({ data }) {
   const orgId = yield select((state) => state.orgsReducer.org.id);
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
-  const accounts = yield select((state) => state.accountsReducer.accounts);
 
   const { customerId, ...rest } = data;
 
@@ -46,70 +30,80 @@ function* updateCustomer({ data }) {
       "customers",
       customerId
     );
-    const accounts_receivable = getAccountData("accounts_receivable", accounts);
 
     await runTransaction(db, async (transaction) => {
-      const [customerData, openingBalanceEntry] = await Promise.all([
+      const [customerData, arEntry, obaEntry] = await Promise.all([
         getCustomerData(transaction, orgId, customerId),
-        getOpeningBalanceEntry(
+        getCustomerEntry(
           orgId,
           customerId,
-          accounts_receivable.accountId
+          "accounts_receivable",
+          "customer opening balance"
+        ),
+        getCustomerEntry(
+          orgId,
+          customerId,
+          "opening_balance_adjustments",
+          "opening balance"
         ),
       ]);
 
-      //incoming opening balance
+      /**
+       * incoming opening balance
+       */
       const newOpeningBalance = rest.openingBalance;
-      //current opening balance
+      /**
+       * current opening balance
+       */
       const { openingBalance } = customerData;
-
-      const transactionDetails = {
-        ...data,
-      };
-
+      /**
+       * check if opening balance has changed
+       */
       if (openingBalance !== newOpeningBalance) {
-        if (openingBalanceEntry) {
-          const { credit, debit, entryId } = openingBalanceEntry;
-          /**
-           * opening balance has changed
-           * update the entry
-           */
-          updateSimilarAccountEntries(
-            transaction,
-            userProfile,
-            orgId,
-            accounts_receivable,
-            [
-              {
-                amount: newOpeningBalance,
-                account: accounts_receivable,
-                credit,
-                debit,
-                entryId,
-                transactionDetails,
-              },
-            ]
-          );
-        } else {
-          createSimilarAccountEntries(
-            transaction,
-            userProfile,
-            orgId,
-            accounts_receivable,
-            [
-              {
-                amount: newOpeningBalance,
-                account: accounts_receivable,
-                reference: "",
-                transactionDetails,
-                transactionId: customerId,
-                transactionType: "customer opening balance",
-              },
-            ]
-          );
-        }
+        /**
+         * opening balance has changed
+         * update opening balance entries
+         */
+        /**
+         * update accounts_receivable entry
+         */
+        updateSimilarAccountEntries(
+          transaction,
+          userProfile,
+          orgId,
+          arEntry.account,
+          [
+            {
+              amount: +newOpeningBalance,
+              account: arEntry.account,
+              credit: arEntry.credit,
+              debit: arEntry.debit,
+              entryId: arEntry.entryId,
+            },
+          ]
+        );
+        /**
+         * update opening_balance_adjustments entry
+         */
+        updateSimilarAccountEntries(
+          transaction,
+          userProfile,
+          orgId,
+          obaEntry.account,
+          [
+            {
+              amount: +newOpeningBalance,
+              account: obaEntry.account,
+              credit: obaEntry.credit,
+              debit: obaEntry.debit,
+              entryId: obaEntry.entryId,
+            },
+          ]
+        );
       }
-
+      /**
+       * update customer data
+       */
       transaction.update(customerRef, {
         ...rest,
         modifiedBy: email,
@@ -132,86 +126,4 @@ function* updateCustomer({ data }) {
 
 export function* watchUpdateCustomer() {
   yield takeLatest(UPDATE_CUSTOMER, updateCustomer);
-}
-
-function* deleteCustomer({ customerId }) {
-  yield put(start(DELETE_CUSTOMER));
-
-  const orgId = yield select((state) => state.orgsReducer.org.id);
-  const userProfile = yield select((state) => state.authReducer.userProfile);
-  const { email } = userProfile;
-  const accounts = yield select((state) => state.accountsReducer.accounts);
-
-  async function update() {
-    const customerRef = doc(
-      db,
-      "organizations",
-      orgId,
-      "customers",
-      customerId
-    );
-    const countersRef = doc(
-      db,
-      "organizations",
-      orgId,
-      "summaries",
-      "counters"
-    );
-
-    const accounts_receivable = getAccountData("accounts_receivable", accounts);
-
-    await runTransaction(db, async (transaction) => {
-      const [openingBalanceEntry] = await Promise.all([
-        getOpeningBalanceEntry(
-          orgId,
-          customerId,
-          accounts_receivable.accountId
-        ),
-      ]);
-
-      if (openingBalanceEntry) {
-        const { credit, debit, entryId } = openingBalanceEntry;
-
-        deleteSimilarAccountEntries(
-          transaction,
-          userProfile,
-          orgId,
-          accounts_receivable,
-          [
-            {
-              account: accounts_receivable,
-              credit,
-              debit,
-              entryId,
-            },
-          ]
-        );
-      }
-
-      transaction.update(countersRef, {
-        customers: increment(-1),
-      });
-
-      transaction.update(customerRef, {
-        status: "deleted",
-        modifiedBy: email,
-        modifiedAt: serverTimestamp(),
-      });
-    });
-  }
-
-  try {
-    yield call(update);
-
-    yield put(success());
-    yield put(toastSuccess("Customer Deleted successfully!"));
-  } catch (error) {
-    console.log(error);
-    yield put(fail(error));
-    yield put(toastError(error.message));
-  }
-}
-
-export function* watchDeleteCustomer() {
-  yield takeLatest(DELETE_CUSTOMER, deleteCustomer);
 }

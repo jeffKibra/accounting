@@ -8,11 +8,14 @@ export default function getDateDetails(date = new Date()) {
   const year = date.getFullYear();
   const yearMonth = `${year}-${month}`;
   const millis = date.getTime();
+  const dateString = date.toDateString();
 
   return {
+    dateString,
     month,
     year,
     yearMonth,
     millis,
+    date,
   };
 }
