@@ -201,7 +201,7 @@ CustomSelect.propTypes = {
   rules: PropTypes.object,
   size: PropTypes.oneOf(["xs", "sm", "md", "lg", "xl"]),
   colorScheme: PropTypes.string,
-  isDisabled: PropTypes.bool.isRequired,
+  isDisabled: PropTypes.bool,
 };
 
 export default CustomSelect;

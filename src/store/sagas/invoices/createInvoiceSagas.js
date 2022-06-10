@@ -64,12 +64,11 @@ function* createInvoice({ data }) {
     const invoiceId = newDocRef.id;
 
     await runTransaction(db, async (transaction) => {
-      const [customer] = await Promise.all([
+      const [customer, invoiceSlug] = await Promise.all([
         getCustomerData(transaction, orgId, customerId),
+        createInvoiceSlug(transaction, orgId),
       ]);
       // console.log({ selectedItems });
-
-      const invoiceSlug = createInvoiceSlug(customer);
 
       const invoiceData = {
         ...data,

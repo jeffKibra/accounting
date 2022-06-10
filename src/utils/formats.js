@@ -50,9 +50,9 @@ function formatInvoicePayment(payment) {
 }
 
 function formatOrgData(org) {
-  const { orgId, size, name } = org;
+  const { orgId, businessType, name } = org;
 
-  return { orgId, size, name };
+  return { orgId, businessType, name };
 }
 
 function formatTransactionDetails(details) {

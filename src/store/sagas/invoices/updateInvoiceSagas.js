@@ -24,7 +24,6 @@ import {
   getSummaryEntries,
   getIncomeAccountsMapping,
   getIncomeEntries,
-  createInvoiceSlug,
   getInvoicePaymentsTotal,
 } from "../../../utils/invoices";
 import { getCustomerData } from "../../../utils/customers";
@@ -56,6 +55,7 @@ function* updateInvoice({ data }) {
         customerId: currentCustomerId,
         selectedItems: items,
         payments,
+        invoiceSlug,
       } = currentInvoice;
       /**
        * check to ensure the new total balance is not less than payments made.
@@ -82,12 +82,6 @@ function* updateInvoice({ data }) {
           `CUSTOMER cannot be changed in an invoice that has payments! This is because all the payments are from the PREVIOUS customer. If you are sure you want to change the customer, DELETE the associated payments first!`
         );
       }
-      /**
-       * if customer has changed, create new invoice slug
-       */
-      const invoiceSlug = customerHasChanged
-        ? createInvoiceSlug(customer)
-        : currentInvoice.invoiceSlug;
 
       const { shippingEntry, adjustmentEntry, taxEntry, receivableEntry } =
         await getSummaryEntries(
@@ -123,7 +117,6 @@ function* updateInvoice({ data }) {
       const invoiceSummary = currentInvoice.summary;
       const invoiceData = {
         ...rest,
-        invoiceSlug,
         customer: formats.formatCustomerData(customer),
         selectedItems: formats.formatInvoiceItems(selectedItems),
       };
@@ -133,7 +126,6 @@ function* updateInvoice({ data }) {
         invoiceId,
       };
       const transactionId = invoiceSlug;
-
       /**
        * start writing
        */
@@ -349,14 +341,12 @@ function* updateInvoice({ data }) {
        * calculate balance adjustment
        */
       const balanceAdjustment = totalAmount - invoiceSummary.totalAmount;
-
       /**
        * update invoice
        */
       transaction.update(invoiceRef, {
         ...invoiceData,
         balance: increment(balanceAdjustment),
-        invoiceSlug,
         // classical: "plus",
         modifiedBy: email,
         modifiedAt: serverTimestamp(),

@@ -359,7 +359,7 @@ service cloud.firestore {
 
         function allowInvoiceUpdate(){
           let form=['customerId', 'orderNumber', 'invoiceDate', 'dueDate', 'subject', 'customerNotes'];
-          let formExtras=['customer', 'selectedItems', 'summary', 'invoiceSlug', "balance"];
+          let formExtras=['customer', 'selectedItems', 'summary', "balance"];
           let additional=['payments', 'paymentsIds', 'paymentsCount', 'status', "isSent"];
           let meta=['modifiedAt', 'modifiedBy'];
           let required=form.concat(formExtras).concat(additional).concat(meta);
@@ -435,7 +435,7 @@ service cloud.firestore {
         function allowPaymentUpdate(){
           let form=['accountId', 'amount', 'customerId', 'paymentDate', "paymentModeId"];
           let details=["payments", "paidInvoices", "paidInvoicesIds", "account", 'customer', "paymentMode"];
-          let additional=['status', "paymentSlug", 'modifiedBy', "modifiedAt", 'excess'];
+          let additional=['status', 'modifiedBy', "modifiedAt", 'excess'];
           let required=form.concat(details).concat(additional);
           let optional=['reference'];
           let allFields=required.concat(optional);
