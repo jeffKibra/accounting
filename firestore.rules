@@ -318,8 +318,8 @@ service cloud.firestore {
         }
 
         function verifyInvoiceData(){
-          let form=['customerId', 'orderNumber', 'invoiceDate', 'dueDate', 'subject', 'customerNotes'];
-          let formExtras=['customer', 'selectedItems', 'summary', 'invoiceSlug', "balance"];
+          let form=['customerId', 'orderNumber', 'invoiceDate', "paymentTermId", 'dueDate', 'subject', 'customerNotes'];
+          let formExtras=['customer', 'selectedItems', 'summary', 'invoiceSlug', "balance", "paymentTerm"];
           let additional=['payments', 'paymentsIds', 'paymentsCount', 'status', "isSent", 'org'];
           let meta=['createdAt', 'modifiedAt', 'createdBy', 'modifiedBy'];
           let required=form.concat(formExtras).concat(additional).concat(meta);
@@ -358,8 +358,8 @@ service cloud.firestore {
         }
 
         function allowInvoiceUpdate(){
-          let form=['customerId', 'orderNumber', 'invoiceDate', 'dueDate', 'subject', 'customerNotes'];
-          let formExtras=['customer', 'selectedItems', 'summary', "balance"];
+          let form=['customerId', 'orderNumber', 'invoiceDate', 'paymentTermId', 'dueDate', 'subject', 'customerNotes'];
+          let formExtras=['customer', 'selectedItems', 'summary', "balance", "paymentTerm"];
           let additional=['payments', 'paymentsIds', 'paymentsCount', 'status', "isSent"];
           let meta=['modifiedAt', 'modifiedBy'];
           let required=form.concat(formExtras).concat(additional).concat(meta);

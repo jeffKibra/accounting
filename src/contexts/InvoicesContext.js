@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 
 import { GET_ITEMS } from "../store/actions/itemsActions";
 import { GET_CUSTOMERS } from "../store/actions/customersActions";
+import { GET_PAYMENT_TERMS } from "../store/actions/paymentTermsActions";
 
 import SkeletonLoader from "../components/ui/SkeletonLoader";
 import Empty from "../components/ui/Empty";
@@ -23,6 +24,7 @@ const initialState = {
   loading: false,
   formValues: {},
   updateFormValues: () => {},
+  paymentTerms: [{ name: "", value: "" }],
 };
 
 const InvoicesContext = createContext(initialState);
@@ -44,6 +46,9 @@ function Provider(props) {
     getItems,
     getCustomers,
     updating,
+    getPaymentTerms,
+    paymentTerms,
+    loadingPaymentTerms,
   } = props;
 
   // console.log({ invoice, customers, items });
@@ -52,7 +57,8 @@ function Provider(props) {
   useEffect(() => {
     getItems();
     getCustomers();
-  }, [getItems, getCustomers]);
+    getPaymentTerms();
+  }, [getItems, getCustomers, getPaymentTerms]);
 
   const [formValues, setFormValues] = useState(invoice ? { ...invoice } : null);
   const [addedItems, setAddedItems] = useState(
@@ -247,9 +253,10 @@ function Provider(props) {
   // console.log({ formValues });
 
   return (loadingItems && itemsAction === GET_ITEMS) ||
-    (loadingCustomers && customersAction === GET_CUSTOMERS) ? (
+    (loadingCustomers && customersAction === GET_CUSTOMERS) ||
+    loadingPaymentTerms ? (
     <SkeletonLoader />
-  ) : customers?.length > 0 && items?.length > 0 ? (
+  ) : customers?.length > 0 && items?.length > 0 && paymentTerms?.length > 0 ? (
     <InvoicesContext.Provider
       value={{
         summary,
@@ -262,6 +269,7 @@ function Provider(props) {
         loading: updating,
         formValues,
         updateFormValues,
+        paymentTerms,
       }}
     >
       {children}
@@ -301,6 +309,12 @@ function mapStateToProps(state) {
     customers,
     action: customersAction,
   } = state.customersReducer;
+  const {
+    loading: lpt,
+    paymentTerms,
+    action: ptAction,
+  } = state.paymentTermsReducer;
+  const loadingPaymentTerms = lpt && ptAction === GET_PAYMENT_TERMS;
 
   return {
     loadingItems,
@@ -309,6 +323,8 @@ function mapStateToProps(state) {
     loadingCustomers,
     customers,
     customersAction,
+    loadingPaymentTerms,
+    paymentTerms,
   };
 }
 
@@ -316,6 +332,7 @@ function mapDispatchToProps(dispatch) {
   return {
     getItems: () => dispatch({ type: GET_ITEMS }),
     getCustomers: () => dispatch({ type: GET_CUSTOMERS }),
+    getPaymentTerms: () => dispatch({ type: GET_PAYMENT_TERMS }),
   };
 }
 

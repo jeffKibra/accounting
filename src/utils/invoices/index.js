@@ -10,3 +10,4 @@ export { default as createInvoiceSlug } from "./createInvoiceSlug";
 export { default as getAllInvoiceEntries } from "./getAllInvoiceEntries";
 export { default as getInvoicePaymentsTotal } from "./getInvoicePaymentsTotal";
 export { default as getInvoiceBalance } from "./getInvoiceBalance";
+export { default as deriveDueDate } from "./deriveDueDate";

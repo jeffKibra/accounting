@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useCallback, useMemo } from "react";
 import {
   Box,
   Flex,
@@ -15,41 +15,112 @@ import {
 } from "@chakra-ui/react";
 import { useForm, FormProvider } from "react-hook-form";
 
+import { deriveDueDate } from "../../../utils/invoices";
+import { confirmFutureDate } from "../../../utils/dates";
+
+import useToasts from "../../../hooks/useToasts";
+
 import InvoicesContext from "../../../contexts/InvoicesContext";
 import StepperContext from "../../../contexts/StepperContext";
 
 import CustomSelect from "../../ui/CustomSelect";
 import CustomDatePicker from "../../ui/CustomDatePicker";
+import { useEffect } from "react";
 
 function InvoiceDetailsForm() {
-  const { formValues, updateFormValues, customers, loading } =
+  const { formValues, updateFormValues, customers, loading, paymentTerms } =
     useContext(InvoicesContext);
   const { nextStep } = useContext(StepperContext);
-  const today = new Date();
+
+  const defaults = useMemo(() => {
+    const today = new Date();
+
+    return {
+      customerId: formValues?.customerId || "",
+      orderNumber: formValues?.orderNumber || "",
+      invoiceDate: formValues?.invoiceDate || today,
+      paymentTermId: formValues?.paymentTermId || "on_receipt",
+      dueDate: formValues?.dueDate || today,
+      subject: formValues?.subject || "",
+      customerNotes: formValues?.customerNotes || "",
+    };
+  }, [formValues]);
 
   const formMethods = useForm({
     mode: "onChange",
-    defaultValues: formValues || {
-      invoiceDate: today,
-      dueDate: today,
-    },
+    defaultValues: { ...defaults },
   });
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
+    watch,
+    reset,
   } = formMethods;
+  /**
+   * if defaults change, update form field
+   */
+  useEffect(() => {
+    if (defaults) {
+      reset(defaults);
+    }
+  }, [defaults, reset]);
+
+  const customerId = watch("customerId");
+  const paymentTermId = watch("paymentTermId");
+  const invoiceDate = watch("invoiceDate");
+
+  const getCustomer = useCallback(
+    (customerId) => {
+      return customers.find((customer) => customer.customerId === customerId);
+    },
+    [customers]
+  );
+  /**
+   * update payment term according to customer preference
+   */
+  useEffect(() => {
+    if (customerId) {
+      const { paymentTermId: ptId } = getCustomer(customerId);
+      //update payment term field
+      setValue("paymentTermId", ptId);
+    }
+  }, [customerId, getCustomer, setValue]);
+  /**
+   * update due date according to the selected payment term
+   */
+  useEffect(() => {
+    if (paymentTermId) {
+      const paymentTerm = paymentTerms.find(
+        (term) => term.value === paymentTermId
+      );
+      const dueDate = deriveDueDate(paymentTerm, invoiceDate);
+      setValue("dueDate", dueDate);
+    }
+  }, [paymentTermId, invoiceDate, paymentTerms, setValue]);
+
+  const toasts = useToasts();
 
   function onSubmit(data) {
-    const { customerId } = data;
+    const { customerId, invoiceDate, dueDate, paymentTermId } = data;
+    /**
+     * ensure dueDate is not a past date
+     */
+    const dueDateIsFuture = confirmFutureDate(invoiceDate, dueDate);
+    if (!dueDateIsFuture) {
+      return toasts.error("Due date cannot be less than invoice date");
+    }
 
-    const customer = customers.find(
-      (customer) => customer.customerId === customerId
+    const customer = getCustomer(customerId);
+    const paymentTerm = paymentTerms.find(
+      (term) => term.value === paymentTermId
     );
 
     const newData = {
       ...data,
       customer,
+      paymentTerm,
     };
     // console.log({ newData });
     updateFormValues(newData);
@@ -99,7 +170,7 @@ function InvoiceDetailsForm() {
               </FormControl>
             </GridItem>
 
-            <GridItem colSpan={[12, 6]}>
+            <GridItem colSpan={[12, 4]}>
               <FormControl
                 isDisabled={loading}
                 isRequired
@@ -107,22 +178,31 @@ function InvoiceDetailsForm() {
               >
                 <FormLabel htmlFor="invoiceDate">Invoice Date</FormLabel>
                 <CustomDatePicker name="invoiceDate" required />
-                {/* <Input
-                  id="invoiceDate"
-                  type="date"
-                  {...register("invoiceDate", {
-                    required: { value: true, message: "*Required!" },
-                    valueAsDate: true,
-                  })}
-                  onClick={(e) => e.target.showPicker()}
-                /> */}
                 <FormErrorMessage>
                   {errors.invoiceDate?.message}
                 </FormErrorMessage>
               </FormControl>
             </GridItem>
 
-            <GridItem colSpan={[12, 6]}>
+            <GridItem colSpan={[12, 4]}>
+              <FormControl
+                isDisabled={loading}
+                isRequired
+                isInvalid={errors.paymentTermId}
+              >
+                <FormLabel htmlFor="paymentTermId">Terms</FormLabel>
+                <CustomSelect
+                  name="paymentTermId"
+                  options={paymentTerms || []}
+                  isDisabled={!customerId || loading}
+                />
+                <FormErrorMessage>
+                  {errors.paymentTermId?.message}
+                </FormErrorMessage>
+              </FormControl>
+            </GridItem>
+
+            <GridItem colSpan={[12, 4]}>
               <FormControl
                 isDisabled={loading}
                 isRequired
@@ -130,15 +210,6 @@ function InvoiceDetailsForm() {
               >
                 <FormLabel htmlFor="dueDate">Due Date</FormLabel>
                 <CustomDatePicker name="dueDate" required />
-                {/* <Input
-                  id="dueDate"
-                  type="date"
-                  {...register("dueDate", {
-                    required: { value: true, message: "*Required!" },
-                    // valueAsDate: true,
-                  })}
-                  onClick={(e) => e.target.showPicker()}
-                /> */}
                 <FormErrorMessage>{errors.dueDate?.message}</FormErrorMessage>
               </FormControl>
             </GridItem>
