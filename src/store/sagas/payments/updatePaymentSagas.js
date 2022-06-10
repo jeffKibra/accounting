@@ -16,12 +16,10 @@ import {
   payInvoices,
   deleteInvoicesPayments,
   overPay,
-  createPaymentSlug,
   getPaymentEntry,
   combineInvoices,
 } from "../../../utils/payments";
 import { getAccountData } from "../../../utils/accounts";
-import { getCustomerData } from "../../../utils/customers";
 
 import { db } from "../../../utils/firebase";
 import { UPDATE_PAYMENT } from "../../actions/paymentsActions";
@@ -77,9 +75,8 @@ function* updatePayment({ data }) {
         /**
          * get current currentPayment and incoming customer details
          */
-        const [currentPayment, customerData] = await Promise.all([
+        const [currentPayment] = await Promise.all([
           getPaymentData(transaction, orgId, paymentId),
-          getCustomerData(transaction, orgId, customerId),
         ]);
         /**
          * check if the customer has changed. if yes
@@ -87,9 +84,7 @@ function* updatePayment({ data }) {
          */
         const customerHasChanged = customerId !== currentPayment.customerId;
 
-        const paymentSlug = customerHasChanged
-          ? createPaymentSlug(customerData)
-          : currentPayment.paymentSlug;
+        const paymentSlug = currentPayment.paymentSlug;
         const allInvoices = combineInvoices(
           [...currentPayment.paidInvoices],
           [...paidInvoices]

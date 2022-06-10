@@ -128,7 +128,7 @@ function* deletePayment({ paymentId }) {
           deletedPayments: increment(1),
         });
         /**
-         * update payment
+         * mark payment as deleted
          */
         transaction.update(paymentRef, {
           status: "deleted",

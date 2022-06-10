@@ -74,13 +74,10 @@ function* createPayment({ data }) {
          * get current customer data.
          * dont use submitted customer as data might be outdated
          */
-        const [customerData] = await Promise.all([
+        const [customerData, paymentSlug] = await Promise.all([
           getCustomerData(transaction, orgId, customerId),
+          createPaymentSlug(transaction, orgId),
         ]);
-
-        const paymentSlug = createPaymentSlug(customerData);
-
-        // console.log({ latestPayment, paymentNumber, paymentSlug });
         /**
          * create the all inclusive payment data
          */
