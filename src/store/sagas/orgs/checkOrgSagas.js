@@ -7,11 +7,11 @@ import { error as toastError } from "../../slices/toastSlice";
 import { getOrg } from "./createOrgSagas";
 
 function* checkOrg() {
-  yield put(start(CHECK_ORG));
-  const userProfile = yield select((state) => state.authReducer.userProfile);
-  // console.log({ userProfile });
-
   try {
+    yield put(start(CHECK_ORG));
+    const userProfile = yield select((state) => state.authReducer.userProfile);
+    // console.log({ userProfile });
+
     let org = null;
     if (userProfile) {
       const { user_id } = userProfile;

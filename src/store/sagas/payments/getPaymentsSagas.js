@@ -23,7 +23,7 @@ import {
 } from "../../slices/paymentsSlice";
 import { error as toastError } from "../../slices/toastSlice";
 
-import { dateFromTimestamp } from "../../../utils/datesFunctions";
+import { dateFromTimestamp } from "../../../utils/dates";
 
 function formatPaymentDates(payment) {
   const { paymentDate, createdAt, modifiedAt, paidInvoices } = payment;

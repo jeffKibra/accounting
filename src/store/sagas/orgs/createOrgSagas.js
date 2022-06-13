@@ -12,6 +12,7 @@ import {
 import { put, call, takeLatest, select } from "redux-saga/effects";
 
 import { db } from "../../../utils/firebase";
+import { getDateDetails } from "../../../utils/dates";
 import {
   accounts,
   accountTypes,
@@ -57,61 +58,63 @@ function* createOrg({ data }) {
 
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email, user_id } = userProfile;
+  const dateDetails = getDateDetails();
 
   async function saveData() {
     const orgRef = doc(collection(db, "organizations"));
-    const countersRef = doc(db, orgRef.path, "summaries", "counters");
+    const accountsRef = doc(db, orgRef.path, "orgDetails", "accounts");
     const accountTypesRef = doc(db, orgRef.path, "orgDetails", "accountTypes");
     const paymentModesRef = doc(db, orgRef.path, "orgDetails", "paymentModes");
     const paymentTermsRef = doc(db, orgRef.path, "orgDetails", "paymentTerms");
+    const summaryRef = doc(
+      db,
+      orgRef.path,
+      "summaries",
+      dateDetails.yearMonthDay
+    );
 
     const batch = writeBatch(db);
 
-    Object.keys(accounts).forEach((key) => {
-      const accountDetails = accounts[key];
-      const accountRef = doc(db, orgRef.path, "accounts", key);
+    const summary = {
+      invoices: 0,
+      payments: 0,
+      items: 0,
+      customers: 0,
+      invoicesTotal: 0,
+      paymentsTotal: 0,
+      deletedInvoices: 0,
+      deletedPayments: 0,
+      paymentModes: Object.keys(paymentModes).reduce((modes, key) => {
+        return { ...modes, [key]: 0 };
+      }, {}),
+      accounts: Object.keys(accounts).reduce((accountsSummary, key) => {
+        return {
+          ...accountsSummary,
+          [key]: 0,
+        };
+      }, {}),
+      createdAt: serverTimestamp(),
+      createdBy: email,
+      modifiedAt: serverTimestamp(),
+      modifiedBy: email,
+    };
 
-      batch.set(accountRef, {
-        ...accountDetails,
-        status: "active",
-        createdAt: serverTimestamp(),
-        createdBy: email,
-        modifiedAt: serverTimestamp(),
-        modifiedBy: email,
-      });
+    batch.set(summaryRef, summary);
+
+    batch.set(accountsRef, {
+      ...accounts,
     });
 
     batch.set(accountTypesRef, {
-      accountTypes,
-      createdAt: serverTimestamp(),
-      createdBy: email,
-      modifiedAt: serverTimestamp(),
-      modifiedBy: email,
+      ...accountTypes,
     });
 
     batch.set(paymentModesRef, {
-      paymentModes,
-      createdAt: serverTimestamp(),
-      createdBy: email,
-      modifiedAt: serverTimestamp(),
-      modifiedBy: email,
+      ...paymentModes,
     });
 
     batch.set(paymentTermsRef, {
-      paymentTerms,
-      createdAt: serverTimestamp(),
-      createdBy: email,
-      modifiedAt: serverTimestamp(),
-      modifiedBy: email,
-    });
-
-    batch.set(countersRef, {
-      invoices: 0,
-      deletedInvoices: 0,
-      payments: 0,
-      deletedPayments: 0,
-      items: 0,
-      customers: 0,
+      ...paymentTerms,
     });
 
     batch.set(orgRef, {

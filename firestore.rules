@@ -68,17 +68,28 @@ service cloud.firestore {
         return request.auth.uid == getOrgData().owner
       }
 
-      match /summaries/counters {
+      match /summaries/{summaryId} {
+        function isValidSummary(data){
+          return numberValue(data.openingBalance) &&
+            numberValue(data.closingBalance)
+        }
+
         function verifyCountersData(){
-          let required=["invoices", "deletedInvoices", "payments","deletedPayments", "items", "customers"];
+          let req1=["invoices", "deletedInvoices", "payments","deletedPayments", "items", "customers"];
+          let req2=['invoicesTotal', 'paymentsTotal', 'paymentModes', 'accounts'];
+          let required=req1.concat(req2);
           
           return request.resource.data.keys().hasAll(required) &&
-            request.resource.data.invoices is int &&
-            request.resource.data.deletedInvoices is int &&
-            request.resource.data.payments is int &&
-            request.resource.data.deletedPayments is int &&
-            request.resource.data.items is int &&
-            request.resource.data.customers is int
+            numberValue(request.resource.data.invoices) &&
+            numberValue(request.resource.data.deletedInvoices) &&
+            numberValue(request.resource.data.payments) &&
+            numberValue(request.resource.data.deletedPayments) &&
+            numberValue(request.resource.data.items) &&
+            numberValue(request.resource.data.customers) &&
+            numberValue(request.resource.data.invoicesTotal) &&
+            numberValue(request.resource.data.paymentsTotal) &&
+            request.resource.data.paymentModes is map &&
+            request.resource.data.accounts is map
         }
 
 
@@ -393,7 +404,6 @@ service cloud.firestore {
       }
 
      
-
       match /payments/{paymentId} {
 
         function verifyPaymentData(){

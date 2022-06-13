@@ -23,18 +23,21 @@ import { error as toastError } from "../../slices/toastSlice";
 // const allStatuses = ["pending", "partially paid", "paid", "draft", "sent"];
 
 export async function getAllAccounts(orgId) {
-  const q = query(
-    collection(db, "organizations", orgId, "accounts"),
-    where("status", "==", "active")
+  const accountsDoc = await getDoc(
+    doc(db, "organizations", orgId, "orgDetails", "accounts")
   );
-  const accounts = [];
-  const snap = await getDocs(q);
+  if (!accountsDoc.exists) {
+    throw new Error(
+      "Something went wrong with accounts! If the error persists, contact support for help!"
+    );
+  }
+  const accountsData = accountsDoc.data();
 
-  snap.forEach((accountDoc) => {
-    accounts.push({
-      ...accountDoc.data(),
-      accountId: accountDoc.id,
-    });
+  const accounts = Object.keys(accountsData).map((key) => {
+    return {
+      accountId: key,
+      ...accountsData[key],
+    };
   });
 
   return accounts;

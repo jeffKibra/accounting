@@ -17,6 +17,8 @@ import {
   deleteInvoicesPayments,
   getAllPaymentEntries,
 } from "../../../utils/payments";
+import { getDateDetails } from "../../../utils/dates";
+import { createDailySummary } from "../../../utils/summaries";
 
 import { db } from "../../../utils/firebase";
 import { DELETE_PAYMENT } from "../../actions/paymentsActions";
@@ -40,13 +42,13 @@ function* deletePayment({ paymentId }) {
 
     async function update() {
       const paymentRef = doc(db, "organizations", orgId, "payments", paymentId);
-
-      const countersRef = doc(
+      const { yearMonthDay } = getDateDetails();
+      const summaryRef = doc(
         db,
         "organizations",
         orgId,
         "summaries",
-        "counters"
+        yearMonthDay
       );
 
       await runTransaction(db, async (transaction) => {
@@ -56,6 +58,7 @@ function* deletePayment({ paymentId }) {
         const [paymentData, allEntries] = await Promise.all([
           getPaymentData(transaction, orgId, paymentId),
           getAllPaymentEntries(orgId, paymentId),
+          createDailySummary(orgId),
         ]);
         const { customerId, payments, excess } = paymentData;
         const paymentsTotal = getPaymentsTotal(payments);
@@ -124,7 +127,7 @@ function* deletePayment({ paymentId }) {
         /**
          * update orgs counters
          */
-        transaction.update(countersRef, {
+        transaction.update(summaryRef, {
           deletedPayments: increment(1),
         });
         /**

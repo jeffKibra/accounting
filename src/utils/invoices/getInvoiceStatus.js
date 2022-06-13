@@ -1,4 +1,4 @@
-import { isSameDay } from "../datesFunctions";
+import { isSameDay } from "../dates";
 
 function getDaysDifference(date = new Date(), biggerDate = new Date()) {
   return Math.floor(

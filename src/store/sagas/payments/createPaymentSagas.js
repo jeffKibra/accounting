@@ -25,6 +25,8 @@ import {
   success as toastSuccess,
 } from "../../slices/toastSlice";
 import formats from "../../../utils/formats";
+import { getDateDetails } from "../../../utils/dates";
+import { createDailySummary } from "../../../utils/summaries";
 
 function* createPayment({ data }) {
   yield put(start(CREATE_PAYMENT));
@@ -52,13 +54,19 @@ function* createPayment({ data }) {
     const { paymentsToCreate } = getPaymentsMapping({}, payments);
 
     async function create() {
+      /**
+       * create daily summary before proceeding
+       */
+      await createDailySummary(orgId);
+
       const newDocRef = doc(collection(db, "organizations", orgId, "payments"));
-      const countersRef = doc(
+      const { yearMonthDay } = getDateDetails();
+      const summaryRef = doc(
         db,
         "organizations",
         orgId,
         "summaries",
-        "counters"
+        yearMonthDay
       );
       const customerRef = doc(
         db,
@@ -105,7 +113,7 @@ function* createPayment({ data }) {
         /**
          * increment orgs counter for payments by one(1)
          */
-        transaction.update(countersRef, {
+        transaction.update(summaryRef, {
           payments: increment(1),
         });
         /**

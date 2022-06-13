@@ -29,6 +29,7 @@ import {
 import { getCustomerData } from "../../../utils/customers";
 import { getAccountData } from "../../../utils/accounts";
 import formats from "../../../utils/formats";
+import { createDailySummary } from "../../../utils/summaries";
 
 function* updateInvoice({ data }) {
   yield put(start(UPDATE_INVOICE));
@@ -49,6 +50,7 @@ function* updateInvoice({ data }) {
       const [currentInvoice, customer] = await Promise.all([
         getInvoiceData(transaction, orgId, invoiceId),
         getCustomerData(transaction, orgId, customerId),
+        createDailySummary(orgId),
       ]);
 
       const {

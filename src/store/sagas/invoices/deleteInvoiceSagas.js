@@ -23,6 +23,8 @@ import {
   getAllInvoiceEntries,
   getInvoicePaymentsTotal,
 } from "../../../utils/invoices";
+import { getDateDetails } from "../../../utils/dates";
+import { createDailySummary } from "../../../utils/summaries";
 
 function* deleteInvoice({ invoiceId }) {
   yield put(start(DELETE_INVOICE));
@@ -33,18 +35,20 @@ function* deleteInvoice({ invoiceId }) {
 
   async function update() {
     const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
-    const countersRef = doc(
+    const { yearMonthDay } = getDateDetails();
+    const summaryRef = doc(
       db,
       "organizations",
       orgId,
       "summaries",
-      "counters"
+      yearMonthDay
     );
 
     await runTransaction(db, async (transaction) => {
       const [invoiceData, allEntries] = await Promise.all([
         getInvoiceData(transaction, orgId, invoiceId),
         getAllInvoiceEntries(orgId, invoiceId),
+        createDailySummary(orgId),
       ]);
       /**
        * check if the invoice has payments
@@ -102,7 +106,7 @@ function* deleteInvoice({ invoiceId }) {
       /**
        * update org counters summaries
        */
-      transaction.update(countersRef, {
+      transaction.update(summaryRef, {
         deletedInvoices: increment(1),
       });
       /**

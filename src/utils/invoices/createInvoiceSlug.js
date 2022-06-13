@@ -4,12 +4,13 @@
  * @returns {''}
  */
 
-import { getCountersData } from "../summaries";
+import { getSummaryData } from "../summaries";
 
 export default async function createInvoiceSlug(transaction, orgId) {
-  const counters = await getCountersData(transaction, orgId);
+  const summary = await getSummaryData(transaction, orgId);
 
-  const invoiceNumber = (counters?.invoices || 0) + 1;
+  const invoiceNumber = (summary?.invoices || 0) + 1;
   const invoiceSlug = `INV-${String(invoiceNumber).padStart(6, 0)}`;
+
   return invoiceSlug;
 }

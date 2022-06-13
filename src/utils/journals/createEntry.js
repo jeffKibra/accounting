@@ -1,9 +1,9 @@
 import { doc, serverTimestamp, collection } from "firebase/firestore";
 import { db } from "../firebase";
 
-import { getAmountState } from "./newEntry";
+import getAmountState from "./getAmountState";
 import createDebitAndCredit from "./createDebitAndCredit";
-import getDateDetails from "../getDateDetails";
+import { getDateDetails } from "../dates";
 
 export default function createEntry(
   transaction,

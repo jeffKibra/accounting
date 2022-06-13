@@ -18,6 +18,8 @@ import {
 
 import { createSimilarAccountEntries } from "../../../utils/journals";
 import { getAccountData } from "../../../utils/accounts";
+import { getDateDetails } from "../../../utils/dates";
+import { createDailySummary } from "../../../utils/summaries";
 
 function* createCustomer({ data }) {
   yield put(start(CREATE_CUSTOMER));
@@ -32,13 +34,18 @@ function* createCustomer({ data }) {
   async function create() {
     const newDocRef = doc(collection(db, "organizations", orgId, "customers"));
     const customerId = newDocRef.id;
-    const countersRef = doc(
+    const { yearMonthDay } = getDateDetails();
+    const summaryRef = doc(
       db,
       "organizations",
       orgId,
       "summaries",
-      "counters"
+      yearMonthDay
     );
+    /**
+     * create daily summary data
+     */
+    await createDailySummary(orgId);
 
     await runTransaction(db, async (transaction) => {
       const transactionDetails = {
@@ -57,10 +64,9 @@ function* createCustomer({ data }) {
       };
       const { openingBalance } = transactionDetails;
 
-      transaction.update(countersRef, {
+      transaction.update(summaryRef, {
         customers: increment(1),
       });
-
       /**
        * create accounts receivable entry for customer opening balance
        */

@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { Text } from "@chakra-ui/react";
 
-import { isSameDay } from "../../../utils/datesFunctions";
+import { isSameDay } from "../../../utils/dates";
 
 function InvoiceDates(props) {
   const { invoice } = props;

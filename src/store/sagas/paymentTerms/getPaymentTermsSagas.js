@@ -23,10 +23,16 @@ function* getPaymentTerms({ type }) {
       if (!termsDoc.exists) {
         throw new Error("Payments Terms not found!");
       }
-      return termsDoc.data().paymentTerms;
+      const termsData = termsDoc.data();
+      const terms = Object.keys(termsData).map((key) => {
+        return { ...termsData[key] };
+      });
+      terms.sort((a, b) => a.days - b.days);
+
+      return terms;
     }
     const paymentTerms = yield call(get);
-    console.log({ paymentTerms });
+    // console.log({ paymentTerms });
 
     yield put(paymentTermsSuccess(paymentTerms));
   } catch (error) {

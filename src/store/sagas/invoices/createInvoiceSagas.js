@@ -24,6 +24,8 @@ import { createSimilarAccountEntries } from "../../../utils/journals";
 import { getAccountData } from "../../../utils/accounts";
 import { getCustomerData } from "../../../utils/customers";
 import formats from "../../../utils/formats";
+import { getDateDetails } from "../../../utils/dates";
+import { createDailySummary } from "../../../utils/summaries";
 
 function* createInvoice({ data }) {
   yield put(start(CREATE_INVOICE));
@@ -45,6 +47,11 @@ function* createInvoice({ data }) {
   const other_charges = getAccountData("other_charges", accounts);
 
   async function create() {
+    /**
+     * create daily summary before proceeding
+     */
+    await createDailySummary(orgId);
+
     const customerRef = doc(
       db,
       "organizations",
@@ -52,12 +59,13 @@ function* createInvoice({ data }) {
       "customers",
       customerId
     );
-    const countersRef = doc(
+    const { yearMonthDay } = getDateDetails();
+    const summaryRef = doc(
       db,
       "organizations",
       orgId,
       "summaries",
-      "counters"
+      yearMonthDay
     );
 
     const newDocRef = doc(collection(db, "organizations", orgId, "invoices"));
@@ -203,7 +211,7 @@ function* createInvoice({ data }) {
       /**
        * update org summaries
        */
-      transaction.update(countersRef, {
+      transaction.update(summaryRef, {
         invoices: increment(1),
       });
       /**

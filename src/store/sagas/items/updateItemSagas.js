@@ -8,6 +8,8 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
+import { createDailySummary } from "../../../utils/summaries";
+import { getDateDetails } from "../../../utils/dates";
 
 import { UPDATE_ITEM, DELETE_ITEM } from "../../actions/itemsActions";
 import { start, success, fail } from "../../slices/itemsSlice";
@@ -68,18 +70,21 @@ function* deleteItem({ itemId }) {
   const orgId = org.id;
 
   async function update() {
+    await createDailySummary(orgId);
+
+    const { yearMonthDay } = getDateDetails();
     const itemRef = doc(db, "organizations", orgId, "items", itemId);
-    const countersRef = doc(
+    const summaryRef = doc(
       db,
       "organizations",
       orgId,
       "summaries",
-      "counters"
+      yearMonthDay
     );
 
     const batch = writeBatch(db);
 
-    batch.update(countersRef, {
+    batch.update(summaryRef, {
       items: increment(-1),
     });
 

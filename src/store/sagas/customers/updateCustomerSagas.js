@@ -5,6 +5,7 @@ import { db } from "../../../utils/firebase";
 
 import { getCustomerData, getCustomerEntry } from "../../../utils/customers";
 import { updateSimilarAccountEntries } from "../../../utils/journals";
+import { createDailySummary } from "../../../utils/summaries";
 
 import { UPDATE_CUSTOMER } from "../../actions/customersActions";
 import { start, success, fail } from "../../slices/customersSlice";
@@ -46,6 +47,7 @@ function* updateCustomer({ data }) {
           "opening_balance_adjustments",
           "opening balance"
         ),
+        createDailySummary(orgId),
       ]);
 
       /**

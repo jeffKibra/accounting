@@ -1,8 +1,7 @@
 import { doc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 
-import { getAmountState } from "./newEntry";
-import createDebitAndCredit from "./createDebitAndCredit";
+import { getAmountState, createDebitAndCredit } from ".";
 
 /**
  * debit on increase (amount to be added)

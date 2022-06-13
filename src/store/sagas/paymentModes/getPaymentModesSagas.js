@@ -23,7 +23,12 @@ function* getPaymentModes({ type }) {
       if (!modesDoc.exists) {
         throw new Error("Payments modes not found!");
       }
-      return modesDoc.data().paymentModes;
+      const modesData = modesDoc.data();
+      return Object.keys(modesData).map((key) => {
+        return {
+          ...modesData[key],
+        };
+      });
     }
     const paymentModes = yield call(get);
     // console.log({ paymentModes });

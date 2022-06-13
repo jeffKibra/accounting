@@ -83,7 +83,7 @@ function EditCustomer(props) {
       ]}
     />
   ) : (
-    <Empty message="Payment modes not found! Try to reload the page!" />
+    <Empty message="Payment Terms not found! Try to reload the page!" />
   );
 }
 

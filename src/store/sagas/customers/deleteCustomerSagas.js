@@ -9,6 +9,8 @@ import {
 import { db } from "../../../utils/firebase";
 import { deleteSimilarAccountEntries } from "../../../utils/journals";
 import { getCustomerEntry } from "../../../utils/customers";
+import { getDateDetails } from "../../../utils/dates";
+import { createDailySummary } from "../../../utils/summaries";
 
 import { DELETE_CUSTOMER } from "../../actions/customersActions";
 import { start, success, fail } from "../../slices/customersSlice";
@@ -32,12 +34,13 @@ function* deleteCustomer({ customerId }) {
       "customers",
       customerId
     );
-    const countersRef = doc(
+    const { yearMonthDay } = getDateDetails();
+    const summaryRef = doc(
       db,
       "organizations",
       orgId,
       "summaries",
-      "counters"
+      yearMonthDay
     );
 
     await runTransaction(db, async (transaction) => {
@@ -54,6 +57,7 @@ function* deleteCustomer({ customerId }) {
           "opening_balance_adjustments",
           "opening balance"
         ),
+        createDailySummary(orgId),
       ]);
 
       /**
@@ -93,7 +97,7 @@ function* deleteCustomer({ customerId }) {
       /**
        * update counters for one deleted customer
        */
-      transaction.update(countersRef, {
+      transaction.update(summaryRef, {
         customers: increment(-1),
       });
       /**

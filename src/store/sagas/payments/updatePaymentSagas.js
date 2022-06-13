@@ -20,6 +20,8 @@ import {
   combineInvoices,
 } from "../../../utils/payments";
 import { getAccountData } from "../../../utils/accounts";
+import { createDailySummary } from "../../../utils/summaries";
+import formats from "../../../utils/formats";
 
 import { db } from "../../../utils/firebase";
 import { UPDATE_PAYMENT } from "../../actions/paymentsActions";
@@ -28,7 +30,6 @@ import {
   error as toastError,
   success as toastSuccess,
 } from "../../slices/toastSlice";
-import formats from "../../../utils/formats";
 
 function* updatePayment({ data }) {
   yield put(start(UPDATE_PAYMENT));
@@ -74,9 +75,11 @@ function* updatePayment({ data }) {
       await runTransaction(db, async (transaction) => {
         /**
          * get current currentPayment and incoming customer details
+         * create daily summary since all updates also update the summary
          */
         const [currentPayment] = await Promise.all([
           getPaymentData(transaction, orgId, paymentId),
+          createDailySummary(orgId),
         ]);
         /**
          * check if the customer has changed. if yes

@@ -1,6 +1,4 @@
-import { doc, increment } from "firebase/firestore";
-
-import { db } from "../firebase";
+import updateAccount from "./updateAccount";
 import createEntry from "./createEntry";
 import { verifyAccountId } from "./helpers";
 
@@ -35,20 +33,8 @@ export default function createSimilarAccountEntries(
   /**
    * update new account
    * add adjustment to the accounts amount
-   * if new total is greater then prev
-   * adjustment is +ve
-   * else adjustment is -ve
    */
-  const accountRef = doc(
-    db,
-    "organizations",
-    orgId,
-    "accounts",
-    account.accountId
-  );
-  transaction.update(accountRef, {
-    amount: increment(adjustment),
-  });
+  updateAccount(transaction, orgId, account.accountId, adjustment);
   /**
    * create entries
    */

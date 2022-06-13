@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 
 import { GET_ITEMS } from "../../../store/actions/itemsActions";
 import { GET_CUSTOMERS } from "../../../store/actions/customersActions";
+import { GET_PAYMENT_MODES } from "../../../store/actions/paymentModesActions";
 import {
   GET_UNPAID_CUSTOMER_INVOICES,
   GET_PAYMENT_INVOICES_TO_EDIT,
@@ -32,24 +33,28 @@ function EditPayment(props) {
     getInvoices,
     getInvoicesToEdit,
     invoices,
+    getPaymentModes,
+    loadingPaymentModes,
+    paymentModes,
   } = props;
   const [formValues, setFormValues] = useState(payment ? { ...payment } : null);
   const [payments, setPayments] = useState(
     payment?.payments ? { ...payment.payments } : null
   );
-  console.log({ paymentId });
+  // console.log({ paymentId });
   const customerId = formValues?.customerId;
 
   useEffect(() => {
     getCustomers();
-  }, [getCustomers]);
+    getPaymentModes();
+  }, [getCustomers, getPaymentModes]);
 
   useEffect(() => {
     if (customerId && paymentId) {
-      console.log({ customerId, paymentId });
+      // console.log({ customerId, paymentId });
       getInvoicesToEdit(customerId, paymentId);
     } else if (customerId) {
-      console.log({ customerId });
+      // console.log({ customerId });
       getInvoices(customerId);
     }
   }, [customerId, paymentId, getInvoices, getInvoicesToEdit]);
@@ -101,9 +106,9 @@ function EditPayment(props) {
 
   // console.log({ UnpaidInvoices, ReceivePaymentForm });
 
-  return loading && action === GET_CUSTOMERS ? (
+  return (loading && action === GET_CUSTOMERS) || loadingPaymentModes ? (
     <SkeletonLoader />
-  ) : customers?.length > 0 ? (
+  ) : customers?.length > 0 || paymentModes?.length > 0 ? (
     <Box w="full" h="full">
       <Stepper
         steps={[
@@ -125,6 +130,7 @@ function EditPayment(props) {
                   defaultValues={formValues}
                   accounts={accounts}
                   paymentId={paymentId}
+                  paymentModes={paymentModes}
                 />
               </Flex>
             ),
@@ -150,9 +156,11 @@ function EditPayment(props) {
         ]}
       />
     </Box>
-  ) : (
+  ) : customers?.length === 0 ? (
     <Empty message="Please add atleast one CUSTOMER to continue or reload the page" />
-  );
+  ) : paymentModes?.length === 0 ? (
+    <Empty message="Failed to load Payment Modes. This could be because of a network issue. Try reloading the page!" />
+  ) : null;
 }
 
 EditPayment.propTypes = {
@@ -179,10 +187,12 @@ function mapStateToProps(state) {
   const { loading, customers, action } = state.customersReducer;
   const { accounts } = state.accountsReducer;
   const { loading: l, action: a, invoices } = state.invoicesReducer;
+  const { loading: lpm, action: pma, paymentModes } = state.paymentModesReducer;
 
   const loadingInvoices =
     l &&
     (a === GET_UNPAID_CUSTOMER_INVOICES || a === GET_PAYMENT_INVOICES_TO_EDIT);
+  const loadingPaymentModes = lpm && pma === GET_PAYMENT_MODES;
 
   return {
     loading,
@@ -191,6 +201,8 @@ function mapStateToProps(state) {
     accounts,
     loadingInvoices,
     invoices,
+    loadingPaymentModes,
+    paymentModes,
   };
 }
 
@@ -198,6 +210,7 @@ function mapDispatchToProps(dispatch) {
   return {
     getItems: () => dispatch({ type: GET_ITEMS }),
     getCustomers: () => dispatch({ type: GET_CUSTOMERS }),
+    getPaymentModes: () => dispatch({ type: GET_PAYMENT_MODES }),
     getInvoices: (customerId) =>
       dispatch({ type: GET_UNPAID_CUSTOMER_INVOICES, customerId }),
     getInvoicesToEdit: (customerId, paymentId) =>

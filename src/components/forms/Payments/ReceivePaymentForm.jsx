@@ -22,8 +22,6 @@ import NumInput from "../../ui/NumInput";
 import CustomSelect from "../../ui/CustomSelect";
 import CustomDatePicker from "../../ui/CustomDatePicker";
 
-import { paymentModes } from "../../../constants";
-
 const schema = Yup.object().shape({
   customerId: Yup.string().required("*Required!"),
   paymentDate: Yup.date()
@@ -47,8 +45,14 @@ const schema = Yup.object().shape({
 });
 
 function ReceivePaymentForm(props) {
-  const { customers, loading, accounts, handleFormSubmit, defaultValues } =
-    props;
+  const {
+    customers,
+    loading,
+    accounts,
+    handleFormSubmit,
+    defaultValues,
+    paymentModes,
+  } = props;
 
   const { nextStep } = useContext(StepperContext);
 
@@ -62,7 +66,7 @@ function ReceivePaymentForm(props) {
     return (id === "cash" || id === "other_current_liability") && index > -1;
   });
   // console.log({ paymentAccounts });
-  console.log({ defaultValues });
+  // console.log({ defaultValues });
   const formMethods = useForm({
     mode: "onChange",
     resolver: yupResolver(schema),
@@ -306,6 +310,7 @@ ReceivePaymentForm.propTypes = {
   accounts: PropTypes.array.isRequired,
   handleFormSubmit: PropTypes.func.isRequired,
   defaultValues: PropTypes.object,
+  paymentModes: PropTypes.array.isRequired,
 };
 
 export default ReceivePaymentForm;

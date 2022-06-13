@@ -25,7 +25,7 @@ import {
 } from "../../slices/invoicesSlice";
 import { error as toastError } from "../../slices/toastSlice";
 
-import { dateFromTimestamp } from "../../../utils/datesFunctions";
+import { dateFromTimestamp } from "../../../utils/dates";
 
 function formatInvoiceDates(invoice) {
   const { invoiceDate, dueDate, createdAt, modifiedAt } = invoice;

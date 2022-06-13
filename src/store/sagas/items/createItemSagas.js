@@ -13,6 +13,8 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
+import { createDailySummary } from "../../../utils/summaries";
+import { getDateDetails } from "../../../utils/dates";
 
 import { CREATE_ITEM } from "../../actions/itemsActions";
 import { start, success, fail } from "../../slices/itemsSlice";
@@ -55,23 +57,30 @@ function* createItem({ data }) {
   async function create() {
     const { sku } = data;
     //check if there is another item with similar itemId
-    const similarItem = await getSimilarItem(orgId, sku);
+    const [similarItem] = await Promise.all([
+      getSimilarItem(orgId, sku),
+      createDailySummary(orgId),
+    ]);
+
     if (similarItem) {
       throw new Error("There is another item with similar details!");
     }
-
+    /**
+     * todays date
+     */
+    const { yearMonthDay } = getDateDetails();
     const newDocRef = doc(collection(db, "organizations", orgId, "items"));
-    const countersRef = doc(
+    const summaryRef = doc(
       db,
       "organizations",
       orgId,
       "summaries",
-      "counters"
+      yearMonthDay
     );
 
     const batch = writeBatch(db);
 
-    batch.update(countersRef, {
+    batch.update(summaryRef, {
       items: increment(1),
     });
 

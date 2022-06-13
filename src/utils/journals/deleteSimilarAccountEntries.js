@@ -1,9 +1,7 @@
-import { doc, increment } from "firebase/firestore";
-
-import { db } from "../firebase";
 import getRawAmount from "./getRawAmount";
 import { verifyAccountId } from "./helpers";
 import deleteEntry from "./deleteEntry";
+import updateAccount from "./updateAccount";
 
 export default function deleteSimilarAccountEntries(
   transaction,
@@ -35,16 +33,7 @@ export default function deleteSimilarAccountEntries(
   /**
    * add adjustment to the accounts amount
    */
-  const accountRef = doc(
-    db,
-    "organizations",
-    orgId,
-    "accounts",
-    account.accountId
-  );
-  transaction.update(accountRef, {
-    amount: increment(adjustment),
-  });
+  updateAccount(transaction, orgId, account.accountId, adjustment);
   /**
    * delete entries
    */
