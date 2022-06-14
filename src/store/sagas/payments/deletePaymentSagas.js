@@ -60,7 +60,8 @@ function* deletePayment({ paymentId }) {
           getAllPaymentEntries(orgId, paymentId),
           createDailySummary(orgId),
         ]);
-        const { customerId, payments, excess } = paymentData;
+        const { customerId, payments, excess, amount, paymentModeId } =
+          paymentData;
         const paymentsTotal = getPaymentsTotal(payments);
         // console.log({ allEntries });
         /**
@@ -125,10 +126,12 @@ function* deletePayment({ paymentId }) {
           modifiedBy: email,
         });
         /**
-         * update orgs counters
+         * update summary- increase deletedPayments by one
+         * adjust payment mode value by negative of payment amount
          */
         transaction.update(summaryRef, {
           deletedPayments: increment(1),
+          [`paymentModes.${paymentModeId}`]: increment(0 - amount),
         });
         /**
          * mark payment as deleted

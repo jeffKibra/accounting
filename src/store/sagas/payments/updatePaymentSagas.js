@@ -20,7 +20,11 @@ import {
   combineInvoices,
 } from "../../../utils/payments";
 import { getAccountData } from "../../../utils/accounts";
-import { createDailySummary } from "../../../utils/summaries";
+import {
+  createDailySummary,
+  changePaymentMode,
+  updatePaymentMode,
+} from "../../../utils/summaries";
 import formats from "../../../utils/formats";
 
 import { db } from "../../../utils/firebase";
@@ -49,6 +53,7 @@ function* updatePayment({ data }) {
       amount,
       accountId,
       reference,
+      paymentModeId,
     } = data;
     /**
      * get payments total
@@ -401,6 +406,29 @@ function* updatePayment({ data }) {
               accounts
             );
           }
+        }
+        /**
+         * update summary payment modes
+         * if mode has changed, change the mode values
+         */
+        if (currentPayment.paymentModeId === paymentModeId) {
+          if (currentPayment.amount !== amount) {
+            /**
+             * create adjustment by subtracting current amount from incoming amount
+             */
+            const modeAdjustment = amount - currentPayment.amount;
+            updatePaymentMode(
+              transaction,
+              orgId,
+              paymentModeId,
+              modeAdjustment
+            );
+          }
+        } else {
+          /**
+           * payment modes are not the same
+           */
+          changePaymentMode(transaction, orgId, currentPayment, data);
         }
         /**
          * update payment

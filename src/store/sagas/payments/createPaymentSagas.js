@@ -37,7 +37,14 @@ function* createPayment({ data }) {
     const { email } = userProfile;
     const accounts = yield select((state) => state.accountsReducer.accounts);
     // console.log({ data, orgId, userProfile });
-    const { payments, customerId, amount, reference, paidInvoices } = data;
+    const {
+      payments,
+      customerId,
+      amount,
+      reference,
+      paidInvoices,
+      paymentModeId,
+    } = data;
 
     const paymentsTotal = getPaymentsTotal(payments);
     if (paymentsTotal > amount) {
@@ -112,9 +119,11 @@ function* createPayment({ data }) {
 
         /**
          * increment orgs counter for payments by one(1)
+         * update paymentModes in summary
          */
         transaction.update(summaryRef, {
           payments: increment(1),
+          [`paymentModes.${paymentModeId}`]: increment(amount),
         });
         /**
          * update customer data
