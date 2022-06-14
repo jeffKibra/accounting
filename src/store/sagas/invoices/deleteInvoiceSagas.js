@@ -1,12 +1,10 @@
 import { put, call, select, takeLatest } from "redux-saga/effects";
-import {
-  doc,
-  serverTimestamp,
-  runTransaction,
-  increment,
-} from "firebase/firestore";
+import { runTransaction } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
+import { deleteInvoice } from "../../../utils/invoices";
+import { createDailySummary } from "../../../utils/summaries";
+
 import { DELETE_INVOICE } from "../../actions/invoicesActions";
 import { start, success, fail } from "../../slices/invoicesSlice";
 import {
@@ -14,110 +12,21 @@ import {
   success as toastSuccess,
 } from "../../slices/toastSlice";
 
-import {
-  deleteSimilarAccountEntries,
-  groupEntriesIntoAccounts,
-} from "../../../utils/journals";
-import {
-  getInvoiceData,
-  getAllInvoiceEntries,
-  getInvoicePaymentsTotal,
-} from "../../../utils/invoices";
-import { getDateDetails } from "../../../utils/dates";
-import { createDailySummary } from "../../../utils/summaries";
-
-function* deleteInvoice({ invoiceId }) {
+function* deleteInvoiceSaga({ invoiceId }) {
   yield put(start(DELETE_INVOICE));
   const orgId = yield select((state) => state.orgsReducer.org.id);
   const userProfile = yield select((state) => state.authReducer.userProfile);
-  const { email } = userProfile;
-  //   console.log({ invoiceId, orgId, userProfile });
 
   async function update() {
-    const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
-    const { yearMonthDay } = getDateDetails();
-    const summaryRef = doc(
-      db,
-      "organizations",
-      orgId,
-      "summaries",
-      yearMonthDay
-    );
-
+    /**
+     * initialize by creating daily summary if none is available
+     */
+    await createDailySummary(orgId);
+    /**
+     * delete invoice using a firestore transaction
+     */
     await runTransaction(db, async (transaction) => {
-      const [invoiceData, allEntries] = await Promise.all([
-        getInvoiceData(transaction, orgId, invoiceId),
-        getAllInvoiceEntries(orgId, invoiceId),
-        createDailySummary(orgId),
-      ]);
-      /**
-       * check if the invoice has payments
-       */
-      const paymentsTotal = getInvoicePaymentsTotal(invoiceData.payments);
-      if (paymentsTotal > 0) {
-        //deletion not allowed
-        throw new Error(
-          `Invoice Deletion Failed! You cannot delete an invoice that has payments! If you are sure you want to delete it, Please DELETE all the associated PAYMENTS first!`
-        );
-      }
-      /**
-       * group entries into accounts
-       */
-      const accounts = groupEntriesIntoAccounts(allEntries);
-
-      const {
-        customerId,
-        summary: { totalAmount },
-      } = invoiceData;
-
-      /**
-       * start writing
-       */
-
-      /**
-       * delete entries and update accounts summaries
-       */
-      accounts.forEach((group) => {
-        const { entries, ...account } = group;
-
-        deleteSimilarAccountEntries(
-          transaction,
-          userProfile,
-          orgId,
-          account,
-          entries
-        );
-      });
-
-      /**
-       * update customer summaries
-       */
-      const customerRef = doc(
-        db,
-        "organizations",
-        orgId,
-        "customers",
-        customerId
-      );
-      transaction.update(customerRef, {
-        "summary.deletedInvoices": increment(1),
-        "summary.invoicedAmount": increment(0 - totalAmount),
-      });
-      /**
-       * update org counters summaries
-       */
-      transaction.update(summaryRef, {
-        deletedInvoices: increment(1),
-      });
-      /**
-       * mark invoice as deleted
-       */
-      transaction.update(invoiceRef, {
-        status: "deleted",
-        // opius: "none",
-        modifiedBy: email,
-        modifiedAt: serverTimestamp(),
-      });
+      await deleteInvoice(transaction, orgId, userProfile, invoiceId);
     });
   }
 
@@ -134,5 +43,5 @@ function* deleteInvoice({ invoiceId }) {
 }
 
 export function* watchDeleteInvoice() {
-  yield takeLatest(DELETE_INVOICE, deleteInvoice);
+  yield takeLatest(DELETE_INVOICE, deleteInvoiceSaga);
 }
