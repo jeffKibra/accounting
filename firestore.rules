@@ -306,17 +306,23 @@ service cloud.firestore {
           let details=['type','salutation','companyName','firstName','lastName','displayName','email','phone','mobile'];
           let address1=['billingStreet','billingCity','billingState','billingPostalCode','billingCountry'];
           let address2=['shippingStreet','shippingCity','shippingState','shippingPostalCode','shippingCountry'];
-          let extras=['openingBalance','paymentTermId','paymentTerm','website','remarks'];
+          let extras=['paymentTermId','paymentTerm','website','remarks'];
           let additional=['status', "summary", 'modifiedAt', 'modifiedBy'];
           let allFields=details.concat(address1).concat(address2).concat(extras).concat(additional);
 
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+        }
+
+        function updateOpeningBalance(){
+          let allFields=['openingBalance', 'modifiedBy', 'modifiedAt'];
 
           return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
         }
         
         allow read: if isOwner()
         allow create: if isOwner() && verifyCustomerData()
-        allow update: if isOwner() && verifyCustomerData() && allowCustomerUpdate()
+        allow update: if isOwner() && verifyCustomerData() &&
+          (allowCustomerUpdate() || updateOpeningBalance())
       }
 
       match /invoices/{invoiceId} {
@@ -327,12 +333,12 @@ service cloud.firestore {
         }
 
         function verifyInvoiceData(){
-          let form=['customerId', 'orderNumber', 'invoiceDate', "paymentTermId", 'dueDate', 'subject', 'customerNotes'];
+          let form=['customerId', 'invoiceDate', "paymentTermId", 'dueDate'];
           let formExtras=['customer', 'selectedItems', 'summary', 'invoiceSlug', "balance", "paymentTerm"];
           let additional=['payments', 'paymentsIds', 'paymentsCount', 'status', "isSent", 'org'];
-          let meta=['createdAt', 'modifiedAt', 'createdBy', 'modifiedBy'];
+          let meta=['isInvoice', 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy'];
           let required=form.concat(formExtras).concat(additional).concat(meta);
-          let optional=[];
+          let optional=['orderNumber', 'subject', 'customerNotes'];
           let allFields=required.concat(optional);
 
           return request.resource.data.keys().hasAll(required) &&
@@ -347,7 +353,7 @@ service cloud.firestore {
             numberValue(request.resource.data.summary.subTotal) &&
             numberValue(request.resource.data.summary.totalAmount) &&
             numberValue(request.resource.data.summary.totalTaxes) &&
-            request.resource.data.summary.taxes is list &&
+            request.resource.data.get("summary.taxes", []) is list &&
             request.resource.data.customer is map &&
             request.resource.data.customerId is string &&
             request.resource.data.invoiceDate is timestamp &&
@@ -357,22 +363,23 @@ service cloud.firestore {
             request.resource.data.createdBy is string &&
             request.resource.data.modifiedBy is string &&
             request.resource.data.org is map &&
-            request.resource.data.customerNotes is string &&
-            request.resource.data.orderNumber is string &&
-            request.resource.data.subject is string &&
+            request.resource.data.get("customerNotes", "")  is string &&
+            request.resource.data.get("orderNumber", "") is string &&
+            request.resource.data.get("subject", "") is string &&
             request.resource.data.invoiceSlug is string &&
             request.resource.data.status is string &&
             request.resource.data.isSent is bool &&
+            request.resource.data.isInvoice is bool &&
             balanceIsValid()
         }
 
         function allowInvoiceUpdate(){
-          let form=['customerId', 'orderNumber', 'invoiceDate', 'paymentTermId', 'dueDate', 'subject', 'customerNotes'];
-          let formExtras=['customer', 'selectedItems', 'summary', "balance", "paymentTerm"];
-          let additional=['payments', 'paymentsIds', 'paymentsCount', 'status', "isSent"];
+          let form=['customerId', 'invoiceDate', "paymentTermId", 'dueDate'];
+          let formExtras=['customer', 'selectedItems', 'summary', 'invoiceSlug', "balance", "paymentTerm"];
+          let additional=['payments', 'paymentsIds', 'paymentsCount', 'status', "isSent", 'org'];
           let meta=['modifiedAt', 'modifiedBy'];
           let required=form.concat(formExtras).concat(additional).concat(meta);
-          let optional=[];
+          let optional=['orderNumber', 'subject', 'customerNotes'];
           let allFields=required.concat(optional);
 
           return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)

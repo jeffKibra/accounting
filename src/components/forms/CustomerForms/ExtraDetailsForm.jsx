@@ -29,17 +29,20 @@ function ExtraDetailsForm(props) {
     handleFormSubmit,
     updateFormValues,
     paymentTerms,
+    customerId,
   } = props;
   const toasts = useToasts();
 
   const defaults = useMemo(() => {
     return {
       paymentTermId: defaultValues?.paymentTermId || "on_receipt",
-      openingBalance: defaultValues?.openingBalance || 0,
       website: defaultValues?.website || "",
       remarks: defaultValues?.remarks || "",
+      ...(customerId
+        ? {}
+        : { openingBalance: defaultValues?.openingBalance || 0 }),
     };
-  }, [defaultValues]);
+  }, [defaultValues, customerId]);
 
   const { prevStep } = useContext(StepperContext);
 
@@ -108,27 +111,31 @@ function ExtraDetailsForm(props) {
             mt="4px"
             mb="4px"
           >
-            <GridItem colSpan={[12, 6]}>
-              <FormControl
-                isDisabled={loading}
-                isInvalid={!!errors.openingBalance}
-              >
-                <FormLabel htmlFor="openingBalance">Opening Balance</FormLabel>
-                <NumInput
-                  name="openingBalance"
-                  min={0}
-                  rules={{
-                    min: {
-                      value: 0,
-                      message: "Value cannot be less than zero(0)!",
-                    },
-                  }}
-                />
-                <FormErrorMessage>
-                  {errors.openingBalance?.message}
-                </FormErrorMessage>
-              </FormControl>
-            </GridItem>
+            {customerId ? null : (
+              <GridItem colSpan={[12, 6]}>
+                <FormControl
+                  isDisabled={loading}
+                  isInvalid={!!errors.openingBalance}
+                >
+                  <FormLabel htmlFor="openingBalance">
+                    Opening Balance
+                  </FormLabel>
+                  <NumInput
+                    name="openingBalance"
+                    min={0}
+                    rules={{
+                      min: {
+                        value: 0,
+                        message: "Value cannot be less than zero(0)!",
+                      },
+                    }}
+                  />
+                  <FormErrorMessage>
+                    {errors.openingBalance?.message}
+                  </FormErrorMessage>
+                </FormControl>
+              </GridItem>
+            )}
 
             <GridItem colSpan={[12, 6]}>
               <FormControl
@@ -203,6 +210,7 @@ ExtraDetailsForm.propTypes = {
     paymentTermId: PropTypes.string,
     openingBalance: PropTypes.number,
   }),
+  customerId: PropTypes.string,
 };
 
 export default ExtraDetailsForm;

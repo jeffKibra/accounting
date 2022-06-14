@@ -274,6 +274,10 @@ export default async function updateInvoice(
     "customers",
     currentCustomerId
   );
+  /**
+   * opening balance is strictly tied to a customer.
+   * cant change hence no need to change anything
+   */
   if (customerHasChanged) {
     //delete values from previous customer
     transaction.update(currentCustomerRef, {

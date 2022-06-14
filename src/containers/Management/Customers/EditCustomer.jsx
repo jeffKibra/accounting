@@ -77,6 +77,7 @@ function EditCustomer(props) {
               defaultValues={formValues}
               updateFormValues={updateFormValues}
               paymentTerms={paymentTerms}
+              customerId={customer?.customerId || ""}
             />
           ),
         },

@@ -6,11 +6,10 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../firebase";
-import { createInvoiceSlug, getIncomeAccountsMapping } from "../invoices";
+import { getIncomeAccountsMapping } from "../invoices";
 
 import { createSimilarAccountEntries } from "../journals";
 import { getAccountData } from "../accounts";
-import { getCustomerData } from "../customers";
 import formats from "../formats";
 import { getDateDetails } from "../dates";
 
@@ -19,21 +18,35 @@ export default async function createInvoice(
   org = { id: "" },
   userProfile = { email: "" },
   accounts = [{ name: "", accountd: "", accountType: {} }],
+  invoiceSlug = "",
   data = {
     customerId: "",
-    summary: { totalAmount: 0 },
+    customer: {},
+    summary: {
+      shipping: 0,
+      adjustment: 0,
+      subTotal: 0,
+      totalTaxes: 0,
+      totalAmount: 0,
+    },
     selectedItems: [
       {
+        salesAccountId: "",
         salesAccount: { name: "", accountd: "", accountType: {} },
         totalAmount: 0,
       },
     ],
+    invoiceDate: new Date(),
+    dueDate: new Date(),
+    paymentTerm: {},
+    paymentTermId: "",
   },
   isInvoice = true
 ) {
   const orgId = org.id;
   const { email } = userProfile;
-  const { customerId, summary, selectedItems } = data;
+  const { customerId, customer, summary, selectedItems } = data;
+  console.log({ data });
   /**
    * accounts details
    */
@@ -49,10 +62,6 @@ export default async function createInvoice(
   const newDocRef = doc(collection(db, "organizations", orgId, "invoices"));
   const invoiceId = newDocRef.id;
 
-  const [customer, invoiceSlug] = await Promise.all([
-    getCustomerData(transaction, orgId, customerId),
-    createInvoiceSlug(transaction, orgId),
-  ]);
   // console.log({ selectedItems });
 
   const invoiceData = {
@@ -63,6 +72,7 @@ export default async function createInvoice(
     paymentsCount: 0,
     status: "active",
     isSent: false,
+    isInvoice,
     invoiceSlug,
     org: formats.formatOrgData(org),
     customer: formats.formatCustomerData(customer),
@@ -116,7 +126,12 @@ export default async function createInvoice(
   );
   /**
    * since an invoice is also created for customer opening balances
-   * use the isInvoice tag to check whether to create taxes, shipping and adjustments
+   * use the isInvoice tag to check whether to create:
+   * -taxes,
+   * -shipping and
+   * -adjustments and update
+   * -customer summary and
+   * -org summary
    */
   if (isInvoice) {
     /**
@@ -170,24 +185,24 @@ export default async function createInvoice(
         },
       ]
     );
+    /**
+     * update customer summaries
+     */
+    transaction.update(customerRef, {
+      "summary.invoices": increment(1),
+      "summary.invoicedAmount": increment(summary.totalAmount),
+    });
+    /**
+     * update org summaries
+     */
+    transaction.update(summaryRef, {
+      invoices: increment(1),
+    });
   }
-
-  /**
-   * update customer summaries
-   */
-  transaction.update(customerRef, {
-    "summary.invoices": increment(1),
-    "summary.invoicedAmount": increment(summary.totalAmount),
-  });
-  /**
-   * update org summaries
-   */
-  transaction.update(summaryRef, {
-    invoices: increment(1),
-  });
   /**
    * create invoice
    */
+  console.log({ invoiceData });
   transaction.set(newDocRef, {
     ...invoiceData,
     createdBy: email,

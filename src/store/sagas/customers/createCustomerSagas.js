@@ -8,6 +8,11 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
+import { createSimilarAccountEntries } from "../../../utils/journals";
+import { getAccountData } from "../../../utils/accounts";
+import { getDateDetails } from "../../../utils/dates";
+import { createDailySummary } from "../../../utils/summaries";
+import { createInvoice } from "../../../utils/invoices";
 
 import { CREATE_CUSTOMER } from "../../actions/customersActions";
 import { start, success, fail } from "../../slices/customersSlice";
@@ -16,15 +21,10 @@ import {
   error as toastError,
 } from "../../slices/toastSlice";
 
-import { createSimilarAccountEntries } from "../../../utils/journals";
-import { getAccountData } from "../../../utils/accounts";
-import { getDateDetails } from "../../../utils/dates";
-import { createDailySummary } from "../../../utils/summaries";
-
 function* createCustomer({ data }) {
   yield put(start(CREATE_CUSTOMER));
-
-  const orgId = yield select((state) => state.orgsReducer.org.id);
+  const org = yield select((state) => state.orgsReducer.org);
+  const orgId = org.id;
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email } = userProfile;
   const accounts = yield select((state) => state.accountsReducer.accounts);
@@ -48,6 +48,8 @@ function* createCustomer({ data }) {
     await createDailySummary(orgId);
 
     await runTransaction(db, async (transaction) => {
+      const { openingBalance, paymentTermId, paymentTerm } = data;
+
       const transactionDetails = {
         ...data,
         customerId,
@@ -58,61 +60,97 @@ function* createCustomer({ data }) {
           payments: 0,
           deletedPayments: 0,
           unusedCredits: 0,
-          invoicedAmount: 0,
+          invoicedAmount: openingBalance,
           invoicePayments: 0,
         },
       };
-      const { openingBalance } = transactionDetails;
 
       transaction.update(summaryRef, {
         customers: increment(1),
       });
       /**
-       * create accounts receivable entry for customer opening balance
+       * if opening balance is greater than zero
+       * create journal entries and an equivalent invoice
        */
-      const accounts_receivable = getAccountData(
-        "accounts_receivable",
-        accounts
-      );
-      createSimilarAccountEntries(
-        transaction,
-        userProfile,
-        orgId,
-        accounts_receivable,
-        [
+      if (openingBalance > 0) {
+        /**
+         * create 2 journal entries
+         * 1. debit sales accountType= opening balance
+         * 2. credit opening_balance_adjustments accountType= opening balance
+         */
+        /**
+         * 1. debit sales
+         * to debit income, amount must be negative
+         */
+        const sales = getAccountData("sales", accounts);
+        createSimilarAccountEntries(transaction, userProfile, orgId, sales, [
           {
-            amount: openingBalance,
-            account: accounts_receivable,
-            reference: "",
-            transactionDetails,
-            transactionId: customerId,
-            transactionType: "customer opening balance",
-          },
-        ]
-      );
-      /**
-       * create opening_balance_adjustments entry for customer opening balance
-       */
-      const obAdjustments = getAccountData(
-        "opening_balance_adjustments",
-        accounts
-      );
-      createSimilarAccountEntries(
-        transaction,
-        userProfile,
-        orgId,
-        obAdjustments,
-        [
-          {
-            amount: +openingBalance,
-            account: obAdjustments,
+            amount: 0 - openingBalance,
+            account: sales,
             reference: "",
             transactionDetails,
             transactionId: customerId,
             transactionType: "opening balance",
           },
-        ]
-      );
+        ]);
+        /**
+         * 2. credit opening_balance_adjustments entry for customer opening balance
+         */
+        const obAdjustments = getAccountData(
+          "opening_balance_adjustments",
+          accounts
+        );
+        createSimilarAccountEntries(
+          transaction,
+          userProfile,
+          orgId,
+          obAdjustments,
+          [
+            {
+              amount: +openingBalance,
+              account: obAdjustments,
+              reference: "",
+              transactionDetails,
+              transactionId: customerId,
+              transactionType: "opening balance",
+            },
+          ]
+        );
+        /**
+         * create an invoice equivalent for for customer opening balance
+         */
+        const salesAccount = getAccountData("sales", accounts);
+        await createInvoice(
+          transaction,
+          org,
+          userProfile,
+          accounts,
+          "customer opening balance",
+          {
+            customerId,
+            customer: transactionDetails,
+            invoiceDate: serverTimestamp(),
+            dueDate: serverTimestamp(),
+            paymentTerm,
+            paymentTermId,
+            summary: {
+              shipping: 0,
+              adjustment: 0,
+              subTotal: 0,
+              totalTaxes: 0,
+              totalAmount: openingBalance,
+            },
+            selectedItems: [
+              {
+                salesAccount,
+                salesAccountId: salesAccount.accountId,
+                totalAmount: openingBalance,
+              },
+            ],
+          },
+          false
+        );
+      }
       /**
        * create customer
        */
