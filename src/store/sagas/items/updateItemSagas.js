@@ -39,6 +39,7 @@ function* updateItem({ data }) {
       }
     }
 
+    console.log({ data, rest });
     return updateDoc(doc(db, "organizations", orgId, "items", itemId), {
       ...rest,
       modifiedBy: name,

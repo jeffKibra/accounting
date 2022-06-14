@@ -143,42 +143,40 @@ service cloud.firestore {
       match /items/{itemId} {
 
         function verifyItemData(){
-          let general=['name', 'type',  'sku', 'unit', "salesAccountId", 'salesAccount', 'sellingPrice', 'costPrice'];
+          let form1=['name', 'type', 'variant', 'sku', 'unit', 'costPrice'];
+          let form2=['sellingPrice',"salesAccountId", 'salesAccount','salesTax', 'salesTaxId', "salesTaxType",'extraDetails'];
           let additional=['status', 'createdBy', 'modifiedBy', 'createdAt', 'modifiedAt'];
-          let required= general.concat(additional);
-          let optional=['variant', 'itemDescription', 'sellingDetails', 'salesTax', 'salesTaxId', "salesTaxType"];
-          let allFields=required.concat(optional);
+          let allFields=form1.concat(form2).concat(additional);
 
-          return request.resource.data.keys().hasAll(required) &&
+          return request.resource.data.keys().hasAll(allFields) &&
             request.resource.data.keys().hasOnly(allFields) &&
             request.resource.data.name is string &&
             request.resource.data.type is string &&
-            request.resource.data.status is string &&
+            request.resource.data.variant is string &&
             request.resource.data.sku is string &&
+            request.resource.data.unit is string &&
+            numberValue(request.resource.data.costPrice) &&
+            numberValue(request.resource.data.sellingPrice) &&
+            request.resource.data.salesAccountId is string &&
+            request.resource.data.salesAccount is map &&
+            request.resource.data.salesTax is map &&
+            request.resource.data.salesTaxId is string &&
+            request.resource.data.salesTaxType is string &&
+            request.resource.data.extraDetails is string &&  
+            request.resource.data.status is string &&
             request.resource.data.createdBy is string &&
             request.resource.data.modifiedBy is string &&
             request.resource.data.createdAt is timestamp &&
-            request.resource.data.modifiedAt is timestamp &&
-            request.resource.data.costPrice is int &&
-            request.resource.data.salesAccountId is string &&
-            request.resource.data.salesAccount is map &&
-            request.resource.data.sellingPrice is int &&
-            request.resource.data.variant is string &&
-            request.resource.data.unit is string &&
-            request.resource.data.itemDescription is string &&
-            request.resource.data.sellingDetails is string &&
-            request.resource.data.salesTax is map &&
-            request.resource.data.salesTaxId is string &&
-            request.resource.data.salesTaxType is string
+            request.resource.data.modifiedAt is timestamp        
         }
 
         function allowItemUpdate(){
-          let cost=['costPrice'];
-          let selling=['sellingDetails', 'salesAccount', 'sellingPrice', 'salesTax', 'salesTaxId', 'salesTaxType'];
-          let general=['name', 'variant', 'sku', 'status', 'type', 'unit', 'itemDescription', 'modifiedAt', 'modifiedBy'];
-          let allowed=general.concat(selling).concat(cost);
+          let form1=['name', 'type', 'variant', 'sku', 'unit', 'costPrice'];
+          let form2=['sellingPrice',"salesAccountId", 'salesAccount','salesTax', 'salesTaxId', "salesTaxType",'extraDetails'];
+          let additional=['status', 'modifiedBy', 'modifiedAt'];
+          let allFields=form1.concat(form2).concat(additional);
 
-          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowed)
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
         }
 
         allow read: if isOwner();

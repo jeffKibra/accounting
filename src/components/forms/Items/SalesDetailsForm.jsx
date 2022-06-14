@@ -137,6 +137,7 @@ function SalesDetailsForm(props) {
                   );
                 })}
               </Select>
+              <FormErrorMessage>{errors?.salesTaxId?.message}</FormErrorMessage>
               <FormHelperText>Add tax to your item</FormHelperText>
             </FormControl>
           </GridItem>
@@ -168,9 +169,12 @@ function SalesDetailsForm(props) {
             </GridItem>
           </GridItem>
           <GridItem colSpan={12}>
-            <FormControl isDisabled={loading} isInvalid={errors.sellingDetails}>
-              <FormLabel htmlFor="sellingDetails">Extra Details</FormLabel>
-              <Textarea id="sellingDetails" {...register("sellingDetails")} />
+            <FormControl isDisabled={loading} isInvalid={errors.extraDetails}>
+              <FormLabel htmlFor="extraDetails">Extra Details</FormLabel>
+              <Textarea id="extraDetails" {...register("extraDetails")} />
+              <FormErrorMessage>
+                {errors?.extraDetails?.message}
+              </FormErrorMessage>
             </FormControl>
           </GridItem>
         </Grid>

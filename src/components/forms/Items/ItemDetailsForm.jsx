@@ -156,10 +156,10 @@ function ItemDetailsForm(props) {
                   required: { value: true, message: "*Required!" },
                 })}
               />
+              <FormErrorMessage>{errors?.sku?.message}</FormErrorMessage>
               <FormHelperText>
                 (Stock Keeping Unit) Unique Item Identifier
               </FormHelperText>
-              <FormErrorMessage>{errors?.sku?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
 
@@ -191,9 +191,7 @@ function ItemDetailsForm(props) {
                   );
                 })}
               </datalist>
-              <FormErrorMessage>
-                {errors?.costAccount?.message}
-              </FormErrorMessage>
+              <FormErrorMessage>{errors?.unit?.message}</FormErrorMessage>
               <FormHelperText>
                 Select or type in your custom unit.
               </FormHelperText>
@@ -219,16 +217,6 @@ function ItemDetailsForm(props) {
               />
 
               <FormErrorMessage>{errors?.costPrice?.message}</FormErrorMessage>
-            </FormControl>
-          </GridItem>
-
-          <GridItem colSpan={12}>
-            <FormControl
-              isDisabled={loading}
-              isInvalid={errors.itemDescription}
-            >
-              <FormLabel htmlFor="itemDescription">Item Details</FormLabel>
-              <Textarea id="itemDescription" {...register("itemDescription")} />
             </FormControl>
           </GridItem>
         </Grid>
