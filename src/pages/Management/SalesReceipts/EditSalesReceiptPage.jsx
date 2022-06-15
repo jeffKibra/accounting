@@ -16,7 +16,7 @@ import PageLayout from "../../../components/layout/PageLayout";
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
 import Empty from "../../../components/ui/Empty";
 
-import EditSalesReceipt from "../../../containers/Management/salesReceipts/EditSalesReceipt";
+import EditSalesReceipt from "../../../containers/Management/SalesReceipts/EditSalesReceipt";
 
 function getFormValuesOnly(invoice = {}) {
   const {

@@ -15,7 +15,7 @@ import PageLayout from "../../../components/layout/PageLayout";
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
 import Empty from "../../../components/ui/Empty";
 
-import ViewSalesReceipt from "../../../containers/Management/salesReceipts/ViewSalesReceipt";
+import ViewSalesReceipt from "../../../containers/Management/SalesReceipts/ViewSalesReceipt";
 
 function ViewSalesReceiptPage(props) {
   const { loading, isModified, invoice, action, resetInvoice, getInvoice } =

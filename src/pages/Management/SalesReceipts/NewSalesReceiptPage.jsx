@@ -12,7 +12,7 @@ import { reset } from "../../../store/slices/salesReceiptsSlice";
 import useSavedLocation from "../../../hooks/useSavedLocation";
 
 import PageLayout from "../../../components/layout/PageLayout";
-import SalesReceipts from "../../../containers/Management/salesReceipts/EditSalesReceipt";
+import SalesReceipts from "../../../containers/Management/SalesReceipts/EditSalesReceipt";
 
 function NewSalesReceiptPage(props) {
   const { loading, action, isModified, createInvoice, resetInvoice } = props;
