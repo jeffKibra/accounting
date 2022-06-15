@@ -37,6 +37,9 @@ export const VIEW_PAYMENT = "/payments/:paymentId/view";
 
 //receipts
 export const SALES_RECEIPTS = "/sales-receipts";
+export const NEW_SALES_RECEIPT = "/sales-receipts/new";
+export const EDIT_SALES_RECEIPT = "/sales-receipts/:salesId/edit";
+export const VIEW_SALES_RECEIPT = "/sales-receipts/:salesId/view";
 //expenses
 export const EXPENSES = "/expenses";
 export const NEW_EXPENSE = "/expenses/new";

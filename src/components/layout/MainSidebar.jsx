@@ -66,7 +66,7 @@ function ManagementSidebar(props) {
           // { title: "Estimates", route: routes.ESTIMATES },
           { title: "Invoices", route: routes.INVOICES },
           { title: "Payments Received", route: routes.PAYMENTS },
-          // { title: "Sales Receipts", route: routes.SALES_RECEIPTS },
+          { title: "Sales Receipts", route: routes.SALES_RECEIPTS },
         ]}
       />
       <Divider />
