@@ -1,16 +1,19 @@
 import { put, call, select, takeLatest } from "redux-saga/effects";
 import {
   doc,
+  getDocs,
   serverTimestamp,
   increment,
   runTransaction,
+  collection,
+  query,
+  where,
+  limit,
+  orderBy,
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
-import { deleteSimilarAccountEntries } from "../../../utils/journals";
-import { getCustomerEntry } from "../../../utils/customers";
 import { getDateDetails } from "../../../utils/dates";
-import { createDailySummary } from "../../../utils/summaries";
 
 import { DELETE_CUSTOMER } from "../../actions/customersActions";
 import { start, success, fail } from "../../slices/customersSlice";
@@ -43,57 +46,36 @@ function* deleteCustomer({ customerId }) {
       yearMonthDay
     );
 
-    await runTransaction(db, async (transaction) => {
-      const [arEntry, obaEntry] = await Promise.all([
-        getCustomerEntry(
-          orgId,
-          customerId,
-          "accounts_receivable",
-          "customer opening balance"
-        ),
-        getCustomerEntry(
-          orgId,
-          customerId,
-          "opening_balance_adjustments",
-          "opening balance"
-        ),
-        createDailySummary(orgId),
-      ]);
+    async function allowDeletion() {
+      const q = query(
+        collection(db, "organizations", orgId, "journals"),
+        orderBy("createdAt", "desc"),
+        where("transactionDetails.customerId", "==", customerId),
+        where("status", "==", "active"),
+        limit(1)
+      );
 
-      /**
-       * delete opening balance entry for accounts_receivable
-       */
-      deleteSimilarAccountEntries(
-        transaction,
-        userProfile,
-        orgId,
-        arEntry.account,
-        [
-          {
-            account: arEntry.account,
-            credit: arEntry.credit,
-            debit: arEntry.debit,
-            entryId: arEntry.entryId,
-          },
-        ]
+      const snap = await getDocs(q);
+      const { size } = snap;
+      console.log({ size });
+
+      if (size > 0) {
+        //deletion not allowed
+        return false;
+      } else {
+        return true;
+      }
+    }
+
+    const deleteAllowed = await allowDeletion();
+
+    if (!deleteAllowed) {
+      throw new Error(
+        "This customer has transactions associated with them and thus cannot be deleted! Try making them inactive!"
       );
-      /**
-       * delete opening balance entry for opening_balance_adjustments
-       */
-      deleteSimilarAccountEntries(
-        transaction,
-        userProfile,
-        orgId,
-        obaEntry.account,
-        [
-          {
-            account: obaEntry.account,
-            credit: obaEntry.credit,
-            debit: obaEntry.debit,
-            entryId: obaEntry.entryId,
-          },
-        ]
-      );
+    }
+
+    await runTransaction(db, async (transaction) => {
       /**
        * update counters for one deleted customer
        */

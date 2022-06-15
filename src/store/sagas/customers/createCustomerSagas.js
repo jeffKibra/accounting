@@ -148,7 +148,7 @@ function* createCustomer({ data }) {
               },
             ],
           },
-          false
+          "customer opening balance"
         );
       }
       /**

@@ -77,6 +77,11 @@ function InvoiceItemsForm(props) {
     if (selectedItems.length === 0) {
       return toasts.error("You must add atleast one item to an Invoice!");
     }
+    if (totalAmount <= 0) {
+      return toasts.error(
+        "Invoice Total Amount should be greater than ZERO(0)!"
+      );
+    }
 
     const invoiceSummary = {
       ...summary,

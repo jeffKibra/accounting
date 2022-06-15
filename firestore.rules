@@ -336,7 +336,7 @@ service cloud.firestore {
           let form=['customerId', 'invoiceDate', "paymentTermId", 'dueDate'];
           let formExtras=['customer', 'selectedItems', 'summary', 'invoiceSlug', "balance", "paymentTerm"];
           let additional=['payments', 'paymentsIds', 'paymentsCount', 'status', "isSent", 'org'];
-          let meta=['isInvoice', 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy'];
+          let meta=['transactionType', 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy'];
           let required=form.concat(formExtras).concat(additional).concat(meta);
           let optional=['orderNumber', 'subject', 'customerNotes'];
           let allFields=required.concat(optional);
@@ -369,7 +369,7 @@ service cloud.firestore {
             request.resource.data.invoiceSlug is string &&
             request.resource.data.status is string &&
             request.resource.data.isSent is bool &&
-            request.resource.data.isInvoice is bool &&
+            request.resource.data.transactionType is string &&
             balanceIsValid()
         }
 

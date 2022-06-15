@@ -41,7 +41,7 @@ export default async function createInvoice(
     paymentTerm: {},
     paymentTermId: "",
   },
-  isInvoice = true
+  transactionType = "invoice"
 ) {
   const orgId = org.id;
   const { email } = userProfile;
@@ -72,7 +72,7 @@ export default async function createInvoice(
     paymentsCount: 0,
     status: "active",
     isSent: false,
-    isInvoice,
+    transactionType,
     invoiceSlug,
     org: formats.formatOrgData(org),
     customer: formats.formatCustomerData(customer),
@@ -80,7 +80,6 @@ export default async function createInvoice(
   };
 
   const transactionDetails = { ...invoiceData, invoiceId };
-  const transactionType = "invoice";
   const transactionId = invoiceSlug;
   const reference = "";
 
@@ -133,7 +132,7 @@ export default async function createInvoice(
    * -customer summary and
    * -org summary
    */
-  if (isInvoice) {
+  if (transactionType === "invoice") {
     /**
      * journal entry for taxes => tax_payable-liability account
      */

@@ -30,6 +30,7 @@ import { createDailySummary } from "../../../utils/summaries";
 
 function* createPayment({ data }) {
   yield put(start(CREATE_PAYMENT));
+
   try {
     const org = yield select((state) => state.orgsReducer.org);
     const orgId = org.id;
@@ -174,6 +175,7 @@ function* createPayment({ data }) {
          * create new payment
          */
         const { paymentId: pid, ...tDetails } = newDetails;
+        console.log({ newDetails });
         transaction.set(newDocRef, { ...tDetails });
       });
     }

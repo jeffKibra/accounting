@@ -39,6 +39,18 @@ function formatInvoiceDates(invoice) {
   };
 }
 
+function sortByDate(invoice1, invoice2) {
+  console.log({ invoice1, invoice2 });
+  const {
+    createdAt: { seconds: seconds1 },
+  } = invoice1;
+  const {
+    createdAt: { seconds: seconds2 },
+  } = invoice2;
+
+  return seconds1 - seconds2;
+}
+
 const allStatuses = [
   "pending",
   "active",
@@ -89,7 +101,8 @@ function* getInvoices({ statuses }) {
     const q = query(
       collection(db, "organizations", orgId, "invoices"),
       orderBy("createdAt", "desc"),
-      where("status", "in", statuses || allStatuses)
+      where("status", "in", statuses || allStatuses),
+      where("transactionType", "==", "invoice")
     );
     const invoices = [];
     const snap = await getDocs(q);
@@ -128,7 +141,8 @@ function* getCustomerInvoices({ customerId, statuses }) {
       collection(db, "organizations", orgId, "invoices"),
       orderBy("createdAt", "asc"),
       where("customerId", "==", customerId),
-      where("status", "in", statuses || allStatuses)
+      where("status", "in", statuses || allStatuses),
+      where("transactionType", "==", "invoice")
     );
     const invoices = [];
     const snap = await getDocs(q);
@@ -185,17 +199,7 @@ function* getUnpaidCustomerInvoices({ type, customerId }) {
     /**
      * sort by date
      */
-    invoices.sort((invoice1, invoice2) => {
-      console.log({ invoice1, invoice2 });
-      const {
-        createdAt: { seconds: seconds1 },
-      } = invoice1;
-      const {
-        createdAt: { seconds: seconds2 },
-      } = invoice2;
-
-      return seconds1 - seconds2;
-    });
+    invoices.sort(sortByDate);
 
     return invoices;
   }
@@ -258,17 +262,7 @@ function* getPaymentInvoicesToEdit({ type, paymentId, customerId }) {
     /**
      * sort by date
      */
-    invoices2.sort((invoice1, invoice2) => {
-      console.log({ invoice1, invoice2 });
-      const {
-        createdAt: { seconds: seconds1 },
-      } = invoice1;
-      const {
-        createdAt: { seconds: seconds2 },
-      } = invoice2;
-
-      return seconds1 - seconds2;
-    });
+    invoices2.sort(sortByDate);
 
     return [...invoices1, ...invoices2];
   }
