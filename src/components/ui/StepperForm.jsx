@@ -1,27 +1,30 @@
-import { useState } from "react";
+import { useReducer } from "react";
 import PropTypes from "prop-types";
 import { Step, Steps, useSteps } from "chakra-ui-steps";
 
+import {
+  FormContext,
+  reducer,
+  actions,
+} from "../../contexts/stepperFormContext";
+
 function StepperForm(props) {
   const { steps, handleFormSubmit, defaultValues } = props;
+  const [state, dispatch] = useReducer(reducer, defaultValues || {});
 
   const { activeStep, nextStep, prevStep } = useSteps({ initialStep: 0 });
 
-  const [formValues, setFormValues] = useState(defaultValues || {});
-  console.log({ defaultValues, formValues });
-  function updateValues(data) {
-    setFormValues((current) => {
-      return {
-        ...current,
-        ...data,
-      };
-    });
+  console.log({ defaultValues, state });
+
+  function updateState(payload) {
+    console.log({ payload });
+    dispatch({ type: actions.UPDATE, payload });
   }
 
   function finish(extras) {
-    updateValues(extras);
+    updateState(extras);
     const data = {
-      ...formValues,
+      ...state,
       ...extras,
     };
 
@@ -31,31 +34,28 @@ function StepperForm(props) {
   }
 
   function next(data) {
-    updateValues(data);
+    updateState(data);
     nextStep();
   }
 
   function prev(data) {
-    updateValues(data);
+    updateState(data);
     prevStep();
   }
 
   return (
-    <Steps activeStep={activeStep}>
-      {steps.map(({ label, form: Content, props }, i) => {
-        // console.log({ props, defaultValues, Content, label });
-        return (
-          <Step label={label} key={i}>
-            <Content
-              {...props}
-              defaultValues={formValues}
-              prev={prev}
-              handleFormSubmit={activeStep === steps.length - 1 ? finish : next}
-            />
-          </Step>
-        );
-      })}
-    </Steps>
+    <FormContext.Provider value={{ state, next, prev, finish, updateState }}>
+      <Steps activeStep={activeStep}>
+        {steps.map(({ label, content }, i) => {
+          // console.log({ props, defaultValues, Content, label });
+          return (
+            <Step label={label} key={i}>
+              {content}
+            </Step>
+          );
+        })}
+      </Steps>
+    </FormContext.Provider>
   );
 }
 
@@ -63,8 +63,7 @@ StepperForm.propTypes = {
   steps: PropTypes.arrayOf(
     PropTypes.shape({
       label: PropTypes.node.isRequired,
-      form: PropTypes.func.isRequired,
-      props: PropTypes.object,
+      content: PropTypes.node.isRequired,
     })
   ),
   handleFormSubmit: PropTypes.func.isRequired,

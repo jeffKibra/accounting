@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { connect } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { IconButton } from "@chakra-ui/react";
+import { RiCloseLine } from "react-icons/ri";
 
 import { INVOICES } from "../../../nav/routes";
 
@@ -25,7 +27,20 @@ function NewInvoicePage(props) {
   }, [isModified, resetInvoice, navigate]);
 
   return (
-    <PageLayout pageTitle="New Invoice">
+    <PageLayout
+      pageTitle="New Invoice"
+      actions={
+        <Link to={INVOICES}>
+          <IconButton
+            colorScheme="red"
+            variant="outline"
+            size="sm"
+            title="cancel"
+            icon={<RiCloseLine />}
+          />
+        </Link>
+      }
+    >
       <EditInvoice
         updating={loading && action === CREATE_INVOICE}
         handleFormSubmit={createInvoice}

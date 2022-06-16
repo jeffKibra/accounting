@@ -3,14 +3,22 @@ import {
   limit,
   where,
   getDocs,
-  addDoc,
   serverTimestamp,
   query,
   getDoc,
+  doc,
+  writeBatch,
 } from "firebase/firestore";
 import { put, call, takeLatest, select } from "redux-saga/effects";
 
 import { db } from "../../../utils/firebase";
+import { getDateDetails } from "../../../utils/dates";
+import {
+  accounts,
+  accountTypes,
+  paymentTerms,
+  paymentModes,
+} from "../../../constants";
 
 import { start, success, fail } from "../../slices/orgsSlice";
 import { CREATE_ORG } from "../../actions/orgsActions";
@@ -50,9 +58,66 @@ function* createOrg({ data }) {
 
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const { email, user_id } = userProfile;
+  const dateDetails = getDateDetails();
 
   async function saveData() {
-    const orgRef = await addDoc(collection(db, "organizations"), {
+    const orgRef = doc(collection(db, "organizations"));
+    const accountsRef = doc(db, orgRef.path, "orgDetails", "accounts");
+    const accountTypesRef = doc(db, orgRef.path, "orgDetails", "accountTypes");
+    const paymentModesRef = doc(db, orgRef.path, "orgDetails", "paymentModes");
+    const paymentTermsRef = doc(db, orgRef.path, "orgDetails", "paymentTerms");
+    const summaryRef = doc(
+      db,
+      orgRef.path,
+      "summaries",
+      dateDetails.yearMonthDay
+    );
+
+    const batch = writeBatch(db);
+
+    const summary = {
+      invoices: 0,
+      payments: 0,
+      items: 0,
+      customers: 0,
+      invoicesTotal: 0,
+      paymentsTotal: 0,
+      deletedInvoices: 0,
+      deletedPayments: 0,
+      paymentModes: Object.keys(paymentModes).reduce((modes, key) => {
+        return { ...modes, [key]: 0 };
+      }, {}),
+      accounts: Object.keys(accounts).reduce((accountsSummary, key) => {
+        return {
+          ...accountsSummary,
+          [key]: 0,
+        };
+      }, {}),
+      createdAt: serverTimestamp(),
+      createdBy: email,
+      modifiedAt: serverTimestamp(),
+      modifiedBy: email,
+    };
+
+    batch.set(summaryRef, summary);
+
+    batch.set(accountsRef, {
+      ...accounts,
+    });
+
+    batch.set(accountTypesRef, {
+      ...accountTypes,
+    });
+
+    batch.set(paymentModesRef, {
+      ...paymentModes,
+    });
+
+    batch.set(paymentTermsRef, {
+      ...paymentTerms,
+    });
+
+    batch.set(orgRef, {
       ...data,
       status: "active",
       createdBy: email,
@@ -61,6 +126,8 @@ function* createOrg({ data }) {
       createdAt: serverTimestamp(),
       modifiedAt: serverTimestamp(),
     });
+
+    await batch.commit();
 
     const orgDoc = await getDoc(orgRef);
 
@@ -75,7 +142,7 @@ function* createOrg({ data }) {
     const userHasOrg = yield call(getOrg, user_id);
 
     if (userHasOrg) {
-      throw new Error("The User already has an orgnaization account!");
+      throw new Error("This User already has a Company account!");
     }
 
     const org = yield call(saveData);

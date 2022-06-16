@@ -1,7 +1,15 @@
 import { put, call, takeLatest, select } from "redux-saga/effects";
-import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  serverTimestamp,
+  writeBatch,
+  increment,
+} from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
+import { createDailySummary } from "../../../utils/summaries";
+import { getDateDetails } from "../../../utils/dates";
 
 import { UPDATE_ITEM, DELETE_ITEM } from "../../actions/itemsActions";
 import { start, success, fail } from "../../slices/itemsSlice";
@@ -31,6 +39,7 @@ function* updateItem({ data }) {
       }
     }
 
+    console.log({ data, rest });
     return updateDoc(doc(db, "organizations", orgId, "items", itemId), {
       ...rest,
       modifiedBy: name,
@@ -62,11 +71,31 @@ function* deleteItem({ itemId }) {
   const orgId = org.id;
 
   async function update() {
-    return updateDoc(doc(db, "organizations", orgId, "items", itemId), {
+    await createDailySummary(orgId);
+
+    const { yearMonthDay } = getDateDetails();
+    const itemRef = doc(db, "organizations", orgId, "items", itemId);
+    const summaryRef = doc(
+      db,
+      "organizations",
+      orgId,
+      "summaries",
+      yearMonthDay
+    );
+
+    const batch = writeBatch(db);
+
+    batch.update(summaryRef, {
+      items: increment(-1),
+    });
+
+    batch.update(itemRef, {
       status: "deleted",
       modifiedBy: name,
       modifiedAt: serverTimestamp(),
     });
+
+    await batch.commit();
   }
 
   try {

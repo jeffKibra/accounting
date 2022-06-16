@@ -1,6 +1,8 @@
 import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { connect } from "react-redux";
+import { IconButton } from "@chakra-ui/react";
+import { RiCloseFill } from "react-icons/ri";
 
 import {
   UPDATE_INVOICE,
@@ -16,6 +18,32 @@ import Empty from "../../../components/ui/Empty";
 
 import EditInvoice from "../../../containers/Management/Invoices/EditInvoice";
 
+function getFormValuesOnly(invoice = {}) {
+  const {
+    customerId,
+    customerNotes,
+    dueDate,
+    invoiceDate,
+    invoiceSlug,
+    invoiceId,
+    summary,
+    subject,
+    selectedItems,
+  } = invoice;
+
+  return {
+    customerId,
+    customerNotes,
+    dueDate,
+    invoiceDate,
+    invoiceSlug,
+    invoiceId,
+    summary,
+    subject,
+    selectedItems,
+  };
+}
+
 function EditInvoicePage(props) {
   const {
     loading,
@@ -29,6 +57,7 @@ function EditInvoicePage(props) {
   const { invoiceId } = useParams();
   const navigate = useNavigate();
   useSavedLocation().setLocation();
+  const viewRoute = `/invoices/${invoiceId}/view`;
 
   useEffect(() => {
     getInvoice(invoiceId);
@@ -37,9 +66,9 @@ function EditInvoicePage(props) {
   useEffect(() => {
     if (isModified) {
       resetInvoice();
-      navigate(-1);
+      navigate(viewRoute);
     }
-  }, [isModified, resetInvoice, navigate]);
+  }, [isModified, resetInvoice, navigate, viewRoute]);
 
   function update(data) {
     console.log({ data });
@@ -50,14 +79,27 @@ function EditInvoicePage(props) {
   }
 
   return (
-    <PageLayout pageTitle={`Edit Invoice ${invoice?.invoiceSlug}`}>
+    <PageLayout
+      pageTitle={`Edit Invoice ${invoice?.invoiceSlug}`}
+      actions={
+        <Link to={viewRoute}>
+          <IconButton
+            colorScheme="red"
+            variant="outline"
+            size="sm"
+            title="cancel"
+            icon={<RiCloseFill />}
+          />
+        </Link>
+      }
+    >
       {loading && action === GET_INVOICE ? (
         <SkeletonLoader />
       ) : invoice ? (
         <EditInvoice
           updating={loading && action === UPDATE_INVOICE}
           handleFormSubmit={update}
-          invoice={invoice}
+          invoice={getFormValuesOnly(invoice)}
         />
       ) : (
         <Empty message="Invoice not found!" />

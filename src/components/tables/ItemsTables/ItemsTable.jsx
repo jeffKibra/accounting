@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 import PropTypes from "prop-types";
-import { Box, Text } from "@chakra-ui/react";
+
+import ItemOptions from "../../../containers/Management/Items/ItemOptions";
 
 import CustomTable from "../CustomTable";
-import TableActions from "../TableActions";
 
 function ItemsTable(props) {
-  const { items, deleting, isDeleted, handleDelete } = props;
+  const { items } = props;
   // console.log({ items });
 
   const columns = useMemo(() => {
@@ -16,48 +16,19 @@ function ItemsTable(props) {
       { Header: "Variant", accessor: "variant" },
       { Header: "Unit", accessor: "unit" },
       { Header: "Type", accessor: "type" },
-      { Header: "Rate", accessor: "sellingPrice" },
-      { Header: "Cost", accessor: "costPrice" },
+      { Header: "Rate", accessor: "sellingPrice", isNumeric: true },
+      { Header: "Cost", accessor: "costPrice", isNumeric: true },
     ];
   }, []);
 
   const data = useMemo(() => {
     return items.map((item) => {
-      const { itemId, name, variant } = item;
-
       return {
         ...item,
-        actions: (
-          <TableActions
-            editRoute={`${itemId}/edit`}
-            deleteDialog={{
-              isDeleted: isDeleted,
-              title: "Delete Item",
-              onConfirm: () => handleDelete(itemId),
-              loading: deleting,
-              message: (
-                <Box>
-                  <Text>Are you sure you want to delete this ITEM</Text>
-                  <Box p={1} pl={5}>
-                    <Text>
-                      Item ID: <b>{itemId}</b>
-                    </Text>
-                    <Text>
-                      Item Name: <b>{name}</b>
-                    </Text>
-                    <Text>
-                      Item Variant: <b>{variant}</b>
-                    </Text>
-                  </Box>
-                  <Text>NOTE:::THIS ACTION CANNOT BE UNDONE!</Text>
-                </Box>
-              ),
-            }}
-          />
-        ),
+        actions: <ItemOptions item={item} edit deletion />,
       };
     });
-  }, [items, deleting, isDeleted, handleDelete]);
+  }, [items]);
 
   return <CustomTable data={data} columns={columns} />;
 }
@@ -68,7 +39,7 @@ ItemsTable.propTypes = {
       name: PropTypes.string.isRequired,
       variant: PropTypes.string,
       itemId: PropTypes.string.isRequired,
-      type: PropTypes.oneOf(["goods", "service"]).isRequired,
+      type: PropTypes.oneOf(["goods", "services"]).isRequired,
       costPrice: PropTypes.number.isRequired,
       sellingPrice: PropTypes.number.isRequired,
     })

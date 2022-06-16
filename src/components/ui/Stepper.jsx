@@ -1,28 +1,37 @@
 import { Step, Steps, useSteps } from "chakra-ui-steps";
 import PropTypes from "prop-types";
 
+import StepperContext from "../../contexts/StepperContext";
+
 function Stepper(props) {
-  const { renderSteps } = props;
+  const { steps, responsive } = props;
   const { activeStep, nextStep, prevStep } = useSteps({ initialStep: 0 });
 
-  // console.log({ activeStep, ln: steps.length });
-  const steps = renderSteps(prevStep, nextStep);
-
   return (
-    <Steps activeStep={activeStep}>
-      {steps.map(({ label, content }, i) => {
-        return (
-          <Step label={label} key={i}>
-            {content}
-          </Step>
-        );
-      })}
-    </Steps>
+    <StepperContext.Provider
+      value={{ nextStep, prevStep, activeStep, totalSteps: steps.length }}
+    >
+      <Steps responsive={responsive || false} size="sm" activeStep={activeStep}>
+        {steps.map(({ label, content }, i) => {
+          return (
+            <Step pl="0px!important" label={label} key={i}>
+              {content}
+            </Step>
+          );
+        })}
+      </Steps>
+    </StepperContext.Provider>
   );
 }
 
 Stepper.propTypes = {
-  renderSteps: PropTypes.func.isRequired,
+  steps: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.node.isRequired,
+      content: PropTypes.node.isRequired,
+    })
+  ),
+  responsive: PropTypes.bool,
 };
 
 export default Stepper;

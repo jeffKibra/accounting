@@ -1,0 +1,1 @@
+export const GET_PAYMENT_MODES = "GET_PAYMENT_MODES";

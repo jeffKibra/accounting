@@ -11,6 +11,7 @@ import { call, put, takeLatest } from "redux-saga/effects";
 import { db } from "../../../utils/firebase";
 
 import { start, orgsSuccess, orgSuccess, fail } from "../../slices/orgsSlice";
+import { error as toastError } from "../../slices/toastSlice";
 import { GET_ORGS, GET_ORG } from "../../actions/orgsActions";
 
 function* getOrg({ orgId }) {
@@ -28,6 +29,7 @@ function* getOrg({ orgId }) {
   } catch (err) {
     console.log(err);
     yield put(fail(err));
+    yield put(toastError(err.message));
   }
 }
 
@@ -62,6 +64,7 @@ function* getOrgs() {
   } catch (err) {
     console.log(err);
     yield put(fail(err));
+    yield put(toastError(err.message));
   }
 }
 

@@ -4,7 +4,7 @@ import UserAccountDetails from "../../containers/Auth/UserAccountDetails";
 import SideDrawer from "./SideDrawer";
 import Title from "./Title";
 
-import { BAR_HEIGHT } from "../../utils/constants";
+import { BAR_HEIGHT } from "../../constants";
 
 export default function AppBar() {
   return (

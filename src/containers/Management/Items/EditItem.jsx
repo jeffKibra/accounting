@@ -1,68 +1,136 @@
-import { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState, useMemo } from "react";
 import { connect } from "react-redux";
+import PropTypes from "prop-types";
 
-import { GET_ITEM, UPDATE_ITEM } from "../../../store/actions/itemsActions";
-import { reset } from "../../../store/slices/itemsSlice";
+import { GET_TAXES } from "../../../store/actions/taxesActions";
 
+import Stepper from "../../../components/ui/Stepper";
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
 import Empty from "../../../components/ui/Empty";
-import ItemForm from "../../../components/forms/Items/ItemForm";
+
+import ItemDetailsForm from "../../../components/forms/Items/ItemDetailsForm";
+import SalesDetailsForm from "../../../components/forms/Items/SalesDetailsForm";
 
 function EditItem(props) {
-  const { getItem, updateItem, resetItem, loading, isModified, action, item } =
-    props;
-  const { itemId } = useParams();
-  const navigate = useNavigate();
+  const {
+    saveData,
+    updating,
+    loading,
+    action,
+    taxes,
+    accounts,
+    item,
+    getTaxes,
+  } = props;
+  // console.log({ accounts });
+
+  const [formValues, setFormValues] = useState(item || {});
+
+  const incomeAccounts = useMemo(() => {
+    return accounts?.filter(({ accountType: { id } }) => id === "income");
+  }, [accounts]);
 
   useEffect(() => {
-    getItem(itemId);
-  }, [getItem, itemId]);
+    getTaxes();
+  }, [getTaxes]);
 
-  useEffect(() => {
-    if (isModified) {
-      resetItem();
-      navigate("/items");
-    }
-  }, [isModified, resetItem, navigate]);
-
-  function handleSubmit(data) {
-    // console.log({ data });
-    updateItem({
-      ...data,
-      itemId,
-    });
+  function updateFormValues(data) {
+    setFormValues((current) => ({ ...current, ...data }));
   }
 
-  return loading && action === GET_ITEM ? (
+  function handleFormSubmit(data) {
+    // console.log({ data });
+    const { salesTaxId, salesAccountId } = data;
+
+    //sales account
+    let salesAccount = {};
+
+    salesAccount = accounts.find(
+      (account) => account.accountId === salesAccountId
+    );
+
+    if (salesAccount) {
+      const { accountId, accountType, name } = salesAccount;
+
+      salesAccount = { accountId, accountType, name };
+    }
+
+    //tax account
+    let salesTax = {};
+
+    if (salesTaxId) {
+      const temp = taxes.find((tax) => tax.taxId === salesTaxId);
+      if (temp) {
+        const { name, rate, taxId } = temp;
+        salesTax = { name, rate, taxId };
+      }
+    }
+
+    const newData = {
+      ...data,
+      salesTax,
+      salesAccount,
+    };
+    // console.log({ newData });
+    saveData(newData);
+  }
+
+  return loading && action === GET_TAXES ? (
     <SkeletonLoader />
-  ) : item ? (
-    (() => {
-      const { createdAt, modifiedAt, createdBy, modifiedBy, ...rest } = item;
-      return (
-        <ItemForm
-          loading={loading && action === UPDATE_ITEM}
-          item={rest}
-          handleFormSubmit={handleSubmit}
-        />
-      );
-    })()
+  ) : accounts ? (
+    <Stepper
+      steps={[
+        {
+          label: "Item Details",
+          content: (
+            <ItemDetailsForm
+              loading={updating}
+              defaultValues={formValues}
+              handleFormSubmit={updateFormValues}
+            />
+          ),
+        },
+        {
+          label: "Sales Details",
+          content: (
+            <SalesDetailsForm
+              accounts={incomeAccounts}
+              loading={updating}
+              defaultValues={formValues}
+              updateFormValues={updateFormValues}
+              handleFormSubmit={handleFormSubmit}
+              taxes={taxes}
+            />
+          ),
+        },
+      ]}
+    />
   ) : (
-    <Empty message="Item Data not found!" />
+    <Empty message="Accounts Data not found!" />
   );
 }
 
-function mapStateToProps(state) {
-  const { loading, isModified, action, item } = state.itemsReducer;
+EditItem.propTypes = {
+  updating: PropTypes.bool.isRequired,
+  saveData: PropTypes.func.isRequired,
+  item: PropTypes.object,
+};
 
-  return { loading, isModified, action, item };
+function mapStateToProps(state) {
+  const { accounts } = state.accountsReducer;
+  const { loading, action, taxes } = state.taxesReducer;
+
+  return {
+    loading,
+    action,
+    taxes,
+    accounts,
+  };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    updateItem: (data) => dispatch({ type: UPDATE_ITEM, data }),
-    getItem: (itemId) => dispatch({ type: GET_ITEM, itemId }),
-    resetItem: () => dispatch(reset()),
+    getTaxes: () => dispatch({ type: GET_TAXES }),
   };
 }
 

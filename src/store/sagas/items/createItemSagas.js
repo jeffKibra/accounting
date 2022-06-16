@@ -1,6 +1,6 @@
 import { put, call, takeLatest, select } from "redux-saga/effects";
 import {
-  addDoc,
+  doc,
   serverTimestamp,
   collection,
   query,
@@ -8,9 +8,13 @@ import {
   orderBy,
   limit,
   getDocs,
+  writeBatch,
+  increment,
 } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
+import { createDailySummary } from "../../../utils/summaries";
+import { getDateDetails } from "../../../utils/dates";
 
 import { CREATE_ITEM } from "../../actions/itemsActions";
 import { start, success, fail } from "../../slices/itemsSlice";
@@ -49,16 +53,38 @@ function* createItem({ data }) {
   const org = yield select((state) => state.orgsReducer.org);
   const orgId = org.id;
   // console.log({ data });
+
   async function create() {
     const { sku } = data;
     //check if there is another item with similar itemId
-    const similarItem = await getSimilarItem(orgId, sku);
+    const [similarItem] = await Promise.all([
+      getSimilarItem(orgId, sku),
+      createDailySummary(orgId),
+    ]);
 
     if (similarItem) {
       throw new Error("There is another item with similar details!");
     }
+    /**
+     * todays date
+     */
+    const { yearMonthDay } = getDateDetails();
+    const newDocRef = doc(collection(db, "organizations", orgId, "items"));
+    const summaryRef = doc(
+      db,
+      "organizations",
+      orgId,
+      "summaries",
+      yearMonthDay
+    );
 
-    return addDoc(collection(db, "organizations", orgId, "items"), {
+    const batch = writeBatch(db);
+
+    batch.update(summaryRef, {
+      items: increment(1),
+    });
+
+    batch.set(newDocRef, {
       ...data,
       status: "active",
       createdBy: name,
@@ -66,6 +92,8 @@ function* createItem({ data }) {
       createdAt: serverTimestamp(),
       modifiedAt: serverTimestamp(),
     });
+
+    await batch.commit();
   }
 
   try {

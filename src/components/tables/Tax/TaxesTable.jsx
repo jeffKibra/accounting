@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 import PropTypes from "prop-types";
-import { Box, Text } from "@chakra-ui/react";
+
+import TaxOptions from "../../../containers/Management/Taxes/TaxOptions";
 
 import CustomTable from "../CustomTable";
-import TableActions from "../TableActions";
 
 function TaxesTable(props) {
-  const { taxes, deleting, isDeleted, handleDelete } = props;
+  const { taxes } = props;
   // console.log({ taxes });
 
   const columns = useMemo(() => {
@@ -21,39 +21,15 @@ function TaxesTable(props) {
 
   const data = useMemo(() => {
     return taxes.map((tax) => {
-      const { taxId, name, rate, createdAt } = tax;
+      const { createdAt } = tax;
 
       return {
         ...tax,
         createdAt: new Date(createdAt.seconds * 1000).toDateString(),
-        actions: (
-          <TableActions
-            editRoute={`${taxId}/edit`}
-            deleteDialog={{
-              isDeleted: isDeleted,
-              title: "Delete Tax",
-              onConfirm: () => handleDelete(taxId),
-              loading: deleting,
-              message: (
-                <Box>
-                  <Text>Are you sure you want to delete this Tax</Text>
-                  <Box p={1} pl={5}>
-                    <Text>
-                      Tax Name: <b>{name}</b>
-                    </Text>
-                    <Text>
-                      Tax Rate: <b>{rate} %</b>
-                    </Text>
-                  </Box>
-                  <Text>NOTE:::THIS ACTION CANNOT BE UNDONE!</Text>
-                </Box>
-              ),
-            }}
-          />
-        ),
+        actions: <TaxOptions tax={tax} edit deletion />,
       };
     });
-  }, [taxes, deleting, isDeleted, handleDelete]);
+  }, [taxes]);
 
   return <CustomTable data={data} columns={columns} />;
 }

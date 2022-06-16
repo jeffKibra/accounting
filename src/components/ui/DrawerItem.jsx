@@ -1,12 +1,23 @@
+import { useContext } from "react";
 import { Icon, HStack, Flex } from "@chakra-ui/react";
 import { Link, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 
+import DrawerContext from "../../contexts/DrawerContext";
+
 function DrawerItem({ icon, route, children }) {
   const { pathname } = useLocation();
+  const { isOpen, onClose } = useContext(DrawerContext);
+
+  function closeDrawer() {
+    if (isOpen) {
+      onClose();
+    }
+  }
 
   return (
     <HStack
+      onClick={closeDrawer}
       as={Link}
       to={route}
       w="full"

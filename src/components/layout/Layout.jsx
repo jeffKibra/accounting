@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { Flex } from "@chakra-ui/react";
 
+import { DrawerContextProvider } from "../../contexts/DrawerContext";
+
 import * as routes from "../../nav/routes";
 import AppBar from "./AppBar";
 import Sidebar from "./Sidebar";
@@ -28,7 +30,7 @@ function Layout(props) {
           {children}
         </Flex>
       ) : (
-        <>
+        <DrawerContextProvider>
           <AppBar />
           {/* <Box w="100%" minH="56px" maxH="56px" /> */}
 
@@ -39,7 +41,7 @@ function Layout(props) {
               {children}
             </Flex>
           </Flex>
-        </>
+        </DrawerContextProvider>
       )}
     </Flex>
   );

@@ -1,216 +1,257 @@
-import { useEffect } from "react";
+import { useContext, useCallback, useMemo } from "react";
 import {
+  Flex,
   FormControl,
   FormLabel,
-  NumberInput,
-  NumberInputField,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  NumberInputStepper,
-  Select,
+  Input,
+  Textarea,
+  FormHelperText,
   FormErrorMessage,
   Button,
-  Box,
-  Flex,
   Grid,
   GridItem,
+  Container,
 } from "@chakra-ui/react";
-import { RiAddLine } from "react-icons/ri";
-import { useForm, Controller } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import PropTypes from "prop-types";
+import { useForm, FormProvider } from "react-hook-form";
 
-const schema = yup.object().shape({
-  itemId: yup.string().required("*Required!"),
-  rate: yup
-    .number()
-    .typeError("Value must be a number")
-    .positive("value must be a positive number!")
-    .min(1, "Value should be greater than zero(0)!")
-    .required("*Required"),
-  quantity: yup
-    .number()
-    .typeError("Value must be a number")
-    .positive("value must be a positive number!")
-    .min(1, "Value should be greater than zero(0)!")
-    .required("*Required"),
-  discount: yup
-    .number()
-    .typeError("Value must be a number")
-    .positive("value must be a positive number!")
-    .min(0, "Value should be greater than 0!")
-    .required("*Required"),
-  discountType: yup.string().required("*Required"),
-});
+import { deriveDueDate } from "../../../utils/invoices";
+import { confirmFutureDate } from "../../../utils/dates";
 
-function InvoiceForm(props) {
-  const { items, handleFormSubmit, item, onClose } = props;
+import useToasts from "../../../hooks/useToasts";
+
+import SalesContext from "../../../contexts/SalesContext";
+import StepperContext from "../../../contexts/StepperContext";
+
+import CustomSelect from "../../ui/CustomSelect";
+import CustomDatePicker from "../../ui/CustomDatePicker";
+import { useEffect } from "react";
+
+function InvoiceForm() {
+  const { formValues, updateFormValues, customers, loading, paymentTerms } =
+    useContext(SalesContext);
+  const { nextStep } = useContext(StepperContext);
+
+  const defaults = useMemo(() => {
+    const today = new Date();
+
+    return {
+      customerId: formValues?.customerId || "",
+      orderNumber: formValues?.orderNumber || "",
+      invoiceDate: formValues?.invoiceDate || today,
+      paymentTermId: formValues?.paymentTermId || "on_receipt",
+      dueDate: formValues?.dueDate || today,
+      subject: formValues?.subject || "",
+      customerNotes: formValues?.customerNotes || "",
+    };
+  }, [formValues]);
+
+  const formMethods = useForm({
+    mode: "onChange",
+    defaultValues: { ...defaults },
+  });
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
     setValue,
-    control,
+    watch,
     reset,
-  } = useForm({
-    mode: "onChange",
-    resolver: yupResolver(schema),
-    ...(item ? { defaultValues: { ...item } } : {}),
-  });
-
-  const itemId = watch("itemId");
-
-  console.log({ itemId });
-
+  } = formMethods;
+  /**
+   * if defaults change, update form field
+   */
   useEffect(() => {
-    if (itemId) {
-      const item = items.find((item) => item.itemId === itemId);
-      const { sellingPrice } = item;
-
-      setValue("rate", sellingPrice);
+    if (defaults) {
+      reset(defaults);
     }
-  }, [itemId, items, setValue]);
+  }, [defaults, reset]);
+
+  const customerId = watch("customerId");
+  const paymentTermId = watch("paymentTermId");
+  const invoiceDate = watch("invoiceDate");
+
+  const getCustomer = useCallback(
+    (customerId) => {
+      return customers.find((customer) => customer.customerId === customerId);
+    },
+    [customers]
+  );
+  /**
+   * update payment term according to customer preference
+   */
+  useEffect(() => {
+    if (customerId) {
+      const { paymentTermId: ptId } = getCustomer(customerId);
+      //update payment term field
+      setValue("paymentTermId", ptId);
+    }
+  }, [customerId, getCustomer, setValue]);
+  /**
+   * update due date according to the selected payment term
+   */
+  useEffect(() => {
+    if (paymentTermId) {
+      const paymentTerm = paymentTerms.find(
+        (term) => term.value === paymentTermId
+      );
+      const dueDate = deriveDueDate(paymentTerm, invoiceDate);
+      setValue("dueDate", dueDate);
+    }
+  }, [paymentTermId, invoiceDate, paymentTerms, setValue]);
+
+  const toasts = useToasts();
 
   function onSubmit(data) {
-    // console.log({ data });
-    handleFormSubmit(data);
-    reset();
-    onClose();
+    const { customerId, invoiceDate, dueDate, paymentTermId } = data;
+    /**
+     * ensure dueDate is not a past date
+     */
+    const dueDateIsFuture = confirmFutureDate(invoiceDate, dueDate);
+    if (!dueDateIsFuture) {
+      return toasts.error("Due date cannot be less than invoice date");
+    }
+
+    const customer = getCustomer(customerId);
+    const paymentTerm = paymentTerms.find(
+      (term) => term.value === paymentTermId
+    );
+
+    const newData = {
+      ...data,
+      customer,
+      paymentTerm,
+    };
+    // console.log({ newData });
+    updateFormValues(newData);
+    nextStep();
   }
 
   return (
-    <Box as="form" role="form" onSubmit={handleSubmit(onSubmit)}>
-      <Grid rowGap={2} columnGap={2} templateColumns="repeat(12, 1fr)">
-        <GridItem colSpan={12}>
-          <FormControl isRequired isInvalid={errors.itemId}>
-            <FormLabel htmlFor="itemId">Item</FormLabel>
-            <Select
-              id="itemId"
-              placeholder="---select item---"
-              {...register("itemId")}
-            >
-              {items.map((item, i) => {
-                const { name, variant, itemId } = item;
+    <FormProvider {...formMethods}>
+      <Container
+        mt={2}
+        p={4}
+        bg="white"
+        borderRadius="md"
+        shadow="md"
+        maxW="container.sm"
+      >
+        <Container
+          py={4}
+          as="form"
+          role="form"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <Grid rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
+            <GridItem colSpan={[12, 6]}>
+              <FormControl
+                isDisabled={loading}
+                isRequired
+                isInvalid={errors.customerId}
+              >
+                <FormLabel htmlFor="customerId">Customer</FormLabel>
+                <CustomSelect
+                  name="customerId"
+                  placeholder="--select customer--"
+                  rules={{ required: { value: true, message: "*Required!" } }}
+                  options={customers.map((customer) => {
+                    const { customerId, displayName } = customer;
 
-                return (
-                  <option key={i} value={itemId}>
-                    {name} - {variant}
-                  </option>
-                );
-              })}
-            </Select>
-            <FormErrorMessage>{errors.itemId?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={12}>
-          {itemId && (
-            <Controller
-              name="rate"
-              //   defaultValue={rate}
-              render={({ field: { onChange, ref, value } }) => {
-                return (
-                  <FormControl isInvalid={errors.rate}>
-                    <FormLabel htmlFor="rate">Rate</FormLabel>
-                    <NumberInput
-                      min={0}
-                      onChange={onChange}
-                      value={value}
-                      ref={ref}
-                    >
-                      <NumberInputField
-                        id="rate"
-                        // {...register("rate", { valueAsNumber: true })}
-                      />
-                      <NumberInputStepper>
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
-                      </NumberInputStepper>
-                    </NumberInput>
-                    <FormErrorMessage>{errors.rate?.message}</FormErrorMessage>
-                  </FormControl>
-                );
-              }}
-              control={control}
-            />
-          )}
-        </GridItem>
-        <GridItem colSpan={12}>
-          <FormControl isInvalid={errors.quantity}>
-            <FormLabel htmlFor="quantity">Quantity</FormLabel>
-            <NumberInput defaultValue={1} min={1}>
-              <NumberInputField
-                id="quantity"
-                {...register("quantity", { valueAsNumber: true })}
-              />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
-            <FormErrorMessage>{errors.quantity?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
+                    return { name: displayName, value: customerId };
+                  })}
+                />
+                <FormErrorMessage>{errors.customer?.message}</FormErrorMessage>
+              </FormControl>
+            </GridItem>
 
-        <GridItem colSpan={7}>
-          <FormControl isInvalid={errors.discount}>
-            <FormLabel htmlFor="discount">Discount</FormLabel>
-            <NumberInput defaultValue={0} min={0}>
-              <NumberInputField
-                id="quantity"
-                {...register("discount", { valueAsNumber: true })}
-              />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
-            <FormErrorMessage>{errors.discount?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
+            <GridItem colSpan={[12, 6]}>
+              <FormControl isDisabled={loading} isInvalid={errors.orderNumber}>
+                <FormLabel htmlFor="orderNumber">Order Number</FormLabel>
+                <Input id="orderNumber" {...register("orderNumber")} />
+              </FormControl>
+            </GridItem>
 
-        <GridItem colSpan={5}>
-          <FormControl isInvalid={errors.discountType}>
-            <FormLabel htmlFor="discountType">Discount Type</FormLabel>
-            <Select
-              id="discountType"
-              defaultValue="KES"
-              {...register("discountType")}
-            >
-              <option value="KES">KES</option>
-              <option value="%">%</option>
-            </Select>
-            <FormErrorMessage>{errors.discountType?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
-      </Grid>
+            <GridItem colSpan={[12, 4]}>
+              <FormControl
+                isDisabled={loading}
+                isRequired
+                isInvalid={errors.invoiceDate}
+              >
+                <FormLabel htmlFor="invoiceDate">Invoice Date</FormLabel>
+                <CustomDatePicker name="invoiceDate" required />
+                <FormErrorMessage>
+                  {errors.invoiceDate?.message}
+                </FormErrorMessage>
+              </FormControl>
+            </GridItem>
 
-      <Flex my={4} w="full" justify="flex-end">
-        {onClose && (
-          <Button mr={2} onClick={onClose}>
-            CLOSE
-          </Button>
-        )}
-        <Button type="submit" rightIcon={<RiAddLine />} colorScheme="cyan">
-          ADD
-        </Button>
-      </Flex>
-    </Box>
+            <GridItem colSpan={[12, 4]}>
+              <FormControl
+                isDisabled={loading}
+                isRequired
+                isInvalid={errors.paymentTermId}
+              >
+                <FormLabel htmlFor="paymentTermId">Terms</FormLabel>
+                <CustomSelect
+                  name="paymentTermId"
+                  options={paymentTerms || []}
+                  isDisabled={!customerId || loading}
+                />
+                <FormErrorMessage>
+                  {errors.paymentTermId?.message}
+                </FormErrorMessage>
+              </FormControl>
+            </GridItem>
+
+            <GridItem colSpan={[12, 4]}>
+              <FormControl
+                isDisabled={loading}
+                isRequired
+                isInvalid={errors.dueDate}
+              >
+                <FormLabel htmlFor="dueDate">Due Date</FormLabel>
+                <CustomDatePicker name="dueDate" required />
+                <FormErrorMessage>{errors.dueDate?.message}</FormErrorMessage>
+              </FormControl>
+            </GridItem>
+
+            <GridItem colSpan={[12, 6]}>
+              <FormControl isDisabled={loading} isInvalid={errors.subject}>
+                <FormLabel htmlFor="subject">Subject</FormLabel>
+                <Input {...register("subject")} />
+                <FormErrorMessage>{errors.subject?.message}</FormErrorMessage>
+                <FormHelperText>
+                  Let your customer know what this invoice is for
+                </FormHelperText>
+              </FormControl>
+            </GridItem>
+
+            <GridItem colSpan={[12, 6]}>
+              <FormControl
+                isDisabled={loading}
+                isInvalid={errors.customerNotes}
+              >
+                <FormLabel htmlFor="customerNotes">Customer Notes</FormLabel>
+                <Textarea id="customerNotes" {...register("customerNotes")} />
+                <FormErrorMessage>
+                  {errors.customerNotes?.message}
+                </FormErrorMessage>
+                <FormHelperText>
+                  Include a note for the customer.
+                </FormHelperText>
+              </FormControl>
+            </GridItem>
+          </Grid>
+
+          <Flex justify="space-evenly" mt={4}>
+            <Button isLoading={loading} colorScheme="cyan" type="submit">
+              next
+            </Button>
+          </Flex>
+        </Container>
+      </Container>
+    </FormProvider>
   );
 }
-
-InvoiceForm.propTypes = {
-  items: PropTypes.array.isRequired,
-  handleFormSubmit: PropTypes.func.isRequired,
-  onClose: PropTypes.func,
-  item: PropTypes.shape({
-    itemId: PropTypes.string,
-    rate: PropTypes.number,
-    quantity: PropTypes.number,
-    discount: PropTypes.number,
-    discountType: PropTypes.string,
-  }),
-};
 
 export default InvoiceForm;

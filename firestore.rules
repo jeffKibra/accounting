@@ -6,6 +6,11 @@ service cloud.firestore {
     //       // request.time < timestamp.date(2022, 2, 19);
 
     // }
+
+    function numberValue(field){
+      return field is int || field is float
+    }
+
     match /users/{userId} {
       allow read, create, update: if request.auth.uid == request.resource.data.user_id 
     }
@@ -16,39 +21,44 @@ service cloud.firestore {
       }
 
       function verifyOrgData(){
-        let general=['name', 'size', 'industry', 'owner', 'status'];
-        let additional=['createdAt', 'modifiedAt', 'createdBy', 'modifiedBy'];
-        let info=['address', 'city', 'phone'];
-        let person=['firstName', 'lastName', 'contactPhone'];
-        let optional=['website'];
-        let required=general.concat(info).concat(person).concat(additional);
-        let allFields=required.concat(optional);
+        let details=['name', 'industry', "businessTypeId", "businessType", 'phone', 'website'];
+        let address=['country', 'state', 'city', 'postalCode', 'street'];
+        let additional=['owner', 'status', 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy'];
+        let allFields=details.concat(address).concat(additional);
 
-        return request.resource.data.keys().hasAll(required) &&
+        return request.resource.data.keys().hasAll(allFields) &&
           request.resource.data.keys().hasOnly(allFields) &&
           request.resource.data.name is string &&
-          request.resource.data.size is string &&
+          request.resource.data.businessTypeId is string &&
+          request.resource.data.businessType is map &&
           request.resource.data.industry is string &&
+          request.resource.data.phone is string &&
+          request.resource.data.website is string &&
+          request.resource.data.country is string &&
+          request.resource.data.state is string &&
+          request.resource.data.city is string &&
+          request.resource.data.postalCode is string &&
+          request.resource.data.street is string &&
           request.resource.data.owner is string &&
           request.resource.data.status is string &&
-          request.resource.data.address is string &&
-          request.resource.data.city is string &&
-          request.resource.data.phone is string &&
-          request.resource.data.firstName is string &&
-          request.resource.data.lastName is string &&
-          request.resource.data.contactPhone is string &&
-          request.resource.data.website is string &&
           request.resource.data.createdAt is timestamp &&
           request.resource.data.modifiedAt is timestamp &&
           request.resource.data.createdBy is string &&
-          request.resource.data.modifiedBy is string
+          request.resource.data.modifiedBy is string 
       }
 
-      
+      function allowOrgUpdate(){
+        let details=['name', 'industry', "businessTypeId", "businessType", 'phone', 'website'];
+        let address=['country', 'state', 'city', 'postalCode', 'street'];
+        let additional=['status', 'modifiedAt', 'modifiedBy'];
+        let allFields=details.concat(address).concat(additional);
+
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+      }
 
       allow read: if isOrgOwner()
       allow create: if request.auth != null && verifyOrgData()
-      allow update:if isOrgOwner() && verifyOrgData()
+      allow update: if isOrgOwner() && verifyOrgData() && allowOrgUpdate()
 
       function getOrgData(){
         return get(/databases/$(database)/documents/organizations/$(orgId)).data
@@ -58,47 +68,115 @@ service cloud.firestore {
         return request.auth.uid == getOrgData().owner
       }
 
+      match /summaries/{summaryId} {
+        function isValidSummary(data){
+          return numberValue(data.openingBalance) &&
+            numberValue(data.closingBalance)
+        }
+
+        function verifyCountersData(){
+          let req1=["invoices", "deletedInvoices", "payments","deletedPayments", "items", "customers"];
+          let req2=['invoicesTotal', 'paymentsTotal', 'paymentModes', 'accounts'];
+          let required=req1.concat(req2);
+          
+          return request.resource.data.keys().hasAll(required) &&
+            numberValue(request.resource.data.invoices) &&
+            numberValue(request.resource.data.deletedInvoices) &&
+            numberValue(request.resource.data.payments) &&
+            numberValue(request.resource.data.deletedPayments) &&
+            numberValue(request.resource.data.items) &&
+            numberValue(request.resource.data.customers) &&
+            numberValue(request.resource.data.invoicesTotal) &&
+            numberValue(request.resource.data.paymentsTotal) &&
+            request.resource.data.paymentModes is map &&
+            request.resource.data.accounts is map
+        }
+
+
+        allow create: if request.auth != null && verifyCountersData()
+        allow read: if isOwner()
+        allow update: if isOwner() && verifyCountersData()
+      }
+
+      match /orgDetails/{detailId} {
+        allow create: if request.auth != null
+        allow read: if isOwner()
+        allow update: if isOwner() 
+      }
+
+      match /accounts/{accountId} {
+        function verifyAccountData(){
+          let required=["accountType", "name", "amount", "description", "tags"];
+          let additional=["status", "createdAt", "modifiedAt", 'createdBy', 'modifiedBy'];
+          let allFields=required.concat(additional);
+
+          return request.resource.data.keys().hasAll(required) &&
+            request.resource.data.keys().hasOnly(allFields) &&
+            request.resource.data.accountType is map &&
+            request.resource.data.accountType.id is string &&
+            request.resource.data.accountType.main is string &&
+            request.resource.data.accountType.name is string &&
+            request.resource.data.name is string &&
+            numberValue(request.resource.data.amount) &&
+            request.resource.data.description is string &&
+            request.resource.data.tags is list
+        }
+
+        function allowAccountUpdate(){
+          let required=["name", "amount", "description"];
+          let additional=["status", "modifiedAt", 'modifiedBy'];
+          let allFields=required.concat(additional);
+
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+        }
+
+        allow read: if isOwner()
+        allow create: if request.auth != null && verifyAccountData()
+        allow update: if isOwner() && verifyAccountData() && allowAccountUpdate()
+
+        match /transactions/{transactionId}{
+          allow read:if true
+        }
+      }
       
 
       match /items/{itemId} {
 
         function verifyItemData(){
-          let general=['name', 'type', 'status', 'sku', 'unit', 'createdBy', 'modifiedBy', 'createdAt', 'modifiedAt'];
-          let extras=['costAccount', 'costPrice', 'sellingAccount', 'sellingPrice'];
-          let required= general.concat(extras);
-          let optional=['variant', 'costDetails', 'itemDescription', 'sellingDetails', 'tax', 'taxId'];
-          let allFields=required.concat(optional);
+          let form1=['name', 'type', 'variant', 'sku', 'unit', 'costPrice'];
+          let form2=['sellingPrice',"salesAccountId", 'salesAccount','salesTax', 'salesTaxId', "salesTaxType",'extraDetails'];
+          let additional=['status', 'createdBy', 'modifiedBy', 'createdAt', 'modifiedAt'];
+          let allFields=form1.concat(form2).concat(additional);
 
-          return request.resource.data.keys().hasAll(required) &&
+          return request.resource.data.keys().hasAll(allFields) &&
             request.resource.data.keys().hasOnly(allFields) &&
             request.resource.data.name is string &&
             request.resource.data.type is string &&
-            request.resource.data.status is string &&
+            request.resource.data.variant is string &&
             request.resource.data.sku is string &&
+            request.resource.data.unit is string &&
+            numberValue(request.resource.data.costPrice) &&
+            numberValue(request.resource.data.sellingPrice) &&
+            request.resource.data.salesAccountId is string &&
+            request.resource.data.salesAccount is map &&
+            request.resource.data.salesTax is map &&
+            request.resource.data.salesTaxId is string &&
+            request.resource.data.salesTaxType is string &&
+            request.resource.data.extraDetails is string &&  
+            request.resource.data.status is string &&
             request.resource.data.createdBy is string &&
             request.resource.data.modifiedBy is string &&
             request.resource.data.createdAt is timestamp &&
-            request.resource.data.modifiedAt is timestamp &&
-            request.resource.data.costAccount is string &&
-            request.resource.data.costPrice is int &&
-            request.resource.data.sellingAccount is string &&
-            request.resource.data.sellingPrice is int &&
-            request.resource.data.variant is string &&
-            request.resource.data.costDetails is string &&
-            request.resource.data.unit is string &&
-            request.resource.data.itemDescription is string &&
-            request.resource.data.sellingDetails is string &&
-            request.resource.data.tax is map &&
-            request.resource.data.taxId is string
+            request.resource.data.modifiedAt is timestamp        
         }
 
         function allowItemUpdate(){
-          let cost=['costDetails', 'costAccount', 'costPrice'];
-          let selling=['sellingDetails', 'sellingAccount', 'sellingPrice', 'tax', 'taxId'];
-          let general=['name', 'variant', 'sku', 'status', 'type', 'unit', 'itemDescription', 'modifiedAt', 'modifiedBy'];
-          let allowed=general.concat(selling).concat(cost);
+          let form1=['name', 'type', 'variant', 'sku', 'unit', 'costPrice'];
+          let form2=['sellingPrice',"salesAccountId", 'salesAccount','salesTax', 'salesTaxId', "salesTaxType",'extraDetails'];
+          let additional=['status', 'modifiedBy', 'modifiedAt'];
+          let allFields=form1.concat(form2).concat(additional);
 
-          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowed)
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
         }
 
         allow read: if isOwner();
@@ -133,31 +211,91 @@ service cloud.firestore {
 
       }
 
-      match /customers/{customerId} {
-        function verifyCustomerData(){
-          let req=['type', 'firstName', 'lastName', 'displayName', 'workPhone', 'city', 'address'];
-          let additional=['status', 'createdAt', 'createdBy', 'modifiedAt', 'modifiedBy'];
-          let required=req.concat(additional);
-          let optional=['companyName', 'email', 'mobile', 'zipcode', 'website', 'remarks', 'openingBalance'];
-          let allFields=required.concat(optional);
+      match /journals/{entryId} {
+        function verifyJournalData(){
+          let req=["amount", "amountState", "transactionType", "account", "debit", "credit", "transactionId", "transactionDetails", "reference"];
+          let additional=["date", "status", "createdAt", "createdBy", "modifiedAt", "modifiedBy"];
+          let required= req.concat(additional);
 
           return request.resource.data.keys().hasAll(required) &&
-            request.resource.data.keys().hasOnly(allFields) &&
+            request.resource.data.keys().hasOnly(required) &&
+            numberValue(request.resource.data.amount) &&
+            request.resource.data.amountState is string &&
+            request.resource.data.date is map &&
+            request.resource.data.transactionType is string &&
+            request.resource.data.account is map &&
+            request.resource.data.account.accountType is map &&
+            request.resource.data.account.name is string &&
+            request.resource.data.account.accountId is string &&
+            numberValue(request.resource.data.debit) &&
+            numberValue(request.resource.data.credit) &&
+            request.resource.data.transactionId is string &&
+            request.resource.data.transactionDetails is map &&
+            request.resource.data.reference is string &&
             request.resource.data.status is string &&
+            request.resource.data.createdAt is timestamp &&
+            request.resource.data.createdBy is string &&
+            request.resource.data.modifiedAt is timestamp &&
+            request.resource.data.modifiedBy is string
+        }
+
+        function allowJournalUpdate(){
+          let req=["amount", "account", "amountState", "transactionType", "debit", "credit", "transactionId", "transactionDetails", "reference"];
+          let additional=["date", "status", "modifiedAt", "modifiedBy"];
+          let required= req.concat(additional);
+
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(required)
+        }
+
+        allow read: if isOwner()
+        allow create: if isOwner() && verifyJournalData()
+        allow update: if isOwner() && verifyJournalData() && allowJournalUpdate()
+      }
+
+      match /customers/{customerId} {
+        function verifyCustomerData(){
+          let details=['type','salutation','companyName','firstName','lastName','displayName','email','phone','mobile'];
+          let address1=['billingStreet','billingCity','billingState','billingPostalCode','billingCountry'];
+          let address2=['shippingStreet','shippingCity','shippingState','shippingPostalCode','shippingCountry'];
+          let extras=['openingBalance','paymentTermId','paymentTerm','website','remarks'];
+          let additional=['status', "summary", 'createdAt', 'createdBy', 'modifiedAt', 'modifiedBy'];
+          let allFields=details.concat(address1).concat(address2).concat(extras).concat(additional);
+
+          return request.resource.data.keys().hasAll(allFields) &&
+            request.resource.data.keys().hasOnly(allFields) &&
             request.resource.data.type is string &&
+            request.resource.data.salutation is string &&
+            request.resource.data.companyName is string &&
             request.resource.data.firstName is string &&
             request.resource.data.lastName is string &&
-            request.resource.data.companyName is string &&
             request.resource.data.displayName is string &&
             request.resource.data.email is string &&
-            request.resource.data.workPhone is string &&
+            request.resource.data.phone is string &&
             request.resource.data.mobile is string &&
-            request.resource.data.openingBalance is int &&
-            request.resource.data.city is string &&
-            request.resource.data.zipcode is string &&
+            request.resource.data.billingStreet is string &&
+            request.resource.data.billingCity is string &&
+            request.resource.data.billingState is string &&
+            request.resource.data.billingPostalCode is string &&
+            request.resource.data.billingCountry is string &&
+            request.resource.data.shippingStreet is string &&
+            request.resource.data.shippingCity is string &&
+            request.resource.data.shippingState is string &&
+            request.resource.data.shippingPostalCode is string &&
+            request.resource.data.shippingCountry is string &&
+            numberValue(request.resource.data.openingBalance) &&
+            request.resource.data.paymentTermId is string &&
+            request.resource.data.paymentTerm is map &&
             request.resource.data.website is string &&
-            request.resource.data.address is string &&
             request.resource.data.remarks is string &&
+            request.resource.data.status is string &&
+            request.resource.data.summary is map &&
+            request.resource.data.summary.invoices is int &&
+            request.resource.data.summary.deletedInvoices is int &&
+            request.resource.data.summary.payments is int &&
+            request.resource.data.summary.deletedInvoices is int &&
+            numberValue(request.resource.data.summary.unusedCredits) &&
+            numberValue(request.resource.data.summary.invoicedAmount) &&
+            numberValue(request.resource.data.summary.invoicePayments) &&
             request.resource.data.createdAt is timestamp &&
             request.resource.data.modifiedAt is timestamp &&
             request.resource.data.createdBy is string &&
@@ -165,68 +303,164 @@ service cloud.firestore {
         }
 
         function allowCustomerUpdate(){
-          let req=['type', 'firstName', 'lastName', 'displayName', 'workPhone', 'city', 'address'];
-          let additional=['status', 'modifiedAt', 'modifiedBy'];
-          let required=req.concat(additional);
-          let optional=['companyName', 'email', 'mobile', 'zipcode', 'website', 'remarks'];
-          let allFields=required.concat(optional);
+          let details=['type','salutation','companyName','firstName','lastName','displayName','email','phone','mobile'];
+          let address1=['billingStreet','billingCity','billingState','billingPostalCode','billingCountry'];
+          let address2=['shippingStreet','shippingCity','shippingState','shippingPostalCode','shippingCountry'];
+          let extras=['paymentTermId','paymentTerm','website','remarks'];
+          let additional=['status', "summary", 'modifiedAt', 'modifiedBy'];
+          let allFields=details.concat(address1).concat(address2).concat(extras).concat(additional);
+
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+        }
+
+        function updateOpeningBalance(){
+          let allFields=['openingBalance', 'modifiedBy', 'modifiedAt'];
 
           return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
         }
         
         allow read: if isOwner()
         allow create: if isOwner() && verifyCustomerData()
-        allow update: if isOwner() && verifyCustomerData() && allowCustomerUpdate()
+        allow update: if isOwner() && verifyCustomerData() &&
+          (allowCustomerUpdate() || updateOpeningBalance())
       }
 
       match /invoices/{invoiceId} {
+        function balanceIsValid(){
+           return numberValue(request.resource.data.balance) &&
+            request.resource.data.balance >= 0 && 
+            request.resource.data.balance <= request.resource.data.summary.totalAmount
+        }
+
         function verifyInvoiceData(){
-          let req=['selectedItems', 'summary', 'customer', 'customerId', 'invoiceDate', 'dueDate'];
-          let additional=['invoiceNumber', 'invoiceSlug', 'status', 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy', 'org'];
-          let required=req.concat(additional);
-          let optional=['customerNotes', 'orderNumber', 'subject'];
+          let form=['customerId', 'invoiceDate', "paymentTermId", 'dueDate'];
+          let formExtras=['customer', 'selectedItems', 'summary', 'invoiceSlug', "balance", "paymentTerm"];
+          let additional=['payments', 'paymentsIds', 'paymentsCount', 'status', "isSent", 'org'];
+          let meta=['transactionType', 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy'];
+          let required=form.concat(formExtras).concat(additional).concat(meta);
+          let optional=['orderNumber', 'subject', 'customerNotes'];
           let allFields=required.concat(optional);
 
           return request.resource.data.keys().hasAll(required) &&
             request.resource.data.keys().hasOnly(allFields) &&
             request.resource.data.selectedItems is list &&
+            request.resource.data.payments is map &&
+            request.resource.data.paymentsIds is list &&
+            request.resource.data.paymentsCount is int &&
             request.resource.data.summary is map &&
-            request.resource.data.summary.shipping is int &&
-            request.resource.data.summary.adjustment is int &&
-            request.resource.data.summary.subTotal is int &&
-            request.resource.data.summary.totalAmount is int &&
-            request.resource.data.summary.totalTax is int &&
-            request.resource.data.summary.taxes is list &&
+            numberValue(request.resource.data.summary.shipping) &&
+            numberValue(request.resource.data.summary.adjustment) &&
+            numberValue(request.resource.data.summary.subTotal) &&
+            numberValue(request.resource.data.summary.totalAmount) &&
+            numberValue(request.resource.data.summary.totalTaxes) &&
+            request.resource.data.get("summary.taxes", []) is list &&
             request.resource.data.customer is map &&
             request.resource.data.customerId is string &&
-            request.resource.data.invoiceDate is string &&
-            request.resource.data.dueDate is string &&
+            request.resource.data.invoiceDate is timestamp &&
+            request.resource.data.dueDate is timestamp &&
             request.resource.data.createdAt is timestamp &&
             request.resource.data.modifiedAt is timestamp &&
             request.resource.data.createdBy is string &&
             request.resource.data.modifiedBy is string &&
             request.resource.data.org is map &&
-            request.resource.data.customerNotes is string &&
-            request.resource.data.orderNumber is string &&
-            request.resource.data.subject is string &&
-            request.resource.data.invoiceNumber is int &&
+            request.resource.data.get("customerNotes", "")  is string &&
+            request.resource.data.get("orderNumber", "") is string &&
+            request.resource.data.get("subject", "") is string &&
             request.resource.data.invoiceSlug is string &&
-            request.resource.data.status is string
+            request.resource.data.status is string &&
+            request.resource.data.isSent is bool &&
+            request.resource.data.transactionType is string &&
+            balanceIsValid()
         }
 
         function allowInvoiceUpdate(){
-          let req=['selectedItems', 'summary', 'customer', 'customerId', 'invoiceDate', 'dueDate'];
-          let additional=['status','modifiedAt', 'modifiedBy'];
-          let required=req.concat(additional);
-          let optional=['customerNotes', 'orderNumber', 'subject'];
+          let form=['customerId', 'invoiceDate', "paymentTermId", 'dueDate'];
+          let formExtras=['customer', 'selectedItems', 'summary', 'invoiceSlug', "balance", "paymentTerm"];
+          let additional=['payments', 'paymentsIds', 'paymentsCount', 'status', "isSent", 'org'];
+          let meta=['modifiedAt', 'modifiedBy'];
+          let required=form.concat(formExtras).concat(additional).concat(meta);
+          let optional=['orderNumber', 'subject', 'customerNotes'];
+          let allFields=required.concat(optional);
+
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+        }
+
+        function invoiceIsPaid(){
+          return request.resource.data.paymentsCount > 0 ||
+            request.resource.data.balance < request.resource.data.summary.totalAmount
+        }
+        function allowCustomerChange(){
+          return !invoiceIsPaid() &&
+            request.resource.data.customerId != resource.data.customerId
+        }
+        function allowDelete(){
+          return !invoiceIsPaid() &&
+            request.resource.data.status == "deleted"
+        }
+        function allowNormalUpdate(){
+          return request.resource.data.status != "deleted" &&
+            request.resource.data.customerId == resource.data.customerId
+        }
+
+        allow read: if isOwner()
+        allow create: if isOwner() && verifyInvoiceData()
+        allow update: if isOwner() && verifyInvoiceData() && allowInvoiceUpdate() &&
+          (allowNormalUpdate() || allowCustomerChange() || allowDelete())
+      }
+
+     
+      match /payments/{paymentId} {
+
+        function verifyPaymentData(){
+          let form=['accountId', 'amount', 'customerId', 'paymentDate', "paymentModeId"];
+          let details=["payments", "paidInvoices", "paidInvoicesIds", "account", 'customer', "paymentMode", 'excess'];
+          let additional=['status', 'org', 'paymentSlug', 'createdBy', "createdAt", 'modifiedBy', "modifiedAt"];
+          let required=form.concat(details).concat(additional);
+          let optional=['reference'];
+          let allFields=required.concat(optional);
+
+          return request.resource.data.keys().hasAll(required) &&
+            request.resource.data.keys().hasOnly(allFields) &&
+            request.resource.data.accountId is string &&
+            request.resource.data.account is map &&
+            numberValue(request.resource.data.amount) &&
+            numberValue(request.resource.data.excess) &&
+            request.resource.data.customerId is string &&
+            request.resource.data.customer is map &&
+            request.resource.data.paymentDate is timestamp &&
+            request.resource.data.paymentModeId is string &&
+            request.resource.data.paymentMode is map &&
+            request.resource.data.payments is map &&
+            request.resource.data.paidInvoices is list &&
+            request.resource.data.paidInvoicesIds is list &&
+            request.resource.data.status is string &&
+            request.resource.data.org is map &&
+            request.resource.data.paymentSlug is string &&
+            request.resource.data.createdBy is string &&
+            request.resource.data.createdAt is timestamp &&
+            request.resource.data.modifiedBy is string &&
+            request.resource.data.modifiedAt is timestamp &&
+            request.resource.data.reference is string
+            // numberValue(request.resource.data.bankCharges) &&
+            // request.resource.data.taxDeducted is string &&
+            // request.resource.data.tdsTaxAccount is string 
+
+        }
+
+        function allowPaymentUpdate(){
+          let form=['accountId', 'amount', 'customerId', 'paymentDate', "paymentModeId"];
+          let details=["payments", "paidInvoices", "paidInvoicesIds", "account", 'customer', "paymentMode"];
+          let additional=['status', 'modifiedBy', "modifiedAt", 'excess'];
+          let required=form.concat(details).concat(additional);
+          let optional=['reference'];
           let allFields=required.concat(optional);
 
           return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
         }
 
         allow read: if isOwner()
-        allow create: if isOwner() && verifyInvoiceData()
-        allow update: if isOwner() && verifyInvoiceData() && allowInvoiceUpdate()
+        allow create: if isOwner() && verifyPaymentData()
+        allow update: if isOwner() && verifyPaymentData() && allowPaymentUpdate()
       }
     }
   }

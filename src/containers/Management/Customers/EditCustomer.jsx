@@ -1,72 +1,126 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { useParams, useNavigate } from "react-router-dom";
 
-import { CUSTOMERS } from "../../../nav/routes";
-import {
-  GET_CUSTOMER,
-  UPDATE_CUSTOMER,
-} from "../../../store/actions/customersActions";
-import { reset } from "../../../store/slices/customersSlice";
+import { GET_PAYMENT_TERMS } from "../../../store/actions/paymentTermsActions";
+
+import Stepper from "../../../components/ui/Stepper";
 
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
 import Empty from "../../../components/ui/Empty";
 
-import CustomerForm from "../../../components/forms/CustomerForms/CustomerForm";
+import DetailsForm from "../../../components/forms/CustomerForms/DetailsForm";
+import ExtraDetailsForm from "../../../components/forms/CustomerForms/ExtraDetailsForm";
+import AddressForm from "../../../components/forms/CustomerForms/AddressForm";
 
 function EditCustomer(props) {
   const {
-    loading,
-    action,
-    isModified,
     customer,
-    getCustomer,
-    updateCustomer,
-    resetCustomer,
+    loading,
+    saveData,
+    getPaymentTerms,
+    loadingPaymentTerms,
+    paymentTerms,
   } = props;
-
-  const navigate = useNavigate();
-  const { customerId } = useParams();
+  const [formValues, setFormValues] = useState(customer || {});
 
   useEffect(() => {
-    getCustomer(customerId);
-  }, [getCustomer, customerId]);
+    getPaymentTerms();
+  }, [getPaymentTerms]);
 
-  useEffect(() => {
-    if (isModified) {
-      resetCustomer();
-      navigate(CUSTOMERS);
-    }
-  }, [isModified, resetCustomer, navigate]);
-
-  function update(data) {
-    updateCustomer({ ...data, customerId });
+  function updateFormValues(data) {
+    setFormValues((current) => ({ ...current, ...data }));
   }
 
-  return loading && action === GET_CUSTOMER ? (
+  function finish(data) {
+    updateFormValues(data);
+
+    saveData({
+      ...formValues,
+      ...data,
+    });
+  }
+
+  console.log({ paymentTerms });
+
+  return loadingPaymentTerms ? (
     <SkeletonLoader />
-  ) : customer ? (
-    <CustomerForm
-      customer={customer}
-      loading={loading && action === UPDATE_CUSTOMER}
-      handleFormSubmit={update}
+  ) : paymentTerms?.length > 0 ? (
+    <Stepper
+      steps={[
+        {
+          label: "Details",
+          content: (
+            <DetailsForm
+              handleFormSubmit={updateFormValues}
+              defaultValues={formValues}
+              loading={loading}
+            />
+          ),
+        },
+        {
+          label: "Address",
+          content: (
+            <AddressForm
+              handleFormSubmit={updateFormValues}
+              loading={loading}
+              defaultValues={formValues}
+            />
+          ),
+        },
+        {
+          label: "Extras",
+          content: (
+            <ExtraDetailsForm
+              handleFormSubmit={finish}
+              loading={loading}
+              defaultValues={formValues}
+              updateFormValues={updateFormValues}
+              paymentTerms={paymentTerms}
+              customerId={customer?.customerId || ""}
+            />
+          ),
+        },
+      ]}
     />
   ) : (
-    <Empty message="Customer not Found!" />
+    <Empty message="Payment Terms not found! Try to reload the page!" />
   );
 }
 
-function mapStateToProps(state) {
-  const { loading, action, isModified, customer } = state.customersReducer;
+EditCustomer.propTypes = {
+  loading: PropTypes.bool.isRequired,
+  saveData: PropTypes.func.isRequired,
+  customer: PropTypes.shape({
+    status: PropTypes.string,
+    type: PropTypes.string,
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
+    companyName: PropTypes.string,
+    displayName: PropTypes.string,
+    email: PropTypes.string,
+    workPhone: PropTypes.string,
+    mobile: PropTypes.string,
+    openingBalance: PropTypes.number,
+    city: PropTypes.string,
+    zipcode: PropTypes.string,
+    website: PropTypes.string,
+    address: PropTypes.string,
+    remarks: PropTypes.string,
+  }),
+};
 
-  return { loading, action, isModified, customer };
+function mapStateToProps(state) {
+  const { loading, action, paymentTerms } = state.paymentTermsReducer;
+  const loadingPaymentTerms = loading && action === GET_PAYMENT_TERMS;
+  console.log({ paymentTerms });
+
+  return { loadingPaymentTerms, paymentTerms };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    getCustomer: (customerId) => dispatch({ type: GET_CUSTOMER, customerId }),
-    updateCustomer: (data) => dispatch({ type: UPDATE_CUSTOMER, data }),
-    resetCustomer: () => dispatch(reset()),
+    getPaymentTerms: () => dispatch({ type: GET_PAYMENT_TERMS }),
   };
 }
 

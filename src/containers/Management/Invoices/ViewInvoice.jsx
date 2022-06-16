@@ -28,9 +28,10 @@ function ViewInvoice(props) {
     invoiceDate,
     dueDate,
     customerNotes,
+    balance,
+    payments,
   } = invoice;
-  const { totalAmount } = summary;
-  console.log({ invoice });
+  // console.log({ invoice });
   return (
     <Container
       borderRadius="md"
@@ -63,7 +64,7 @@ function ViewInvoice(props) {
               <VStack w="full" mt="20px!important" align="flex-end">
                 <Text fontSize="sm">Balance Due</Text>
                 <Heading mt="0px !important" size="sm">
-                  KES {Number(totalAmount).toLocaleString()}
+                  KES {Number(balance).toLocaleString()}
                   {}
                 </Heading>
               </VStack>
@@ -106,12 +107,12 @@ function ViewInvoice(props) {
           </GridItem>
         </Grid>
         <Box w="full" mt="20px!important">
-          <InvoicePdfItems items={selectedItems} />
+          <InvoicePdfItems taxType={summary.taxType} items={selectedItems} />
         </Box>
         <Grid w="full" columnGap={3} templateColumns="repeat(12, 1fr)">
           <GridItem colSpan={[1, 6]}></GridItem>
           <GridItem colSpan={[11, 6]}>
-            <InvoicePdfSummary summary={summary} />
+            <InvoicePdfSummary payments={payments} summary={summary} />
           </GridItem>
         </Grid>
         {customerNotes && (
@@ -135,14 +136,15 @@ ViewInvoice.propTypes = {
       adjustment: PropTypes.number.isRequired,
       totalAmount: PropTypes.number.isRequired,
       subTotal: PropTypes.number.isRequired,
-      totalTax: PropTypes.number.isRequired,
+      totalTaxes: PropTypes.number.isRequired,
       taxes: PropTypes.array.isRequired,
     }),
-    invoiceDate: PropTypes.string.isRequired,
-    dueDate: PropTypes.string.isRequired,
+    invoiceDate: PropTypes.instanceOf(Date).isRequired,
+    dueDate: PropTypes.instanceOf(Date).isRequired,
     invoiceSlug: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,
     selectedItems: PropTypes.array.isRequired,
+    balance: PropTypes.number.isRequired,
   }),
 };
 

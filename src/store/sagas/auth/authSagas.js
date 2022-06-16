@@ -20,6 +20,8 @@ function removeUser() {
   // console.log("removing current user if any!");
   //remove blog data
   localStorage.removeItem("org");
+  //remove accounts data
+  localStorage.removeItem("accounts");
   //remove location data
   localStorage.removeItem("location");
 
