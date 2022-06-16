@@ -41,7 +41,7 @@ const schema = yup.object().shape({
   discountType: yup.string().required("*Required"),
 });
 
-function ItemQtyForm(props) {
+function SelectItemForm(props) {
   const { items, handleFormSubmit, item, onClose } = props;
   const formMethods = useForm({
     mode: "onChange",
@@ -158,7 +158,7 @@ function ItemQtyForm(props) {
   );
 }
 
-ItemQtyForm.propTypes = {
+SelectItemForm.propTypes = {
   items: PropTypes.array.isRequired,
   handleFormSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func,
@@ -171,4 +171,4 @@ ItemQtyForm.propTypes = {
   }),
 };
 
-export default ItemQtyForm;
+export default SelectItemForm;

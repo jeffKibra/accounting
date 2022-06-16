@@ -1,6 +1,5 @@
 import { useContext, useCallback, useMemo } from "react";
 import {
-  Box,
   Flex,
   FormControl,
   FormLabel,
@@ -9,9 +8,9 @@ import {
   FormHelperText,
   FormErrorMessage,
   Button,
-  VStack,
   Grid,
   GridItem,
+  Container,
 } from "@chakra-ui/react";
 import { useForm, FormProvider } from "react-hook-form";
 
@@ -20,16 +19,16 @@ import { confirmFutureDate } from "../../../utils/dates";
 
 import useToasts from "../../../hooks/useToasts";
 
-import InvoicesContext from "../../../contexts/InvoicesContext";
+import SalesContext from "../../../contexts/SalesContext";
 import StepperContext from "../../../contexts/StepperContext";
 
 import CustomSelect from "../../ui/CustomSelect";
 import CustomDatePicker from "../../ui/CustomDatePicker";
 import { useEffect } from "react";
 
-function InvoiceDetailsForm() {
+function InvoiceForm() {
   const { formValues, updateFormValues, customers, loading, paymentTerms } =
-    useContext(InvoicesContext);
+    useContext(SalesContext);
   const { nextStep } = useContext(StepperContext);
 
   const defaults = useMemo(() => {
@@ -128,20 +127,22 @@ function InvoiceDetailsForm() {
   }
 
   return (
-    <VStack w="full" h="full">
-      <FormProvider {...formMethods}>
-        <Box
-          w={["full", "80%"]}
-          mt={2}
-          p={4}
-          bg="white"
-          borderRadius="md"
-          shadow="md"
+    <FormProvider {...formMethods}>
+      <Container
+        mt={2}
+        p={4}
+        bg="white"
+        borderRadius="md"
+        shadow="md"
+        maxW="container.sm"
+      >
+        <Container
+          py={4}
           as="form"
           role="form"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <Grid gap={4} templateColumns="repeat(12, 1fr)">
+          <Grid rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
             <GridItem colSpan={[12, 6]}>
               <FormControl
                 isDisabled={loading}
@@ -247,10 +248,10 @@ function InvoiceDetailsForm() {
               next
             </Button>
           </Flex>
-        </Box>
-      </FormProvider>
-    </VStack>
+        </Container>
+      </Container>
+    </FormProvider>
   );
 }
 
-export default InvoiceDetailsForm;
+export default InvoiceForm;

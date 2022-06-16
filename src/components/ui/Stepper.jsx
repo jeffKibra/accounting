@@ -8,7 +8,9 @@ function Stepper(props) {
   const { activeStep, nextStep, prevStep } = useSteps({ initialStep: 0 });
 
   return (
-    <StepperContext.Provider value={{ nextStep, prevStep }}>
+    <StepperContext.Provider
+      value={{ nextStep, prevStep, activeStep, totalSteps: steps.length }}
+    >
       <Steps responsive={responsive || false} size="sm" activeStep={activeStep}>
         {steps.map(({ label, content }, i) => {
           return (

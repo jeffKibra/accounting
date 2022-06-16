@@ -131,7 +131,7 @@ function InvoicesPaymentForm(props) {
   }
 
   return (
-    <VStack w="full">
+    <VStack mt={1} w="full">
       <Flex justify="flex-end" w="full">
         <Button
           onClick={clear}

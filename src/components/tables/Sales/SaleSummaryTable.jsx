@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 import TableNumInput from "../../ui/TableNumInput";
 
-function SummaryTable(props) {
+function SaleSummaryTable(props) {
   const { summary, loading, taxType, totalAmount } = props;
   const { subTotal, taxes, totalTaxes } = summary;
 
@@ -55,7 +55,7 @@ function SummaryTable(props) {
   );
 }
 
-SummaryTable.propTypes = {
+SaleSummaryTable.propTypes = {
   loading: PropTypes.bool.isRequired,
   summary: PropTypes.shape({
     subTotal: PropTypes.number,
@@ -72,4 +72,4 @@ SummaryTable.propTypes = {
   taxType: PropTypes.string.isRequired,
 };
 
-export default SummaryTable;
+export default SaleSummaryTable;

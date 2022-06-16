@@ -39,17 +39,21 @@ function formatInvoiceDates(invoice) {
   };
 }
 
-function sortByDate(invoice1, invoice2) {
-  console.log({ invoice1, invoice2 });
-  const {
-    createdAt: { seconds: seconds1 },
-  } = invoice1;
-  const {
-    createdAt: { seconds: seconds2 },
-  } = invoice2;
+function sortByDateAsc(invoice1, invoice2) {
+  // console.log({ invoice1, invoice2 });
+  const { createdAt: createdAt1 } = invoice1;
+  const { createdAt: createdAt2 } = invoice2;
 
-  return seconds1 - seconds2;
+  return createdAt1 - createdAt2;
 }
+
+// function sortByDateDesc(invoice1, invoice2) {
+// // console.log({ invoice1, invoice2 });
+//   const { createdAt: createdAt1 } = invoice1;
+//   const { createdAt: createdAt2 } = invoice2;
+
+//   return createdAt2 - createdAt1;
+// }
 
 const allStatuses = [
   "pending",
@@ -199,7 +203,7 @@ function* getUnpaidCustomerInvoices({ type, customerId }) {
     /**
      * sort by date
      */
-    invoices.sort(sortByDate);
+    invoices.sort(sortByDateAsc);
 
     return invoices;
   }
@@ -262,7 +266,8 @@ function* getPaymentInvoicesToEdit({ type, paymentId, customerId }) {
     /**
      * sort by date
      */
-    invoices2.sort(sortByDate);
+    invoices1.sort(sortByDateAsc);
+    invoices2.sort(sortByDateAsc);
 
     return [...invoices1, ...invoices2];
   }

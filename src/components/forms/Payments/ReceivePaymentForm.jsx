@@ -1,6 +1,5 @@
 import { useContext } from "react";
 import {
-  Box,
   Flex,
   FormControl,
   FormLabel,
@@ -9,6 +8,7 @@ import {
   Button,
   Grid,
   GridItem,
+  Container,
 } from "@chakra-ui/react";
 import { useForm, FormProvider } from "react-hook-form";
 import PropTypes from "prop-types";
@@ -115,119 +115,127 @@ function ReceivePaymentForm(props) {
 
   return (
     <FormProvider {...formMethods}>
-      <Box
+      <Container
+        mt={2}
         bg="white"
         borderRadius="md"
         shadow="md"
         p={4}
-        w={["full", "80%"]}
-        as="form"
-        role="form"
-        onSubmit={handleSubmit(onSubmit)}
+        maxW="container.sm"
       >
-        <Grid gap={3} templateColumns="repeat(12, 1fr)">
-          <GridItem colSpan={[12, 6]}>
-            <FormControl
-              isDisabled={loading}
-              required
-              isInvalid={errors.customerId}
-            >
-              <FormLabel htmlFor="customerId">Customer</FormLabel>
-              <CustomSelect
-                name="customerId"
-                placeholder="--select customer--"
-                options={customers.map((customer) => {
-                  const { displayName, customerId } = customer;
-                  return { name: displayName, value: customerId };
-                })}
-              />
-              <FormErrorMessage>{errors.customerId?.message}</FormErrorMessage>
-            </FormControl>
-          </GridItem>
+        <Container
+          py={4}
+          as="form"
+          role="form"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <Grid gap={3} templateColumns="repeat(12, 1fr)">
+            <GridItem colSpan={[12, 6]}>
+              <FormControl
+                isDisabled={loading}
+                required
+                isInvalid={errors.customerId}
+              >
+                <FormLabel htmlFor="customerId">Customer</FormLabel>
+                <CustomSelect
+                  name="customerId"
+                  placeholder="--select customer--"
+                  options={customers.map((customer) => {
+                    const { displayName, customerId } = customer;
+                    return { name: displayName, value: customerId };
+                  })}
+                />
+                <FormErrorMessage>
+                  {errors.customerId?.message}
+                </FormErrorMessage>
+              </FormControl>
+            </GridItem>
 
-          <GridItem colSpan={[12, 6]}>
-            <FormControl
-              isDisabled={loading}
-              required
-              isInvalid={errors.paymentDate}
-            >
-              <FormLabel htmlFor="paymentDate">Payment Date</FormLabel>
-              <CustomDatePicker name="paymentDate" />
-              {/* <Input
+            <GridItem colSpan={[12, 6]}>
+              <FormControl
+                isDisabled={loading}
+                required
+                isInvalid={errors.paymentDate}
+              >
+                <FormLabel htmlFor="paymentDate">Payment Date</FormLabel>
+                <CustomDatePicker name="paymentDate" />
+                {/* <Input
                 type="date"
                 id="paymentDate"
                 {...register("paymentDate")}
               /> */}
-              <FormErrorMessage>{errors.paymentDate?.message}</FormErrorMessage>
-            </FormControl>
-          </GridItem>
+                <FormErrorMessage>
+                  {errors.paymentDate?.message}
+                </FormErrorMessage>
+              </FormControl>
+            </GridItem>
 
-          <GridItem colSpan={[12, 6]}>
-            <FormControl
-              isDisabled={loading}
-              required
-              isInvalid={errors.amount}
-            >
-              <FormLabel htmlFor="amount">Amount</FormLabel>
-              <NumInput name="amount" />
-              <FormErrorMessage>{errors.amount?.message}</FormErrorMessage>
-            </FormControl>
-          </GridItem>
+            <GridItem colSpan={[12, 6]}>
+              <FormControl
+                isDisabled={loading}
+                required
+                isInvalid={errors.amount}
+              >
+                <FormLabel htmlFor="amount">Amount</FormLabel>
+                <NumInput name="amount" />
+                <FormErrorMessage>{errors.amount?.message}</FormErrorMessage>
+              </FormControl>
+            </GridItem>
 
-          <GridItem colSpan={[12, 6]}>
-            <FormControl
-              isDisabled={loading}
-              required
-              isInvalid={errors.accountId}
-            >
-              <FormLabel htmlFor="accountId">Deposit To</FormLabel>
-              <CustomSelect
-                name="accountId"
-                placeholder="---select account---"
-                groupedOptions={paymentAccounts.map((account) => {
-                  const { name, accountId, accountType } = account;
-                  return {
-                    name,
-                    value: accountId,
-                    groupName: accountType.name,
-                  };
-                })}
-              />
-              <FormErrorMessage>{errors.accountId?.message}</FormErrorMessage>
-            </FormControl>
-          </GridItem>
+            <GridItem colSpan={[12, 6]}>
+              <FormControl
+                isDisabled={loading}
+                required
+                isInvalid={errors.accountId}
+              >
+                <FormLabel htmlFor="accountId">Deposit To</FormLabel>
+                <CustomSelect
+                  name="accountId"
+                  placeholder="---select account---"
+                  groupedOptions={paymentAccounts.map((account) => {
+                    const { name, accountId, accountType } = account;
+                    return {
+                      name,
+                      value: accountId,
+                      groupName: accountType.name,
+                    };
+                  })}
+                />
+                <FormErrorMessage>{errors.accountId?.message}</FormErrorMessage>
+              </FormControl>
+            </GridItem>
 
-          <GridItem colSpan={[12, 6]}>
-            <FormControl
-              isDisabled={loading}
-              required
-              isInvalid={errors.paymentModeId}
-            >
-              <FormLabel htmlFor="paymentModeId">Payment Mode</FormLabel>
-              <CustomSelect
-                name="paymentModeId"
-                options={paymentModes}
-                placeholder="select payment mode"
-              />
-              <FormErrorMessage>
-                {errors.paymentModeId?.message}
-              </FormErrorMessage>
-            </FormControl>
-          </GridItem>
+            <GridItem colSpan={[12, 6]}>
+              <FormControl
+                isDisabled={loading}
+                required
+                isInvalid={errors.paymentModeId}
+              >
+                <FormLabel htmlFor="paymentModeId">Payment Mode</FormLabel>
+                <CustomSelect
+                  name="paymentModeId"
+                  options={paymentModes}
+                  placeholder="select payment mode"
+                />
+                <FormErrorMessage>
+                  {errors.paymentModeId?.message}
+                </FormErrorMessage>
+              </FormControl>
+            </GridItem>
 
-          <GridItem colSpan={[12, 6]}>
-            <FormControl
-              isDisabled={loading}
-              required
-              isInvalid={errors.reference}
-            >
-              <FormLabel htmlFor="reference">Reference#</FormLabel>
-              <Input id="reference" {...register("reference")} />
-              <FormErrorMessage>{errors.reference?.message}</FormErrorMessage>
-            </FormControl>
-          </GridItem>
+            <GridItem colSpan={[12, 6]}>
+              <FormControl
+                isDisabled={loading}
+                required
+                isInvalid={errors.reference}
+              >
+                <FormLabel htmlFor="reference">Reference#</FormLabel>
+                <Input id="reference" {...register("reference")} />
+                <FormErrorMessage>{errors.reference?.message}</FormErrorMessage>
+              </FormControl>
+            </GridItem>
 
-          {/* <GridItem colSpan={[12, 6]}>
+            {/* <GridItem colSpan={[12, 6]}>
             <FormControl
               isDisabled={loading}
               required
@@ -240,7 +248,7 @@ function ReceivePaymentForm(props) {
             </FormControl>
           </GridItem> */}
 
-          {/* <GridItem colSpan={[12, 6]}>
+            {/* <GridItem colSpan={[12, 6]}>
             <FormControl
               isDisabled={loading}
               required
@@ -257,7 +265,7 @@ function ReceivePaymentForm(props) {
             </FormControl>
           </GridItem> */}
 
-          {/* {watch("taxDeducted") === "yes" && (
+            {/* {watch("taxDeducted") === "yes" && (
             <GridItem colSpan={[12, 6]}>
               <FormControl
                 isDisabled={loading}
@@ -292,14 +300,15 @@ function ReceivePaymentForm(props) {
               </FormControl>
             </GridItem>
           )} */}
-        </Grid>
+          </Grid>
 
-        <Flex justify="center">
-          <Button isLoading={loading} colorScheme="cyan" mt={4} type="submit">
-            next
-          </Button>
-        </Flex>
-      </Box>
+          <Flex justify="center">
+            <Button isLoading={loading} colorScheme="cyan" mt={4} type="submit">
+              next
+            </Button>
+          </Flex>
+        </Container>
+      </Container>
     </FormProvider>
   );
 }

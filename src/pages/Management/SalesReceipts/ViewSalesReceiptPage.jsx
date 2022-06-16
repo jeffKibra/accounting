@@ -2,8 +2,6 @@ import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { connect } from "react-redux";
 
-import SalesReceiptOptions from "../../../containers/Management/salesReceipts/SalesReceiptOptions";
-
 import { GET_SALES_RECEIPTS } from "../../../store/actions/salesReceiptsActions";
 import { reset } from "../../../store/slices/salesReceiptsSlice";
 
@@ -15,6 +13,7 @@ import PageLayout from "../../../components/layout/PageLayout";
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
 import Empty from "../../../components/ui/Empty";
 
+import SalesReceiptOptions from "../../../containers/Management/SalesReceipts/SalesReceiptOptions";
 import ViewSalesReceipt from "../../../containers/Management/SalesReceipts/ViewSalesReceipt";
 
 function ViewSalesReceiptPage(props) {

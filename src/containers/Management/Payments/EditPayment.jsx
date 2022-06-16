@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Flex } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
@@ -115,24 +115,15 @@ function EditPayment(props) {
           {
             label: "Receive Payment",
             content: (
-              <Flex
-                mt={1}
-                w="full"
-                justify="center"
-                h="full"
-                overflowY="auto"
-                pb="100px"
-              >
-                <ReceivePaymentForm
-                  handleFormSubmit={updateFormValues}
-                  customers={customers}
-                  loading={updating}
-                  defaultValues={formValues}
-                  accounts={accounts}
-                  paymentId={paymentId}
-                  paymentModes={paymentModes}
-                />
-              </Flex>
+              <ReceivePaymentForm
+                handleFormSubmit={updateFormValues}
+                customers={customers}
+                loading={updating}
+                defaultValues={formValues}
+                accounts={accounts}
+                paymentId={paymentId}
+                paymentModes={paymentModes}
+              />
             ),
           },
           {

@@ -1,20 +1,19 @@
 import { Box } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 
-import { InvoicesContextProvider } from "../../../contexts/InvoicesContext";
-
+import { SalesContextProvider } from "../../../contexts/SalesContext";
 import Stepper from "../../../components/ui/Stepper";
 
-import InvoiceDetailsForm from "../../../components/forms/Invoice/InvoiceDetailsForm";
-import InvoiceItemsForm from "../../../components/forms/Invoice/InvoiceItemsForm";
+import InvoiceForm from "../../../components/forms/Invoice/InvoiceForm";
+import SaleItemsForm from "../../../components/forms/Sales/SaleItemsForm";
 
 function EditInvoice(props) {
   const { invoice, handleFormSubmit, updating } = props;
   // console.log({ props });
 
   return (
-    <InvoicesContextProvider
-      invoice={invoice}
+    <SalesContextProvider
+      defaultValues={invoice}
       updating={updating}
       saveData={handleFormSubmit}
     >
@@ -23,16 +22,16 @@ function EditInvoice(props) {
           steps={[
             {
               label: "Invoice Details",
-              content: <InvoiceDetailsForm />,
+              content: <InvoiceForm />,
             },
             {
               label: "Add Items",
-              content: <InvoiceItemsForm />,
+              content: <SaleItemsForm />,
             },
           ]}
         />
       </Box>
-    </InvoicesContextProvider>
+    </SalesContextProvider>
   );
 }
 

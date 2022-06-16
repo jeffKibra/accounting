@@ -11,32 +11,33 @@ import {
 } from "@chakra-ui/react";
 import { useForm, FormProvider } from "react-hook-form";
 
-import InvoicesContext from "../../../contexts/InvoicesContext";
+import SalesContext from "../../../contexts/SalesContext";
 import StepperContext from "../../../contexts/StepperContext";
 
 import useToasts from "../../../hooks/useToasts";
 
-import AddedItemsTable from "../../tables/Invoices/AddedItemsTable";
-import SummaryTable from "../../tables/Invoices/SummaryTable";
-import AddItem from "../../Custom/Invoices/AddItem";
+import SaleItemsTable from "../../tables/Sales/SaleItemsTable";
+import SaleSummaryTable from "../../tables/Sales/SaleSummaryTable";
+import AddItem from "../../Custom/Sales/AddItem";
 
 import CustomSelect from "../../ui/CustomSelect";
 
-function InvoiceItemsForm(props) {
+function SaleItemsForm(props) {
   const {
     addItem,
     items,
     removeItem,
     selectedItems,
     summary,
-    setAdjustment,
-    setShipping,
     loading,
     finish,
     formValues,
     updateFormValues,
-  } = useContext(InvoicesContext);
-  const { prevStep } = useContext(StepperContext);
+  } = useContext(SalesContext);
+  const { prevStep, nextStep, activeStep, totalSteps } =
+    useContext(StepperContext);
+  const isLastStep = activeStep === totalSteps - 1;
+
   const toasts = useToasts();
   const [portalNode, setPortalNode] = useState(null);
 
@@ -52,7 +53,7 @@ function InvoiceItemsForm(props) {
       adjustment: formValues?.summary?.adjustment || 0,
     },
   });
-  const { handleSubmit, watch } = formMethods;
+  const { handleSubmit, watch, getValues } = formMethods;
 
   const taxType = watch("taxType");
   const shipping = watch("shipping");
@@ -61,36 +62,40 @@ function InvoiceItemsForm(props) {
   const { subTotal, totalTaxes } = summary;
   const totalAmount = subTotal + totalTaxes + +shipping + +adjustment;
 
+  function newSummary(data) {
+    return {
+      ...summary,
+      ...data,
+      totalAmount,
+    };
+  }
+
   function goBack() {
+    const allValues = getValues();
+    const saleSummary = newSummary(allValues);
     updateFormValues({
-      summary: {
-        ...summary,
-        shipping,
-        adjustment,
-      },
+      summary: saleSummary,
     });
     prevStep();
+  }
+
+  function goNext(saleSummary) {
+    updateFormValues({ summary: saleSummary });
+    nextStep();
   }
 
   function save(data) {
     // console.log("submitting form");
     if (selectedItems.length === 0) {
-      return toasts.error("You must add atleast one item to an Invoice!");
+      return toasts.error("Please add atleast one(1) item to proceed!");
     }
     if (totalAmount <= 0) {
-      return toasts.error(
-        "Invoice Total Amount should be greater than ZERO(0)!"
-      );
+      return toasts.error("Total Sale Amount should be greater than ZERO(0)!");
     }
 
-    const invoiceSummary = {
-      ...summary,
-      ...data,
-      totalAmount,
-    };
-    // console.log({ data });
+    const saleSummary = newSummary(data);
 
-    finish(invoiceSummary);
+    isLastStep ? finish({ summary: saleSummary }) : goNext(saleSummary);
   }
 
   return (
@@ -98,7 +103,7 @@ function InvoiceItemsForm(props) {
       <AddItem loading={loading} addItem={addItem} items={items || []} />
       <Flex ref={onRefChange} w="full" />
 
-      <AddedItemsTable
+      <SaleItemsTable
         loading={loading}
         handleEdit={addItem}
         handleDelete={removeItem}
@@ -143,11 +148,9 @@ function InvoiceItemsForm(props) {
               borderRadius="md"
               shadow="md"
             >
-              <SummaryTable
+              <SaleSummaryTable
                 loading={loading}
                 summary={summary}
-                setAdjustment={setAdjustment}
-                setShipping={setShipping}
                 taxType={taxType}
                 totalAmount={totalAmount}
               />
@@ -164,7 +167,7 @@ function InvoiceItemsForm(props) {
               back
             </Button>
             <Button type="submit" isLoading={loading} colorScheme="cyan">
-              save
+              {isLastStep ? "save" : "next"}
             </Button>
           </Flex>
         </Box>
@@ -173,4 +176,4 @@ function InvoiceItemsForm(props) {
   );
 }
 
-export default InvoiceItemsForm;
+export default SaleItemsForm;

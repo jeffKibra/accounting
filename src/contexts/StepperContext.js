@@ -3,6 +3,8 @@ import { createContext } from "react";
 const initialState = {
   nextStep: () => {},
   prevStep: () => {},
+  activeStep: 0,
+  totalSteps: 0,
 };
 
 const StepperContext = createContext({ ...initialState });

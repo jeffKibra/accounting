@@ -5,9 +5,9 @@ import { RiDeleteBin4Line, RiEdit2Line } from "react-icons/ri";
 
 import CustomTable from "../CustomTable";
 import CustomModal from "../../ui/CustomModal";
-import ItemQtyForm from "../../forms/Invoice/ItemQtyForm";
+import SelectItemForm from "../../forms/Sales/SelectItemForm";
 
-function AddedItemsTable(props) {
+function SaleItemsTable(props) {
   const { items, handleDelete, handleEdit, loading, taxType } = props;
   // console.log({ items });
 
@@ -68,7 +68,7 @@ function AddedItemsTable(props) {
               }}
               renderContent={(onClose) => {
                 return (
-                  <ItemQtyForm
+                  <SelectItemForm
                     handleFormSubmit={handleEdit}
                     items={items}
                     item={item}
@@ -95,7 +95,7 @@ function AddedItemsTable(props) {
   return <CustomTable data={data} columns={columns} />;
 }
 
-AddedItemsTable.propTypes = {
+SaleItemsTable.propTypes = {
   loading: PropTypes.bool.isRequired,
   items: PropTypes.arrayOf(
     PropTypes.shape({
@@ -123,4 +123,4 @@ AddedItemsTable.propTypes = {
   taxType: PropTypes.string.isRequired,
 };
 
-export default AddedItemsTable;
+export default SaleItemsTable;

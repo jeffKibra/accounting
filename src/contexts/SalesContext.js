@@ -27,22 +27,20 @@ const initialState = {
   paymentTerms: [{ name: "", value: "" }],
 };
 
-const InvoicesContext = createContext(initialState);
-InvoicesContext.displayName = "invoices_context";
+const SalesContext = createContext(initialState);
+SalesContext.displayName = "sales_context";
 
-export default InvoicesContext;
+export default SalesContext;
 
 function Provider(props) {
   const {
     children,
     saveData,
-    invoice,
+    defaultValues,
     items,
     loadingItems,
-    itemsAction,
     loadingCustomers,
     customers,
-    customersAction,
     getItems,
     getCustomers,
     updating,
@@ -51,7 +49,7 @@ function Provider(props) {
     loadingPaymentTerms,
   } = props;
 
-  // console.log({ invoice, customers, items });
+  // console.log({ paymentTerms customers, items });
   // console.log({ props });
 
   useEffect(() => {
@@ -60,9 +58,11 @@ function Provider(props) {
     getPaymentTerms();
   }, [getItems, getCustomers, getPaymentTerms]);
 
-  const [formValues, setFormValues] = useState(invoice ? { ...invoice } : null);
+  const [formValues, setFormValues] = useState(
+    defaultValues ? { ...defaultValues } : null
+  );
   const [addedItems, setAddedItems] = useState(
-    invoice?.selectedItems ? [...invoice.selectedItems] : []
+    defaultValues?.selectedItems ? [...defaultValues.selectedItems] : []
   );
   const [remainingItems, setRemainingItems] = useState(items ? [...items] : []);
 
@@ -237,14 +237,14 @@ function Provider(props) {
     });
   }
 
-  function finish(invoiceSummary) {
-    updateFormValues({ summary: invoiceSummary });
+  function finish(data) {
+    updateFormValues({ ...data });
     const all = {
       ...formValues,
-      summary: invoiceSummary,
+      ...data,
       selectedItems,
     };
-    // console.log({ invoiceSummary, all });
+    // console.log({  all });
 
     saveData(all);
   }
@@ -252,12 +252,10 @@ function Provider(props) {
   // console.log({ selectedItems });
   // console.log({ formValues });
 
-  return (loadingItems && itemsAction === GET_ITEMS) ||
-    (loadingCustomers && customersAction === GET_CUSTOMERS) ||
-    loadingPaymentTerms ? (
+  return loadingItems || loadingCustomers || loadingPaymentTerms ? (
     <SkeletonLoader />
   ) : customers?.length > 0 && items?.length > 0 && paymentTerms?.length > 0 ? (
-    <InvoicesContext.Provider
+    <SalesContext.Provider
       value={{
         summary,
         removeItem,
@@ -273,7 +271,7 @@ function Provider(props) {
       }}
     >
       {children}
-    </InvoicesContext.Provider>
+    </SalesContext.Provider>
   ) : (
     <Empty message="Please add atleast one CUSTOMER and one ITEM to continue or reload the page" />
   );
@@ -282,7 +280,7 @@ function Provider(props) {
 Provider.propTypes = {
   updating: PropTypes.bool.isRequired,
   saveData: PropTypes.func.isRequired,
-  invoice: PropTypes.shape({
+  defaultValues: PropTypes.shape({
     summary: PropTypes.shape({
       shipping: PropTypes.number,
       adjustment: PropTypes.number,
@@ -293,36 +291,36 @@ Provider.propTypes = {
     }),
     selectedItems: PropTypes.array,
     customerId: PropTypes.string,
-    invoiceDate: PropTypes.instanceOf(Date),
-    dueDate: PropTypes.instanceOf(Date),
-    subject: PropTypes.string,
-    customerNotes: PropTypes.string,
-    invoiceSlug: PropTypes.string,
-    invoiceId: PropTypes.string,
   }),
 };
 
 function mapStateToProps(state) {
-  const { loading: loadingItems, items, itemsAction } = state.itemsReducer;
-  const {
+  let {
+    loading: loadingItems,
+    items,
+    action: itemsAction,
+  } = state.itemsReducer;
+  loadingItems = loadingItems && itemsAction === GET_ITEMS;
+
+  let {
     loading: loadingCustomers,
     customers,
     action: customersAction,
   } = state.customersReducer;
-  const {
-    loading: lpt,
+  loadingCustomers = loadingCustomers && customersAction === GET_CUSTOMERS;
+
+  let {
+    loading: loadingPaymentTerms,
     paymentTerms,
     action: ptAction,
   } = state.paymentTermsReducer;
-  const loadingPaymentTerms = lpt && ptAction === GET_PAYMENT_TERMS;
+  loadingPaymentTerms = loadingPaymentTerms && ptAction === GET_PAYMENT_TERMS;
 
   return {
     loadingItems,
     items,
-    itemsAction,
     loadingCustomers,
     customers,
-    customersAction,
     loadingPaymentTerms,
     paymentTerms,
   };
@@ -336,7 +334,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export const InvoicesContextProvider = connect(
+export const SalesContextProvider = connect(
   mapStateToProps,
   mapDispatchToProps
 )(Provider);
