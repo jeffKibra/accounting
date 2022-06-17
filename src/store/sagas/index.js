@@ -58,6 +58,7 @@ import {
   watchGetSalesReceipts,
   watchGetCustomerSalesReceipts,
 } from "./salesReceipts/getSalesReceiptsSagas";
+import { watchDeleteSalesReceipt } from "./salesReceipts/deleteSalesReceiptSagas";
 //categories
 import { watchCreateItemCategory } from "./itemsCategories/createItemCategorySagas";
 
@@ -109,6 +110,7 @@ export default function* rootSaga() {
     watchGetSalesReceipt(),
     watchGetSalesReceipts(),
     watchGetCustomerSalesReceipts(),
+    watchDeleteSalesReceipt(),
     watchCreateItemCategory(),
   ]);
 }

@@ -501,8 +501,22 @@ service cloud.firestore {
             request.resource.data.status is string
         }
 
+        function allowSalesReceiptUpdate(){
+          let form=["receiptDate", "accountId", 'paymentModeId', "reference", 'customerNotes'];
+          let optional=["customerId"];
+          let formExtras=['customer', 'account', 'paymentMode'];
+          let sale=['selectedItems', 'summary'];
+          let meta=['modifiedAt', 'modifiedBy', 'isSent', 'status'];
+          let required=form.concat(formExtras).concat(sale).concat(meta);
+          let allFields=required.concat(optional);
+
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+        }
+
         allow read: if isOwner()
         allow create: if isOwner() && verifySalesReceiptData()
+        allow update: if isOwner() && verifySalesReceiptData() &&
+          allowSalesReceiptUpdate()
       }
     }
   }
