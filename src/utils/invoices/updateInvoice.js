@@ -37,6 +37,7 @@ export default async function updateInvoice(
 ) {
   const { email } = userProfile;
   const { invoiceId, ...rest } = data;
+  console.log({ data });
   const { summary, selectedItems, customerId } = rest;
   // console.log({ data });
   const { totalTaxes, shipping, adjustment, totalAmount } = summary;
@@ -52,7 +53,6 @@ export default async function updateInvoice(
     customerId: currentCustomerId,
     selectedItems: items,
     payments,
-    invoiceSlug,
   } = currentInvoice;
   /**
    * check to ensure the new total balance is not less than payments made.
@@ -124,7 +124,7 @@ export default async function updateInvoice(
     ...invoiceData,
     invoiceId,
   };
-  const transactionId = invoiceSlug;
+  const transactionId = invoiceId;
   /**
    * start writing
    */

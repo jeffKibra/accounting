@@ -37,7 +37,7 @@ function ViewPaymentPage(props) {
 
   return (
     <PageLayout
-      pageTitle={payment?.paymentSlug || "View Payment"}
+      pageTitle={payment?.paymentId || "View Payment"}
       actions={payment && <PaymentOptions payment={payment} edit deletion />}
     >
       {loading && action === GET_PAYMENT ? (

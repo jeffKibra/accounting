@@ -23,7 +23,7 @@ function ViewInvoice(props) {
     org,
     customer,
     selectedItems,
-    invoiceSlug,
+    invoiceId,
     summary,
     invoiceDate,
     dueDate,
@@ -59,7 +59,7 @@ function ViewInvoice(props) {
                 INVOICE
               </Heading>
               <Heading color="#333" size="xs">
-                # {invoiceSlug}
+                # {invoiceId}
               </Heading>
               <VStack w="full" mt="20px!important" align="flex-end">
                 <Text fontSize="sm">Balance Due</Text>
@@ -141,7 +141,7 @@ ViewInvoice.propTypes = {
     }),
     invoiceDate: PropTypes.instanceOf(Date).isRequired,
     dueDate: PropTypes.instanceOf(Date).isRequired,
-    invoiceSlug: PropTypes.string.isRequired,
+    invoiceId: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,
     selectedItems: PropTypes.array.isRequired,
     balance: PropTypes.number.isRequired,

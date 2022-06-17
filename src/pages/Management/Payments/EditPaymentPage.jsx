@@ -54,7 +54,7 @@ function EditPaymentPage(props) {
 
   return (
     <PageLayout
-      pageTitle={`Edit Payment ${payment?.paymentSlug || ""}`}
+      pageTitle={`Edit Payment ${payment?.paymentId || ""}`}
       actions={
         <Link to={viewRoute}>
           <IconButton

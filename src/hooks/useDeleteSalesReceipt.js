@@ -6,8 +6,7 @@ import { DELETE_SALES_RECEIPT } from "../store/actions/salesReceiptsActions";
 import { reset } from "../store/slices/salesReceiptsSlice";
 
 export default function useDeleteSalesReceipt(salesReceipt) {
-  const { salesReceiptSlug, customer, salesReceiptId, receiptDate } =
-    salesReceipt;
+  const { customer, salesReceiptId, receiptDate } = salesReceipt;
   const {
     loading,
     action,
@@ -35,7 +34,7 @@ export default function useDeleteSalesReceipt(salesReceipt) {
         <Text>Are you sure you want to delete this Sales Receipt</Text>
         <Box p={1} pl={5}>
           <Text>
-            salesReceipt#: <b>{salesReceiptSlug}</b>
+            salesReceipt#: <b>{salesReceiptId}</b>
           </Text>
           <Text>
             Customer Name: <b>{customer.displayName}</b>

@@ -4,7 +4,6 @@ import { db } from "../firebase";
 import { createSimilarAccountEntries } from "../journals";
 import { getAccountData } from "../accounts";
 import { getDateDetails } from "../dates";
-import { createDailySummary } from "../summaries";
 import { createInvoice } from "../invoices";
 
 export default async function createCustomer(
@@ -44,10 +43,6 @@ export default async function createCustomer(
   const customerRef = doc(db, "organizations", orgId, "customers", customerId);
   const { yearMonthDay } = getDateDetails();
   const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
-  /**
-   * create daily summary data
-   */
-  await createDailySummary(orgId);
 
   const { openingBalance, paymentTermId, paymentTerm } = customerData;
 
@@ -126,7 +121,7 @@ export default async function createCustomer(
       org,
       userProfile,
       accounts,
-      "customer opening balance",
+      customerId,
       {
         customerId,
         customer: transactionDetails,

@@ -339,7 +339,7 @@ service cloud.firestore {
 
         function verifyInvoiceData(){
           let form=['customerId', 'invoiceDate', "paymentTermId", 'dueDate'];
-          let formExtras=['customer', 'selectedItems', 'summary', 'invoiceSlug', "balance", "paymentTerm"];
+          let formExtras=['customer', 'selectedItems', 'summary', "balance", "paymentTerm"];
           let additional=['payments', 'paymentsIds', 'paymentsCount', 'status', "isSent", 'org'];
           let meta=['transactionType', 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy'];
           let required=form.concat(formExtras).concat(additional).concat(meta);
@@ -371,7 +371,6 @@ service cloud.firestore {
             request.resource.data.get("customerNotes", "")  is string &&
             request.resource.data.get("orderNumber", "") is string &&
             request.resource.data.get("subject", "") is string &&
-            request.resource.data.invoiceSlug is string &&
             request.resource.data.status is string &&
             request.resource.data.isSent is bool &&
             request.resource.data.transactionType is string &&
@@ -419,7 +418,7 @@ service cloud.firestore {
         function verifyPaymentData(){
           let form=['accountId', 'amount', 'customerId', 'paymentDate', "paymentModeId"];
           let details=["payments", "paidInvoices", "paidInvoicesIds", "account", 'customer', "paymentMode", 'excess'];
-          let additional=['status', 'org', 'paymentSlug', 'createdBy', "createdAt", 'modifiedBy', "modifiedAt"];
+          let additional=['status', 'org', 'createdBy', "createdAt", 'modifiedBy', "modifiedAt"];
           let required=form.concat(details).concat(additional);
           let optional=['reference'];
           let allFields=required.concat(optional);
@@ -440,7 +439,6 @@ service cloud.firestore {
             request.resource.data.paidInvoicesIds is list &&
             request.resource.data.status is string &&
             request.resource.data.org is map &&
-            request.resource.data.paymentSlug is string &&
             request.resource.data.createdBy is string &&
             request.resource.data.createdAt is timestamp &&
             request.resource.data.modifiedBy is string &&
@@ -473,7 +471,7 @@ service cloud.firestore {
           let form=["receiptDate", "accountId", 'paymentModeId', "reference", 'customerNotes'];
           let optional=["customerId"];
           let formExtras=['customer', 'account', 'paymentMode'];
-          let sale=['selectedItems', 'summary', 'salesReceiptSlug', 'org', 'transactionType'];
+          let sale=['selectedItems', 'summary', 'org', 'transactionType'];
           let meta=['createdAt', 'createdBy', 'modifiedAt', 'modifiedBy', 'isSent', 'status'];
           let required=form.concat(formExtras).concat(sale).concat(meta);
           let allFields=required.concat(optional);
@@ -490,7 +488,6 @@ service cloud.firestore {
             request.resource.data.customerNotes is string &&
             request.resource.data.selectedItems is list &&
             validateSalesSummary(request.resource.data) &&
-            request.resource.data.salesReceiptSlug is string &&
             request.resource.data.org is map &&
             request.resource.data.transactionType is string &&
             request.resource.data.createdAt is timestamp &&

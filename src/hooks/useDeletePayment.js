@@ -6,7 +6,7 @@ import { DELETE_PAYMENT } from "../store/actions/paymentsActions";
 import { reset } from "../store/slices/paymentsSlice";
 
 export default function useDeletePayment(payment) {
-  const { paymentSlug, customer, paymentId, paymentDate } = payment;
+  const { customer, paymentId, paymentDate } = payment;
   const {
     loading,
     action,
@@ -34,7 +34,7 @@ export default function useDeletePayment(payment) {
         <Text>Are you sure you want to delete this Payment</Text>
         <Box p={1} pl={5}>
           <Text>
-            Payment#: <b>{paymentSlug}</b>
+            Payment#: <b>{paymentId}</b>
           </Text>
           <Text>
             Customer Name: <b>{customer.displayName}</b>

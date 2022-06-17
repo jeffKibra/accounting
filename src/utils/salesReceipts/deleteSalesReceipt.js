@@ -27,20 +27,19 @@ export default async function deleteSalesReceipt(
   );
   const { yearMonthDay } = getDateDetails();
   const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
-
-  const [salesReceiptData] = await Promise.all([
+  /**
+   * fetch sales receipt data
+   * fetch journal entries related to this sales receipt
+   */
+  const [salesReceiptData, allEntries] = await Promise.all([
     getSalesReceiptData(transaction, orgId, salesReceiptId),
+    getTransactionEntries(orgId, salesReceiptId),
   ]);
   const {
     customerId,
     paymentModeId,
-    salesReceiptSlug,
     summary: { totalAmount },
   } = salesReceiptData;
-  /**
-   * fetch journal entries related to this sales receipt
-   */
-  const allEntries = await getTransactionEntries(orgId, salesReceiptSlug);
   /**
    * group entries into accounts
    */

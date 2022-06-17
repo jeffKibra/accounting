@@ -7,40 +7,32 @@ function formatCustomerData(customer) {
 function formatInvoices(invoices = [{}]) {
   return invoices.map((invoice) => {
     const {
-      invoiceSlug,
       invoiceDate,
       dueDate,
       summary,
       status,
       invoiceId,
       balance,
+      transactionType,
     } = invoice;
     return {
-      invoiceSlug,
       invoiceDate,
       dueDate,
       summary,
       status,
       invoiceId,
       balance,
+      transactionType,
     };
   });
 }
 
 function formatInvoicePayment(payment) {
-  const {
-    paymentDate,
-    paymentSlug,
-    reference,
-    paymentMode,
-    account,
-    amount,
-    paymentId,
-  } = payment;
+  const { paymentDate, reference, paymentMode, account, amount, paymentId } =
+    payment;
 
   return {
     paymentDate,
-    paymentSlug,
     reference,
     paymentMode,
     account,

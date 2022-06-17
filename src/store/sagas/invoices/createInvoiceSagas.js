@@ -2,7 +2,7 @@ import { put, call, select, takeLatest } from "redux-saga/effects";
 import { runTransaction } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
-import { createInvoice, createInvoiceSlug } from "../../../utils/invoices";
+import { createInvoice, createInvoiceId } from "../../../utils/invoices";
 import { createDailySummary } from "../../../utils/summaries";
 
 import { CREATE_INVOICE } from "../../actions/invoicesActions";
@@ -32,7 +32,7 @@ function* createInvoiceSaga({ data }) {
       /**
        * generate the invoice slug
        */
-      const invoiceSlug = await createInvoiceSlug(transaction, orgId);
+      const invoiceId = await createInvoiceId(transaction, orgId);
       /**
        * create invoice
        */
@@ -41,7 +41,7 @@ function* createInvoiceSaga({ data }) {
         org,
         userProfile,
         accounts,
-        invoiceSlug,
+        invoiceId,
         data
       );
     });

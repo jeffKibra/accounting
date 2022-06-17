@@ -15,9 +15,9 @@ function SalesReceiptsTable(props) {
     return [
       { Header: "", accessor: "actions" },
       { Header: "DATE", accessor: "date" },
-      { Header: "SALES RECEIPT#", accessor: "salesReceiptSlug" },
+      { Header: "SALES RECEIPT#", accessor: "salesReceiptId" },
       { Header: "CUSTOMER", accessor: "customer.displayName" },
-      { Header: "PAYMENT MODE", accessor: "status" },
+      { Header: "PAYMENT MODE", accessor: "paymentMode.name" },
       { Header: "REFERENCE", accessor: "reference" },
       { Header: "AMOUNT", accessor: "summary.totalAmount" },
     ];

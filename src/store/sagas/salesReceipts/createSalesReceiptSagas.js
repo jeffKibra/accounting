@@ -4,7 +4,7 @@ import { runTransaction } from "firebase/firestore";
 import { db } from "../../../utils/firebase";
 import {
   createSalesReceipt,
-  createReceiptSlug,
+  createReceiptId,
 } from "../../../utils/salesReceipts";
 import { createDailySummary } from "../../../utils/summaries";
 
@@ -35,7 +35,7 @@ function* createSalesReceiptSaga({ data }) {
       /**
        * generate the salesReceipt slug
        */
-      const salesReceiptSlug = await createReceiptSlug(transaction, orgId);
+      const salesReceiptId = await createReceiptId(transaction, orgId);
       /**
        * create salesReceipt
        */
@@ -44,7 +44,7 @@ function* createSalesReceiptSaga({ data }) {
         org,
         userProfile,
         accounts,
-        salesReceiptSlug,
+        salesReceiptId,
         data
       );
     });

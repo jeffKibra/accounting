@@ -24,7 +24,6 @@ function getFormValuesOnly(invoice = {}) {
     customerNotes,
     dueDate,
     invoiceDate,
-    invoiceSlug,
     invoiceId,
     summary,
     subject,
@@ -36,7 +35,6 @@ function getFormValuesOnly(invoice = {}) {
     customerNotes,
     dueDate,
     invoiceDate,
-    invoiceSlug,
     invoiceId,
     summary,
     subject,
@@ -80,7 +78,7 @@ function EditInvoicePage(props) {
 
   return (
     <PageLayout
-      pageTitle={`Edit Invoice ${invoice?.invoiceSlug}`}
+      pageTitle={`Edit Invoice ${invoice?.invoiceId}`}
       actions={
         <Link to={viewRoute}>
           <IconButton

@@ -167,7 +167,6 @@ EditPayment.propTypes = {
     customerId: PropTypes.string,
     paymentId: PropTypes.string,
     paymentDate: PropTypes.instanceOf(Date),
-    paymentSlug: PropTypes.string,
     taxDeducted: PropTypes.string,
     tdsTaxAccount: PropTypes.string,
     notes: PropTypes.string,

@@ -1,9 +1,4 @@
-import {
-  doc,
-  collection,
-  serverTimestamp,
-  increment,
-} from "firebase/firestore";
+import { doc, serverTimestamp, increment } from "firebase/firestore";
 
 import { db } from "../firebase";
 import { getIncomeAccountsMapping } from "../invoices";
@@ -18,7 +13,7 @@ export default async function createSalesReceipt(
   org = { id: "" },
   userProfile = { email: "" },
   accounts = [{ name: "", accountd: "", accountType: {} }],
-  salesReceiptSlug = "",
+  salesReceiptId = "",
   data = {
     customerId: "",
     customer: {},
@@ -70,26 +65,29 @@ export default async function createSalesReceipt(
   const { yearMonthDay } = getDateDetails();
   const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
 
-  const newDocRef = doc(
-    collection(db, "organizations", orgId, "salesReceipts")
+  const salesReceiptRef = doc(
+    db,
+    "organizations",
+    orgId,
+    "salesReceipts",
+    salesReceiptId
   );
-  const salesReceiptId = newDocRef.id;
 
   // console.log({ selectedItems });
-
-  const salesReceiptData = {
+  const tDetails = {
     ...data,
     status: "active",
     isSent: false,
     transactionType,
-    salesReceiptSlug,
     org: formats.formatOrgData(org),
     customer: formats.formatCustomerData(customer),
     selectedItems: formats.formatInvoiceItems(selectedItems),
   };
-
-  const transactionDetails = { ...salesReceiptData, salesReceiptId };
-  const transactionId = salesReceiptSlug;
+  const transactionDetails = {
+    ...tDetails,
+    salesReceiptId,
+  };
+  const transactionId = salesReceiptId;
 
   /**
    * create journal entries for income accounts
@@ -211,8 +209,8 @@ export default async function createSalesReceipt(
    * create salesReceipt
    */
   // console.log({ salesReceiptData });
-  transaction.set(newDocRef, {
-    ...salesReceiptData,
+  transaction.set(salesReceiptRef, {
+    ...tDetails,
     createdBy: email,
     createdAt: serverTimestamp(),
     modifiedBy: email,

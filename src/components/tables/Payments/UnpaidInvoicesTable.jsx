@@ -26,7 +26,7 @@ function UnpaidInvoicesTable(props) {
     return [
       // { Header: "", accessor: "actions" },
       { Header: "Date", accessor: "invoiceDate" },
-      { Header: "Invoice#", accessor: "invoiceSlug" },
+      { Header: "Invoice#", accessor: "invoiceId" },
       { Header: "Amount", accessor: "summary.totalAmount", isNumeric: true },
       { Header: "Amount Due", accessor: "balance", isNumeric: true },
       // ...(taxDeducted === "yes"
@@ -43,7 +43,7 @@ function UnpaidInvoicesTable(props) {
 
   const data = useMemo(() => {
     return invoices.map((invoice) => {
-      const { invoiceId } = invoice;
+      const { invoiceId, transactionType } = invoice;
       const balance = getInvoiceBalance(invoice, paymentId);
       const max = Math.min(amount, balance);
       // console.log({
@@ -56,6 +56,7 @@ function UnpaidInvoicesTable(props) {
 
       return {
         ...invoice,
+        invoiceId: transactionType === "invoice" ? invoiceId : transactionType,
         balance,
         payment: (
           <TableNumInput

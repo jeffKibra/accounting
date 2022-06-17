@@ -15,7 +15,6 @@ export default async function getPaymentEntriesToUpdate(
       const { invoiceId, current, incoming } = payment;
       const invoice = getInvoiceFromArray(invoiceId, invoices);
 
-      const { invoiceSlug } = invoice;
       /**
        * get customer entry data for the given account
        */
@@ -23,7 +22,7 @@ export default async function getPaymentEntriesToUpdate(
         orgId,
         paymentId,
         accountId,
-        invoiceSlug
+        invoiceId
       );
 
       return {

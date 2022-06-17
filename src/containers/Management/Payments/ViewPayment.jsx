@@ -149,7 +149,7 @@ ViewPayment.propTypes = {
     org: PropTypes.object.isRequired,
     amount: PropTypes.number.isRequired,
     paymentDate: PropTypes.instanceOf(Date).isRequired,
-    paymentSlug: PropTypes.string.isRequired,
+    paymentId: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,
     paidInvoices: PropTypes.array.isRequired,
     payments: PropTypes.object.isRequired,
