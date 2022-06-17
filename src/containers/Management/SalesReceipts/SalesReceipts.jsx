@@ -2,46 +2,46 @@ import { useEffect } from "react";
 import { connect } from "react-redux";
 
 import {
-  GET_INVOICES,
-  DELETE_INVOICE,
-} from "../../../store/actions/invoicesActions";
-import { reset } from "../../../store/slices/invoicesSlice";
+  GET_SALES_RECEIPTS,
+  DELETE_SALES_RECEIPT,
+} from "../../../store/actions/salesReceiptsActions";
+import { reset } from "../../../store/slices/salesReceiptsSlice";
 
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
 import Empty from "../../../components/ui/Empty";
 
-import InvoicesTable from "../../../components/tables/Invoices/InvoicesTable";
+import SalesReceiptsTable from "../../../components/tables/SalesReceipts/SalesReceiptsTable";
 
 function SalesReceipts(props) {
   const {
     loading,
-    invoices,
+    salesReceipts,
     action,
     isModified,
-    getInvoices,
-    deleteInvoice,
-    resetInvoices,
+    getSalesReceipts,
+    deleteSalesReceipt,
+    resetSalesReceipt,
   } = props;
 
   useEffect(() => {
-    getInvoices();
-  }, [getInvoices]);
+    getSalesReceipts();
+  }, [getSalesReceipts]);
 
   useEffect(() => {
     if (isModified) {
-      resetInvoices();
-      getInvoices();
+      resetSalesReceipt();
+      getSalesReceipts();
     }
-  }, [isModified, resetInvoices, getInvoices]);
+  }, [isModified, resetSalesReceipt, getSalesReceipts]);
 
-  return loading && action === GET_INVOICES ? (
+  return loading && action === GET_SALES_RECEIPTS ? (
     <SkeletonLoader />
-  ) : invoices?.length > 0 ? (
-    <InvoicesTable
-      deleting={loading && action === DELETE_INVOICE}
+  ) : salesReceipts?.length > 0 ? (
+    <SalesReceiptsTable
+      deleting={loading && action === DELETE_SALES_RECEIPT}
       isDeleted={isModified}
-      handleDelete={deleteInvoice}
-      invoices={invoices}
+      handleDelete={deleteSalesReceipt}
+      salesReceipts={salesReceipts}
     />
   ) : (
     <Empty />
@@ -49,16 +49,18 @@ function SalesReceipts(props) {
 }
 
 function mapStateToProps(state) {
-  const { loading, invoices, action, isModified } = state.invoicesReducer;
+  const { loading, salesReceipts, action, isModified } =
+    state.salesReceiptsReducer;
 
-  return { loading, invoices, action, isModified };
+  return { loading, salesReceipts, action, isModified };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    getInvoices: () => dispatch({ type: GET_INVOICES }),
-    deleteInvoice: (invoiceId) => dispatch({ type: DELETE_INVOICE, invoiceId }),
-    resetInvoices: () => dispatch(reset()),
+    getSalesReceipts: () => dispatch({ type: GET_SALES_RECEIPTS }),
+    deleteSalesReceipt: (salesReceiptId) =>
+      dispatch({ type: DELETE_SALES_RECEIPT, salesReceiptId }),
+    resetSalesReceipt: () => dispatch(reset()),
   };
 }
 

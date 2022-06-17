@@ -158,14 +158,16 @@ function SaleItemsForm(props) {
           </Grid>
 
           <Flex w="full" py={4} justify="space-evenly">
-            <Button
-              isLoading={loading}
-              variant="outline"
-              colorScheme="cyan"
-              onClick={goBack}
-            >
-              back
-            </Button>
+            {activeStep > 0 && (
+              <Button
+                isLoading={loading}
+                variant="outline"
+                colorScheme="cyan"
+                onClick={goBack}
+              >
+                back
+              </Button>
+            )}
             <Button type="submit" isLoading={loading} colorScheme="cyan">
               {isLastStep ? "save" : "next"}
             </Button>

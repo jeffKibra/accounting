@@ -4,20 +4,21 @@ import { RiDeleteBin4Line, RiEdit2Line, RiEyeLine } from "react-icons/ri";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
-import useDeleteInvoice from "../../../hooks/useDeleteInvoice";
+import useDeleteSalesReceipt from "../../../hooks/useDeleteSalesReceipt";
 
 import MenuOptions from "../../../components/ui/MenuOptions";
 
 function SalesReceiptOptions(props) {
-  const { invoice, edit, view, deletion } = props;
-  const { invoiceId } = invoice;
-  const { details, isDeleted, resetInvoice } = useDeleteInvoice(invoice);
+  const { salesReceipt, edit, view, deletion } = props;
+  const { salesReceiptId } = salesReceipt;
+  const { details, isDeleted, resetSalesReceipt } =
+    useDeleteSalesReceipt(salesReceipt);
 
   useEffect(() => {
     if (isDeleted) {
-      resetInvoice();
+      resetSalesReceipt();
     }
-  }, [isDeleted, resetInvoice]);
+  }, [isDeleted, resetSalesReceipt]);
 
   const options = [
     ...(view
@@ -26,7 +27,7 @@ function SalesReceiptOptions(props) {
             name: "View",
             icon: RiEyeLine,
             as: Link,
-            to: `/invoices/${invoiceId}/view`,
+            to: `/sales-receipts/${salesReceiptId}/view`,
           },
         ]
       : []),
@@ -36,7 +37,7 @@ function SalesReceiptOptions(props) {
             name: "Edit",
             icon: RiEdit2Line,
             as: Link,
-            to: `/invoices/${invoiceId}/edit`,
+            to: `/sales-receipts/${salesReceiptId}/edit`,
           },
         ]
       : []),
@@ -61,5 +62,12 @@ function SalesReceiptOptions(props) {
     </>
   );
 }
+
+SalesReceiptOptions.propTypes = {
+  salesReceipt: PropTypes.object.isRequired,
+  edit: PropTypes.bool,
+  view: PropTypes.bool,
+  deletion: PropTypes.bool,
+};
 
 export default SalesReceiptOptions;

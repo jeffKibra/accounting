@@ -11,77 +11,65 @@ import {
 
 import { db } from "../../../utils/firebase";
 import {
-  GET_INVOICE,
-  GET_INVOICES,
-  GET_CUSTOMER_INVOICES,
-  GET_UNPAID_CUSTOMER_INVOICES,
-  GET_PAYMENT_INVOICES_TO_EDIT,
-} from "../../actions/invoicesActions";
+  GET_SALES_RECEIPT,
+  GET_SALES_RECEIPTS,
+  GET_CUSTOMER_SALES_RECEIPTS,
+} from "../../actions/salesReceiptsActions";
 import {
   start,
-  invoiceSuccess,
-  invoicesSuccess,
+  salesReceiptSuccess,
+  salesReceiptsSuccess,
   fail,
-} from "../../slices/invoicesSlice";
+} from "../../slices/salesReceiptsSlice";
 import { error as toastError } from "../../slices/toastSlice";
 
 import { dateFromTimestamp } from "../../../utils/dates";
 
-function formatInvoiceDates(invoice) {
-  const { invoiceDate, dueDate, createdAt, modifiedAt } = invoice;
+function formatReceiptDates(receipt) {
+  const { receiptDate, createdAt, modifiedAt } = receipt;
 
   return {
-    ...invoice,
-    invoiceDate: dateFromTimestamp(invoiceDate),
-    dueDate: dateFromTimestamp(dueDate),
+    ...receipt,
+    receiptDate: dateFromTimestamp(receiptDate),
     createdAt: dateFromTimestamp(createdAt),
     modifiedAt: dateFromTimestamp(modifiedAt),
   };
 }
 
-function sortByDate(invoice1, invoice2) {
-  console.log({ invoice1, invoice2 });
-  const {
-    createdAt: { seconds: seconds1 },
-  } = invoice1;
-  const {
-    createdAt: { seconds: seconds2 },
-  } = invoice2;
+// function sortByDate(data1, data2) {
+//   console.log({ data1, data2 });
+//   const {
+//     createdAt: { seconds: seconds1 },
+//   } = data1;
+//   const {
+//     createdAt: { seconds: seconds2 },
+//   } = data2;
 
-  return seconds1 - seconds2;
-}
+//   return seconds1 - seconds2;
+// }
 
-const allStatuses = [
-  "pending",
-  "active",
-  "partially paid",
-  "paid",
-  "draft",
-  "sent",
-];
-
-function* getInvoice({ invoiceId }) {
-  yield put(start(GET_INVOICE));
+function* getSalesReceipt({ salesReceiptId }) {
+  yield put(start(GET_SALES_RECEIPT));
   const orgId = yield select((state) => state.orgsReducer.org.id);
 
   async function get() {
-    const invoiceDoc = await getDoc(
-      doc(db, "organizations", orgId, "invoices", invoiceId)
+    const receiptDoc = await getDoc(
+      doc(db, "organizations", orgId, "salesReceipts", salesReceiptId)
     );
-    if (!invoiceDoc.exists) {
-      throw new Error("Invoice not found!");
+    if (!receiptDoc.exists) {
+      throw new Error("Sales Receipt not found!");
     }
 
     return {
-      ...formatInvoiceDates(invoiceDoc.data()),
-      invoiceId: invoiceDoc.id,
+      ...formatReceiptDates(receiptDoc.data()),
+      salesReceiptId: receiptDoc.id,
     };
   }
 
   try {
-    const invoice = yield call(get);
+    const receipt = yield call(get);
 
-    yield put(invoiceSuccess(invoice));
+    yield put(salesReceiptSuccess(receipt));
   } catch (error) {
     console.log(error);
     yield put(fail(error));
@@ -89,38 +77,37 @@ function* getInvoice({ invoiceId }) {
   }
 }
 
-export function* watchGetInvoice() {
-  yield takeLatest(GET_INVOICE, getInvoice);
+export function* watchGetSalesReceipt() {
+  yield takeLatest(GET_SALES_RECEIPT, getSalesReceipt);
 }
 
-function* getInvoices({ statuses }) {
-  yield put(start(GET_INVOICES));
+function* getSalesReceipts({ statuses }) {
+  yield put(start(GET_SALES_RECEIPTS));
   const orgId = yield select((state) => state.orgsReducer.org.id);
 
   async function get() {
     const q = query(
-      collection(db, "organizations", orgId, "invoices"),
+      collection(db, "organizations", orgId, "salesReceipts"),
       orderBy("createdAt", "desc"),
-      where("status", "in", statuses || allStatuses),
-      where("transactionType", "==", "invoice")
+      where("status", "==", "active")
     );
-    const invoices = [];
+    const salesReceipts = [];
     const snap = await getDocs(q);
 
-    snap.forEach((invoiceDoc) => {
-      invoices.push({
-        ...formatInvoiceDates(invoiceDoc.data()),
-        invoiceId: invoiceDoc.id,
+    snap.forEach((receiptDoc) => {
+      salesReceipts.push({
+        ...formatReceiptDates(receiptDoc.data()),
+        salesReceiptId: receiptDoc.id,
       });
     });
 
-    return invoices;
+    return salesReceipts;
   }
 
   try {
-    const invoices = yield call(get);
+    const salesReceipts = yield call(get);
 
-    yield put(invoicesSuccess(invoices));
+    yield put(salesReceiptsSuccess(salesReceipts));
   } catch (error) {
     console.log(error);
     yield put(fail(error));
@@ -128,40 +115,39 @@ function* getInvoices({ statuses }) {
   }
 }
 
-export function* watchGetInvoices() {
-  yield takeLatest(GET_INVOICES, getInvoices);
+export function* watchGetSalesReceipts() {
+  yield takeLatest(GET_SALES_RECEIPTS, getSalesReceipts);
 }
 
-function* getCustomerInvoices({ customerId, statuses }) {
-  yield put(start(GET_CUSTOMER_INVOICES));
+function* getCustomerSalesReceipts({ customerId }) {
+  yield put(start(GET_CUSTOMER_SALES_RECEIPTS));
   const orgId = yield select((state) => state.orgsReducer.org.id);
   // console.log({ customerId, statuses });
   async function get() {
     const q = query(
-      collection(db, "organizations", orgId, "invoices"),
-      orderBy("createdAt", "asc"),
+      collection(db, "organizations", orgId, "salesReceipts"),
+      orderBy("createdAt", "desc"),
       where("customerId", "==", customerId),
-      where("status", "in", statuses || allStatuses),
-      where("transactionType", "==", "invoice")
+      where("status", "==", "active")
     );
-    const invoices = [];
+    const salesReceipts = [];
     const snap = await getDocs(q);
 
-    snap.forEach((invoiceDoc) => {
-      invoices.push({
-        ...formatInvoiceDates(invoiceDoc.data()),
-        invoiceId: invoiceDoc.id,
+    snap.forEach((receiptDoc) => {
+      salesReceipts.push({
+        ...formatReceiptDates(receiptDoc.data()),
+        salesReceiptId: receiptDoc.id,
       });
     });
 
-    return invoices;
+    return salesReceipts;
   }
 
   try {
-    const invoices = yield call(get);
-    // console.log({ invoices });
+    const salesReceipts = yield call(get);
+    // console.log({ salesReceipts });
 
-    yield put(invoicesSuccess(invoices));
+    yield put(salesReceiptsSuccess(salesReceipts));
   } catch (error) {
     console.log(error);
     yield put(fail(error));
@@ -169,116 +155,6 @@ function* getCustomerInvoices({ customerId, statuses }) {
   }
 }
 
-export function* watchGetCustomerInvoices() {
-  yield takeLatest(GET_CUSTOMER_INVOICES, getCustomerInvoices);
-}
-
-function* getUnpaidCustomerInvoices({ type, customerId }) {
-  yield put(start(type));
-
-  const orgId = yield select((state) => state.orgsReducer.org.id);
-  // console.log({ customerId, statuses });
-  async function get() {
-    const q = query(
-      collection(db, "organizations", orgId, "invoices"),
-      // orderBy("createdAt", "asc"),
-      where("customerId", "==", customerId),
-      where("status", "==", "active"),
-      where("balance", ">", 0)
-    );
-
-    const invoices = [];
-    const snap = await getDocs(q);
-
-    snap.forEach((invoiceDoc) => {
-      invoices.push({
-        ...formatInvoiceDates(invoiceDoc.data()),
-        invoiceId: invoiceDoc.id,
-      });
-    });
-    /**
-     * sort by date
-     */
-    invoices.sort(sortByDate);
-
-    return invoices;
-  }
-
-  try {
-    const invoices = yield call(get);
-    // console.log({ invoices });
-
-    yield put(invoicesSuccess(invoices));
-  } catch (error) {
-    console.log(error);
-    yield put(fail(error));
-    yield put(toastError(error.message));
-  }
-}
-
-export function* watchGetUnpaidCustomerInvoices() {
-  yield takeLatest(GET_UNPAID_CUSTOMER_INVOICES, getUnpaidCustomerInvoices);
-}
-
-function* getPaymentInvoicesToEdit({ type, paymentId, customerId }) {
-  yield put(start(type));
-  console.log("fetching invoices to edit");
-  const orgId = yield select((state) => state.orgsReducer.org.id);
-  // console.log({ customerId, statuses });
-  async function get() {
-    //paid invoices to edit
-    const q1 = query(
-      collection(db, "organizations", orgId, "invoices"),
-      orderBy("createdAt", "asc"),
-      where("paymentsIds", "array-contains", paymentId),
-      where("status", "==", "active"),
-      where("balance", "==", 0)
-    );
-    //unpaid customer invoices
-    const q2 = query(
-      collection(db, "organizations", orgId, "invoices"),
-      // orderBy("createdAt", "asc"),
-      where("customerId", "==", customerId),
-      where("status", "==", "active"),
-      where("balance", ">", 0)
-    );
-
-    const invoices1 = [];
-    const invoices2 = [];
-    const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
-
-    snap1.forEach((invoiceDoc) => {
-      invoices1.push({
-        ...formatInvoiceDates(invoiceDoc.data()),
-        invoiceId: invoiceDoc.id,
-      });
-    });
-    snap2.forEach((invoiceDoc) => {
-      invoices2.push({
-        ...formatInvoiceDates(invoiceDoc.data()),
-        invoiceId: invoiceDoc.id,
-      });
-    });
-    /**
-     * sort by date
-     */
-    invoices2.sort(sortByDate);
-
-    return [...invoices1, ...invoices2];
-  }
-
-  try {
-    const invoices = yield call(get);
-    // console.log({ invoices });
-
-    yield put(invoicesSuccess(invoices));
-  } catch (error) {
-    console.log(error);
-    yield put(fail(error));
-    yield put(toastError(error.message));
-  }
-}
-
-export function* watchGetPaymentInvoicesToEdit() {
-  yield takeLatest(GET_PAYMENT_INVOICES_TO_EDIT, getPaymentInvoicesToEdit);
+export function* watchGetCustomerSalesReceipts() {
+  yield takeLatest(GET_CUSTOMER_SALES_RECEIPTS, getCustomerSalesReceipts);
 }

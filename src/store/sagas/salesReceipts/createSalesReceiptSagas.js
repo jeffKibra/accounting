@@ -2,18 +2,21 @@ import { put, call, select, takeLatest } from "redux-saga/effects";
 import { runTransaction } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
-import { createInvoice, createInvoiceSlug } from "../../../utils/invoices";
+import {
+  createSalesReceipt,
+  createReceiptSlug,
+} from "../../../utils/salesReceipts";
 import { createDailySummary } from "../../../utils/summaries";
 
-import { CREATE_INVOICE } from "../../actions/invoicesActions";
-import { start, success, fail } from "../../slices/invoicesSlice";
+import { CREATE_SALES_RECEIPT } from "../../actions/salesReceiptsActions";
+import { start, success, fail } from "../../slices/salesReceiptsSlice";
 import {
   error as toastError,
   success as toastSuccess,
 } from "../../slices/toastSlice";
 
-function* createInvoiceSaga({ data }) {
-  yield put(start(CREATE_INVOICE));
+function* createSalesReceiptSaga({ data }) {
+  yield put(start(CREATE_SALES_RECEIPT));
   const org = yield select((state) => state.orgsReducer.org);
   const orgId = org.id;
   const userProfile = yield select((state) => state.authReducer.userProfile);
@@ -26,22 +29,22 @@ function* createInvoiceSaga({ data }) {
      */
     await createDailySummary(orgId);
     /**
-     * create invoice using a firestore transaction
+     * create salesReceipt using a firestore transaction
      */
     await runTransaction(db, async (transaction) => {
       /**
-       * generate the invoice slug
+       * generate the salesReceipt slug
        */
-      const invoiceSlug = await createInvoiceSlug(transaction, orgId);
+      const salesReceiptSlug = await createReceiptSlug(transaction, orgId);
       /**
-       * create invoice
+       * create salesReceipt
        */
-      await createInvoice(
+      await createSalesReceipt(
         transaction,
         org,
         userProfile,
         accounts,
-        invoiceSlug,
+        salesReceiptSlug,
         data
       );
     });
@@ -51,7 +54,7 @@ function* createInvoiceSaga({ data }) {
     yield call(create);
 
     yield put(success());
-    yield put(toastSuccess("Invoice created Sucessfully!"));
+    yield put(toastSuccess("Sales Receipt created Sucessfully!"));
   } catch (error) {
     console.log(error);
     yield put(fail(error));
@@ -59,6 +62,6 @@ function* createInvoiceSaga({ data }) {
   }
 }
 
-export function* watchCreateInvoice() {
-  yield takeLatest(CREATE_INVOICE, createInvoiceSaga);
+export function* watchCreateSalesReceipt() {
+  yield takeLatest(CREATE_SALES_RECEIPT, createSalesReceiptSaga);
 }
