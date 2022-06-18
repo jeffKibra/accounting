@@ -51,6 +51,7 @@ function formatReceiptDates(receipt) {
 function* getSalesReceipt({ salesReceiptId }) {
   yield put(start(GET_SALES_RECEIPT));
   const orgId = yield select((state) => state.orgsReducer.org.id);
+  console.log({ salesReceiptId });
 
   async function get() {
     const receiptDoc = await getDoc(
@@ -68,6 +69,7 @@ function* getSalesReceipt({ salesReceiptId }) {
 
   try {
     const receipt = yield call(get);
+    console.log({ receipt });
 
     yield put(salesReceiptSuccess(receipt));
   } catch (error) {

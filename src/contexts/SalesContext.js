@@ -254,7 +254,7 @@ function Provider(props) {
 
   return loadingItems || loadingCustomers || loadingPaymentTerms ? (
     <SkeletonLoader />
-  ) : customers?.length > 0 && items?.length > 0 && paymentTerms?.length > 0 ? (
+  ) : items?.length > 0 && paymentTerms?.length > 0 ? (
     <SalesContext.Provider
       value={{
         summary,

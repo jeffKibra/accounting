@@ -14,8 +14,8 @@ import {
 } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 
-import InvoicePdfItems from "../../../components/tables/Invoices/InvoicePdfItems";
-import InvoicePdfSummary from "../../../components/tables/Invoices/InvoicePdfSummary";
+import ViewSaleItemsTable from "../../../components/tables/Sales/ViewSaleItemsTable";
+import ViewSaleSummaryTable from "../../../components/tables/Sales/ViewSaleSummaryTable";
 
 function ViewInvoice(props) {
   const { invoice } = props;
@@ -31,7 +31,7 @@ function ViewInvoice(props) {
     balance,
     payments,
   } = invoice;
-  // console.log({ invoice });
+
   return (
     <Container
       borderRadius="md"
@@ -107,12 +107,16 @@ function ViewInvoice(props) {
           </GridItem>
         </Grid>
         <Box w="full" mt="20px!important">
-          <InvoicePdfItems taxType={summary.taxType} items={selectedItems} />
+          <ViewSaleItemsTable taxType={summary.taxType} items={selectedItems} />
         </Box>
         <Grid w="full" columnGap={3} templateColumns="repeat(12, 1fr)">
           <GridItem colSpan={[1, 6]}></GridItem>
           <GridItem colSpan={[11, 6]}>
-            <InvoicePdfSummary payments={payments} summary={summary} />
+            <ViewSaleSummaryTable
+              showBalance
+              payments={payments}
+              summary={summary}
+            />
           </GridItem>
         </Grid>
         {customerNotes && (
