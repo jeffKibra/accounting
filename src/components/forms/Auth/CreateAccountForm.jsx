@@ -42,7 +42,7 @@ function CreateAccountForm(props) {
         mt="24px"
       >
         <Box textAlign="center">
-          <CardHeader>Accounts</CardHeader>
+          <CardHeader>(Accounts)</CardHeader>
         </Box>
 
         <Box

@@ -121,6 +121,7 @@ function SaleItemsForm(props) {
                 </Text>
                 <Box w="140px">
                   <CustomSelect
+                    isDisabled={loading}
                     size="sm"
                     colorScheme="cyan"
                     name="taxType"

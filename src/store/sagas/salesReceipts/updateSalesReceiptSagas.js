@@ -2,18 +2,18 @@ import { put, call, select, takeLatest } from "redux-saga/effects";
 import { runTransaction } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
-import { updateInvoice } from "../../../utils/invoices";
+import { updateSalesReceipt } from "../../../utils/salesReceipts";
 import { createDailySummary } from "../../../utils/summaries";
 
-import { UPDATE_INVOICE } from "../../actions/invoicesActions";
-import { start, success, fail } from "../../slices/invoicesSlice";
+import { UPDATE_SALES_RECEIPT } from "../../actions/salesReceiptsActions";
+import { start, success, fail } from "../../slices/salesReceiptsSlice";
 import {
   error as toastError,
   success as toastSuccess,
 } from "../../slices/toastSlice";
 
-function* updateInvoiceSaga({ data }) {
-  yield put(start(UPDATE_INVOICE));
+function* updateSalesReceiptSaga({ data }) {
+  yield put(start(UPDATE_SALES_RECEIPT));
   const orgId = yield select((state) => state.orgsReducer.org.id);
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const accounts = yield select((state) => state.accountsReducer.accounts);
@@ -24,10 +24,10 @@ function* updateInvoiceSaga({ data }) {
      */
     await createDailySummary(orgId);
     /**
-     * update invoice using a transaction
+     * update SalesReceipt using a transaction
      */
     await runTransaction(db, async (transaction) => {
-      await updateInvoice(transaction, orgId, userProfile, accounts, data);
+      await updateSalesReceipt(transaction, orgId, userProfile, accounts, data);
     });
   }
 
@@ -35,7 +35,7 @@ function* updateInvoiceSaga({ data }) {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess("Invoice updated Sucessfully!"));
+    yield put(toastSuccess("Sales Receipt Sucessfully Updated!"));
   } catch (error) {
     console.log(error);
     yield put(fail(error));
@@ -43,6 +43,6 @@ function* updateInvoiceSaga({ data }) {
   }
 }
 
-export function* watchUpdateInvoice() {
-  yield takeLatest(UPDATE_INVOICE, updateInvoiceSaga);
+export function* watchUpdateSalesReceipt() {
+  yield takeLatest(UPDATE_SALES_RECEIPT, updateSalesReceiptSaga);
 }

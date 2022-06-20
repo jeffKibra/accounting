@@ -1,8 +1,6 @@
-import { doc, increment } from "firebase/firestore";
-
-import { db } from "../firebase";
 import getRawAmount from "./getRawAmount";
 import updateEntry from "./updateEntry";
+import updateAccount from "./updateAccount";
 import { verifyAccountId, verifyEntryData } from "./helpers";
 
 export default function changeEntriesAccount(
@@ -50,20 +48,13 @@ export default function changeEntriesAccount(
   console.log({ fromAdjustment, toAdjustment });
   /**
    * update previous account
-   * subtract the adjustment from the accounts ammount
+   *
    */
-  const fromRef = doc(db, "organizations", orgId, "accounts", from.accountId);
-  transaction.update(fromRef, {
-    amount: increment(0 - fromAdjustment),
-  });
+  updateAccount(transaction, orgId, from.accountId, fromAdjustment);
   /**
    * update new account
-   * add adjustment to the accounts amount
    */
-  const toRef = doc(db, "organizations", orgId, "accounts", to.accountId);
-  transaction.update(toRef, {
-    amount: increment(toAdjustment),
-  });
+  updateAccount(transaction, orgId, to.accountId, toAdjustment);
   /**
    * update entries
    */
@@ -103,7 +94,7 @@ function getAccountsAdjustments(
     },
   ]
 ) {
-  return entries.reduce(
+  let { fromAdjustment, toAdjustment } = entries.reduce(
     (summary, entry) => {
       const {
         amount,
@@ -125,4 +116,7 @@ function getAccountsAdjustments(
     },
     { fromAdjustment: 0, toAdjustment: 0 }
   );
+  fromAdjustment = 0 - fromAdjustment;
+
+  return { fromAdjustment, toAdjustment };
 }

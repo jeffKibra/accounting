@@ -1,10 +1,11 @@
+import { getSummaryData } from "../summaries";
+
 /**
  *
- * @param {transaction, orgId=""} customer
- * @returns {''}
+ * @param {*} transaction
+ * @param {string} orgId
+ * @returns {string} invoiceId
  */
-
-import { getSummaryData } from "../summaries";
 
 export default async function createInvoiceId(transaction, orgId) {
   const summary = await getSummaryData(transaction, orgId);

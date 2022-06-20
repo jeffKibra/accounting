@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@chakra-ui/react";
+import { RiAddLine } from "react-icons/ri";
 
 import PageLayout from "../../../components/layout/PageLayout";
 
@@ -16,8 +17,13 @@ function CustomersPage() {
       pageTitle="Customers"
       actions={
         <Link to={`${location.pathname}/new`}>
-          <Button variant="outline" colorScheme="cyan" size="sm">
-            new customer
+          <Button
+            rightIcon={<RiAddLine />}
+            variant="outline"
+            colorScheme="cyan"
+            size="sm"
+          >
+            new
           </Button>
         </Link>
       }

@@ -1,5 +1,6 @@
 import { Button } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
+import { RiAddLine } from "react-icons/ri";
 
 import { NEW_INVOICE } from "../../../nav/routes";
 
@@ -16,8 +17,13 @@ function InvoicesPage() {
       pageTitle="Invoices"
       actions={
         <Link to={NEW_INVOICE}>
-          <Button colorScheme="cyan" size="sm" variant="outline">
-            new invoice
+          <Button
+            rightIcon={<RiAddLine />}
+            colorScheme="cyan"
+            size="sm"
+            variant="outline"
+          >
+            new
           </Button>
         </Link>
       }

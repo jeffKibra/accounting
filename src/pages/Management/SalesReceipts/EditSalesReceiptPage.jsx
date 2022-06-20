@@ -18,28 +18,28 @@ import Empty from "../../../components/ui/Empty";
 
 import EditSalesReceipt from "../../../containers/Management/SalesReceipts/EditSalesReceipt";
 
-function getFormValuesOnly(invoice = {}) {
+function getFormValuesOnly(salesReceipt = {}) {
   const {
     customerId,
     customerNotes,
-    dueDate,
-    invoiceDate,
-    invoiceSlug,
-    invoiceId,
+    receiptDate,
+    salesReceiptId,
+    accountId,
+    paymentModeId,
+    reference,
     summary,
-    subject,
     selectedItems,
-  } = invoice;
+  } = salesReceipt;
 
   return {
     customerId,
     customerNotes,
-    dueDate,
-    invoiceDate,
-    invoiceSlug,
-    invoiceId,
+    receiptDate,
+    salesReceiptId,
+    accountId,
+    paymentModeId,
+    reference,
     summary,
-    subject,
     selectedItems,
   };
 }
@@ -49,38 +49,37 @@ function EditSalesReceiptPage(props) {
     loading,
     action,
     isModified,
-    invoice,
-    updateInvoice,
-    resetInvoice,
-    getInvoice,
+    salesReceipt,
+    updateSalesReceipt,
+    resetSalesReceipt,
+    getSalesReceipt,
   } = props;
-  const { invoiceId } = useParams();
+  const { salesReceiptId } = useParams();
   const navigate = useNavigate();
   useSavedLocation().setLocation();
-  const viewRoute = `/invoices/${invoiceId}/view`;
+  const viewRoute = `/sales-receipts/${salesReceiptId}/view`;
 
   useEffect(() => {
-    getInvoice(invoiceId);
-  }, [getInvoice, invoiceId]);
+    getSalesReceipt(salesReceiptId);
+  }, [getSalesReceipt, salesReceiptId]);
 
   useEffect(() => {
     if (isModified) {
-      resetInvoice();
+      resetSalesReceipt();
       navigate(viewRoute);
     }
-  }, [isModified, resetInvoice, navigate, viewRoute]);
+  }, [isModified, resetSalesReceipt, navigate, viewRoute]);
 
   function update(data) {
-    console.log({ data });
-    updateInvoice({
+    updateSalesReceipt({
       ...data,
-      invoiceId,
+      salesReceiptId,
     });
   }
 
   return (
     <PageLayout
-      pageTitle={`Edit Sales Receipt ${invoice?.invoiceSlug}`}
+      pageTitle={`Edit ${salesReceiptId || "Sales Receipt"}`}
       actions={
         <Link to={viewRoute}>
           <IconButton
@@ -95,30 +94,33 @@ function EditSalesReceiptPage(props) {
     >
       {loading && action === GET_SALES_RECEIPT ? (
         <SkeletonLoader />
-      ) : invoice ? (
+      ) : salesReceipt ? (
         <EditSalesReceipt
           updating={loading && action === UPDATE_SALES_RECEIPT}
           handleFormSubmit={update}
-          invoice={getFormValuesOnly(invoice)}
+          salesReceipt={getFormValuesOnly(salesReceipt)}
         />
       ) : (
-        <Empty message="Invoice not found!" />
+        <Empty message="Sales Receipt not found!" />
       )}
     </PageLayout>
   );
 }
 
 function mapStateToProps(state) {
-  const { loading, action, isModified, invoice } = state.invoicesReducer;
+  const { loading, action, isModified, salesReceipt } =
+    state.salesReceiptsReducer;
 
-  return { loading, action, isModified, invoice };
+  return { loading, action, isModified, salesReceipt };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    updateInvoice: (data) => dispatch({ type: UPDATE_SALES_RECEIPT, data }),
-    resetInvoice: () => dispatch(reset()),
-    getInvoice: (invoiceId) => dispatch({ type: GET_SALES_RECEIPT, invoiceId }),
+    updateSalesReceipt: (data) =>
+      dispatch({ type: UPDATE_SALES_RECEIPT, data }),
+    resetSalesReceipt: () => dispatch(reset()),
+    getSalesReceipt: (salesReceiptId) =>
+      dispatch({ type: GET_SALES_RECEIPT, salesReceiptId }),
   };
 }
 

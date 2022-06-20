@@ -1,5 +1,6 @@
 import { Button } from "@chakra-ui/react";
 import { Link, useLocation } from "react-router-dom";
+import { RiAddLine } from "react-icons/ri";
 
 import useSavedLocation from "../../../hooks/useSavedLocation";
 
@@ -15,8 +16,13 @@ function ItemsPage() {
       pageTitle="Items List"
       actions={
         <Link to={`${location.pathname}/new`}>
-          <Button variant="outline" colorScheme="cyan" size="sm">
-            new item
+          <Button
+            rightIcon={<RiAddLine />}
+            variant="outline"
+            colorScheme="cyan"
+            size="sm"
+          >
+            new
           </Button>
         </Link>
       }

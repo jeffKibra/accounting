@@ -111,12 +111,12 @@ function* updatePayment({ data }) {
           paymentsToCreate,
           paymentsToDelete,
         } = getPaymentsMapping(currentPayment.payments, payments);
-        console.log({
-          similarPayments,
-          paymentsToUpdate,
-          paymentsToCreate,
-          paymentsToDelete,
-        });
+        // console.log({
+        //   similarPayments,
+        //   paymentsToUpdate,
+        //   paymentsToCreate,
+        //   paymentsToDelete,
+        // });
         /**
          * create two different update values based on the accounts:
          * 1. accountsReceivable account
@@ -180,13 +180,14 @@ function* updatePayment({ data }) {
             paymentId
           ),
         ]);
-        console.log({
-          paymentAccountEntries,
-          paymentAccountEntriesToDelete,
-          accountsReceivableEntries,
-          accountsReceivableEntriesToDelete,
-          overPayEntry,
-        });
+
+        // console.log({
+        //   paymentAccountEntries,
+        //   paymentAccountEntriesToDelete,
+        //   accountsReceivableEntries,
+        //   accountsReceivableEntriesToDelete,
+        //   overPayEntry,
+        // });
         /**
          * start docs writing!
          */
@@ -197,7 +198,7 @@ function* updatePayment({ data }) {
           paymentId,
           status: "active",
         });
-        console.log({ transactionDetails });
+        // console.log({ transactionDetails });
         const newDetails = {
           ...transactionDetails,
           modifiedBy: email,
@@ -238,7 +239,6 @@ function* updatePayment({ data }) {
           orgId,
           accounts_receivable,
           accountsReceivableEntries.map((entry) => {
-            console.log({ entry });
             const {
               incoming,
               entry: { credit, debit, entryId },

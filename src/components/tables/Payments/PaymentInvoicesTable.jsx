@@ -15,7 +15,7 @@ function PaymentInvoicesTable(props) {
   return (
     <>
       <TableContainer>
-        <Table wordBreak="break-word">
+        <Table size="sm" wordBreak="break-word">
           <Thead textTransform="capitalize">
             <Tr fontSize="14px" color="black" bg="gray.100" py={2}>
               <Th

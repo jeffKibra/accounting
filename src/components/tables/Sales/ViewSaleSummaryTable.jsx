@@ -48,7 +48,7 @@ function ViewSaleSummaryTable(props) {
             );
           })}
 
-          {adjustment > 0 && (
+          {adjustment !== 0 && (
             <Tr>
               <Td isNumeric>Adjustments </Td>
               <Td isNumeric>{Number(adjustment).toLocaleString()}</Td>
@@ -75,7 +75,7 @@ function ViewSaleSummaryTable(props) {
           )}
           {/* "#f5f4f3" */}
           {showBalance && balance > 0 && (
-            <Tr bg="cyan.100">
+            <Tr bg="gray.100">
               <Td isNumeric>
                 <b>Balance Due</b>
               </Td>

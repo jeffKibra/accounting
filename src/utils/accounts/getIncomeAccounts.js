@@ -1,8 +1,8 @@
 /**
  *
- * @param {[{}]} items
+ * @param {{salesAccount:{}, totalAmount:0}[]} items
  * @param {""} itemsKeyToSum
- * @returns {[{accountId:"", itemsTotal:0}]}
+ * @returns {Array.<{accountId:"", itemsTotal:0}>}
  */
 
 export default function getIncomeAccounts(

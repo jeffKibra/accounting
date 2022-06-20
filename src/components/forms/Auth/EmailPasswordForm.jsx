@@ -31,7 +31,7 @@ function EmailPasswordForm(props) {
     <Flex w="full" justify="center" align="center">
       <Box bg="white" borderRadius="md" shadow="md" w={350} maxW="90%">
         <Box textAlign="center">
-          <CardHeader>Accounts</CardHeader>
+          <CardHeader>(Accounts)</CardHeader>
         </Box>
 
         <Box

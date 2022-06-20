@@ -138,7 +138,7 @@ service cloud.firestore {
       match /items/{itemId} {
 
         function verifyItemData(){
-          let form1=['name', 'type', 'variant', 'sku', 'unit', 'costPrice'];
+          let form1=['name', 'type', 'variant', 'sku', 'skuOption', 'unit', 'costPrice'];
           let form2=['sellingPrice',"salesAccountId", 'salesAccount','salesTax', 'salesTaxId', "salesTaxType",'extraDetails'];
           let additional=['status', 'createdBy', 'modifiedBy', 'createdAt', 'modifiedAt'];
           let allFields=form1.concat(form2).concat(additional);
@@ -149,6 +149,7 @@ service cloud.firestore {
             request.resource.data.type is string &&
             request.resource.data.variant is string &&
             request.resource.data.sku is string &&
+            request.resource.data.skuOption is string &&
             request.resource.data.unit is string &&
             numberValue(request.resource.data.costPrice) &&
             numberValue(request.resource.data.sellingPrice) &&
@@ -166,7 +167,7 @@ service cloud.firestore {
         }
 
         function allowItemUpdate(){
-          let form1=['name', 'type', 'variant', 'sku', 'unit', 'costPrice'];
+          let form1=['name', 'type', 'variant', 'sku', 'skuOption', 'unit', 'costPrice'];
           let form2=['sellingPrice',"salesAccountId", 'salesAccount','salesTax', 'salesTaxId', "salesTaxType",'extraDetails'];
           let additional=['status', 'modifiedBy', 'modifiedAt'];
           let allFields=form1.concat(form2).concat(additional);
@@ -235,8 +236,8 @@ service cloud.firestore {
         }
 
         function allowJournalUpdate(){
-          let req=["amount", "account", "amountState", "transactionType", "debit", "credit", "transactionId", "transactionDetails", "reference"];
-          let additional=["date", "status", "modifiedAt", "modifiedBy"];
+          let req=["amount", "amountState", "transactionType", "account", "debit", "credit", "transactionId", "transactionDetails", "reference"];
+          let additional=["status", "modifiedAt", "modifiedBy"];
           let required= req.concat(additional);
 
           return request.resource.data.diff(resource.data).affectedKeys().hasOnly(required)

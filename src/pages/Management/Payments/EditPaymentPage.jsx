@@ -45,7 +45,7 @@ function EditPaymentPage(props) {
   }, [isModified, resetPayment, navigate, viewRoute]);
 
   function update(data) {
-    console.log({ data });
+    // console.log({ data });
     updatePayment({
       ...data,
       paymentId,
@@ -54,7 +54,7 @@ function EditPaymentPage(props) {
 
   return (
     <PageLayout
-      pageTitle={`Edit Payment ${payment?.paymentId || ""}`}
+      pageTitle={`Edit ${paymentId || "Payment"}`}
       actions={
         <Link to={viewRoute}>
           <IconButton

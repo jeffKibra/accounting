@@ -1,10 +1,13 @@
 import { doc, serverTimestamp, increment } from "firebase/firestore";
 
 import { db } from "../firebase";
-import { getIncomeAccountsMapping } from "../invoices";
 
 import { createSimilarAccountEntries } from "../journals";
-import { getAccountData } from "../accounts";
+import {
+  getAccountData,
+  getAccountsMapping,
+  getIncomeAccountsMapping,
+} from "../accounts";
 import formats from "../formats";
 import { getDateDetails } from "../dates";
 
@@ -39,7 +42,7 @@ export default async function createSalesReceipt(
     reference: "",
     customerNotes: "",
   },
-  transactionType = "salesReceipt"
+  transactionType = "sales receipt"
 ) {
   const orgId = org.id;
   const { email } = userProfile;
@@ -54,24 +57,6 @@ export default async function createSalesReceipt(
   } = data;
   const { totalTaxes, adjustment, shipping, totalAmount } = summary;
   // console.log({ data });
-  /**
-   * accounts details
-   */
-  const tax_payable = getAccountData("tax_payable", accounts);
-  const shipping_charge = getAccountData("shipping_charge", accounts);
-  const other_charges = getAccountData("other_charges", accounts);
-  const paymentAccount = getAccountData(accountId, accounts);
-
-  const { yearMonthDay } = getDateDetails();
-  const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
-
-  const salesReceiptRef = doc(
-    db,
-    "organizations",
-    orgId,
-    "salesReceipts",
-    salesReceiptId
-  );
 
   // console.log({ selectedItems });
   const tDetails = {
@@ -81,7 +66,7 @@ export default async function createSalesReceipt(
     transactionType,
     org: formats.formatOrgData(org),
     customer: formats.formatCustomerData(customer),
-    selectedItems: formats.formatInvoiceItems(selectedItems),
+    selectedItems: formats.formatSaleItems(selectedItems),
   };
   const transactionDetails = {
     ...tDetails,
@@ -92,7 +77,14 @@ export default async function createSalesReceipt(
   /**
    * create journal entries for income accounts
    */
-  const { newAccounts } = getIncomeAccountsMapping([], selectedItems);
+  let { newAccounts } = getIncomeAccountsMapping([], selectedItems);
+  const summaryAccounts = getAccountsMapping([
+    { accountId: "shipping_charge", incoming: shipping, current: 0 },
+    { accountId: "other_charges", incoming: adjustment, current: 0 },
+    { accountId: "tax_payable", incoming: totalTaxes, current: 0 },
+    { accountId, incoming: totalAmount, current: 0 },
+  ]);
+  newAccounts = [...newAccounts, ...summaryAccounts.newAccounts];
 
   newAccounts.forEach((newAccount) => {
     const { accountId, incoming } = newAccount;
@@ -109,77 +101,6 @@ export default async function createSalesReceipt(
       },
     ]);
   });
-  // console.log({ summary });
-  /**
-   * journal entry for the payment
-   */
-  createSimilarAccountEntries(transaction, userProfile, orgId, paymentAccount, [
-    {
-      amount: totalAmount,
-      account: paymentAccount,
-      reference,
-      transactionDetails,
-      transactionId,
-      transactionType,
-    },
-  ]);
-  /**
-   * journal entry for taxes => tax_payable-liability account
-   */
-  if (totalTaxes > 0) {
-    createSimilarAccountEntries(transaction, userProfile, orgId, tax_payable, [
-      {
-        amount: totalTaxes,
-        account: tax_payable,
-        reference,
-        transactionId,
-        transactionType,
-        transactionDetails,
-      },
-    ]);
-  }
-  /**
-   * shipping charge
-   */
-  if (shipping > 0) {
-    createSimilarAccountEntries(
-      transaction,
-      userProfile,
-      orgId,
-      shipping_charge,
-      [
-        {
-          amount: shipping,
-          account: shipping_charge,
-          reference,
-          transactionId,
-          transactionType,
-          transactionDetails,
-        },
-      ]
-    );
-  }
-  /**
-   * adjustments
-   */
-  if (adjustment > 0 || adjustment < 0) {
-    createSimilarAccountEntries(
-      transaction,
-      userProfile,
-      orgId,
-      other_charges,
-      [
-        {
-          amount: adjustment,
-          account: other_charges,
-          reference,
-          transactionDetails,
-          transactionId,
-          transactionType,
-        },
-      ]
-    );
-  }
   /**
    * update customer summaries if a customer was selected
    */
@@ -200,6 +121,8 @@ export default async function createSalesReceipt(
   /**
    * update org summaries
    */
+  const { yearMonthDay } = getDateDetails();
+  const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
   transaction.update(summaryRef, {
     salesReceipts: increment(1),
     [`paymentModes.${paymentModeId}`]: increment(totalAmount),
@@ -208,6 +131,13 @@ export default async function createSalesReceipt(
   /**
    * create salesReceipt
    */
+  const salesReceiptRef = doc(
+    db,
+    "organizations",
+    orgId,
+    "salesReceipts",
+    salesReceiptId
+  );
   // console.log({ salesReceiptData });
   transaction.set(salesReceiptRef, {
     ...tDetails,

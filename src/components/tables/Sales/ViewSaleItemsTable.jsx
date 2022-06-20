@@ -23,7 +23,7 @@ function ViewSaleItemsTable(props) {
       <TableContainer>
         <Table wordBreak="break-word" size="sm">
           <Thead textTransform="capitalize">
-            <Tr bg="cyan.100" py={2}>
+            <Tr bg="gray.100" py={2}>
               <Th
                 fontSize="sm"
                 w="5%"

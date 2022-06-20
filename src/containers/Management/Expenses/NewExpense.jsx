@@ -1,4 +1,4 @@
-import ExpenseForm from "../../../components/forms/ExpenseForms/ExpenseForm";
+import ExpenseForm from "../../../components/forms/Expenses/ExpenseForm";
 
 function NewExpense() {
   return (

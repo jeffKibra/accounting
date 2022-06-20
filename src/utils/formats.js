@@ -58,7 +58,7 @@ function formatTransactionDetails(details) {
   };
 }
 
-function formatInvoiceItems(items = []) {
+function formatSaleItems(items = []) {
   return items.map((item) => {
     const {
       createdAt,
@@ -83,7 +83,7 @@ const formats = {
   formatCustomerData,
   formatOrgData,
   formatTransactionDetails,
-  formatInvoiceItems,
+  formatSaleItems,
 };
 
 export default formats;
