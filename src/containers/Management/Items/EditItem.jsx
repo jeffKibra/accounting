@@ -39,7 +39,7 @@ function EditItem(props) {
   }
 
   function handleFormSubmit(data) {
-    // console.log({ data });
+    updateFormValues(data);
     const { salesTaxId, salesAccountId } = data;
 
     //sales account
@@ -67,11 +67,12 @@ function EditItem(props) {
     }
 
     const newData = {
+      ...formValues,
       ...data,
       salesTax,
       salesAccount,
     };
-    // console.log({ newData });
+    console.log({ newData });
     saveData(newData);
   }
 

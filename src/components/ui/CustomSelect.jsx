@@ -59,6 +59,9 @@ function Grouped(props) {
         mb={0}
         key={i}
       >
+        {/* <MenuItemOption py={1} value="">
+          <Text fontSize="sm">clear selection</Text>
+        </MenuItemOption> */}
         {options.map((option, index) => {
           const { name, value } = option;
 
@@ -86,10 +89,21 @@ Grouped.propTypes = {
 };
 
 function Normal(props) {
-  const { options, onChange, value } = props;
+  const { options: opts, onChange, value } = props;
+  const options = [...opts];
+
+  options.sort((a, b) => {
+    const optionA = String(a?.name).toLowerCase();
+    const optionB = String(b?.name).toLowerCase();
+
+    return sortStrings(optionA, optionB);
+  });
 
   return (
     <MenuOptionGroup onChange={onChange} value={value} type="radio">
+      <MenuItemOption py={1} value="">
+        <Text fontSize="sm">clear selection</Text>
+      </MenuItemOption>
       {options.map(({ name, value }, i) => {
         return (
           <MenuItemOption py={1} key={i} value={value}>
@@ -114,7 +128,6 @@ Normal.propTypes = {
 
 function CustomSelect(props) {
   //   console.log({ props });
-
   const {
     name,
     options,
@@ -124,6 +137,7 @@ function CustomSelect(props) {
     size,
     colorScheme,
     isDisabled,
+    renderTrigger,
   } = props;
   const { control } = useFormContext();
   const currentOptions = groupedOptions || options || [];
@@ -141,30 +155,34 @@ function CustomSelect(props) {
             {({ isOpen }) => {
               return (
                 <>
-                  <MenuButton
-                    ref={ref}
-                    as={Button}
-                    id={name}
-                    isDisabled={isDisabled}
-                    size={size || "sm"}
-                    {...(colorScheme ? { colorScheme } : {})}
-                    isActive={isOpen}
-                    isFullWidth
-                    variant="outline"
-                    textAlign="left"
-                    rightIcon={
-                      isOpen ? <RiArrowUpSLine /> : <RiArrowDownSLine />
-                    }
-                    fontWeight="normal"
-                  >
-                    <Text fontSize="sm">
-                      {value
-                        ? currentOptions.find(
-                            (option) => option.value === value
-                          )?.name
-                        : placeholder}
-                    </Text>
-                  </MenuButton>
+                  {renderTrigger ? (
+                    renderTrigger()
+                  ) : (
+                    <MenuButton
+                      ref={ref}
+                      as={Button}
+                      id={name}
+                      isDisabled={isDisabled}
+                      size={size || "sm"}
+                      {...(colorScheme ? { colorScheme } : {})}
+                      isActive={isOpen}
+                      isFullWidth
+                      variant="outline"
+                      textAlign="left"
+                      rightIcon={
+                        isOpen ? <RiArrowUpSLine /> : <RiArrowDownSLine />
+                      }
+                      fontWeight="normal"
+                    >
+                      <Text fontSize="sm">
+                        {value
+                          ? currentOptions.find(
+                              (option) => option.value === value
+                            )?.name
+                          : placeholder}
+                      </Text>
+                    </MenuButton>
+                  )}
 
                   <MenuList maxH="250px" overflowY="auto">
                     {groupedOptions?.length > 0 ? (
@@ -172,12 +190,14 @@ function CustomSelect(props) {
                         onChange={onChange}
                         value={value}
                         options={groupedOptions}
+                        placeholder={placeholder}
                       />
                     ) : options?.length > 0 ? (
                       <Normal
                         onChange={onChange}
                         value={value}
                         options={options}
+                        placeholder={placeholder}
                       />
                     ) : (
                       []
@@ -202,6 +222,7 @@ CustomSelect.propTypes = {
   size: PropTypes.oneOf(["xs", "sm", "md", "lg", "xl"]),
   colorScheme: PropTypes.string,
   isDisabled: PropTypes.bool,
+  renderTrigger: PropTypes.func,
 };
 
 export default CustomSelect;

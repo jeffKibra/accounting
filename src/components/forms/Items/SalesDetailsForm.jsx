@@ -1,16 +1,15 @@
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import {
   FormControl,
   FormLabel,
   FormErrorMessage,
   Button,
-  Box,
   Flex,
   Textarea,
-  Select,
   Grid,
   GridItem,
   FormHelperText,
+  Container,
 } from "@chakra-ui/react";
 import { useForm, FormProvider } from "react-hook-form";
 import PropTypes from "prop-types";
@@ -19,6 +18,7 @@ import StepperContext from "../../../contexts/StepperContext";
 
 import NumInput from "../../ui/NumInput";
 import RadioInput from "../../ui/RadioInput";
+import CustomSelect from "../../ui/CustomSelect";
 
 function SalesDetailsForm(props) {
   const {
@@ -32,168 +32,181 @@ function SalesDetailsForm(props) {
 
   const { prevStep } = useContext(StepperContext);
 
+  const defaults = useMemo(() => {
+    return {
+      sellingPrice: defaultValues?.sellingPrice || 0,
+      salesAccountId: defaultValues?.salesAccountId || "sales",
+      salesTaxId: defaultValues?.salesTaxId || "",
+      salesTaxType: defaultValues?.salesTaxType || "",
+      extraDetails: defaultValues?.extraDetails || "",
+    };
+  }, [defaultValues]);
+
   const formMethods = useForm({
     mode: "onChange",
-    defaultValues: defaultValues || {},
+    defaultValues: { ...defaults },
   });
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
+    getValues,
   } = formMethods;
 
-  const allValues = watch();
   function prev() {
+    const allValues = getValues();
     updateFormValues(allValues);
     prevStep();
   }
-
+  console.log({ taxes });
   const salesTaxId = watch("salesTaxId");
 
   return (
-    <FormProvider {...formMethods}>
-      <Box
-        bg="white"
-        w={["full", "80%"]}
-        borderRadius="md"
-        shadow="md"
-        p={4}
-        as="form"
-        role="form"
-        onSubmit={handleSubmit(handleFormSubmit)}
-      >
-        <Grid columnGap={4} rowGap={2} templateColumns="repeat(12, 1fr)">
-          <GridItem colSpan={[12, 6]}>
-            <FormControl
-              isDisabled={loading}
-              isRequired
-              isInvalid={errors.sellingPrice}
-            >
-              <FormLabel htmlFor="sellingPrice">Selling Price (ksh)</FormLabel>
-              <NumInput
-                name="sellingPrice"
-                min={0}
-                rules={{
-                  required: { value: true, message: "*Required!" },
-                  min: {
-                    value: 0,
-                    message: "Value should not be less than zero(0)!",
-                  },
-                }}
-              />
-
-              <FormErrorMessage>
-                {errors?.sellingPrice?.message}
-              </FormErrorMessage>
-            </FormControl>
-          </GridItem>
-
-          <GridItem colSpan={[12, 6]}>
-            <FormControl
-              isDisabled={loading}
-              isRequired
-              isInvalid={errors.salesAccountId}
-            >
-              <FormLabel htmlFor="salesAccountId">Account</FormLabel>
-              <Select
-                placeholder="sales account"
-                id="salesAccountId"
-                {...register("salesAccountId", {
-                  required: { value: true, message: "Required" },
-                })}
-              >
-                {accounts.map((account, i) => {
-                  const { name, accountId } = account;
-                  return (
-                    <option value={accountId} key={i}>
-                      {name}
-                    </option>
-                  );
-                })}
-              </Select>
-              <FormErrorMessage>
-                {errors?.salesAccountId?.message}
-              </FormErrorMessage>
-            </FormControl>
-          </GridItem>
-
-          <GridItem colSpan={[12, 6]}>
-            <FormControl isDisabled={loading} isInvalid={errors.salesTaxId}>
-              <FormLabel htmlFor="salesTaxId">Tax</FormLabel>
-              <Select
-                placeholder="sales tax"
-                id="salesTaxId"
-                {...register("salesTaxId")}
-              >
-                {taxes.map((tax, i) => {
-                  const { name, rate, taxId } = tax;
-
-                  return (
-                    <option
-                      value={taxId}
-                      key={i}
-                    >{`${name} -  ${rate}%`}</option>
-                  );
-                })}
-              </Select>
-              <FormErrorMessage>{errors?.salesTaxId?.message}</FormErrorMessage>
-              <FormHelperText>Add tax to your item</FormHelperText>
-            </FormControl>
-          </GridItem>
-
-          <GridItem colSpan={[12, 6]}>
+    <Container
+      maxW="container.sm"
+      bg="white"
+      borderRadius="md"
+      shadow="md"
+      p={4}
+    >
+      <FormProvider {...formMethods}>
+        <Container
+          py={4}
+          as="form"
+          role="form"
+          onSubmit={handleSubmit(handleFormSubmit)}
+        >
+          <Grid columnGap={4} rowGap={2} templateColumns="repeat(12, 1fr)">
             <GridItem colSpan={[12, 6]}>
               <FormControl
                 isDisabled={loading}
-                w="full"
-                // isRequired={salesTaxId}
-                isInvalid={errors.salesTaxType}
+                isRequired
+                isInvalid={errors.sellingPrice}
               >
-                <FormLabel htmlFor="salesTaxType">Amount is</FormLabel>
-                <RadioInput
-                  name="salesTaxType"
-                  options={["tax inclusive", "tax exclusive"]}
+                <FormLabel htmlFor="sellingPrice">
+                  Selling Price (ksh)
+                </FormLabel>
+                <NumInput
+                  name="sellingPrice"
+                  min={0}
                   rules={{
-                    validate: {
-                      required: (value) => {
-                        return !salesTaxId || !!value || "*Required!";
-                      },
+                    required: { value: true, message: "*Required!" },
+                    min: {
+                      value: 1,
+                      message: "Value should be greater than zero(0)!",
                     },
                   }}
                 />
+
                 <FormErrorMessage>
-                  {errors?.salesTaxType?.message}
+                  {errors?.sellingPrice?.message}
                 </FormErrorMessage>
               </FormControl>
             </GridItem>
-          </GridItem>
-          <GridItem colSpan={12}>
-            <FormControl isDisabled={loading} isInvalid={errors.extraDetails}>
-              <FormLabel htmlFor="extraDetails">Extra Details</FormLabel>
-              <Textarea id="extraDetails" {...register("extraDetails")} />
-              <FormErrorMessage>
-                {errors?.extraDetails?.message}
-              </FormErrorMessage>
-            </FormControl>
-          </GridItem>
-        </Grid>
 
-        <Flex pt={4} justify="space-evenly">
-          <Button
-            variant="outline"
-            colorScheme="cyan"
-            isLoading={loading}
-            onClick={prev}
-          >
-            prev
-          </Button>
-          <Button colorScheme="cyan" type="submit" isLoading={loading}>
-            save
-          </Button>
-        </Flex>
-      </Box>
-    </FormProvider>
+            <GridItem colSpan={[12, 6]}>
+              <FormControl
+                isDisabled={loading}
+                isRequired
+                isInvalid={errors.salesAccountId}
+              >
+                <FormLabel htmlFor="salesAccountId">Account</FormLabel>
+                <CustomSelect
+                  name="salesAccountId"
+                  placeholder="sales account"
+                  isDisabled={loading}
+                  rules={{ required: { value: true, message: "Required" } }}
+                  options={accounts.map((account, i) => {
+                    const { name, accountId } = account;
+                    return {
+                      name,
+                      value: accountId,
+                    };
+                  })}
+                />
+                <FormErrorMessage>
+                  {errors?.salesAccountId?.message}
+                </FormErrorMessage>
+              </FormControl>
+            </GridItem>
+
+            <GridItem colSpan={[12, 6]}>
+              <FormControl isDisabled={loading} isInvalid={errors.salesTaxId}>
+                <FormLabel htmlFor="salesTaxId">Tax</FormLabel>
+                <CustomSelect
+                  name="salesTaxId"
+                  placeholder="sales tax"
+                  isDisabled={loading}
+                  options={taxes.map((tax, i) => {
+                    const { name, rate, taxId } = tax;
+
+                    return {
+                      name: `${name} - ${rate}%`,
+                      value: taxId,
+                    };
+                  })}
+                />
+                <FormErrorMessage>
+                  {errors?.salesTaxId?.message}
+                </FormErrorMessage>
+                <FormHelperText>Add tax to your item</FormHelperText>
+              </FormControl>
+            </GridItem>
+
+            <GridItem colSpan={[12, 6]}>
+              <GridItem colSpan={[12, 6]}>
+                <FormControl
+                  isDisabled={loading}
+                  w="full"
+                  // isRequired={salesTaxId}
+                  isInvalid={errors.salesTaxType}
+                >
+                  <FormLabel htmlFor="salesTaxType">Amount is</FormLabel>
+                  <RadioInput
+                    name="salesTaxType"
+                    options={["tax inclusive", "tax exclusive"]}
+                    rules={{
+                      validate: {
+                        required: (value) => {
+                          return !salesTaxId || !!value || "*Required!";
+                        },
+                      },
+                    }}
+                  />
+                  <FormErrorMessage>
+                    {errors?.salesTaxType?.message}
+                  </FormErrorMessage>
+                </FormControl>
+              </GridItem>
+            </GridItem>
+            <GridItem colSpan={12}>
+              <FormControl isDisabled={loading} isInvalid={errors.extraDetails}>
+                <FormLabel htmlFor="extraDetails">Extra Details</FormLabel>
+                <Textarea id="extraDetails" {...register("extraDetails")} />
+                <FormErrorMessage>
+                  {errors?.extraDetails?.message}
+                </FormErrorMessage>
+              </FormControl>
+            </GridItem>
+          </Grid>
+
+          <Flex pt={4} justify="space-evenly">
+            <Button
+              variant="outline"
+              colorScheme="cyan"
+              isLoading={loading}
+              onClick={prev}
+            >
+              prev
+            </Button>
+            <Button colorScheme="cyan" type="submit" isLoading={loading}>
+              save
+            </Button>
+          </Flex>
+        </Container>
+      </FormProvider>
+    </Container>
   );
 }
 

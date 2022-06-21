@@ -1,26 +1,10 @@
 import { put, call, select, takeLatest } from "redux-saga/effects";
-import {
-  doc,
-  serverTimestamp,
-  runTransaction,
-  increment,
-} from "firebase/firestore";
-
-import {
-  deleteSimilarAccountEntries,
-  groupEntriesIntoAccounts,
-} from "../../../utils/journals";
-import {
-  getPaymentsTotal,
-  getPaymentData,
-  getPaymentsMapping,
-  deleteInvoicesPayments,
-  getAllPaymentEntries,
-} from "../../../utils/payments";
-import { getDateDetails } from "../../../utils/dates";
-import { createDailySummary } from "../../../utils/summaries";
+import { runTransaction } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
+import { deletePayment } from "../../../utils/payments";
+import { createDailySummary } from "../../../utils/summaries";
+
 import { DELETE_PAYMENT } from "../../actions/paymentsActions";
 import { start, success, fail } from "../../slices/paymentsSlice";
 import {
@@ -28,119 +12,24 @@ import {
   success as toastSuccess,
 } from "../../slices/toastSlice";
 
-function* deletePayment({ paymentId }) {
+function* deletePaymentSaga({ paymentId }) {
   yield put(start(DELETE_PAYMENT));
 
   try {
     const org = yield select((state) => state.orgsReducer.org);
     const orgId = org.id;
     const userProfile = yield select((state) => state.authReducer.userProfile);
-    const { email } = userProfile;
-    // console.log({ paymentId });
-
-    // const invoicesIds = Object.keys(payments);
 
     async function update() {
-      const paymentRef = doc(db, "organizations", orgId, "payments", paymentId);
-      const { yearMonthDay } = getDateDetails();
-      const summaryRef = doc(
-        db,
-        "organizations",
-        orgId,
-        "summaries",
-        yearMonthDay
-      );
-
+      /**
+       * initialize by creating daily summary if none is available
+       */
+      await createDailySummary(orgId);
+      /**
+       * delete payment using a transaction
+       */
       await runTransaction(db, async (transaction) => {
-        /**
-         * get current paymentData and incoming customer details
-         */
-        const [paymentData, allEntries] = await Promise.all([
-          getPaymentData(transaction, orgId, paymentId),
-          getAllPaymentEntries(orgId, paymentId),
-          createDailySummary(orgId),
-        ]);
-        const { customerId, payments, excess, amount, paymentModeId } =
-          paymentData;
-        const paymentsTotal = getPaymentsTotal(payments);
-        // console.log({ allEntries });
-        /**
-         * group entries into accounts
-         */
-        const groupedEntries = groupEntriesIntoAccounts(allEntries);
-        // console.log({ groupedEntries });
-
-        const { paymentsToDelete } = getPaymentsMapping(payments, {});
-        // console.log({
-        //   paymentsToDelete,
-        // });
-
-        /**
-         * start docs writing!
-         */
-
-        /**
-         * delete entries
-         */
-        groupedEntries.forEach((group) => {
-          const { entries, ...account } = group;
-
-          deleteSimilarAccountEntries(
-            transaction,
-            userProfile,
-            orgId,
-            account,
-            entries
-          );
-        });
-
-        /**
-         * delete deleted payments from linked invoices
-         */
-        if (paymentsToDelete.length > 0) {
-          // console.log("deleting i");
-          deleteInvoicesPayments(
-            transaction,
-            userProfile,
-            orgId,
-            paymentData,
-            paymentsToDelete
-          );
-        }
-        /**
-         * update customers
-         * function also handles a change of customer situation.
-         */
-        const customerRef = doc(
-          db,
-          "organizations",
-          orgId,
-          "customers",
-          customerId
-        );
-        transaction.update(customerRef, {
-          "summary.deletedPayments": increment(1),
-          "summary.unusedCredits": increment(0 - excess),
-          "summary.invoicePayments": increment(0 - paymentsTotal),
-          modifiedAt: serverTimestamp(),
-          modifiedBy: email,
-        });
-        /**
-         * update summary- increase deletedPayments by one
-         * adjust payment mode value by negative of payment amount
-         */
-        transaction.update(summaryRef, {
-          deletedPayments: increment(1),
-          [`paymentModes.${paymentModeId}`]: increment(0 - amount),
-        });
-        /**
-         * mark payment as deleted
-         */
-        transaction.update(paymentRef, {
-          status: "deleted",
-          modifiedAt: serverTimestamp(),
-          modifiedBy: email,
-        });
+        await deletePayment(transaction, orgId, userProfile, paymentId);
       });
     }
 
@@ -156,5 +45,5 @@ function* deletePayment({ paymentId }) {
 }
 
 export function* watchDeletePayment() {
-  yield takeLatest(DELETE_PAYMENT, deletePayment);
+  yield takeLatest(DELETE_PAYMENT, deletePaymentSaga);
 }

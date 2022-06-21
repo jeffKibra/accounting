@@ -142,18 +142,9 @@ function DetailsForm(props) {
           </GridItem>
 
           <GridItem colSpan={[12, 4]}>
-            <FormControl
-              isDisabled={loading}
-              isRequired
-              isInvalid={!!errors.salutation}
-            >
+            <FormControl isDisabled={loading} isInvalid={!!errors.salutation}>
               <FormLabel>Salutation</FormLabel>
-              <Select
-                placeholder="salutation"
-                {...register("salutation", {
-                  required: { value: true, message: "Required!" },
-                })}
-              >
+              <Select placeholder="salutation" {...register("salutation")}>
                 <option value="Mr.">Mr.</option>
                 <option value="Mrs.">Mrs.</option>
                 <option value="Ms.">Ms.</option>

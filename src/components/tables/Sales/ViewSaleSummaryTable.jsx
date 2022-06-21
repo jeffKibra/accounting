@@ -1,11 +1,8 @@
 import { TableContainer, Table, Tbody, Td, Tr } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 
-import { getInvoicePaymentsTotal } from "../../../utils/invoices";
-
-function InvoicePdfSummary(props) {
-  const { summary, payments } = props;
-  const paymentsTotal = getInvoicePaymentsTotal(payments);
+function ViewSaleSummaryTable(props) {
+  const { summary, paymentsTotal, showBalance } = props;
 
   const {
     subTotal,
@@ -16,6 +13,7 @@ function InvoicePdfSummary(props) {
     totalTaxes,
     taxType,
   } = summary;
+  let balance = totalAmount - +paymentsTotal;
 
   return (
     <TableContainer>
@@ -30,11 +28,12 @@ function InvoicePdfSummary(props) {
             </Td>
           </Tr>
 
-          <Tr>
-            <Td isNumeric>Shipping Charges </Td>
-
-            <Td isNumeric>{Number(shipping).toLocaleString()}</Td>
-          </Tr>
+          {shipping > 0 && (
+            <Tr>
+              <Td isNumeric>Shipping Charges </Td>
+              <Td isNumeric>{Number(shipping).toLocaleString()}</Td>
+            </Tr>
+          )}
 
           {taxes.map((tax, i) => {
             const { name, rate, totalTax } = tax;
@@ -49,10 +48,12 @@ function InvoicePdfSummary(props) {
             );
           })}
 
-          <Tr>
-            <Td isNumeric>Adjustments </Td>
-            <Td isNumeric>{Number(adjustment).toLocaleString()}</Td>
-          </Tr>
+          {adjustment !== 0 && (
+            <Tr>
+              <Td isNumeric>Adjustments </Td>
+              <Td isNumeric>{Number(adjustment).toLocaleString()}</Td>
+            </Tr>
+          )}
 
           <Tr>
             <Td isNumeric>
@@ -72,21 +73,29 @@ function InvoicePdfSummary(props) {
               </Td>
             </Tr>
           )}
-          <Tr bg="#f5f4f3">
-            <Td isNumeric>
-              <b>Balance Due</b>
-            </Td>
-            <Td isNumeric>
-              <b>{Number(totalAmount - paymentsTotal).toLocaleString()}</b>
-            </Td>
-          </Tr>
+          {/* "#f5f4f3" */}
+          {showBalance && balance > 0 && (
+            <Tr bg="gray.100">
+              <Td isNumeric>
+                <b>Balance Due</b>
+              </Td>
+              <Td isNumeric>
+                <b>{Number(balance).toLocaleString()}</b>
+              </Td>
+            </Tr>
+          )}
         </Tbody>
       </Table>
     </TableContainer>
   );
 }
 
-InvoicePdfSummary.propTypes = {
+ViewSaleSummaryTable.defaultProps = {
+  paymentsTotal: 0,
+  showBalance: true,
+};
+
+ViewSaleSummaryTable.propTypes = {
   summary: PropTypes.shape({
     subTotal: PropTypes.number,
     taxes: PropTypes.arrayOf(
@@ -103,7 +112,8 @@ InvoicePdfSummary.propTypes = {
     totalAmount: PropTypes.number,
     taxType: PropTypes.string.isRequired,
   }),
-  payments: PropTypes.object.isRequired,
+  paymentsTotal: PropTypes.number,
+  showBalance: PropTypes.bool,
 };
 
-export default InvoicePdfSummary;
+export default ViewSaleSummaryTable;

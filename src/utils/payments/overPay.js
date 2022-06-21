@@ -12,7 +12,7 @@ function createEntry(
   transactionDetails,
   accounts
 ) {
-  const { reference, paymentSlug } = transactionDetails;
+  const { reference, paymentId } = transactionDetails;
   /**
    * excess amount - credit account with the excess amount
    */
@@ -32,7 +32,7 @@ function createEntry(
         amount,
         reference,
         transactionDetails,
-        transactionId: paymentSlug,
+        transactionId: paymentId,
         transactionType: "customer payment",
       },
     ]
@@ -48,7 +48,7 @@ function updateEntry(
   entryData = { debit: 0, credit: 0, entryId: "" },
   accounts = [{}]
 ) {
-  const { paymentSlug, reference } = transactionDetails;
+  const { paymentId, reference } = transactionDetails;
   const { debit, credit } = entryData;
   const entryAmount = credit > 0 ? credit : debit;
   /**
@@ -72,7 +72,7 @@ function updateEntry(
           amount,
           ...entryData,
           reference,
-          transactionId: paymentSlug,
+          transactionId: paymentId,
           transactionDetails,
         },
       ]

@@ -1,20 +1,40 @@
+import { useEffect } from "react";
 import { Box } from "@chakra-ui/react";
 import PropTypes from "prop-types";
+import { connect } from "react-redux";
 
 import { SalesContextProvider } from "../../../contexts/SalesContext";
 
-import Stepper from "../../../components/ui/Stepper";
+import { GET_PAYMENT_MODES } from "../../../store/actions/paymentModesActions";
 
-import InvoiceForm from "../../../components/forms/Invoice/InvoiceForm";
+import Stepper from "../../../components/ui/Stepper";
+import SkeletonLoader from "../../../components/ui/SkeletonLoader";
+import Empty from "../../../components/ui/Empty";
+
+import SalesReceiptForm from "../../../components/forms/SalesReceipts/SalesReceiptForm";
 import SaleItemsForm from "../../../components/forms/Sales/SaleItemsForm";
 
 function EditSalesReceipt(props) {
-  const { invoice, handleFormSubmit, updating } = props;
+  const {
+    salesReceipt,
+    handleFormSubmit,
+    updating,
+    getPaymentModes,
+    loadingPaymentModes,
+    paymentModes,
+    accounts,
+  } = props;
   // console.log({ props });
 
-  return (
+  useEffect(() => {
+    getPaymentModes();
+  }, [getPaymentModes]);
+
+  return loadingPaymentModes ? (
+    <SkeletonLoader />
+  ) : paymentModes?.length > 0 ? (
     <SalesContextProvider
-      defaultValues={invoice}
+      defaultValues={salesReceipt}
       updating={updating}
       saveData={handleFormSubmit}
     >
@@ -27,12 +47,19 @@ function EditSalesReceipt(props) {
             },
             {
               label: "Payment Details",
-              content: <InvoiceForm />,
+              content: (
+                <SalesReceiptForm
+                  paymentModes={paymentModes}
+                  accounts={accounts}
+                />
+              ),
             },
           ]}
         />
       </Box>
     </SalesContextProvider>
+  ) : (
+    <Empty message="Payment modes not found! Please try Reloading the page!" />
   );
 }
 
@@ -59,4 +86,22 @@ EditSalesReceipt.propTypes = {
   }),
 };
 
-export default EditSalesReceipt;
+function mapStateToProps(state) {
+  const { loading: loadingPaymentModes, paymentModes } =
+    state.paymentModesReducer;
+  const { accounts } = state.accountsReducer;
+
+  return {
+    loadingPaymentModes,
+    paymentModes,
+    accounts,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    getPaymentModes: () => dispatch({ type: GET_PAYMENT_MODES }),
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(EditSalesReceipt);

@@ -92,7 +92,6 @@ function* updatePayment({ data }) {
          */
         const customerHasChanged = customerId !== currentPayment.customerId;
 
-        const paymentSlug = currentPayment.paymentSlug;
         const allInvoices = combineInvoices(
           [...currentPayment.paidInvoices],
           [...paidInvoices]
@@ -178,21 +177,28 @@ function* updatePayment({ data }) {
             orgId,
             paymentId,
             unearned_revenue.accountId,
-            currentPayment.paymentSlug
+            paymentId
           ),
         ]);
+
+        // console.log({
+        //   paymentAccountEntries,
+        //   paymentAccountEntriesToDelete,
+        //   accountsReceivableEntries,
+        //   accountsReceivableEntriesToDelete,
+        //   overPayEntry,
+        // });
         /**
          * start docs writing!
          */
-
         const transactionDetails = formats.formatTransactionDetails({
           ...data,
           paidInvoicesIds: paidInvoices.map((invoice) => invoice.invoiceId),
           excess,
           paymentId,
           status: "active",
-          paymentSlug,
         });
+        // console.log({ transactionDetails });
         const newDetails = {
           ...transactionDetails,
           modifiedBy: email,
@@ -244,7 +250,7 @@ function* updatePayment({ data }) {
               credit,
               debit,
               entryId,
-              transactionId: invoice.invoiceSlug,
+              transactionId: invoice.invoiceId,
               transactionDetails,
             };
           })
@@ -270,7 +276,7 @@ function* updatePayment({ data }) {
                 prevAccount: currentPayment.account,
                 prevEntry: entry.entry,
                 transactionDetails,
-                transactionId: invoice.invoiceSlug,
+                transactionId: invoice.invoiceId,
                 transactionType: "customer payment",
                 reference,
               };
@@ -298,7 +304,7 @@ function* updatePayment({ data }) {
                 credit,
                 debit,
                 entryId,
-                transactionId: invoice.invoiceSlug,
+                transactionId: invoice.invoiceId,
                 transactionDetails,
               };
             })

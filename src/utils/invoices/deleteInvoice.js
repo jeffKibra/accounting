@@ -4,12 +4,9 @@ import { db } from "../firebase";
 import {
   deleteSimilarAccountEntries,
   groupEntriesIntoAccounts,
+  getTransactionEntries,
 } from "../journals";
-import {
-  getInvoiceData,
-  getAllInvoiceEntries,
-  getInvoicePaymentsTotal,
-} from "../invoices";
+import { getInvoiceData, getInvoicePaymentsTotal } from "../invoices";
 import { getDateDetails } from "../dates";
 
 export default async function deleteInvoice(
@@ -27,8 +24,9 @@ export default async function deleteInvoice(
 
   const [invoiceData, allEntries] = await Promise.all([
     getInvoiceData(transaction, orgId, invoiceId),
-    getAllInvoiceEntries(orgId, invoiceId),
+    getTransactionEntries(orgId, invoiceId),
   ]);
+  console.log({ allEntries });
   /**
    * check if the invoice has payments
    */

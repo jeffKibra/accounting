@@ -9,7 +9,7 @@ import AddressForm from "../../../components/forms/Orgs/AddressForm";
 
 function EditOrg(props) {
   const { loading, org, saveData } = props;
-  console.log({ props });
+  // console.log({ props });
   const [formValues, setFormValues] = useState(org || {});
 
   function updateFormValues(data) {
@@ -23,7 +23,7 @@ function EditOrg(props) {
       ...formValues,
       ...data,
     };
-    console.log({ newData });
+    // console.log({ newData });
 
     saveData({
       ...newData,
@@ -31,7 +31,7 @@ function EditOrg(props) {
   }
 
   return (
-    <Flex w="full" justify="center" pt={6}>
+    <Flex w="full" justify="center" pt={6} px={[4, null, 0]}>
       <Container
         maxW="container.sm"
         bg="white"
@@ -45,7 +45,6 @@ function EditOrg(props) {
         </Heading>
         <Container>
           <Stepper
-            responsive
             steps={[
               {
                 label: "Details",

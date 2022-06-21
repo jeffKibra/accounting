@@ -51,6 +51,15 @@ import { watchCheckAccounts } from "./accounts/checkAccountsSagas";
 import { watchGetPaymentModes } from "./paymentModes/getPaymentModesSagas";
 //paymentTerms
 import { watchGetPaymentTerms } from "./paymentTerms/getPaymentTermsSagas";
+//sales receipts
+import { watchCreateSalesReceipt } from "./salesReceipts/createSalesReceiptSagas";
+import {
+  watchGetSalesReceipt,
+  watchGetSalesReceipts,
+  watchGetCustomerSalesReceipts,
+} from "./salesReceipts/getSalesReceiptsSagas";
+import { watchDeleteSalesReceipt } from "./salesReceipts/deleteSalesReceiptSagas";
+import { watchUpdateSalesReceipt } from "./salesReceipts/updateSalesReceiptSagas";
 //categories
 import { watchCreateItemCategory } from "./itemsCategories/createItemCategorySagas";
 
@@ -98,6 +107,12 @@ export default function* rootSaga() {
     watchCheckAccounts(),
     watchGetPaymentModes(),
     watchGetPaymentTerms(),
+    watchCreateSalesReceipt(),
+    watchGetSalesReceipt(),
+    watchGetSalesReceipts(),
+    watchGetCustomerSalesReceipts(),
+    watchDeleteSalesReceipt(),
+    watchUpdateSalesReceipt(),
     watchCreateItemCategory(),
   ]);
 }

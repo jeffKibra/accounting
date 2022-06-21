@@ -7,40 +7,32 @@ function formatCustomerData(customer) {
 function formatInvoices(invoices = [{}]) {
   return invoices.map((invoice) => {
     const {
-      invoiceSlug,
       invoiceDate,
       dueDate,
       summary,
       status,
       invoiceId,
       balance,
+      transactionType,
     } = invoice;
     return {
-      invoiceSlug,
       invoiceDate,
       dueDate,
       summary,
       status,
       invoiceId,
       balance,
+      transactionType,
     };
   });
 }
 
 function formatInvoicePayment(payment) {
-  const {
-    paymentDate,
-    paymentSlug,
-    reference,
-    paymentMode,
-    account,
-    amount,
-    paymentId,
-  } = payment;
+  const { paymentDate, reference, paymentMode, account, amount, paymentId } =
+    payment;
 
   return {
     paymentDate,
-    paymentSlug,
     reference,
     paymentMode,
     account,
@@ -66,7 +58,7 @@ function formatTransactionDetails(details) {
   };
 }
 
-function formatInvoiceItems(items = []) {
+function formatSaleItems(items = []) {
   return items.map((item) => {
     const {
       createdAt,
@@ -91,7 +83,7 @@ const formats = {
   formatCustomerData,
   formatOrgData,
   formatTransactionDetails,
-  formatInvoiceItems,
+  formatSaleItems,
 };
 
 export default formats;

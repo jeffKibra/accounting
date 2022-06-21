@@ -14,24 +14,22 @@ import {
 } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 
-import InvoicePdfItems from "../../../components/tables/Invoices/InvoicePdfItems";
-import InvoicePdfSummary from "../../../components/tables/Invoices/InvoicePdfSummary";
-
+import ViewSaleItemsTable from "../../../components/tables/Sales/ViewSaleItemsTable";
+import ViewSaleSummaryTable from "../../../components/tables/Sales/ViewSaleSummaryTable";
 function ViewSalesReceipt(props) {
-  const { invoice } = props;
+  const { salesReceipt } = props;
   const {
     org,
     customer,
-    selectedItems,
-    invoiceSlug,
+    receiptDate,
+    paymentMode,
+    reference,
     summary,
-    invoiceDate,
-    dueDate,
+    selectedItems,
     customerNotes,
-    balance,
-    payments,
-  } = invoice;
-  // console.log({ invoice });
+    salesReceiptId,
+  } = salesReceipt;
+
   return (
     <Container
       borderRadius="md"
@@ -45,7 +43,10 @@ function ViewSalesReceipt(props) {
       <VStack color="#333" w="full" h="full">
         <Grid w="full" gap={1} templateColumns="repeat(12, 1fr)">
           <GridItem colSpan={[12, 6]}>
-            <VStack align="flex-start" w="full">
+            {/* add a logo for the company */}
+          </GridItem>
+          <GridItem colSpan={[12, 6]}>
+            <VStack align="flex-end" w="full">
               <Heading color="#333" as="h2" size="sm">
                 {org?.name}
               </Heading>
@@ -53,24 +54,16 @@ function ViewSalesReceipt(props) {
               <Text>{org?.city}</Text>
             </VStack>
           </GridItem>
-          <GridItem colSpan={[12, 6]}>
-            <VStack align="flex-end" w="full">
-              <Heading as="h1" size="xl">
-                INVOICE
-              </Heading>
-              <Heading color="#333" size="xs">
-                # {invoiceSlug}
-              </Heading>
-              <VStack w="full" mt="20px!important" align="flex-end">
-                <Text fontSize="sm">Balance Due</Text>
-                <Heading mt="0px !important" size="sm">
-                  KES {Number(balance).toLocaleString()}
-                  {}
-                </Heading>
-              </VStack>
-            </VStack>
-          </GridItem>
         </Grid>
+
+        <VStack mt="30px!important" w="full" justify="center">
+          <Heading as="h1" size="md">
+            SALES RECEIPT
+          </Heading>
+          <Text fontSize="sm" mt="0px!important">
+            {salesReceiptId}
+          </Text>
+        </VStack>
 
         <Grid
           mt="30px !important"
@@ -79,40 +72,36 @@ function ViewSalesReceipt(props) {
           templateColumns="repeat(12, 1fr)"
         >
           <GridItem colSpan={[12, 6]}>
-            <VStack justify="flex-end" align="flex-start" w="full" h="full">
-              <Text>Bill To</Text>
-              <Heading color="#333" as="h4" size="xs">
-                {customer?.displayName}
-              </Heading>
-            </VStack>
-          </GridItem>
-
-          <GridItem colSpan={[12, 6]}>
             <Table size="sm">
               <Tbody>
                 <Tr>
-                  <Td isNumeric>Invoice Date:</Td>
-                  <Td pr="0px !important" isNumeric>
-                    {new Date(invoiceDate).toDateString()}
-                  </Td>
+                  <Td pl={0}>Customer</Td>
+                  <Td>{customer?.displayName}</Td>
                 </Tr>
                 <Tr>
-                  <Td isNumeric>Due Date:</Td>
-                  <Td pr="0px !important" isNumeric>
-                    {new Date(dueDate).toDateString()}
-                  </Td>
+                  <Td pl={0}>Date</Td>
+                  <Td>{new Date(receiptDate).toDateString()}</Td>
+                </Tr>
+                <Tr>
+                  <Td pl={0}>Payment Mode</Td>
+                  <Td>{paymentMode?.name}</Td>
+                </Tr>
+                <Tr>
+                  <Td pl={0}>Reference#</Td>
+                  <Td>{reference}</Td>
                 </Tr>
               </Tbody>
             </Table>
           </GridItem>
         </Grid>
+
         <Box w="full" mt="20px!important">
-          <InvoicePdfItems taxType={summary.taxType} items={selectedItems} />
+          <ViewSaleItemsTable taxType={summary.taxType} items={selectedItems} />
         </Box>
         <Grid w="full" columnGap={3} templateColumns="repeat(12, 1fr)">
           <GridItem colSpan={[1, 6]}></GridItem>
           <GridItem colSpan={[11, 6]}>
-            <InvoicePdfSummary payments={payments} summary={summary} />
+            <ViewSaleSummaryTable showBalance={false} summary={summary} />
           </GridItem>
         </Grid>
         {customerNotes && (
@@ -121,6 +110,7 @@ function ViewSalesReceipt(props) {
             <Text>{customerNotes}</Text>
           </VStack>
         )}
+
         <Box w="full" minH="200px" />
       </VStack>
     </Container>
@@ -128,23 +118,17 @@ function ViewSalesReceipt(props) {
 }
 
 ViewSalesReceipt.propTypes = {
-  invoice: PropTypes.shape({
+  salesReceipt: PropTypes.shape({
     customer: PropTypes.object.isRequired,
     org: PropTypes.object.isRequired,
-    summary: PropTypes.shape({
-      shipping: PropTypes.number.isRequired,
-      adjustment: PropTypes.number.isRequired,
-      totalAmount: PropTypes.number.isRequired,
-      subTotal: PropTypes.number.isRequired,
-      totalTaxes: PropTypes.number.isRequired,
-      taxes: PropTypes.array.isRequired,
-    }),
-    invoiceDate: PropTypes.instanceOf(Date).isRequired,
-    dueDate: PropTypes.instanceOf(Date).isRequired,
-    invoiceSlug: PropTypes.string.isRequired,
+    receiptDate: PropTypes.instanceOf(Date).isRequired,
+    salesReceiptId: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,
     selectedItems: PropTypes.array.isRequired,
-    balance: PropTypes.number.isRequired,
+    reference: PropTypes.string,
+    summary: PropTypes.shape({
+      totalAmount: PropTypes.number.isRequired,
+    }),
   }),
 };
 

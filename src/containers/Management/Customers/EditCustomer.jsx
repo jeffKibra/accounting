@@ -9,9 +9,9 @@ import Stepper from "../../../components/ui/Stepper";
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
 import Empty from "../../../components/ui/Empty";
 
-import DetailsForm from "../../../components/forms/CustomerForms/DetailsForm";
-import ExtraDetailsForm from "../../../components/forms/CustomerForms/ExtraDetailsForm";
-import AddressForm from "../../../components/forms/CustomerForms/AddressForm";
+import DetailsForm from "../../../components/forms/Customers/DetailsForm";
+import ExtraDetailsForm from "../../../components/forms/Customers/ExtraDetailsForm";
+import AddressForm from "../../../components/forms/Customers/AddressForm";
 
 function EditCustomer(props) {
   const {

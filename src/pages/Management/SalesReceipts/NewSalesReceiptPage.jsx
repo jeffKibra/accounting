@@ -15,16 +15,16 @@ import PageLayout from "../../../components/layout/PageLayout";
 import SalesReceipts from "../../../containers/Management/SalesReceipts/EditSalesReceipt";
 
 function NewSalesReceiptPage(props) {
-  const { loading, action, isModified, createInvoice, resetInvoice } = props;
+  const { loading, action, isModified, createReceipt, resetReceipt } = props;
   useSavedLocation().setLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (isModified) {
-      resetInvoice();
+      resetReceipt();
       navigate(SALES_RECEIPTS);
     }
-  }, [isModified, resetInvoice, navigate]);
+  }, [isModified, resetReceipt, navigate]);
 
   return (
     <PageLayout
@@ -43,22 +43,22 @@ function NewSalesReceiptPage(props) {
     >
       <SalesReceipts
         updating={loading && action === CREATE_SALES_RECEIPT}
-        handleFormSubmit={createInvoice}
+        handleFormSubmit={createReceipt}
       />
     </PageLayout>
   );
 }
 
 function mapStateToProps(state) {
-  const { loading, action, isModified } = state.invoicesReducer;
+  const { loading, action, isModified } = state.salesReceiptsReducer;
 
   return { loading, action, isModified };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    createInvoice: (data) => dispatch({ type: CREATE_SALES_RECEIPT, data }),
-    resetInvoice: () => dispatch(reset()),
+    createReceipt: (data) => dispatch({ type: CREATE_SALES_RECEIPT, data }),
+    resetReceipt: () => dispatch(reset()),
   };
 }
 

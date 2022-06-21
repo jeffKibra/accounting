@@ -1,10 +1,15 @@
 import { Heading } from "@chakra-ui/react";
+import { Link } from "react-router-dom";
+
+import { DASHBOARD } from "../../nav/routes";
 
 function Title() {
   return (
-    <Heading ml={4} fontWeight="semibold" fontSize="x-large">
-      ACCOUNTS
-    </Heading>
+    <Link to={DASHBOARD}>
+      <Heading ml={4} fontWeight="semibold" fontSize="md">
+        (ACCOUNTS)
+      </Heading>
+    </Link>
   );
 }
 

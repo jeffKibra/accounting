@@ -8,6 +8,17 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 
+/**
+ *
+ * @param {string} orgId
+ * @param {string} paymentId
+ * @param {string} accountId
+ * @param {string} transactionId
+ * @param {string} transactionType
+ * @param {string[]} statuses
+ * @returns {{credit:number,debit:number,entryId:string,status:string}} entryData
+ */
+
 export default async function getPaymentEntry(
   orgId = "",
   paymentId = "",

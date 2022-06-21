@@ -5,16 +5,15 @@ import {
   updateSimilarAccountEntries,
   deleteSimilarAccountEntries,
   createSimilarAccountEntries,
-} from "../journals";
-import {
-  getInvoiceData,
-  getSummaryEntries,
-  getIncomeAccountsMapping,
   getIncomeEntries,
-  getInvoicePaymentsTotal,
-} from "../invoices";
+} from "../journals";
+import { getInvoiceData, getInvoicePaymentsTotal } from "../invoices";
 import { getCustomerData } from "../customers";
-import { getAccountData } from "../accounts";
+import {
+  getAccountData,
+  getAccountsMapping,
+  getIncomeAccountsMapping,
+} from "../accounts";
 import formats from "../formats";
 
 export default async function updateInvoice(
@@ -52,7 +51,7 @@ export default async function updateInvoice(
     customerId: currentCustomerId,
     selectedItems: items,
     payments,
-    invoiceSlug,
+    summary: currentSummary,
   } = currentInvoice;
   /**
    * check to ensure the new total balance is not less than payments made.
@@ -80,51 +79,61 @@ export default async function updateInvoice(
     );
   }
 
-  const { shippingEntry, adjustmentEntry, taxEntry, receivableEntry } =
-    isInvoice
-      ? await getSummaryEntries(
-          customerHasChanged,
-          orgId,
-          currentInvoice,
-          summary
-        )
-      : {};
-  console.log({
-    shippingEntry,
-    adjustmentEntry,
-    taxEntry,
-    receivableEntry,
-  });
-  const { deletedAccounts, newAccounts, updatedAccounts, similarAccounts } =
+  let { deletedAccounts, newAccounts, updatedAccounts, similarAccounts } =
     getIncomeAccountsMapping(items, selectedItems);
-
+  const summaryAccounts = getAccountsMapping([
+    {
+      accountId: "shipping_charge",
+      current: currentSummary.shipping,
+      incoming: shipping,
+    },
+    {
+      accountId: "other_charges",
+      current: currentSummary.adjustment,
+      incoming: adjustment,
+    },
+    {
+      accountId: "tax_payable",
+      current: currentSummary.totalTaxes,
+      incoming: totalTaxes,
+    },
+    {
+      accountId: "accounts_receivable",
+      current: currentSummary.totalAmount,
+      incoming: totalAmount,
+    },
+  ]);
+  deletedAccounts = [...deletedAccounts, ...summaryAccounts.deletedAccounts];
+  newAccounts = [...newAccounts, ...summaryAccounts.newAccounts];
+  updatedAccounts = [...updatedAccounts, ...summaryAccounts.updatedAccounts];
+  similarAccounts = [...similarAccounts, ...summaryAccounts.similarAccounts];
+  /**
+   * update accounts to update if also customer has changed
+   */
   const accountsToUpdate = customerHasChanged
     ? [...updatedAccounts, ...similarAccounts]
     : updatedAccounts;
-
   /**
    * get entries data for deletedAccounts and accountsToUpdate
    */
   const [entriesToUpdate, entriesToDelete] = await Promise.all([
-    getIncomeEntries(orgId, currentInvoice, accountsToUpdate),
-    getIncomeEntries(orgId, currentInvoice, deletedAccounts),
+    getIncomeEntries(orgId, invoiceId, "invoice", accountsToUpdate),
+    getIncomeEntries(orgId, invoiceId, "invoice", deletedAccounts),
   ]);
-
-  // console.log({ itemsEntries });
-
-  //invoiceSummary
-  const invoiceSummary = currentInvoice.summary;
+  /**
+   * formulate data
+   */
   const invoiceData = {
     ...rest,
     customer: formats.formatCustomerData(customer),
-    selectedItems: formats.formatInvoiceItems(selectedItems),
+    selectedItems: formats.formatSaleItems(selectedItems),
   };
 
   const transactionDetails = {
     ...invoiceData,
     invoiceId,
   };
-  const transactionId = invoiceSlug;
+  const transactionId = invoiceId;
   /**
    * start writing
    */
@@ -182,84 +191,9 @@ export default async function updateInvoice(
       },
     ]);
   });
-
-  //shipping has changed?
-  if (shippingEntry) {
-    const { credit, debit, entryId } = shippingEntry;
-    const entryAccount = getAccountData("shipping_charge", accounts);
-
-    updateSimilarAccountEntries(transaction, userProfile, orgId, entryAccount, [
-      {
-        amount: shipping,
-        account: entryAccount,
-        credit,
-        debit,
-        entryId,
-        transactionId,
-        transactionDetails,
-      },
-    ]);
-  }
   /**
-   * update adjustment entry
+   * update customer summaries
    */
-  if (adjustmentEntry) {
-    const { entryId, credit, debit } = adjustmentEntry;
-    const entryAccount = getAccountData("other_charges", accounts);
-
-    updateSimilarAccountEntries(transaction, userProfile, orgId, entryAccount, [
-      {
-        amount: adjustment,
-        account: entryAccount,
-        credit,
-        debit,
-        entryId,
-        transactionId,
-        transactionDetails,
-      },
-    ]);
-  }
-  /**
-   * update tax entry
-   */
-  if (taxEntry) {
-    const { entryId, credit, debit } = taxEntry;
-    const entryAccount = getAccountData("tax_payable", accounts);
-
-    updateSimilarAccountEntries(transaction, userProfile, orgId, entryAccount, [
-      {
-        amount: totalTaxes,
-        account: entryAccount,
-        credit,
-        debit,
-        entryId,
-        transactionId,
-        transactionDetails,
-      },
-    ]);
-  }
-  /**
-   * update accounts_receivable entry
-   * totalAmount
-   */
-  if (receivableEntry) {
-    const { entryId, credit, debit } = receivableEntry;
-    const entryAccount = getAccountData("accounts_receivable", accounts);
-
-    updateSimilarAccountEntries(transaction, userProfile, orgId, entryAccount, [
-      {
-        amount: totalAmount,
-        account: entryAccount,
-        credit,
-        debit,
-        entryId,
-        transactionId,
-        transactionDetails,
-      },
-    ]);
-  }
-
-  //update customer summaries
   const newCustomerRef = doc(
     db,
     "organizations",
@@ -281,7 +215,7 @@ export default async function updateInvoice(
   if (customerHasChanged) {
     //delete values from previous customer
     transaction.update(currentCustomerRef, {
-      "summary.invoicedAmount": increment(0 - invoiceSummary.totalAmount),
+      "summary.invoicedAmount": increment(0 - currentSummary.totalAmount),
       "summary.deletedInvoices": increment(1),
     });
     //add new values to the incoming customer
@@ -290,8 +224,8 @@ export default async function updateInvoice(
       "summary.invoices": increment(1),
     });
   } else {
-    if (invoiceSummary.totalAmount !== summary.totalAmount) {
-      const adjustment = summary.totalAmount - invoiceSummary.totalAmount;
+    if (currentSummary.totalAmount !== summary.totalAmount) {
+      const adjustment = summary.totalAmount - currentSummary.totalAmount;
       //update customer summaries
       transaction.update(currentCustomerRef, {
         "summary.invoicedAmount": increment(adjustment),
@@ -301,11 +235,11 @@ export default async function updateInvoice(
   /**
    * calculate balance adjustment
    */
-  const balanceAdjustment = totalAmount - invoiceSummary.totalAmount;
+  const balanceAdjustment = totalAmount - currentSummary.totalAmount;
   /**
    * update invoice
    */
-  console.log({ invoiceData });
+  // console.log({ invoiceData });
   transaction.update(invoiceRef, {
     ...invoiceData,
     balance: increment(balanceAdjustment),

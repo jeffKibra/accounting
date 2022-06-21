@@ -15,7 +15,7 @@ function PaymentInvoicesTable(props) {
   return (
     <>
       <TableContainer>
-        <Table wordBreak="break-word">
+        <Table size="sm" wordBreak="break-word">
           <Thead textTransform="capitalize">
             <Tr fontSize="14px" color="black" bg="gray.100" py={2}>
               <Th
@@ -63,13 +63,17 @@ function PaymentInvoicesTable(props) {
               const {
                 invoiceId,
                 summary: { totalAmount },
-                invoiceSlug,
                 invoiceDate,
+                transactionType,
               } = invoice;
 
               return (
                 <Tr key={i}>
-                  <Td>{invoiceSlug}</Td>
+                  <Td>
+                    {transactionType === "invoice"
+                      ? invoiceId
+                      : transactionType}
+                  </Td>
                   <Td>{new Date(invoiceDate).toDateString()}</Td>
                   <Td isNumeric>{Number(totalAmount).toLocaleString()}</Td>
                   <Td isNumeric>
@@ -89,7 +93,7 @@ PaymentInvoicesTable.propTypes = {
   payments: PropTypes.object.isRequired,
   invoices: PropTypes.arrayOf(
     PropTypes.shape({
-      invoiceSlug: PropTypes.string.isRequired,
+      invoiceId: PropTypes.string.isRequired,
       invoiceDate: PropTypes.instanceOf(Date).isRequired,
       summary: PropTypes.shape({
         totalAmount: PropTypes.number.isRequired,

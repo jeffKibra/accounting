@@ -6,7 +6,7 @@ import { DELETE_INVOICE } from "../store/actions/invoicesActions";
 import { reset } from "../store/slices/invoicesSlice";
 
 export default function useDeleteInvoice(invoice) {
-  const { invoiceSlug, customer, invoiceId, invoiceDate } = invoice;
+  const { customer, invoiceId, invoiceDate } = invoice;
   const {
     loading,
     action,
@@ -34,7 +34,7 @@ export default function useDeleteInvoice(invoice) {
         <Text>Are you sure you want to delete this Invoice</Text>
         <Box p={1} pl={5}>
           <Text>
-            Invoice#: <b>{invoiceSlug}</b>
+            Invoice#: <b>{invoiceId}</b>
           </Text>
           <Text>
             Customer Name: <b>{customer.displayName}</b>

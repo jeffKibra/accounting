@@ -62,4 +62,10 @@ function InvoiceOptions(props) {
   );
 }
 
+InvoiceOptions.propTypes = {
+  invoice: PropTypes.object.isRequired,
+  edit: PropTypes.bool,
+  view: PropTypes.bool,
+  deletion: PropTypes.bool,
+};
 export default InvoiceOptions;

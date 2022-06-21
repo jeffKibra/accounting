@@ -11,7 +11,7 @@ function PaymentsTable(props) {
     return [
       { Header: "", accessor: "actions" },
       { Header: "Date", accessor: "paymentDate" },
-      { Header: "Payment#", accessor: "paymentSlug" },
+      { Header: "Payment#", accessor: "paymentId" },
       { Header: "Reference", accessor: "reference" },
       { Header: "Customer", accessor: "customer.displayName" },
       //   { Header: "Invoices", accessor: "invoices" },
@@ -52,12 +52,11 @@ PaymentsTable.propTypes = {
       }),
       amount: PropTypes.number.isRequired,
       reference: PropTypes.string,
-      paymentSlug: PropTypes.string.isRequired,
+      paymentId: PropTypes.string.isRequired,
       payments: PropTypes.object,
       paymentDate: PropTypes.instanceOf(Date).isRequired,
       paymentMode: PropTypes.object.isRequired,
       account: PropTypes.object.isRequired,
-      paymentId: PropTypes.string.isRequired,
     })
   ),
   deleting: PropTypes.bool.isRequired,

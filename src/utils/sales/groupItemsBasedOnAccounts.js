@@ -1,7 +1,21 @@
 /**
  *
- * @param {[{}]} itemsList
- * @returns {{accountId:'', items:[{}]}}
+ * @typedef {Object} item
+ * @property {string} salesAccountId
+ * @property {number} totalAmount
+ * @property {number} taxExclusiveAmount
+ */
+/**
+ *
+ * @typedef {Object} itemsAccount
+ * @property {string} accountId
+ * @property {item[]}items
+ */
+
+/**
+ *
+ * @param {{salesAccountId:''}[]} itemsList
+ * @returns {itemsAccount[]} itemsAccounts
  */
 export default function groupItemsBasedOnAccounts(itemsList = []) {
   let salesAccounts = [];

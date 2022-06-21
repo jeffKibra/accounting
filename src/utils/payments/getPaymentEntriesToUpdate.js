@@ -1,5 +1,31 @@
 import { getInvoiceFromArray, getPaymentEntry } from ".";
 
+/**
+ *
+ * @typedef {Object} entry
+ * @property {number} credit
+ * @property {number} debit
+ * @property {string} entryId
+ */
+/**
+ *
+ * @typedef {Object} paymentEntry
+ * @property {number} current
+ * @property {number} incoming
+ * @property {string} invoiceId
+ * @property {Object} invoice
+ * @property {entry} entry
+ */
+/**
+ *
+ * @param {string} orgId
+ * @param {string} paymentId
+ * @param {{}[]} invoices
+ * @param {string} accountId
+ * @param {{invoiceId:string, current:number, incoming:number}[]} payments
+ * @returns {Promise.<paymentEntry[]>}
+ */
+
 export default async function getPaymentEntriesToUpdate(
   orgId = "",
   paymentId = "",
@@ -15,7 +41,6 @@ export default async function getPaymentEntriesToUpdate(
       const { invoiceId, current, incoming } = payment;
       const invoice = getInvoiceFromArray(invoiceId, invoices);
 
-      const { invoiceSlug } = invoice;
       /**
        * get customer entry data for the given account
        */
@@ -23,7 +48,7 @@ export default async function getPaymentEntriesToUpdate(
         orgId,
         paymentId,
         accountId,
-        invoiceSlug
+        invoiceId
       );
 
       return {

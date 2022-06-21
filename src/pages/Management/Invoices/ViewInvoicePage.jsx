@@ -37,7 +37,7 @@ function ViewInvoicePage(props) {
 
   return (
     <PageLayout
-      pageTitle={invoice?.invoiceSlug || "View Invoice"}
+      pageTitle={invoice?.invoiceId || "View Invoice"}
       actions={invoice && <InvoiceOptions invoice={invoice} edit deletion />}
     >
       {loading && action === GET_INVOICE ? (

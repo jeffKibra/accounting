@@ -1,11 +1,22 @@
 import getIncomeAccounts from "./getIncomeAccounts";
-
 /**
  *
- * @param {[{}]} items
- * @param {[{}]} incomingItems
- * @returns {{uniqueAccounts:[{current:0,incoming:0,accountId:""}],similarAccounts:[{current:0,incoming:0,accountId:""}],updatedAccounts:[{current:0,incoming:0,accountId:""}],deletedAccounts:[{current:0,incoming:0,accountId:""}],newAccounts:[{current:0,incoming:0,accountId:""}]}}
+ * @typedef {Object} account
+ * @property {number} current
+ * @property {number} incoming
+ * @property {string} accountId
  */
+/**
+ *
+ * @typedef {Array.<account>} accountsData
+ */
+/**
+ *
+ * @param {{salesAccount:{}, totalAmount:0}[]} items
+ * @param {{salesAccount:{}, totalAmount:0}[]} incomingItems
+ * @returns {{uniqueAccounts:accountsData,similarAccounts:accountsData,updatedAccounts:accountsData,deletedAccounts:accountsData,newAccounts:accountsData}}
+ */
+
 export default function getIncomeAccountsMapping(
   items = [],
   incomingItems = []

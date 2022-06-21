@@ -19,7 +19,7 @@ function InvoicesTable(props) {
     return [
       { Header: "", accessor: "actions" },
       { Header: "Date", accessor: "date" },
-      { Header: "Invoice#", accessor: "invoiceSlug" },
+      { Header: "Invoice#", accessor: "invoiceId" },
       { Header: "Customer", accessor: "customer.displayName" },
       { Header: "Status", accessor: "status" },
       { Header: "Amount", accessor: "summary.totalAmount" },

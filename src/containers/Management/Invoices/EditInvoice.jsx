@@ -53,7 +53,6 @@ EditInvoice.propTypes = {
     dueDate: PropTypes.instanceOf(Date),
     subject: PropTypes.string,
     customerNotes: PropTypes.string,
-    invoiceSlug: PropTypes.string,
     invoiceId: PropTypes.string,
   }),
 };

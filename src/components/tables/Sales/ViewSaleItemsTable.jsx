@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 
-function InvoicePdfItems(props) {
+function ViewSaleItemsTable(props) {
   const { items, taxType } = props;
 
   const discounts = [].concat(items).some((item) => {
@@ -23,14 +23,21 @@ function InvoicePdfItems(props) {
       <TableContainer>
         <Table wordBreak="break-word" size="sm">
           <Thead textTransform="capitalize">
-            <Tr color="white" bg="#3C3D3A" py={2}>
-              <Th w="5%" textTransform="inherit" color="inherit" py={2}>
+            <Tr bg="gray.100" py={2}>
+              <Th
+                fontSize="sm"
+                w="5%"
+                textTransform="inherit"
+                color="inherit"
+                py={2}
+              >
                 #
               </Th>
-              <Th textTransform="inherit" color="inherit" py={2}>
+              <Th fontSize="sm" textTransform="inherit" color="inherit" py={2}>
                 Item
               </Th>
               <Th
+                fontSize="sm"
                 w="11%"
                 textTransform="inherit"
                 color="inherit"
@@ -40,6 +47,7 @@ function InvoicePdfItems(props) {
                 Qty
               </Th>
               <Th
+                fontSize="sm"
                 w="11%"
                 textTransform="inherit"
                 color="inherit"
@@ -50,6 +58,7 @@ function InvoicePdfItems(props) {
               </Th>
               {discounts && (
                 <Th
+                  fontSize="sm"
                   w="11%"
                   textTransform="inherit"
                   color="inherit"
@@ -61,6 +70,7 @@ function InvoicePdfItems(props) {
               )}
 
               <Th
+                fontSize="sm"
                 w="11%"
                 textTransform="inherit"
                 color="inherit"
@@ -117,7 +127,7 @@ function InvoicePdfItems(props) {
   );
 }
 
-InvoicePdfItems.propTypes = {
+ViewSaleItemsTable.propTypes = {
   items: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
@@ -140,4 +150,4 @@ InvoicePdfItems.propTypes = {
   taxType: PropTypes.string.isRequired,
 };
 
-export default InvoicePdfItems;
+export default ViewSaleItemsTable;

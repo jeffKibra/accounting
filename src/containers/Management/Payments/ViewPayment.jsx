@@ -30,6 +30,7 @@ function ViewPayment(props) {
     amount,
     payments,
     paidInvoices,
+    paymentId,
   } = payment;
 
   const paymentsTotal = getPaymentsTotal(payments);
@@ -61,11 +62,14 @@ function ViewPayment(props) {
           </GridItem>
         </Grid>
 
-        <Flex mt="30px!important" w="full" justify="center">
+        <VStack mt="30px!important" w="full" justify="center">
           <Heading as="h1" size="md">
             PAYMENT RECEIPT
           </Heading>
-        </Flex>
+          <Text mt="0px!important" fontSize="sm">
+            {paymentId}
+          </Text>
+        </VStack>
 
         <Grid
           mt="30px !important"
@@ -149,7 +153,7 @@ ViewPayment.propTypes = {
     org: PropTypes.object.isRequired,
     amount: PropTypes.number.isRequired,
     paymentDate: PropTypes.instanceOf(Date).isRequired,
-    paymentSlug: PropTypes.string.isRequired,
+    paymentId: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,
     paidInvoices: PropTypes.array.isRequired,
     payments: PropTypes.object.isRequired,
