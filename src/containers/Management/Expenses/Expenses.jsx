@@ -1,11 +1,7 @@
-import ExpensesTable from "../../../components/tables/ExpenseTables/ExpensesTable";
+import ExpensesTable from "../../../components/tables/Expenses/ExpensesTable";
 
 function Expenses() {
-  return (
-    <div>
-      <ExpensesTable />
-    </div>
-  );
+  return <ExpensesTable expenses={[]} />;
 }
 
 export default Expenses;
