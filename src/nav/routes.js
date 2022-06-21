@@ -34,16 +34,20 @@ export const PAYMENTS = "/payments";
 export const NEW_PAYMENT = "/payments/new";
 export const EDIT_PAYMENT = "/payments/:paymentId/edit";
 export const VIEW_PAYMENT = "/payments/:paymentId/view";
-
 //receipts
 export const SALES_RECEIPTS = "/sales-receipts";
 export const NEW_SALES_RECEIPT = "/sales-receipts/new";
 export const EDIT_SALES_RECEIPT = "/sales-receipts/:salesReceiptId/edit";
 export const VIEW_SALES_RECEIPT = "/sales-receipts/:salesReceiptId/view";
+//vendors
+export const VENDORS = "/vendors";
+export const NEW_VENDOR = "/vendors/new";
+export const EDIT_VENDOR = "/vendors/:vendorId/edit";
 //expenses
 export const EXPENSES = "/expenses";
 export const NEW_EXPENSE = "/expenses/new";
 export const EDIT_EXPENSE = "/expenses/:expenseId/edit";
+
 //settings
 //taxes
 export const TAXES = "/settings/taxes";

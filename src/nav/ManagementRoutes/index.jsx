@@ -15,6 +15,7 @@ import Payments from "./Payments";
 import Estimates from "./Estimates";
 import Expenses from "./Expenses";
 import SalesReceipts from "./SalesReceipts";
+import Vendors from "./Vendors";
 
 import ItemsCategories from "./ItemsCategories";
 
@@ -39,6 +40,7 @@ function ManagementRoutes() {
     ...Estimates(),
     ...Expenses(),
     ...SalesReceipts(),
+    ...Vendors(),
 
     ...ItemsCategories(),
   ];
