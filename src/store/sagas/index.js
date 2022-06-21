@@ -60,6 +60,11 @@ import {
 } from "./salesReceipts/getSalesReceiptsSagas";
 import { watchDeleteSalesReceipt } from "./salesReceipts/deleteSalesReceiptSagas";
 import { watchUpdateSalesReceipt } from "./salesReceipts/updateSalesReceiptSagas";
+//vendors
+import { watchCreateVendor } from "./vendors/createVendorSagas";
+import { watchGetVendors, watchGetVendor } from "./vendors/getVendorsSagas";
+import { watchUpdateVendor } from "./vendors/updateVendorSagas";
+import { watchDeleteVendor } from "./vendors/deleteVendorSagas";
 //categories
 import { watchCreateItemCategory } from "./itemsCategories/createItemCategorySagas";
 
@@ -113,6 +118,11 @@ export default function* rootSaga() {
     watchGetCustomerSalesReceipts(),
     watchDeleteSalesReceipt(),
     watchUpdateSalesReceipt(),
+    watchCreateVendor(),
+    watchGetVendor(),
+    watchGetVendors(),
+    watchUpdateVendor(),
+    watchDeleteVendor(),
     watchCreateItemCategory(),
   ]);
 }

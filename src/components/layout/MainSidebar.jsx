@@ -5,7 +5,7 @@ import {
   RiShoppingBagLine,
   RiContactsLine,
   RiShoppingCartLine,
-  // RiCoinsLine,
+  RiCoinsLine,
   RiStore3Line,
 } from "react-icons/ri";
 
@@ -67,6 +67,15 @@ function ManagementSidebar(props) {
           { title: "Invoices", route: routes.INVOICES },
           { title: "Payments Received", route: routes.PAYMENTS },
           { title: "Sales Receipts", route: routes.SALES_RECEIPTS },
+        ]}
+      />
+      <Divider />
+      <ExpandableDrawerItem
+        title="Purchases"
+        icon={RiCoinsLine}
+        subRoutes={[
+          { title: "Vendors", route: routes.VENDORS },
+          { title: "Expenses", route: routes.EXPENSES },
         ]}
       />
       <Divider />
