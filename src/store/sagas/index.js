@@ -65,6 +65,8 @@ import { watchCreateVendor } from "./vendors/createVendorSagas";
 import { watchGetVendors, watchGetVendor } from "./vendors/getVendorsSagas";
 import { watchUpdateVendor } from "./vendors/updateVendorSagas";
 import { watchDeleteVendor } from "./vendors/deleteVendorSagas";
+//expenses
+import { watchCreateExpense } from "./expenses/createExpenseSagas";
 //categories
 import { watchCreateItemCategory } from "./itemsCategories/createItemCategorySagas";
 
@@ -123,6 +125,7 @@ export default function* rootSaga() {
     watchGetVendors(),
     watchUpdateVendor(),
     watchDeleteVendor(),
+    watchCreateExpense(),
     watchCreateItemCategory(),
   ]);
 }

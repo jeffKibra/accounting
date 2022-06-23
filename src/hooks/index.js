@@ -9,3 +9,4 @@ export { default as useOrg } from "./useOrg";
 export { default as useSavedLocation } from "./useSavedLocation";
 export { default as useToasts } from "./useToasts";
 export { default as useDeleteVendor } from "./useDeleteVendor";
+export { default as useDeleteExpense } from "./useDeleteExpense";
