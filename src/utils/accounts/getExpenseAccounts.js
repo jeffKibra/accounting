@@ -1,6 +1,6 @@
 /**
  *
- * @typedef {{salesAccount:{}, totalAmount:0}[]} items
+ * @typedef {{account:{}, amount:0}[]} items
  */
 /**
  *
@@ -9,15 +9,15 @@
  * @returns {Array.<{accountId:"", itemsTotal:0}>}
  */
 
-export default function getIncomeAccounts(
+export default function getExpenseAccounts(
   items = [],
-  itemsKeyToSum = "totalAmount"
+  itemsKeyToSum = "amount"
 ) {
   let accounts = [];
 
   items.forEach((item) => {
     const {
-      salesAccount: { accountId },
+      account: { accountId },
     } = item;
     const index = accounts.findIndex(
       (account) => account.accountId === accountId
@@ -30,7 +30,7 @@ export default function getIncomeAccounts(
 
   return accounts.map(({ accountId }) => {
     const accountItems = items.filter(
-      (item) => item.salesAccount?.accountId === accountId
+      (item) => item.account?.accountId === accountId
     );
     const itemsTotal = accountItems.reduce((sum, item) => {
       return sum + item[itemsKeyToSum];

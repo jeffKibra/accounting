@@ -13,33 +13,24 @@ export default async function deleteExpense(
   transaction,
   orgId,
   userProfile,
-  salesReceiptId
+  expenseId
 ) {
   const { email } = userProfile;
-  //   console.log({ salesReceiptId, orgId, userProfile });
+  //   console.log({ expenseId, orgId, userProfile });
 
-  const salesReceiptRef = doc(
-    db,
-    "organizations",
-    orgId,
-    "salesReceipts",
-    salesReceiptId
-  );
-  const { yearMonthDay } = getDateDetails();
-  const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
   /**
-   * fetch sales receipt data
-   * fetch journal entries related to this sales receipt
+   * fetch expense data
+   * fetch journal entries related to this expense
    */
-  const [salesReceiptData, allEntries] = await Promise.all([
-    getExpenseData(transaction, orgId, salesReceiptId),
-    getTransactionEntries(orgId, salesReceiptId),
+  const [expenseData, allEntries] = await Promise.all([
+    getExpenseData(transaction, orgId, expenseId),
+    getTransactionEntries(orgId, expenseId),
   ]);
   const {
-    customerId,
-    paymentModeId,
+    vendor: { vendorId },
+    paymentMode: { value: paymentModeId },
     summary: { totalAmount },
-  } = salesReceiptData;
+  } = expenseData;
   /**
    * group entries into accounts
    */
@@ -64,32 +55,31 @@ export default async function deleteExpense(
     );
   });
   /**
-   * update customer summaries
+   * update vendor summaries
    */
-  if (customerId) {
-    const customerRef = doc(
-      db,
-      "organizations",
-      orgId,
-      "customers",
-      customerId
-    );
-    transaction.update(customerRef, {
-      "summary.deletedSalesReceipts": increment(1),
-      "summary.salesReceiptsAmount": increment(0 - totalAmount),
+  if (vendorId) {
+    const vendorRef = doc(db, "organizations", orgId, "vendors", vendorId);
+    transaction.update(vendorRef, {
+      "summary.deletedExpenses": increment(1),
+      "summary.totalExpenses": increment(0 - totalAmount),
     });
   }
   /**
    * update org counters summaries
+   * since this is an expense, deletion should increase the payment mode amount
+   * amount should remain +ve
    */
+  const { yearMonthDay } = getDateDetails();
+  const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
   transaction.update(summaryRef, {
-    deletedsalesReceipts: increment(1),
-    [`paymentModes.${paymentModeId}`]: increment(0 - totalAmount),
+    deletedExpenses: increment(1),
+    [`paymentModes.${paymentModeId}`]: increment(totalAmount),
   });
   /**
-   * mark salesReceipt as deleted
+   * mark expense as deleted
    */
-  transaction.update(salesReceiptRef, {
+  const expenseRef = doc(db, "organizations", orgId, "expenses", expenseId);
+  transaction.update(expenseRef, {
     status: "deleted",
     modifiedBy: email,
     modifiedAt: serverTimestamp(),

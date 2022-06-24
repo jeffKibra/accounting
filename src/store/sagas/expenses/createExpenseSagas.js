@@ -1,8 +1,8 @@
 import { put, call, select, takeLatest } from "redux-saga/effects";
-import { runTransaction } from "firebase/firestore";
+import { runTransaction, collection, doc } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
-import { createExpense, createExpenseId } from "../../../utils/expenses";
+import { createExpense } from "../../../utils/expenses";
 import { createDailySummary } from "../../../utils/summaries";
 
 import { CREATE_EXPENSE } from "../../actions/expensesActions";
@@ -32,10 +32,13 @@ function* createExpenseSaga({ data }) {
       /**
        * generate the expense slug
        */
-      const expenseId = await createExpenseId(transaction, orgId);
+      const expenseId = doc(
+        collection(db, "organizations", orgId, "expenses")
+      ).id;
       /**
        * create expense
        */
+      console.log({ data });
       await createExpense(
         transaction,
         org,

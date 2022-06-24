@@ -2,11 +2,15 @@ import { doc, serverTimestamp, increment } from "firebase/firestore";
 
 import { db } from "../firebase";
 
-import { createSimilarAccountEntries } from "../journals";
+import {
+  createSimilarAccountEntries,
+  createDebitAmount,
+  createCreditAmount,
+} from "../journals";
 import {
   getAccountData,
   getAccountsMapping,
-  getIncomeAccountsMapping,
+  getExpenseAccountsMapping,
 } from "../accounts";
 import formats from "../formats";
 import { getDateDetails } from "../dates";
@@ -16,106 +20,107 @@ export default async function createExpense(
   org = { id: "" },
   userProfile = { email: "" },
   accounts = [{ name: "", accountd: "", accountType: {} }],
-  salesReceiptId = "",
+  expenseId = "",
   data = {
-    customerId: "",
-    customer: {},
     summary: {
-      shipping: 0,
-      adjustment: 0,
       subTotal: 0,
       totalTaxes: 0,
       totalAmount: 0,
     },
-    selectedItems: [
+    items: [
       {
-        salesAccountId: "",
-        salesAccount: { name: "", accountd: "", accountType: {} },
+        accountId: "",
+        account: { name: "", accountd: "", accountType: {} },
         totalAmount: 0,
       },
     ],
-    receiptDate: new Date(),
-    accountId: "",
-    account: {},
-    paymentModeId: "",
-    paymentMode: {},
+    vendor: { vendorId: "" },
+    expenseDate: new Date(),
+    paymentAccount: { accountId: "" },
+    paymentMode: { value: "" },
     reference: "",
-    customerNotes: "",
   },
-  transactionType = "sales receipt"
+  transactionType = "expense"
 ) {
   const orgId = org.id;
   const { email } = userProfile;
-  const {
-    customerId,
-    customer,
-    summary,
-    selectedItems,
-    accountId,
-    reference,
-    paymentModeId,
-  } = data;
-  const { totalTaxes, adjustment, shipping, totalAmount } = summary;
+  const { vendor, paymentAccount, paymentMode, summary, items, reference } =
+    data;
+  const { vendorId } = vendor;
+  const { accountId: paymentAccountId } = paymentAccount;
+  const { value: paymentModeId } = paymentMode;
+  const { totalTaxes, totalAmount } = summary;
   // console.log({ data });
+  /**
+   * check is account has enough funds
+   */
 
-  // console.log({ selectedItems });
+  // console.log({ items });
   const tDetails = {
     ...data,
     status: "active",
-    isSent: false,
     transactionType,
     org: formats.formatOrgData(org),
-    customer: formats.formatCustomerData(customer),
-    selectedItems: formats.formatSaleItems(selectedItems),
+    vendor: formats.formatVendorData(vendor),
+    items: formats.formatExpenseItems(items),
   };
   const transactionDetails = {
     ...tDetails,
-    salesReceiptId,
+    expenseId,
   };
-  const transactionId = salesReceiptId;
+  const transactionId = expenseId;
 
   /**
    * create journal entries for income accounts
    */
-  let { newAccounts } = getIncomeAccountsMapping([], selectedItems);
+  let { newAccounts } = getExpenseAccountsMapping([], items);
   const summaryAccounts = getAccountsMapping([
-    { accountId: "shipping_charge", incoming: shipping, current: 0 },
-    { accountId: "other_charges", incoming: adjustment, current: 0 },
     { accountId: "tax_payable", incoming: totalTaxes, current: 0 },
-    { accountId, incoming: totalAmount, current: 0 },
+    { accountId: paymentAccountId, incoming: totalAmount, current: 0 },
   ]);
   newAccounts = [...newAccounts, ...summaryAccounts.newAccounts];
 
   newAccounts.forEach((newAccount) => {
     const { accountId, incoming } = newAccount;
-    const salesAccount = getAccountData(accountId, accounts);
+    const expenseAccount = getAccountData(accountId, accounts);
+    const { accountType } = expenseAccount;
 
-    createSimilarAccountEntries(transaction, userProfile, orgId, salesAccount, [
-      {
-        amount: incoming,
-        account: salesAccount,
-        reference,
-        transactionId,
-        transactionType,
-        transactionDetails,
-      },
-    ]);
+    let amount = incoming;
+    if (accountId === paymentAccountId) {
+      //this account should be credited
+      amount = createCreditAmount(accountType, incoming);
+    } else {
+      //all other accounts should be debited
+      amount = createDebitAmount(accountType, incoming);
+    }
+    console.log({ amount, accountId });
+
+    createSimilarAccountEntries(
+      transaction,
+      userProfile,
+      orgId,
+      expenseAccount,
+      [
+        {
+          amount,
+          account: expenseAccount,
+          reference,
+          transactionId,
+          transactionType,
+          transactionDetails,
+        },
+      ]
+    );
   });
   /**
-   * update customer summaries if a customer was selected
+   * update vendor summaries if a vendor was selected
    */
-  if (customerId) {
-    const customerRef = doc(
-      db,
-      "organizations",
-      orgId,
-      "customers",
-      customerId
-    );
+  if (vendorId) {
+    const vendorRef = doc(db, "organizations", orgId, "vendors", vendorId);
 
-    transaction.update(customerRef, {
-      "summary.salesReceipts": increment(1),
-      "summary.salesReceiptsAmount": increment(summary.totalAmount),
+    transaction.update(vendorRef, {
+      "summary.expenses": increment(1),
+      "summary.totalExpenses": increment(summary.totalAmount),
     });
   }
   /**
@@ -123,23 +128,20 @@ export default async function createExpense(
    */
   const { yearMonthDay } = getDateDetails();
   const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
+  /**
+   * this is an expense, subtract amount from paymentMode
+   */
   transaction.update(summaryRef, {
-    salesReceipts: increment(1),
-    [`paymentModes.${paymentModeId}`]: increment(totalAmount),
+    expenses: increment(1),
+    [`paymentModes.${paymentModeId}`]: increment(0 - totalAmount),
   });
 
   /**
-   * create salesReceipt
+   * create expense
    */
-  const salesReceiptRef = doc(
-    db,
-    "organizations",
-    orgId,
-    "salesReceipts",
-    salesReceiptId
-  );
-  // console.log({ salesReceiptData });
-  transaction.set(salesReceiptRef, {
+  const expenseRef = doc(db, "organizations", orgId, "expenses", expenseId);
+  // console.log({ expenseData });
+  transaction.set(expenseRef, {
     ...tDetails,
     createdBy: email,
     createdAt: serverTimestamp(),

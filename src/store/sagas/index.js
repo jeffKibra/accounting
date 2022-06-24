@@ -67,6 +67,13 @@ import { watchUpdateVendor } from "./vendors/updateVendorSagas";
 import { watchDeleteVendor } from "./vendors/deleteVendorSagas";
 //expenses
 import { watchCreateExpense } from "./expenses/createExpenseSagas";
+import {
+  watchGetExpense,
+  watchGetExpenses,
+  watchGetVendorExpenses,
+} from "./expenses/getExpensesSagas";
+import { watchUpdateExpense } from "./expenses/updateExpenseSagas";
+import { watchDeleteExpense } from "./expenses/deleteExpenseSagas";
 //categories
 import { watchCreateItemCategory } from "./itemsCategories/createItemCategorySagas";
 
@@ -126,6 +133,11 @@ export default function* rootSaga() {
     watchUpdateVendor(),
     watchDeleteVendor(),
     watchCreateExpense(),
+    watchGetExpense(),
+    watchGetExpenses(),
+    watchGetVendorExpenses(),
+    watchUpdateExpense(),
+    watchDeleteExpense(),
     watchCreateItemCategory(),
   ]);
 }

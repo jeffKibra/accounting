@@ -1,7 +1,17 @@
 function formatCustomerData(customer) {
   const { displayName, type, companyName, email, customerId } = customer;
 
-  return { displayName, type, companyName, email, customerId };
+  return customer?.customerId
+    ? { displayName, type, companyName, email, customerId }
+    : customer;
+}
+
+function formatVendorData(vendor) {
+  const { displayName, companyName, email, vendorId } = vendor;
+
+  return vendor?.vendorId
+    ? { displayName, companyName, email, vendorId }
+    : vendor;
 }
 
 function formatInvoices(invoices = [{}]) {
@@ -77,6 +87,23 @@ function formatSaleItems(items = []) {
   });
 }
 
+function formatExpenseItems(items = []) {
+  return items.map((item) => {
+    const {
+      createdAt,
+      createdBy,
+      modifiedBy,
+      modifiedAt,
+      status,
+      accountId,
+      taxId,
+      ...rest
+    } = item;
+
+    return { ...rest };
+  });
+}
+
 const formats = {
   formatInvoices,
   formatInvoicePayment,
@@ -84,6 +111,8 @@ const formats = {
   formatOrgData,
   formatTransactionDetails,
   formatSaleItems,
+  formatExpenseItems,
+  formatVendorData,
 };
 
 export default formats;

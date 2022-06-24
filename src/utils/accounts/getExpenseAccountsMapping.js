@@ -1,6 +1,6 @@
-import { mapAccounts, getIncomeAccounts } from ".";
+import { mapAccounts, getExpenseAccounts } from ".";
 import { accountsMapping } from "./mapAccounts";
-import { items } from "./getIncomeAccounts";
+import { items } from "./getExpenseAccounts";
 /**
  *
  * @typedef {Object} account
@@ -16,17 +16,18 @@ import { items } from "./getIncomeAccounts";
  *
  * @param {items} items
  * @param {items} incomingItems
- * @returns {accountsMapping}
+ * @returns {accountsMapping} accountsMapping
  */
-export default function getIncomeAccountsMapping(
+
+export default function getExpenseAccountsMapping(
   items = [],
   incomingItems = []
 ) {
   /**
    * group both items arrays into their respective income accounts
    */
-  const currentAccounts = getIncomeAccounts(items);
-  const incomingAccounts = getIncomeAccounts(incomingItems);
+  const currentAccounts = getExpenseAccounts(items);
+  const incomingAccounts = getExpenseAccounts(incomingItems);
 
   return mapAccounts(currentAccounts, incomingAccounts);
 }

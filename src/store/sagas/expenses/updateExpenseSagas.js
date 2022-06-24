@@ -2,18 +2,18 @@ import { put, call, select, takeLatest } from "redux-saga/effects";
 import { runTransaction } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
-import { updateSalesReceipt } from "../../../utils/salesReceipts";
+import { updateExpense } from "../../../utils/expenses";
 import { createDailySummary } from "../../../utils/summaries";
 
-import { UPDATE_SALES_RECEIPT } from "../../actions/salesReceiptsActions";
-import { start, success, fail } from "../../slices/salesReceiptsSlice";
+import { UPDATE_EXPENSE } from "../../actions/expensesActions";
+import { start, success, fail } from "../../slices/expenseSlice";
 import {
   error as toastError,
   success as toastSuccess,
 } from "../../slices/toastSlice";
 
-function* updateSalesReceiptSaga({ data }) {
-  yield put(start(UPDATE_SALES_RECEIPT));
+function* updateExpenseSaga({ data }) {
+  yield put(start(UPDATE_EXPENSE));
   const orgId = yield select((state) => state.orgsReducer.org.id);
   const userProfile = yield select((state) => state.authReducer.userProfile);
   const accounts = yield select((state) => state.accountsReducer.accounts);
@@ -27,7 +27,7 @@ function* updateSalesReceiptSaga({ data }) {
      * update SalesReceipt using a transaction
      */
     await runTransaction(db, async (transaction) => {
-      await updateSalesReceipt(transaction, orgId, userProfile, accounts, data);
+      await updateExpense(transaction, orgId, userProfile, accounts, data);
     });
   }
 
@@ -35,7 +35,7 @@ function* updateSalesReceiptSaga({ data }) {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess("Sales Receipt Sucessfully Updated!"));
+    yield put(toastSuccess("Expense Sucessfully Updated!"));
   } catch (error) {
     console.log(error);
     yield put(fail(error));
@@ -43,6 +43,6 @@ function* updateSalesReceiptSaga({ data }) {
   }
 }
 
-export function* watchUpdateSalesReceipt() {
-  yield takeLatest(UPDATE_SALES_RECEIPT, updateSalesReceiptSaga);
+export function* watchUpdateExpense() {
+  yield takeLatest(UPDATE_EXPENSE, updateExpenseSaga);
 }

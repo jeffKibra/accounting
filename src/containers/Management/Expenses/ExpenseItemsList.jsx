@@ -67,7 +67,9 @@ function ExpenseItemsList(props) {
   const summary = useMemo(() => {
     let expenseTaxes = [];
     items.forEach((item) => {
-      const index = expenseTaxes.findIndex((tax) => tax.taxId === item.taxId);
+      const index = expenseTaxes.findIndex(
+        (tax) => tax.taxId === item.tax?.taxId
+      );
 
       if (index === -1) {
         expenseTaxes.push(item.tax);
@@ -80,7 +82,7 @@ function ExpenseItemsList(props) {
         const { taxId } = tax;
         //get all items with this tax
         let totalTax = items
-          .filter((item) => item.taxId === taxId)
+          .filter((item) => item.tax?.taxId === taxId)
           .reduce((sum, item) => {
             return sum + item.itemTax;
           }, 0);

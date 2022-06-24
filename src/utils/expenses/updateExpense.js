@@ -8,12 +8,14 @@ import {
   changeEntriesAccount,
   getIncomeEntries,
   getAccountTransactionEntry,
+  createCreditAmount,
+  createDebitAmount,
 } from "../journals";
 
 import {
   getAccountData,
   getAccountsMapping,
-  getIncomeAccountsMapping,
+  getExpenseAccountsMapping,
 } from "../accounts";
 import { changePaymentMode, updatePaymentMode } from "../summaries";
 import { getExpenseData } from ".";
@@ -25,73 +27,62 @@ export default async function updateExpense(
   userProfile = { email: "" },
   accounts = [{ name: "", accountId: "", accountType: {} }],
   data = {
-    salesReceiptId: "",
+    expenseId: "",
     summary: {
       totalAmount: 0,
-      shipping: 0,
-      adjustment: 0,
+      subTotal: 0,
       totalTaxes: 0,
-      taxes: [],
+      expenseTaxes: [],
     },
-    customerId: "",
-    accountId: "",
-    reference: "",
-    customerNotes: "",
-    receiptDate: new Date(),
-    paymentModeId: "",
-    selectedItems: [
+    items: [
       {
         salesAccount: { name: "", accountId: "", accountType: {} },
         totalAmount: 0,
       },
     ],
+    vendor: { vendorId: "" },
+    paymentAccount: { accountId: "" },
+    paymentMode: { value: "" },
+    reference: "",
+    expenseDate: new Date(),
   }
 ) {
   const { email } = userProfile;
-  const { salesReceiptId, ...rest } = data;
-  const {
-    summary,
-    selectedItems,
-    customerId,
-    customer,
-    accountId,
-    paymentModeId,
-    reference,
-  } = rest;
+  const { expenseId, ...rest } = data;
+  const { summary, items, vendor, paymentAccount, paymentMode, reference } =
+    rest;
   // console.log({ data });
-  const { totalTaxes, shipping, adjustment, totalAmount } = summary;
+  const { vendorId } = vendor;
+  const { accountId: paymentAccountId } = paymentAccount;
+  const { value: paymentModeId } = paymentMode;
+  const { totalTaxes, totalAmount } = summary;
+  /**
+   * check if the selected payment account has enough funds
+   */
 
-  const [currentSalesReceipt] = await Promise.all([
-    getExpenseData(transaction, orgId, salesReceiptId),
+  const [currentExpense] = await Promise.all([
+    getExpenseData(transaction, orgId, expenseId),
   ]);
 
   const {
-    customerId: currentCustomerId,
-    selectedItems: items,
-    summary: currentSummary,
-  } = currentSalesReceipt;
+    vendor: { vendorId: currentVendorId },
+    items: currentItems,
+    summary: { totalTaxes: currentTaxes, totalAmount: currentTotal },
+    paymentAccount: { accountId: currentPaymentAccountId },
+    paymentMode: { value: currentPaymentModeId },
+  } = currentExpense;
   /**
-   * check if customer has been changed
+   * check if vendor has been changed
    */
 
-  const customerHasChanged = currentCustomerId !== customerId;
+  const vendorHasChanged = currentVendorId !== vendorId;
 
   let { deletedAccounts, newAccounts, updatedAccounts, similarAccounts } =
-    getIncomeAccountsMapping(items, selectedItems);
+    getExpenseAccountsMapping(currentItems, items);
   const summaryAccounts = getAccountsMapping([
     {
-      incoming: shipping,
-      current: currentSummary.shipping,
-      accountId: "shipping_charge",
-    },
-    {
-      incoming: adjustment,
-      current: currentSummary.adjustment,
-      accountId: "other_charges",
-    },
-    {
       incoming: totalTaxes,
-      current: currentSummary.totalTaxes,
+      current: currentTaxes,
       accountId: "tax_payable",
     },
   ]);
@@ -106,18 +97,13 @@ export default async function updateExpense(
    */
   const [entriesToUpdate, entriesToDelete, paymentAccountEntry] =
     await Promise.all([
-      getIncomeEntries(
-        orgId,
-        salesReceiptId,
-        "sales receipt",
-        accountsToUpdate
-      ),
-      getIncomeEntries(orgId, salesReceiptId, "sales receipt", deletedAccounts),
+      getIncomeEntries(orgId, expenseId, "expense", accountsToUpdate),
+      getIncomeEntries(orgId, expenseId, "expense", deletedAccounts),
       getAccountTransactionEntry(
         orgId,
-        currentSalesReceipt.accountId,
-        salesReceiptId,
-        "sales receipt"
+        currentPaymentAccountId,
+        expenseId,
+        "expense"
       ),
     ]);
   const paymentAccountEntries = [paymentAccountEntry];
@@ -125,13 +111,13 @@ export default async function updateExpense(
 
   const tDetails = {
     ...rest,
-    customer: formats.formatCustomerData(customer),
-    selectedItems: formats.formatSaleItems(selectedItems),
+    vendor: formats.formatVendorData(vendor),
+    items: formats.formatExpenseItems(items),
   };
 
   const transactionDetails = {
     ...tDetails,
-    salesReceiptId,
+    expenseId,
   };
   /**
    * start writing
@@ -141,12 +127,16 @@ export default async function updateExpense(
    * update entries
    */
   entriesToUpdate.forEach((entry) => {
+    console.log({ entry });
     const { accountId, incoming, credit, debit, entryId } = entry;
     const entryAccount = getAccountData(accountId, accounts);
+    const { accountType } = entryAccount;
+    const amount = createDebitAmount(accountType, incoming);
+    console.log({ amount });
 
     updateSimilarAccountEntries(transaction, userProfile, orgId, entryAccount, [
       {
-        amount: incoming,
+        amount,
         account: entryAccount,
         credit,
         debit,
@@ -177,15 +167,18 @@ export default async function updateExpense(
   newAccounts.forEach((incomeAccount) => {
     const { accountId, incoming } = incomeAccount;
     const entryAccount = getAccountData(accountId, accounts);
+    const { accountType } = entryAccount;
+
+    const amount = createDebitAmount(accountType, incoming);
 
     createSimilarAccountEntries(transaction, userProfile, orgId, entryAccount, [
       {
-        amount: incoming,
+        amount,
         account: entryAccount,
         reference: "",
         transactionDetails,
-        transactionId: salesReceiptId,
-        transactionType: "sales receipt",
+        transactionId: expenseId,
+        transactionType: "expense",
       },
     ]);
   });
@@ -194,11 +187,13 @@ export default async function updateExpense(
    * update deposit account
    * check if the account was changed and update accordingly
    */
-  const depositAccount = getAccountData(accountId, accounts);
+  const depositAccount = getAccountData(paymentAccountId, accounts);
+  const { accountType } = depositAccount;
   /**
    * check if payment account has changed
    */
-  const paymentAccountHasChanged = accountId !== currentSalesReceipt.accountId;
+  const paymentAccountHasChanged = paymentAccountId !== currentPaymentAccountId;
+  const paymentAmount = createCreditAmount(accountType, totalAmount);
 
   if (paymentAccountHasChanged) {
     /**
@@ -209,14 +204,15 @@ export default async function updateExpense(
       transaction,
       userProfile,
       orgId,
-      currentSalesReceipt.account,
+      currentExpense.paymentAccount,
       depositAccount,
       paymentAccountEntries.map((entry) => {
-        const { credit, debit, entryId } = entry;
+        const { credit, debit, entryId, account } = entry;
         const prevEntry = { credit, debit, entryId };
+
         return {
-          amount: totalAmount,
-          prevAccount: currentSalesReceipt.account,
+          amount: paymentAmount,
+          prevAccount: account,
           prevEntry,
           transactionDetails,
           reference,
@@ -227,7 +223,7 @@ export default async function updateExpense(
     /**
      * do a normal update
      */
-    if (totalAmount !== currentSummary.totalAmount || customerHasChanged) {
+    if (totalAmount !== currentTotal || vendorHasChanged) {
       console.log("normal update");
       updateSimilarAccountEntries(
         transaction,
@@ -236,8 +232,9 @@ export default async function updateExpense(
         depositAccount,
         paymentAccountEntries.map((entry) => {
           const { entryId, credit, debit, account } = entry;
+
           return {
-            amount: totalAmount,
+            amount: paymentAmount,
             account,
             credit,
             debit,
@@ -252,81 +249,76 @@ export default async function updateExpense(
    * update summary payment modes
    * if mode has changed, change the mode values
    */
-  if (currentSalesReceipt.paymentModeId === paymentModeId) {
-    if (currentSummary.totalAmount !== totalAmount) {
+  if (currentPaymentModeId === paymentModeId) {
+    if (currentTotal !== totalAmount) {
       /**
        * create adjustment by subtracting current amount from incoming amount
        */
-      const modeAdjustment = totalAmount - currentSummary.totalAmount;
+      let modeAdjustment = totalAmount - currentTotal;
+      //subtract from zero to negate the values since they are supposed 2B subtracted
+      modeAdjustment = 0 - modeAdjustment;
       updatePaymentMode(transaction, orgId, paymentModeId, modeAdjustment);
     }
   } else {
     /**
      * payment modes are not the same
+     * subtract from zero to negate the values since they are supposed 2B subtracted
      */
     changePaymentMode(
       transaction,
       orgId,
       {
-        amount: currentSummary.totalAmount,
-        paymentModeId: currentSalesReceipt.paymentModeId,
+        amount: 0 - currentTotal,
+        paymentModeId: currentPaymentModeId,
       },
-      { amount: totalAmount, paymentModeId }
+      { amount: 0 - totalAmount, paymentModeId }
     );
   }
   /**
-   * update customer summaries
+   * update vendor summaries
    */
-  const newCustomerRef = customerId
-    ? doc(db, "organizations", orgId, "customers", customerId)
+  const newVendorRef = vendorId
+    ? doc(db, "organizations", orgId, "vendors", vendorId)
     : null;
-  const currentCustomerRef = currentCustomerId
-    ? doc(db, "organizations", orgId, "customers", currentCustomerId)
+  const currentVendorRef = currentVendorId
+    ? doc(db, "organizations", orgId, "vendors", currentVendorId)
     : null;
   /**
-   * opening balance is strictly tied to a customer.
+   * opening balance is strictly tied to a vendor.
    * cant change hence no need to change anything
    */
-  if (customerHasChanged) {
-    //delete values from previous customer
-    if (currentCustomerRef) {
-      transaction.update(currentCustomerRef, {
-        "summary.salesReceiptsAmount": increment(
-          0 - currentSummary.totalAmount
-        ),
-        "summary.deletedSalesReceipts": increment(1),
+  if (vendorHasChanged) {
+    //delete values from previous vendor
+    if (currentVendorRef) {
+      transaction.update(currentVendorRef, {
+        "summary.totalExpenses": increment(0 - currentTotal),
+        "summary.deletedExpenses": increment(1),
       });
     }
-    if (newCustomerRef) {
-      //add new values to the incoming customer
-      transaction.update(newCustomerRef, {
-        "summary.salesReceiptsAmount": increment(totalAmount),
-        "summary.salesReceipts": increment(1),
+    if (newVendorRef) {
+      //add new values to the incoming vendor
+      transaction.update(newVendorRef, {
+        "summary.totalExpenses": increment(totalAmount),
+        "summary.expenses": increment(1),
       });
     }
   } else {
-    if (currentCustomerRef) {
-      if (currentSummary.totalAmount !== totalAmount) {
-        const adjustment = totalAmount - currentSummary.totalAmount;
-        //update customer summaries
-        transaction.update(currentCustomerRef, {
-          "summary.salesReceiptsAmount": increment(adjustment),
+    if (currentVendorRef) {
+      if (currentTotal !== totalAmount) {
+        const adjustment = totalAmount - currentTotal;
+        //update vendor summaries
+        transaction.update(currentVendorRef, {
+          "summary.totalExpenses": increment(adjustment),
         });
       }
     }
   }
   /**
-   * update sales receipt
+   * update expense
    */
-  const salesReceiptRef = doc(
-    db,
-    "organizations",
-    orgId,
-    "salesReceipts",
-    salesReceiptId
-  );
+  const expenseRef = doc(db, "organizations", orgId, "expenses", expenseId);
   // console.log({ tDetails });
-  transaction.update(salesReceiptRef, {
+  transaction.update(expenseRef, {
     ...tDetails,
     // classical: "plus",
     modifiedBy: email,

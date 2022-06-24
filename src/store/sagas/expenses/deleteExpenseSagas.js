@@ -2,18 +2,18 @@ import { put, call, select, takeLatest } from "redux-saga/effects";
 import { runTransaction } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
-import { deleteSalesReceipt } from "../../../utils/salesReceipts";
+import { deleteExpense } from "../../../utils/expenses";
 import { createDailySummary } from "../../../utils/summaries";
 
-import { DELETE_SALES_RECEIPT } from "../../actions/salesReceiptsActions";
-import { start, success, fail } from "../../slices/salesReceiptsSlice";
+import { DELETE_EXPENSE } from "../../actions/expensesActions";
+import { start, success, fail } from "../../slices/expenseSlice";
 import {
   error as toastError,
   success as toastSuccess,
 } from "../../slices/toastSlice";
 
-function* deleteSalesReceiptSaga({ salesReceiptId }) {
-  yield put(start(DELETE_SALES_RECEIPT));
+function* deleteExpenseSaga({ expenseId }) {
+  yield put(start(DELETE_EXPENSE));
   const orgId = yield select((state) => state.orgsReducer.org.id);
   const userProfile = yield select((state) => state.authReducer.userProfile);
 
@@ -23,10 +23,10 @@ function* deleteSalesReceiptSaga({ salesReceiptId }) {
      */
     await createDailySummary(orgId);
     /**
-     * delete salesReceipt using a firestore transaction
+     * delete expense using a firestore transaction
      */
     await runTransaction(db, async (transaction) => {
-      await deleteSalesReceipt(transaction, orgId, userProfile, salesReceiptId);
+      await deleteExpense(transaction, orgId, userProfile, expenseId);
     });
   }
 
@@ -34,7 +34,7 @@ function* deleteSalesReceiptSaga({ salesReceiptId }) {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess("Sales Receipt Sucessfully DELETED!"));
+    yield put(toastSuccess("Expense Sucessfully DELETED!"));
   } catch (error) {
     console.log(error);
     yield put(fail(error));
@@ -42,6 +42,6 @@ function* deleteSalesReceiptSaga({ salesReceiptId }) {
   }
 }
 
-export function* watchDeleteSalesReceipt() {
-  yield takeLatest(DELETE_SALES_RECEIPT, deleteSalesReceiptSaga);
+export function* watchDeleteExpense() {
+  yield takeLatest(DELETE_EXPENSE, deleteExpenseSaga);
 }

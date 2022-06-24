@@ -11,26 +11,26 @@ import {
 
 import { db } from "../../../utils/firebase";
 import {
-  GET_SALES_RECEIPT,
-  GET_SALES_RECEIPTS,
-  GET_CUSTOMER_SALES_RECEIPTS,
-} from "../../actions/salesReceiptsActions";
+  GET_EXPENSE,
+  GET_EXPENSES,
+  GET_VENDOR_EXPENSES,
+} from "../../actions/expensesActions";
 import {
   start,
-  salesReceiptSuccess,
-  salesReceiptsSuccess,
+  expenseSuccess,
+  expensesSuccess,
   fail,
-} from "../../slices/salesReceiptsSlice";
+} from "../../slices/expenseSlice";
 import { error as toastError } from "../../slices/toastSlice";
 
 import { dateFromTimestamp } from "../../../utils/dates";
 
-function formatReceiptDates(receipt) {
-  const { receiptDate, createdAt, modifiedAt } = receipt;
+function formatExpenseDates(expense) {
+  const { expenseDate, createdAt, modifiedAt } = expense;
 
   return {
-    ...receipt,
-    receiptDate: dateFromTimestamp(receiptDate),
+    ...expense,
+    expenseDate: dateFromTimestamp(expenseDate),
     createdAt: dateFromTimestamp(createdAt),
     modifiedAt: dateFromTimestamp(modifiedAt),
   };
@@ -48,30 +48,30 @@ function formatReceiptDates(receipt) {
 //   return seconds1 - seconds2;
 // }
 
-function* getSalesReceipt({ salesReceiptId }) {
-  yield put(start(GET_SALES_RECEIPT));
+function* getExpense({ expenseId }) {
+  yield put(start(GET_EXPENSE));
   const orgId = yield select((state) => state.orgsReducer.org.id);
-  console.log({ salesReceiptId });
+  console.log({ expenseId });
 
   async function get() {
-    const receiptDoc = await getDoc(
-      doc(db, "organizations", orgId, "salesReceipts", salesReceiptId)
+    const expenseDoc = await getDoc(
+      doc(db, "organizations", orgId, "expenses", expenseId)
     );
-    if (!receiptDoc.exists) {
-      throw new Error("Sales Receipt not found!");
+    if (!expenseDoc.exists) {
+      throw new Error("Expense not found!");
     }
 
     return {
-      ...formatReceiptDates(receiptDoc.data()),
-      salesReceiptId: receiptDoc.id,
+      ...formatExpenseDates(expenseDoc.data()),
+      expenseId: expenseDoc.id,
     };
   }
 
   try {
-    const receipt = yield call(get);
-    console.log({ receipt });
+    const expense = yield call(get);
+    console.log({ expense });
 
-    yield put(salesReceiptSuccess(receipt));
+    yield put(expenseSuccess(expense));
   } catch (error) {
     console.log(error);
     yield put(fail(error));
@@ -79,37 +79,37 @@ function* getSalesReceipt({ salesReceiptId }) {
   }
 }
 
-export function* watchGetSalesReceipt() {
-  yield takeLatest(GET_SALES_RECEIPT, getSalesReceipt);
+export function* watchGetExpense() {
+  yield takeLatest(GET_EXPENSE, getExpense);
 }
 
-function* getSalesReceipts({ statuses }) {
-  yield put(start(GET_SALES_RECEIPTS));
+function* getExpenses() {
+  yield put(start(GET_EXPENSES));
   const orgId = yield select((state) => state.orgsReducer.org.id);
 
   async function get() {
     const q = query(
-      collection(db, "organizations", orgId, "salesReceipts"),
+      collection(db, "organizations", orgId, "expenses"),
       orderBy("createdAt", "desc"),
       where("status", "==", "active")
     );
-    const salesReceipts = [];
+    const expenses = [];
     const snap = await getDocs(q);
 
-    snap.forEach((receiptDoc) => {
-      salesReceipts.push({
-        ...formatReceiptDates(receiptDoc.data()),
-        salesReceiptId: receiptDoc.id,
+    snap.forEach((expenseDoc) => {
+      expenses.push({
+        ...formatExpenseDates(expenseDoc.data()),
+        expenseId: expenseDoc.id,
       });
     });
 
-    return salesReceipts;
+    return expenses;
   }
 
   try {
-    const salesReceipts = yield call(get);
+    const expenses = yield call(get);
 
-    yield put(salesReceiptsSuccess(salesReceipts));
+    yield put(expensesSuccess(expenses));
   } catch (error) {
     console.log(error);
     yield put(fail(error));
@@ -117,39 +117,39 @@ function* getSalesReceipts({ statuses }) {
   }
 }
 
-export function* watchGetSalesReceipts() {
-  yield takeLatest(GET_SALES_RECEIPTS, getSalesReceipts);
+export function* watchGetExpenses() {
+  yield takeLatest(GET_EXPENSES, getExpenses);
 }
 
-function* getCustomerSalesReceipts({ customerId }) {
-  yield put(start(GET_CUSTOMER_SALES_RECEIPTS));
+function* getVendorExpenses({ vendorId }) {
+  yield put(start(GET_VENDOR_EXPENSES));
   const orgId = yield select((state) => state.orgsReducer.org.id);
-  // console.log({ customerId, statuses });
+  // console.log({ vendorId, statuses });
   async function get() {
     const q = query(
-      collection(db, "organizations", orgId, "salesReceipts"),
+      collection(db, "organizations", orgId, "expenses"),
       orderBy("createdAt", "desc"),
-      where("customerId", "==", customerId),
+      where("vendor.vendorId", "==", vendorId),
       where("status", "==", "active")
     );
-    const salesReceipts = [];
+    const expenses = [];
     const snap = await getDocs(q);
 
-    snap.forEach((receiptDoc) => {
-      salesReceipts.push({
-        ...formatReceiptDates(receiptDoc.data()),
-        salesReceiptId: receiptDoc.id,
+    snap.forEach((expenseDoc) => {
+      expenses.push({
+        ...formatExpenseDates(expenseDoc.data()),
+        expenseId: expenseDoc.id,
       });
     });
 
-    return salesReceipts;
+    return expenses;
   }
 
   try {
-    const salesReceipts = yield call(get);
-    // console.log({ salesReceipts });
+    const expenses = yield call(get);
+    // console.log({ expenses });
 
-    yield put(salesReceiptsSuccess(salesReceipts));
+    yield put(expensesSuccess(expenses));
   } catch (error) {
     console.log(error);
     yield put(fail(error));
@@ -157,6 +157,6 @@ function* getCustomerSalesReceipts({ customerId }) {
   }
 }
 
-export function* watchGetCustomerSalesReceipts() {
-  yield takeLatest(GET_CUSTOMER_SALES_RECEIPTS, getCustomerSalesReceipts);
+export function* watchGetVendorExpenses() {
+  yield takeLatest(GET_VENDOR_EXPENSES, getVendorExpenses);
 }

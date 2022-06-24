@@ -12,3 +12,5 @@ export { default as createDebitAndCredit } from "./createDebitAndCredit";
 export { default as getTransactionEntries } from "./getTransactionEntries";
 export { default as getAccountTransactionEntry } from "./getAccountTransactionEntry";
 export { default as getIncomeEntries } from "./getIncomeEntries";
+export { default as createCreditAmount } from "./createCreditAmount";
+export { default as createDebitAmount } from "./createDebitAmount";

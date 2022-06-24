@@ -29,10 +29,21 @@ function ExpenseForm(props) {
     summary,
     vendors,
     paymentAccounts,
+    defaultValues,
   } = props;
   const { prevStep } = useContext(StepperContext);
 
-  const formMethods = useForm({ mode: "onChange" });
+  const formMethods = useForm({
+    mode: "onChange",
+    defaultValues: {
+      paymentAccountId:
+        defaultValues?.paymentAccount?.accountId || "undeposited_funds",
+      expenseDate: defaultValues?.expenseDate || new Date(),
+      vendorId: defaultValues?.vendor?.vendorId || "",
+      paymentModeId: defaultValues?.paymentMode?.value || "cash",
+      reference: defaultValues?.reference || "",
+    },
+  });
   const {
     register,
     handleSubmit,
@@ -40,10 +51,35 @@ function ExpenseForm(props) {
     getValues,
   } = formMethods;
 
+  function formulateData(formData) {
+    const { vendorId, paymentAccountId, paymentModeId, ...rest } = formData;
+    const vendor = vendors.find((vendor) => vendor.vendorId === vendorId) || {};
+    const paymentAccount = paymentAccounts.find(
+      (account) => account.accountId === paymentAccountId
+    );
+    const paymentMode = paymentModes.find(
+      (mode) => mode.value === paymentModeId
+    );
+
+    return {
+      ...rest,
+      vendor,
+      paymentAccount,
+      paymentMode,
+    };
+  }
+
   function goBack() {
-    const allValues = getValues();
+    let allValues = getValues();
+    allValues = formulateData(allValues);
+
     updateFormValues(allValues);
     prevStep();
+  }
+
+  function saveData(data) {
+    const formData = formulateData(data);
+    handleFormSubmit(formData);
   }
 
   return (
@@ -60,7 +96,7 @@ function ExpenseForm(props) {
           py={4}
           as="form"
           role="form"
-          onSubmit={handleSubmit(handleFormSubmit)}
+          onSubmit={handleSubmit(saveData)}
         >
           <Grid rowGap={2} columnGap={3} templateColumns="repeat(12, 1fr)">
             <GridItem colSpan={12}>
@@ -109,11 +145,11 @@ function ExpenseForm(props) {
             </GridItem>
 
             <GridItem colSpan={[12, 6]}>
-              <FormControl isReadOnly={loading} isInvalid={errors.payee}>
-                <FormLabel htmlFor="payee">Payee </FormLabel>
+              <FormControl isReadOnly={loading} isInvalid={errors.vendorId}>
+                <FormLabel htmlFor="vendorId">Payee</FormLabel>
                 <CustomSelect
-                  name="payee"
-                  placeholder="add payee"
+                  name="vendorId"
+                  placeholder="who are you paying?"
                   isDisabled={loading}
                   options={vendors.map((vendor) => {
                     const { vendorId, displayName } = vendor;
@@ -123,7 +159,7 @@ function ExpenseForm(props) {
                     };
                   })}
                 />
-                <FormErrorMessage>{errors?.payee?.message}</FormErrorMessage>
+                <FormErrorMessage>{errors?.vendorId?.message}</FormErrorMessage>
                 <FormHelperText>Optional</FormHelperText>
               </FormControl>
             </GridItem>
@@ -179,6 +215,10 @@ function ExpenseForm(props) {
   );
 }
 
+ExpenseForm.defaultProps = {
+  summary: {},
+};
+
 ExpenseForm.propTypes = {
   updateFormValues: PropTypes.func.isRequired,
   handleFormSubmit: PropTypes.func.isRequired,
@@ -187,6 +227,7 @@ ExpenseForm.propTypes = {
   paymentModes: PropTypes.array.isRequired,
   vendors: PropTypes.array,
   paymentAccounts: PropTypes.array.isRequired,
+  defaultValues: PropTypes.object,
 };
 
 export default ExpenseForm;

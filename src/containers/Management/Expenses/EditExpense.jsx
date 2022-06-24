@@ -53,7 +53,12 @@ function EditExpense(props) {
 
   function finish(data) {
     updateFormValues(data);
-    handleFormSubmit(data);
+    const newData = {
+      ...formValues,
+      ...data,
+    };
+    // console.log({ newData });
+    handleFormSubmit(newData);
   }
 
   return loadingPaymentModes || loadingVendors || loadingTaxes ? (
