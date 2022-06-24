@@ -1,6 +1,5 @@
 import { mapAccounts, getIncomeAccounts } from ".";
-import { accountsMapping } from "./mapAccounts";
-import { items } from "./getIncomeAccounts";
+
 /**
  *
  * @typedef {Object} account
@@ -10,13 +9,18 @@ import { items } from "./getIncomeAccounts";
  */
 /**
  *
+ * @typedef {import('./mapAccounts').accountsMapping} accountsMapping
+ * @typedef {import('./getIncomeAccounts').items} items
+ */
+/**
+ *
  * @typedef {Array.<account>} accountsData
  */
 /**
  *
  * @param {items} items
  * @param {items} incomingItems
- * @returns {accountsMapping}
+ * @returns {accountsMapping} accountsMapping
  */
 export default function getIncomeAccountsMapping(
   items = [],

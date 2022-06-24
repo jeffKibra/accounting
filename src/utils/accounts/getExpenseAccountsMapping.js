@@ -1,6 +1,5 @@
 import { mapAccounts, getExpenseAccounts } from ".";
-import { accountsMapping } from "./mapAccounts";
-import { items } from "./getExpenseAccounts";
+
 /**
  *
  * @typedef {Object} account
@@ -11,6 +10,11 @@ import { items } from "./getExpenseAccounts";
 /**
  *
  * @typedef {Array.<account>} accountsData
+ */
+/**
+ *
+ * @typedef {import('./mapAccounts').accountsMapping} accountsMapping
+ * @typedef {import('./getExpenseAccounts').items} items
  */
 /**
  *
