@@ -41,9 +41,9 @@ function ExpenseItemDetailsForm(props) {
     mode: "onChange",
     resolver: yupResolver(schema),
     defaultValues: {
-      accountId: expense?.accountId || "",
+      accountId: expense?.account?.accountId || "",
       details: expense?.details || "",
-      taxId: expense?.taxId || "",
+      taxId: expense?.tax?.taxId || "",
       amount: expense?.amount || 0,
     },
   });
