@@ -74,6 +74,8 @@ import {
 } from "./expenses/getExpensesSagas";
 import { watchUpdateExpense } from "./expenses/updateExpenseSagas";
 import { watchDeleteExpense } from "./expenses/deleteExpenseSagas";
+//summaries
+import { watchGetLatestSummary } from "./summaries/getSummariesSagas";
 //categories
 import { watchCreateItemCategory } from "./itemsCategories/createItemCategorySagas";
 
@@ -138,6 +140,7 @@ export default function* rootSaga() {
     watchGetVendorExpenses(),
     watchUpdateExpense(),
     watchDeleteExpense(),
+    watchGetLatestSummary(),
     watchCreateItemCategory(),
   ]);
 }
