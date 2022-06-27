@@ -1,12 +1,10 @@
 import { useMemo } from "react";
 import PropTypes from "prop-types";
 
-// import useDeletesalesReceipt from "../../../hooks/useDeletesalesReceipt";
-// import SalesReceiptOptions from "../../../containers/Management/SalesReceipts/SalesReceiptOptions";
+import formats from "../../../utils/formats";
 import ExpenseOptions from "../../../containers/Management/Expenses/ExpenseOptions";
 
 import CustomTable from "../CustomTable";
-// import TableActions from "../TableActions";
 
 function ExpensesTable(props) {
   const { expenses } = props;
@@ -22,13 +20,17 @@ function ExpensesTable(props) {
       // { Header: "PAYMENT MODE", accessor: "paymentMode.name" },
       { Header: "REFERENCE", accessor: "reference" },
       { Header: "VENDOR", accessor: "vendor.displayName" },
-      { Header: "AMOUNT", accessor: "summary.totalAmount", isNumeric: true },
+      { Header: "AMOUNT", accessor: "totalAmount", isNumeric: true },
     ];
   }, []);
 
   const data = useMemo(() => {
     return expenses.map((expense) => {
-      const { expenseDate, items } = expense;
+      const {
+        expenseDate,
+        items,
+        summary: { totalAmount },
+      } = expense;
       let expenseAccount = items[0]?.account?.name;
       if (items.length > 1) {
         expenseAccount = "Split";
@@ -36,9 +38,10 @@ function ExpensesTable(props) {
 
       return {
         ...expense,
+        totalAmount: formats.formatCash(totalAmount),
         expenseAccount,
         date: expenseDate.toDateString(),
-        actions: <ExpenseOptions expense={expense} edit deletion />,
+        actions: <ExpenseOptions expense={expense} view edit deletion />,
       };
     });
   }, [expenses]);

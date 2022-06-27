@@ -104,6 +104,10 @@ function formatExpenseItems(items = []) {
   });
 }
 
+function formatCash(num) {
+  return Number(Number(num).toFixed(2)).toLocaleString();
+}
+
 const formats = {
   formatInvoices,
   formatInvoicePayment,
@@ -113,6 +117,7 @@ const formats = {
   formatSaleItems,
   formatExpenseItems,
   formatVendorData,
+  formatCash,
 };
 
 export default formats;

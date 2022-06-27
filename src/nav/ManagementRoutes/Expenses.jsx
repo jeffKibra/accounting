@@ -1,5 +1,5 @@
 import { Route } from "react-router-dom";
-import { EXPENSES, NEW_EXPENSE, EDIT_EXPENSE } from "../routes";
+import { EXPENSES, NEW_EXPENSE, EDIT_EXPENSE, VIEW_EXPENSE } from "../routes";
 
 import ManagementRoute from "../ManagementRoute";
 
@@ -8,6 +8,7 @@ import {
   EditExpensePage,
   ExpensesPage,
   NewExpensePage,
+  ViewExpensePage,
 } from "../../pages/Management/Expenses";
 
 function Expenses() {
@@ -39,6 +40,16 @@ function Expenses() {
       element={
         <ManagementRoute>
           <EditExpensePage />
+        </ManagementRoute>
+      }
+    />,
+    <Route
+      path={VIEW_EXPENSE}
+      key={VIEW_EXPENSE}
+      exact
+      element={
+        <ManagementRoute>
+          <ViewExpensePage />
         </ManagementRoute>
       }
     />,

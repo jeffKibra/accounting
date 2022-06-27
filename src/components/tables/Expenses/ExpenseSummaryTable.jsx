@@ -1,6 +1,8 @@
 import { TableContainer, Table, Tbody, Td, Th, Tr } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 
+import formats from "../../../utils/formats";
+
 function ExpenseSummaryTable(props) {
   const { summary } = props;
   const { subTotal, expenseTaxes, totalAmount, totalTaxes } = summary;
@@ -12,7 +14,7 @@ function ExpenseSummaryTable(props) {
           {totalTaxes > 0 && (
             <Tr>
               <Td>Sub Total</Td>
-              <Td isNumeric>{subTotal}</Td>
+              <Td isNumeric>{formats.formatCash(subTotal)}</Td>
             </Tr>
           )}
 
@@ -24,14 +26,14 @@ function ExpenseSummaryTable(props) {
                   {" "}
                   {name} ({rate}%)
                 </Td>
-                <Td isNumeric>{totalTax}</Td>
+                <Td isNumeric>{formats.formatCash(totalTax)}</Td>
               </Tr>
             );
           })}
 
           <Tr>
             <Th>Total (KES)</Th>
-            <Th isNumeric>{totalAmount}</Th>
+            <Th isNumeric>{formats.formatCash(totalAmount)}</Th>
           </Tr>
         </Tbody>
       </Table>

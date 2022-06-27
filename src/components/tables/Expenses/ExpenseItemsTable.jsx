@@ -3,29 +3,35 @@ import PropTypes from "prop-types";
 import { Stack, IconButton } from "@chakra-ui/react";
 import { RiDeleteBin4Line, RiEdit2Line } from "react-icons/ri";
 
-import CustomTable from "../CustomTable";
+import formats from "../../../utils/formats";
+
+import CustomRawTable from "../CustomRawTable";
 import CustomModal from "../../ui/CustomModal";
 import ExpenseItemDetailsForm from "../../forms/Expenses/ExpenseItemDetailsForm";
 
 function ExpenseItemsTable(props) {
-  const { items, handleDelete, handleEdit, loading, taxes } = props;
+  const { items, handleDelete, handleEdit, loading, taxes, showActions } =
+    props;
 
   const columns = useMemo(() => {
     return [
-      { Header: "", accessor: "actions", width: "11%" },
+      ...(showActions
+        ? [{ Header: "", accessor: "actions", width: "11%" }]
+        : []),
       { Header: "Details", accessor: "details" },
       { Header: "Account", accessor: "account.name", width: "11%" },
       { Header: "Tax", accessor: "tax", width: "11%" },
       { Header: "Amount", accessor: "amount", width: "11%", isNumeric: true },
     ];
-  }, []);
+  }, [showActions]);
 
   const data = useMemo(() => {
     return [...items].map((item, index) => {
-      const { tax } = item;
+      const { tax, amount } = item;
 
       return {
         ...item,
+        amount: formats.formatCash(amount),
         tax: tax?.name ? `${tax?.name} (${tax?.rate}%)` : "",
         actions: (
           <Stack direction="row" spacing={1}>
@@ -70,8 +76,12 @@ function ExpenseItemsTable(props) {
     });
   }, [items, handleDelete, handleEdit, loading, taxes]);
 
-  return <CustomTable data={data} columns={columns} />;
+  return <CustomRawTable data={data} columns={columns} />;
 }
+
+ExpenseItemsTable.defaultProps = {
+  showActions: true,
+};
 
 ExpenseItemsTable.propTypes = {
   loading: PropTypes.bool.isRequired,
@@ -87,9 +97,8 @@ ExpenseItemsTable.propTypes = {
       }),
     })
   ),
-  handleDelete: PropTypes.func.isRequired,
-  handleEdit: PropTypes.func.isRequired,
   taxes: PropTypes.array.isRequired,
+  showActions: PropTypes.bool.isRequired,
 };
 
 export default ExpenseItemsTable;

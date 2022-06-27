@@ -74,7 +74,7 @@ function ExpenseItems(props) {
           </Flex>
         </GridItem>
 
-        <GridItem colSpan={12}>
+        <GridItem colSpan={12} shadow="md" bg="white" borderRadius="md" py={4}>
           <ExpenseItemsTable
             loading={loading}
             handleEdit={updateItem}
