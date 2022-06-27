@@ -134,6 +134,7 @@ export default async function createExpense(
   transaction.update(summaryRef, {
     expenses: increment(1),
     [`paymentModes.${paymentModeId}`]: increment(0 - totalAmount),
+    "cashFlow.outgoing": increment(totalAmount),
   });
 
   /**

@@ -98,9 +98,11 @@ export default async function deletePayment(
    * update summary- increase deletedPayments by one
    * adjust payment mode value by negative of payment amount
    */
+  const adjustment = 0 - +amount;
   transaction.update(summaryRef, {
     deletedPayments: increment(1),
-    [`paymentModes.${paymentModeId}`]: increment(0 - amount),
+    [`paymentModes.${paymentModeId}`]: increment(adjustment),
+    "cashFlow.incoming": increment(adjustment),
   });
   /**
    * mark payment as deleted

@@ -74,6 +74,7 @@ export default async function deleteExpense(
   transaction.update(summaryRef, {
     deletedExpenses: increment(1),
     [`paymentModes.${paymentModeId}`]: increment(totalAmount),
+    "cashFlow.outgoing": increment(0 - totalAmount),
   });
   /**
    * mark expense as deleted

@@ -126,6 +126,7 @@ export default async function createSalesReceipt(
   transaction.update(summaryRef, {
     salesReceipts: increment(1),
     [`paymentModes.${paymentModeId}`]: increment(totalAmount),
+    "cashFlow.incoming": increment(totalAmount),
   });
 
   /**

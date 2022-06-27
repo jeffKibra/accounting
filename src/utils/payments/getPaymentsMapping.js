@@ -1,8 +1,24 @@
 /**
  *
- * @param {{}} prevPayments
+ * @typedef {Object} payment
+ * @property {string} invoiceId
+ * @property {number} current
+ * @property {number} incoming
+ */
+/**
+ *
+ * @typedef {Object} paymentsMapping
+ * @property {payment[]} uniquePayments
+ * @property {payment[]} similarPayments
+ * @property {payment[]} paymentsToCreate
+ * @property {payment[]} paymentsToUpdate
+ * @property {payment[]} paymentsToDelete
+ */
+/**
+ *
+ * @param {{}} currentPayments
  * @param {{}} incomingPayments
- * @returns {{uniquePayments:{current:0,incoming:0, invoiceId:""}[],similarPayments:{current:0,incoming:0, invoiceId:""}[], paymentsToCreate:{current:0,incoming:0, invoiceId:""}[],paymentsToUpdate:{current:0,incoming:0, invoiceId:""}[],paymentsToDelete:{current:0,incoming:0, invoiceId:""}[]}}
+ * @returns {paymentsMapping} paymentsMapping
  */
 export default function getPaymentsMapping(
   payments = {},

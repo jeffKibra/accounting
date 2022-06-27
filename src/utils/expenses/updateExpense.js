@@ -20,6 +20,7 @@ import {
 import { changePaymentMode, updatePaymentMode } from "../summaries";
 import { getExpenseData } from ".";
 import formats from "../formats";
+import { getDateDetails } from "../dates";
 
 export default async function updateExpense(
   transaction,
@@ -72,9 +73,12 @@ export default async function updateExpense(
     paymentMode: { value: currentPaymentModeId },
   } = currentExpense;
   /**
+   * total amount adjustment
+   */
+  const adjustment = totalAmount - currentTotal;
+  /**
    * check if vendor has been changed
    */
-
   const vendorHasChanged = currentVendorId !== vendorId;
 
   let { deletedAccounts, newAccounts, updatedAccounts, similarAccounts } =
@@ -251,12 +255,8 @@ export default async function updateExpense(
    */
   if (currentPaymentModeId === paymentModeId) {
     if (currentTotal !== totalAmount) {
-      /**
-       * create adjustment by subtracting current amount from incoming amount
-       */
-      let modeAdjustment = totalAmount - currentTotal;
       //subtract from zero to negate the values since they are supposed 2B subtracted
-      modeAdjustment = 0 - modeAdjustment;
+      const modeAdjustment = 0 - adjustment;
       updatePaymentMode(transaction, orgId, paymentModeId, modeAdjustment);
     }
   } else {
@@ -313,6 +313,24 @@ export default async function updateExpense(
       }
     }
   }
+  /**
+   * update org summaries
+   */
+  if (currentTotal !== totalAmount) {
+    const { yearMonthDay } = getDateDetails();
+    const summaryRef = doc(
+      db,
+      "organizations",
+      orgId,
+      "summaries",
+      yearMonthDay
+    );
+    const adjustment = totalAmount - currentTotal;
+    transaction.update(summaryRef, {
+      "cashFlow.outgoing": increment(adjustment),
+    });
+  }
+
   /**
    * update expense
    */

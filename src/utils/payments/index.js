@@ -17,3 +17,4 @@ export { default as combineInvoices } from "./combineInvoices";
 export { default as getAllPaymentEntries } from "./getAllPaymentEntries";
 export { default as deletePayment } from "./deletePayment";
 export { default as createPayment } from "./createPayment";
+export { default as updatePayment } from "./updatePayment";

@@ -18,6 +18,7 @@ import {
 import { changePaymentMode, updatePaymentMode } from "../summaries";
 import { getSalesReceiptData } from "../salesReceipts";
 import formats from "../formats";
+import { getDateDetails } from "../dates";
 
 export default async function updateSalesReceipt(
   transaction,
@@ -315,6 +316,24 @@ export default async function updateSalesReceipt(
       }
     }
   }
+  /**
+   * update summaries
+   */
+  if (currentSummary.totalAmount !== totalAmount) {
+    const { yearMonthDay } = getDateDetails();
+    const summaryRef = doc(
+      db,
+      "organizations",
+      orgId,
+      "summaries",
+      yearMonthDay
+    );
+    const cashAdjustment = totalAmount - currentSummary.totalAmount;
+    transaction.update(summaryRef, {
+      "cashFlow.incoming": increment(cashAdjustment),
+    });
+  }
+
   /**
    * update sales receipt
    */
