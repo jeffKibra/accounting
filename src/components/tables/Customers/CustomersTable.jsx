@@ -28,7 +28,7 @@ function CustomersTable(props) {
     return customers.map((customer) => {
       return {
         ...customer,
-        actions: <CustomerOptions customer={customer} edit deletion />,
+        actions: <CustomerOptions customer={customer} edit view deletion />,
       };
     });
   }, [customers]);

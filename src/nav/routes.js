@@ -22,6 +22,7 @@ export const EDIT_ITEM = "/items/:itemId/edit";
 export const CUSTOMERS = "/customers";
 export const NEW_CUSTOMER = "/customers/new";
 export const EDIT_CUSTOMER = "/customers/:customerId/edit";
+export const VIEW_CUSTOMER = "/customers/:customerId/view";
 //estimates
 export const ESTIMATES = "/estimates";
 //invoices

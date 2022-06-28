@@ -4,9 +4,12 @@ import * as routes from "../routes";
 import ManagementRoute from "../ManagementRoute";
 
 //customers
-import CustomersPage from "../../pages/Management/Customers/CustomersPage";
-import NewCustomerPage from "../../pages/Management/Customers/NewCustomerPage";
-import EditCustomerPage from "../../pages/Management/Customers/EditCustomerPage";
+import {
+  ViewCustomerPage,
+  CustomersPage,
+  NewCustomerPage,
+  EditCustomerPage,
+} from "../../pages/Management/Customers";
 
 function Customers() {
   return [
@@ -37,6 +40,16 @@ function Customers() {
       element={
         <ManagementRoute>
           <EditCustomerPage />
+        </ManagementRoute>
+      }
+    />,
+    <Route
+      path={routes.VIEW_CUSTOMER}
+      key={routes.VIEW_CUSTOMER}
+      exact
+      element={
+        <ManagementRoute>
+          <ViewCustomerPage />
         </ManagementRoute>
       }
     />,
