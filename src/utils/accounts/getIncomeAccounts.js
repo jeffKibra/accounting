@@ -1,6 +1,10 @@
 /**
  *
- * @param {{salesAccount:{}, totalAmount:0}[]} items
+ * @typedef {{salesAccount:{}, totalAmount:0}[]} items
+ */
+/**
+ *
+ * @param {items} items
  * @param {""} itemsKeyToSum
  * @returns {Array.<{accountId:"", itemsTotal:0}>}
  */

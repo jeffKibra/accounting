@@ -82,9 +82,11 @@ export default async function deleteSalesReceipt(
   /**
    * update org counters summaries
    */
+  const adjustment = 0 - +totalAmount;
   transaction.update(summaryRef, {
     deletedsalesReceipts: increment(1),
-    [`paymentModes.${paymentModeId}`]: increment(0 - totalAmount),
+    [`paymentModes.${paymentModeId}`]: increment(adjustment),
+    "cashFlow.incoming": increment(adjustment),
   });
   /**
    * mark salesReceipt as deleted

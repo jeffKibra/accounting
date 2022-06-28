@@ -47,6 +47,7 @@ export const EDIT_VENDOR = "/vendors/:vendorId/edit";
 export const EXPENSES = "/expenses";
 export const NEW_EXPENSE = "/expenses/new";
 export const EDIT_EXPENSE = "/expenses/:expenseId/edit";
+export const VIEW_EXPENSE = "/expenses/:expenseId/view";
 
 //settings
 //taxes

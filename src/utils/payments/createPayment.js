@@ -86,6 +86,7 @@ export default async function createPayment(
   transaction.update(summaryRef, {
     payments: increment(1),
     [`paymentModes.${paymentModeId}`]: increment(amount),
+    "cashFlow.incoming": increment(amount),
   });
   /**
    * update customer data

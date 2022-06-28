@@ -590,6 +590,50 @@ service cloud.firestore {
         allow update: if isOwner() && verifySalesReceiptData() &&
           allowSalesReceiptUpdate()
       }
+
+      match /expenses/{expenseId} {
+        function verifyExpenseData(){
+          let form=["expenseDate", "paymentAccount", 'paymentMode', "reference", 'vendor'];
+          let expense=['items', 'summary', 'transactionType', 'taxType'];
+          let meta=['createdAt', 'createdBy', 'modifiedAt', 'modifiedBy', 'status', 'org'];
+          let allFields=form.concat(expense).concat(meta);
+
+          return request.resource.data.keys().hasAll(allFields) &&
+            request.resource.data.expenseDate is timestamp &&
+            request.resource.data.paymentAccount is map &&
+            request.resource.data.paymentMode is map &&
+            request.resource.data.reference is string &&
+            request.resource.data.vendor is map &&
+            request.resource.data.items is list &&
+            request.resource.data.summary is map &&
+            numberValue(request.resource.data.summary.subTotal) &&
+            numberValue(request.resource.data.summary.totalAmount) &&
+            numberValue(request.resource.data.summary.totalTaxes) &&
+            request.resource.data.get("summary.taxes", []) is list &&
+            request.resource.data.transactionType is string &&
+            request.resource.data.taxType is string &&
+            request.resource.data.createdAt is timestamp &&
+            request.resource.data.createdBy is string &&
+            request.resource.data.modifiedAt is timestamp &&
+            request.resource.data.modifiedBy is string &&
+            request.resource.data.status is string &&
+            request.resource.data.org is map 
+        }
+
+        function allowExpenseUpdate(){
+          let form=["expenseDate", "paymentAccount", 'paymentMode', "reference", 'vendor'];
+          let expense=['items', 'summary', 'transactionType', 'taxType'];
+          let meta=['modifiedAt', 'modifiedBy', 'status'];
+          let allFields=form.concat(expense).concat(meta);
+
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+        }
+
+        allow read: if isOwner()
+        allow create: if isOwner() && verifyExpenseData()
+        allow update: if isOwner() && verifyExpenseData() &&
+          allowExpenseUpdate()
+      }
     }
   }
 }
