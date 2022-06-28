@@ -73,11 +73,11 @@ function Dashboard(props) {
       <GridItem colSpan={[12, 6, 4]}>
         <SquareCard
           data1={{
-            label: "UNPAID INVOICES",
+            label: "Unpaid Invoices",
             amount: summary?.accounts?.accounts_receivable || 0,
           }}
           data2={{
-            label: "UNPAID BILLS",
+            label: "Unpaid Bills",
             amount: summary?.accounts?.accounts_payable || 0,
           }}
           cardLabel="OUTSTANDINGS"

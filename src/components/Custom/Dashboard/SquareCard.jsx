@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { VStack, Heading, Text } from "@chakra-ui/react";
+import { VStack, Heading, Text, Grid, GridItem } from "@chakra-ui/react";
 
 import formats from "../../../utils/formats";
 
@@ -22,8 +22,14 @@ function SquareCard(props) {
       <Text fontSize="xs" mt="0px!important">
         Net Value
       </Text>
-      <Piece {...data1} />
-      <Piece {...data2} />
+      <Grid w="full" columnGap={2} templateColumns="repeat(12, 1fr)">
+        <GridItem colSpan={6}>
+          <Piece {...data1} />
+        </GridItem>
+        <GridItem colSpan={6}>
+          <Piece {...data2} />
+        </GridItem>
+      </Grid>
     </VStack>
   );
 }
@@ -33,7 +39,7 @@ function Piece(props) {
 
   return (
     <VStack w="full" align="start">
-      <Text color="gray.900" fontSize="sm">
+      <Text whiteSpace="nowrap" color="gray.900" fontSize="sm">
         {label}
       </Text>
       <Heading color="gray.800" size="sm">
