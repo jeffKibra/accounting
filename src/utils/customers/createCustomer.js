@@ -1,10 +1,27 @@
 import { doc, serverTimestamp, increment } from "firebase/firestore";
 
 import { db } from "../firebase";
-import { createSimilarAccountEntries } from "../journals";
-import { getAccountData } from "../accounts";
 import { getDateDetails } from "../dates";
-import { createInvoice } from "../invoices";
+import { createOB } from ".";
+
+/**
+ *
+ * @typedef {Object} customer
+ * @property {string} displayName
+ * @property {Object} paymentTerm
+ * @property {number} openingBalance
+ * @property {string} type
+ */
+
+/**
+ *
+ * @param {*} transaction
+ * @param {Object} org
+ * @param {{email:""}} userProfile
+ * @param {{}[]} accounts
+ * @param {string} customerId
+ * @param {customer} customerData
+ */
 
 export default async function createCustomer(
   transaction,
@@ -41,12 +58,10 @@ export default async function createCustomer(
   const orgId = org.id;
   const { email } = userProfile;
   const customerRef = doc(db, "organizations", orgId, "customers", customerId);
-  const { yearMonthDay } = getDateDetails();
-  const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
 
-  const { openingBalance, paymentTermId, paymentTerm } = customerData;
+  const { openingBalance } = customerData;
 
-  const transactionDetails = {
+  const customer = {
     ...customerData,
     customerId,
     status: "active",
@@ -61,96 +76,28 @@ export default async function createCustomer(
     },
   };
 
-  transaction.update(summaryRef, {
-    customers: increment(1),
-  });
   /**
    * if opening balance is greater than zero
    * create journal entries and an equivalent invoice
    */
   if (openingBalance > 0) {
     /**
-     * create 2 journal entries
-     * 1. debit sales accountType= opening balance
-     * 2. credit opening_balance_adjustments accountType= opening balance
+     * create opening balance
      */
-    /**
-     * 1. debit sales
-     * to debit income, amount must be negative
-     */
-    const sales = getAccountData("sales", accounts);
-    createSimilarAccountEntries(transaction, userProfile, orgId, sales, [
-      {
-        amount: 0 - openingBalance,
-        account: sales,
-        reference: "",
-        transactionDetails,
-        transactionId: customerId,
-        transactionType: "opening balance",
-      },
-    ]);
-    /**
-     * 2. credit opening_balance_adjustments entry for customer opening balance
-     */
-    const obAdjustments = getAccountData(
-      "opening_balance_adjustments",
-      accounts
-    );
-    createSimilarAccountEntries(
-      transaction,
-      userProfile,
-      orgId,
-      obAdjustments,
-      [
-        {
-          amount: +openingBalance,
-          account: obAdjustments,
-          reference: "",
-          transactionDetails,
-          transactionId: customerId,
-          transactionType: "opening balance",
-        },
-      ]
-    );
-    /**
-     * create an invoice equivalent for for customer opening balance
-     */
-    const salesAccount = getAccountData("sales", accounts);
-    await createInvoice(
-      transaction,
-      org,
-      userProfile,
-      accounts,
-      customerId,
-      {
-        customerId,
-        customer: transactionDetails,
-        invoiceDate: serverTimestamp(),
-        dueDate: serverTimestamp(),
-        paymentTerm,
-        paymentTermId,
-        summary: {
-          shipping: 0,
-          adjustment: 0,
-          subTotal: 0,
-          totalTaxes: 0,
-          totalAmount: openingBalance,
-        },
-        selectedItems: [
-          {
-            salesAccount,
-            salesAccountId: salesAccount.accountId,
-            totalAmount: openingBalance,
-          },
-        ],
-      },
-      "customer opening balance"
-    );
+    createOB(transaction, org, userProfile, accounts, customer, openingBalance);
   }
+  /**
+   * update org summary
+   */
+  const { yearMonthDay } = getDateDetails();
+  const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
+  transaction.update(summaryRef, {
+    customers: increment(1),
+  });
   /**
    * create customer
    */
-  const { customerId: cid, ...tDetails } = transactionDetails;
+  const { customerId: cid, ...tDetails } = customer;
   transaction.set(customerRef, {
     ...tDetails,
     createdBy: email,

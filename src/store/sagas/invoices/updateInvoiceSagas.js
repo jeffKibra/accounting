@@ -2,7 +2,10 @@ import { put, call, select, takeLatest } from "redux-saga/effects";
 import { runTransaction } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
-import { updateInvoice } from "../../../utils/invoices";
+import {
+  updateInvoiceFetch,
+  updateInvoiceWrite,
+} from "../../../utils/invoices";
 import { createDailySummary } from "../../../utils/summaries";
 
 import { UPDATE_INVOICE } from "../../actions/invoicesActions";
@@ -27,7 +30,27 @@ function* updateInvoiceSaga({ data }) {
      * update invoice using a transaction
      */
     await runTransaction(db, async (transaction) => {
-      await updateInvoice(transaction, orgId, userProfile, accounts, data);
+      /**
+       * first part of update, fetch all relevant data
+       * data reading
+       */
+      const { currentInvoice, entriesToDelete, entriesToUpdate, newAccounts } =
+        await updateInvoiceFetch(transaction, orgId, data);
+      /**
+       * last part of update function
+       * data writing
+       */
+      updateInvoiceWrite(
+        transaction,
+        orgId,
+        userProfile,
+        accounts,
+        entriesToUpdate,
+        entriesToDelete,
+        newAccounts,
+        currentInvoice,
+        data
+      );
     });
   }
 

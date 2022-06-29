@@ -42,6 +42,7 @@ function CustomerOverview(props) {
     website,
     type,
     paymentTerm,
+    customerId,
   } = customer;
   const { unusedCredits, invoicedAmount, invoicePayments } = summary;
   const pending = invoicedAmount - invoicePayments;
@@ -132,7 +133,10 @@ function CustomerOverview(props) {
               {formats.formatCash(openingBalance)}
             </StatNumber>
           </Stat>
-          <EditOpeningBalance openingBalance={openingBalance} />
+          <EditOpeningBalance
+            customerId={customerId}
+            openingBalance={openingBalance}
+          />
         </Flex>
       </GridItem>
     </Grid>

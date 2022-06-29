@@ -1,22 +1,6 @@
 /**
  *
- * @typedef {Object} account
- * @property {number} current
- * @property {number} incoming
- * @property {string} accountId
- */
-/**
- *
- * @typedef {Array.<account>} accountsData
- */
-/**
- *
- * @typedef {Object} accountsMapping
- * @property {accountsData} uniqueAccounts
- * @property {accountsData} similarAccounts
- * @property {accountsData} updatedAccounts
- * @property {accountsData} deletedAccounts
- * @property {accountsData} newAccounts
+ * @typedef {import('.').accountsMapping} accountsMapping
  */
 /**
  *

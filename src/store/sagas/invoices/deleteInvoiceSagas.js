@@ -2,7 +2,10 @@ import { put, call, select, takeLatest } from "redux-saga/effects";
 import { runTransaction } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
-import { deleteInvoice } from "../../../utils/invoices";
+import {
+  deleteInvoiceFetch,
+  deleteInvoiceWrite,
+} from "../../../utils/invoices";
 import { createDailySummary } from "../../../utils/summaries";
 
 import { DELETE_INVOICE } from "../../actions/invoicesActions";
@@ -26,7 +29,26 @@ function* deleteInvoiceSaga({ invoiceId }) {
      * delete invoice using a firestore transaction
      */
     await runTransaction(db, async (transaction) => {
-      await deleteInvoice(transaction, orgId, userProfile, invoiceId);
+      /**
+       * first part of deleting
+       * fetch relevant deletion data
+       */
+      const { groupedEntries, invoice } = await deleteInvoiceFetch(
+        transaction,
+        orgId,
+        invoiceId
+      );
+      /**
+       * last part of deleting
+       * delete relevant data
+       */
+      deleteInvoiceWrite(
+        transaction,
+        orgId,
+        userProfile,
+        invoice,
+        groupedEntries
+      );
     });
   }
 
@@ -34,7 +56,7 @@ function* deleteInvoiceSaga({ invoiceId }) {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess("Invoice updated Sucessfully!"));
+    yield put(toastSuccess("Invoice Sucessfully Deleted!"));
   } catch (error) {
     console.log(error);
     yield put(fail(error));

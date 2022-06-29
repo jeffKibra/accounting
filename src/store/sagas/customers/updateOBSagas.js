@@ -1,19 +1,19 @@
 import { put, call, select, takeLatest } from "redux-saga/effects";
-import { doc, collection, runTransaction } from "firebase/firestore";
+import { runTransaction } from "firebase/firestore";
 
 import { db } from "../../../utils/firebase";
 import { createDailySummary } from "../../../utils/summaries";
-import { createCustomer } from "../../../utils/customers";
+import { updateOpeningBalance } from "../../../utils/customers";
 
-import { CREATE_CUSTOMER } from "../../actions/customersActions";
+import { UPDATE_OPENING_BALANCE } from "../../actions/customersActions";
 import { start, success, fail } from "../../slices/customersSlice";
 import {
   success as toastSuccess,
   error as toastError,
 } from "../../slices/toastSlice";
 
-function* createCustomerSaga({ data }) {
-  yield put(start(CREATE_CUSTOMER));
+function* updateOpeningBalanceSaga({ data }) {
+  yield put(start(UPDATE_OPENING_BALANCE));
   const org = yield select((state) => state.orgsReducer.org);
   const orgId = org.id;
   const userProfile = yield select((state) => state.authReducer.userProfile);
@@ -21,31 +21,24 @@ function* createCustomerSaga({ data }) {
 
   // console.log({ data });
 
-  async function create() {
-    const newDocRef = doc(collection(db, "organizations", orgId, "customers"));
-    const customerId = newDocRef.id;
+  async function update() {
     /**
      * create daily summary data
      */
     await createDailySummary(orgId);
-
+    /**
+     * update opening balance using a transaction
+     */
     await runTransaction(db, async (transaction) => {
-      await createCustomer(
-        transaction,
-        org,
-        userProfile,
-        accounts,
-        customerId,
-        data
-      );
+      await updateOpeningBalance(transaction, org, userProfile, accounts, data);
     });
   }
 
   try {
-    yield call(create);
+    yield call(update);
 
     yield put(success());
-    yield put(toastSuccess("Customer added successfully!"));
+    yield put(toastSuccess("Action successful!"));
   } catch (error) {
     console.log(error);
     yield put(fail(error));
@@ -53,6 +46,6 @@ function* createCustomerSaga({ data }) {
   }
 }
 
-export function* watchCreateCustomer() {
-  yield takeLatest(CREATE_CUSTOMER, createCustomerSaga);
+export function* watchUpdateCustomerOpeningBalance() {
+  yield takeLatest(UPDATE_OPENING_BALANCE, updateOpeningBalanceSaga);
 }

@@ -4,18 +4,39 @@ import { createSimilarAccountEntries } from "../journals";
 import { getAccountData } from "../accounts";
 import { createInvoice } from "../invoices";
 
-export default async function createOB(
+/**
+ *
+ * @typedef {import('.').customer} customer
+ * @typedef {import('../accounts').account} account
+ * @typedef {import('firebase/firestore').Transaction} transaction
+ */
+/**
+ *
+ * @param {transaction} transaction
+ * @param {{id:''}} org
+ * @param {{email:''}} userProfile
+ * @param {account[]} accounts
+ * @param {customer} customer
+ * @param {number} openingBalance
+ */
+
+export default function createOB(
   transaction,
-  org = { id: "" },
-  userProfile = { email: "" },
+  org,
+  userProfile,
   accounts,
-  customerId,
-  transactionDetails = {
-    openingBalance: 0,
-  }
+  customer,
+  openingBalance
 ) {
   const orgId = org.id;
-  const { openingBalance, paymentTermId, paymentTerm } = transactionDetails;
+  const { paymentTermId, paymentTerm, customerId } = customer;
+  /**
+   * create transaction details for journal entries
+   */
+  const transactionDetails = {
+    ...customer,
+    status: "active",
+  };
   /**
    * create 2 journal entries
    * 1. debit sales accountType= opening balance
@@ -53,13 +74,14 @@ export default async function createOB(
   /**
    * create an invoice equivalent for for customer opening balance
    */
+  const invoiceId = customerId;
   const salesAccount = getAccountData("sales", accounts);
-  await createInvoice(
+  createInvoice(
     transaction,
     org,
     userProfile,
     accounts,
-    customerId,
+    invoiceId,
     {
       customerId,
       customer: transactionDetails,
@@ -68,10 +90,6 @@ export default async function createOB(
       paymentTerm,
       paymentTermId,
       summary: {
-        shipping: 0,
-        adjustment: 0,
-        subTotal: 0,
-        totalTaxes: 0,
         totalAmount: openingBalance,
       },
       selectedItems: [

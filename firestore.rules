@@ -11,6 +11,11 @@ service cloud.firestore {
       return field is int || field is float
     }
 
+    function optionalNumber(field){
+      return request.resource.data.get(field, 0) is int || 
+        request.resource.data.get(field, 0.0) is float
+    }
+
     match /users/{userId} {
       allow read, create, update: if request.auth.uid == request.resource.data.user_id 
     }
@@ -246,6 +251,7 @@ service cloud.firestore {
         allow read: if isOwner()
         allow create: if isOwner() && verifyJournalData()
         allow update: if isOwner() && verifyJournalData() && allowJournalUpdate()
+        allow delete: if isOwner()
       }
 
       match /customers/{customerId} {
@@ -310,7 +316,7 @@ service cloud.firestore {
         }
 
         function updateOpeningBalance(){
-          let allFields=['openingBalance', 'modifiedBy', 'modifiedAt'];
+          let allFields=['openingBalance', 'modifiedBy', 'modifiedAt', "summary"];
 
           return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
         }
@@ -428,11 +434,11 @@ service cloud.firestore {
             request.resource.data.paymentsIds is list &&
             request.resource.data.paymentsCount is int &&
             request.resource.data.summary is map &&
-            numberValue(request.resource.data.summary.shipping) &&
-            numberValue(request.resource.data.summary.adjustment) &&
-            numberValue(request.resource.data.summary.subTotal) &&
+            optionalNumber("summary.shipping") &&
+            optionalNumber("summary.adjustment") &&
+            optionalNumber("summary.subTotal") &&
             numberValue(request.resource.data.summary.totalAmount) &&
-            numberValue(request.resource.data.summary.totalTaxes) &&
+            optionalNumber("summary.totalTaxes") &&
             request.resource.data.get("summary.taxes", []) is list &&
             request.resource.data.customer is map &&
             request.resource.data.customerId is string &&
@@ -485,6 +491,8 @@ service cloud.firestore {
         allow create: if isOwner() && verifyInvoiceData()
         allow update: if isOwner() && verifyInvoiceData() && allowInvoiceUpdate() &&
           (allowNormalUpdate() || allowCustomerChange() || allowDelete())
+        allow delete: if isOwner() &&
+          resource.data.transactionType == "customer opening balance"
       }
 
      

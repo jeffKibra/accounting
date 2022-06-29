@@ -1,37 +1,31 @@
 import { doc, serverTimestamp, increment } from "firebase/firestore";
 
 import { db } from "../firebase";
-import {
-  updateSimilarAccountEntries,
-  createSimilarAccountEntries,
-  deleteSimilarAccountEntries,
-} from "../journals";
-import { getAccountData } from "../accounts";
-import { getDateDetails } from "../dates";
-import { updateInvoice, deleteInvoice, createInvoice } from "../invoices";
-import { getCustomerData } from ".";
-import { getTransactionEntries } from "../journals";
+import { getCustomerData, createOB, deleteOB, updateOB } from ".";
 
 export default async function createCustomer(
   transaction,
-  orgId = "",
+  org,
   userProfile = { email: "" },
   accounts,
-  customerData = {
+  data = {
     customerId: "",
     openingBalance: 0,
   }
 ) {
-  const { customerId, openingBalance } = customerData;
+  const orgId = org.id;
+  const { customerId, openingBalance } = data;
   const { email } = userProfile;
-  const customerRef = doc(db, "organizations", orgId, "customers", customerId);
-  const { yearMonthDay } = getDateDetails();
-  const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
-
-  const [customer, entries] = await Promise.all([
-    getCustomerData(transaction, orgId, customerId),
-    getTransactionEntries(orgId, customerId),
-  ]);
+  /**
+   * check if incoming value is negative
+   */
+  if (openingBalance < 0) {
+    throw new Error("Customer Opening balance should be greater than zero(0)!");
+  }
+  /**
+   * fetch customer data
+   */
+  const customer = await getCustomerData(transaction, orgId, customerId);
   const { openingBalance: currentOB } = customer;
   /**
    * check if the amounts are the same
@@ -41,86 +35,50 @@ export default async function createCustomer(
     return;
   }
   /**
-   * check if incoming value is negative
-   */
-  if (openingBalance < 0) {
-    throw new Error("Customer Opening balance should be greater than zero(0)!");
-  }
-  /**
-   * check if value has been deleted
+   * fetch invoice and entries data
    */
   if (currentOB > 0 && openingBalance === 0) {
-    entries.forEach((entry) => {
-      const { account } = entry;
-      deleteSimilarAccountEntries(
-        transaction,
-        userProfile,
-        orgId,
-        account,
-        entries
-      );
-    });
-  }
-  /**
-   * if opening balance is greater than zero
-   * create journal entries and an equivalent invoice
-   */
-  if (openingBalance > 0) {
     /**
-     * create 2 journal entries
-     * 1. debit sales accountType= opening balance
-     * 2. credit opening_balance_adjustments accountType= opening balance
+     * opening balance is set to zero(0)
+     * delete opening balance
      */
-    /**
-     * 1. debit sales
-     * to debit income, amount must be negative
-     */
-    const sales = getAccountData("sales", accounts);
-    updateSimilarAccountEntries(transaction, userProfile, orgId, sales, [
-      {
-        amount: 0 - openingBalance,
-        account: sales,
-        reference: "",
+    console.log("delete");
 
-        transactionId: customerId,
-        transactionType: "opening balance",
-      },
-    ]);
+    await deleteOB(transaction, orgId, userProfile, accounts, customerId);
+  } else if (currentOB === 0 && openingBalance > 0) {
     /**
-     * 2. credit opening_balance_adjustments entry for customer opening balance
+     * check if this is a new OB, no previous opening balance
+     * create opening balance
      */
-    const obAdjustments = getAccountData(
-      "opening_balance_adjustments",
-      accounts
-    );
-    updateSimilarAccountEntries(
+    console.log("create");
+
+    createOB(transaction, org, userProfile, accounts, customer, openingBalance);
+  } else {
+    /**
+     * opening balance has been updated but its not zero
+     */
+    console.log("update");
+    await updateOB(
       transaction,
-      userProfile,
       orgId,
-      obAdjustments,
-      [
-        {
-          amount: +openingBalance,
-          account: obAdjustments,
-          reference: "",
-
-          transactionId: customerId,
-          transactionType: "opening balance",
-        },
-      ]
+      userProfile,
+      accounts,
+      customer,
+      openingBalance
     );
-    /**
-     * create an invoice equivalent for for customer opening balance
-     */
-    const salesAccount = getAccountData("sales", accounts);
   }
   /**
-   * create customer
+   * compute summary adjustment
    */
-  transaction.set(customerRef, {
+  const adjustment = +openingBalance - +currentOB;
+  /**
+   * update customer opening balance
+   * dont update customer summary. invoice manipulation will handle that
+   */
+  const customerRef = doc(db, "organizations", orgId, "customers", customerId);
+  transaction.update(customerRef, {
     openingBalance,
-    createdBy: email,
-    createdAt: serverTimestamp(),
+    "summary.invoicedAmount": increment(adjustment),
     modifiedBy: email,
     modifiedAt: serverTimestamp(),
   });

@@ -24,6 +24,7 @@ import {
   watchGetCustomer,
   watchGetCustomers,
 } from "./customers/getCustomersSagas";
+import { watchUpdateCustomerOpeningBalance } from "./customers/updateOBSagas";
 //invoices
 import { watchCreateInvoice } from "./invoices/createInvoiceSagas";
 import {
@@ -105,6 +106,7 @@ export default function* rootSaga() {
     watchDeleteCustomer(),
     watchGetCustomer(),
     watchGetCustomers(),
+    watchUpdateCustomerOpeningBalance(),
     watchCreateInvoice(),
     watchGetInvoice(),
     watchGetInvoices(),

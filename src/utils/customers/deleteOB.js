@@ -1,87 +1,72 @@
-import { serverTimestamp } from "firebase/firestore";
-
-import { deleteSimilarAccountEntries } from "../journals";
+import {
+  deleteSimilarAccountEntries,
+  getAccountTransactionEntry,
+} from "../journals";
+import { deleteInvoiceFetch, deleteInvoiceWrite } from "../invoices";
 import { getAccountData } from "../accounts";
-import { deleteInvoice } from "../invoices";
 
 export default async function deleteOB(
   transaction,
-  org = { id: "" },
-  userProfile = { email: "" },
+  orgId,
+  userProfile,
   accounts,
-  customerId,
-  transactionDetails = {
-    openingBalance: 0,
-  }
+  customerId
 ) {
-  const orgId = org.id;
-  const { openingBalance, paymentTermId, paymentTerm } = transactionDetails;
+  const invoiceId = customerId;
+  const salesAccount = getAccountData("sales", accounts);
+  const OBAAccount = getAccountData("opening_balance_adjustments", accounts);
+
+  const [updateData, salesEntry, OBAEntry] = await Promise.all([
+    deleteInvoiceFetch(transaction, orgId, invoiceId),
+    getAccountTransactionEntry(
+      orgId,
+      salesAccount.accountId,
+      customerId,
+      "opening balance"
+    ),
+    getAccountTransactionEntry(
+      orgId,
+      OBAAccount.accountId,
+      customerId,
+      "opening balance"
+    ),
+  ]);
   /**
-   * create 2 journal entries
-   * 1. debit sales accountType= opening balance
-   * 2. credit opening_balance_adjustments accountType= opening balance
+   * delete 2 journal entries
    */
   /**
    * 1. debit sales
    * to debit income, amount must be negative
    */
-  const sales = getAccountData("sales", accounts);
-  deleteSimilarAccountEntries(transaction, userProfile, orgId, sales, [
+  deleteSimilarAccountEntries(transaction, userProfile, orgId, salesAccount, [
     {
-      amount: 0 - openingBalance,
-      account: sales,
-      reference: "",
-      transactionDetails,
-      transactionId: customerId,
-      transactionType: "opening balance",
+      account: salesEntry.account,
+      credit: salesEntry.credit,
+      debit: salesEntry.debit,
+      entryId: salesEntry.entryId,
     },
   ]);
   /**
    * 2. credit opening_balance_adjustments entry for customer opening balance
    */
-  const obAdjustments = getAccountData("opening_balance_adjustments", accounts);
-  deleteSimilarAccountEntries(transaction, userProfile, orgId, obAdjustments, [
+  deleteSimilarAccountEntries(transaction, userProfile, orgId, OBAAccount, [
     {
-      amount: +openingBalance,
-      account: obAdjustments,
-      reference: "",
-      transactionDetails,
-      transactionId: customerId,
-      transactionType: "opening balance",
+      account: OBAEntry.account,
+      credit: OBAEntry.credit,
+      debit: OBAEntry.debit,
+      entryId: OBAEntry.entryId,
     },
   ]);
   /**
    * create an invoice equivalent for for customer opening balance
    */
-  const salesAccount = getAccountData("sales", accounts);
-  await deleteInvoice(
+  const { invoice, groupedEntries } = updateData;
+  deleteInvoiceWrite(
     transaction,
-    org,
+    orgId,
     userProfile,
-    accounts,
-    customerId,
-    {
-      customerId,
-      customer: transactionDetails,
-      invoiceDate: serverTimestamp(),
-      dueDate: serverTimestamp(),
-      paymentTerm,
-      paymentTermId,
-      summary: {
-        shipping: 0,
-        adjustment: 0,
-        subTotal: 0,
-        totalTaxes: 0,
-        totalAmount: openingBalance,
-      },
-      selectedItems: [
-        {
-          salesAccount,
-          salesAccountId: salesAccount.accountId,
-          totalAmount: openingBalance,
-        },
-      ],
-    },
-    "customer opening balance"
+    invoice,
+    groupedEntries,
+    "delete"
   );
 }

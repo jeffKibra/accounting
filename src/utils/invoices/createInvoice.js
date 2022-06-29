@@ -10,7 +10,27 @@ import { createSimilarAccountEntries } from "../journals";
 import formats from "../formats";
 import { getDateDetails } from "../dates";
 
-export default async function createInvoice(
+/**
+ *
+ * @typedef {import('.').invoice} invoice
+ */
+/**
+ *
+ * @typedef {import('../accounts').account} account
+ */
+
+/**
+ *
+ * @param {*} transaction
+ * @param {Object} org
+ * @param {{email:''}} userProfile
+ * @param {account[]} accounts
+ * @param {string} invoiceId
+ * @param {invoice} data
+ * @param {string} transactionType
+ */
+
+export default function createInvoice(
   transaction,
   org = { id: "" },
   userProfile = { email: "" },
@@ -78,9 +98,9 @@ export default async function createInvoice(
    */
   let { newAccounts } = getIncomeAccountsMapping([], selectedItems);
   const summaryAccounts = getAccountsMapping([
-    { accountId: "shipping_charge", current: 0, incoming: shipping },
-    { accountId: "other_charges", current: 0, incoming: adjustment },
-    { accountId: "tax_payable", current: 0, incoming: totalTaxes },
+    { accountId: "shipping_charge", current: 0, incoming: shipping || 0 },
+    { accountId: "other_charges", current: 0, incoming: adjustment || 0 },
+    { accountId: "tax_payable", current: 0, incoming: totalTaxes || 0 },
     { accountId: "accounts_receivable", current: 0, incoming: totalAmount },
   ]);
   newAccounts = [...newAccounts, ...summaryAccounts.newAccounts];

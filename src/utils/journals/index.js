@@ -1,3 +1,42 @@
+/**
+ *
+ * @typedef {Object} pureEntry
+ * @property {number} debit
+ * @property {number} credit
+ * @property {string} entryId
+ */
+/**
+ *
+ * @typedef {Object} entryData
+ * @property {number} current
+ * @property {number} incoming
+ * @property {string} accountId
+ * @property {number} debit
+ * @property {number} credit
+ * @property {string} entryId
+ */
+/**
+ *
+ * @typedef {import('../accounts').account} account
+ */
+/**
+ *
+ * @typedef {Object} entryWithAccount
+ * @property {number} credit
+ * @property {number} debit
+ * @property {string} entryId
+ * @property {account} account
+ */
+/**
+ *
+ * @typedef {Object} entriesWithAccount
+ * @property {entryWithAccount[]} entries
+ */
+/**
+ *
+ * @typedef {account & entriesWithAccount} entriesGroup
+ */
+
 export { getCustomerEntryData } from "./entries";
 export { default as changeEntriesAccount } from "./changeEntriesAccount";
 export { default as createEntry } from "./createEntry";

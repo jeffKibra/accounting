@@ -1,19 +1,15 @@
 /**
  *
- * @param {[{account:{accountId: "",accountType:{} },credit:0,debit:0,entryId:"",},]}entries
- * @returns {[{accountId:'',accountType:{},name:'',entries:[{account:{},debit:0,credit:0,entryId:""}]}]} accounts
+ * @typedef {import('.').entryWithAccount} entryWithAccount
+ * @typedef {import('.').entriesGroup} entriesGroup
+ */
+/**
+ *
+ * @param {entryWithAccount[]} entries
+ * @returns {entriesGroup[]} groupedEntries
  */
 
-export default function groupEntriesIntoAccounts(
-  entries = [
-    {
-      account: { accountId: "", accountType: {} },
-      credit: 0,
-      debit: 0,
-      entryId: "",
-    },
-  ]
-) {
+export default function groupEntriesIntoAccounts(entries) {
   return entries.reduce((accounts, entry) => {
     console.log({ accounts });
     const {

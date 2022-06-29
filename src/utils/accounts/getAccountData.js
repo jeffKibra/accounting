@@ -1,8 +1,12 @@
 /**
  *
- * @param {""} accountId
- * @param {[]} accounts
- * @returns {{name:"",accountId:"",accountType:{},}}
+ * @typedef {import('.').account} account
+ */
+/**
+ *
+ * @param {string} accountId
+ * @param {account[]} accounts
+ * @returns {account} account
  */
 export default function getAccountData(accountId = "", accounts = []) {
   console.log({ accountId, accounts });
