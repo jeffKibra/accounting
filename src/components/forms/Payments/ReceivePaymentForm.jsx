@@ -70,8 +70,13 @@ function ReceivePaymentForm(props) {
   const formMethods = useForm({
     mode: "onChange",
     resolver: yupResolver(schema),
-    defaultValues: defaultValues || {
-      paymentDate: new Date(),
+    defaultValues: {
+      customerId: defaultValues?.customerId || "",
+      paymentDate: defaultValues?.paymentDate || new Date(),
+      amount: defaultValues?.amount || 0,
+      accountId: defaultValues?.accountId || "undeposited_funds",
+      paymentModeId: defaultValues?.paymentModeId || "cash",
+      reference: defaultValues?.reference || "",
     },
   });
 
@@ -159,11 +164,6 @@ function ReceivePaymentForm(props) {
               >
                 <FormLabel htmlFor="paymentDate">Payment Date</FormLabel>
                 <CustomDatePicker name="paymentDate" />
-                {/* <Input
-                type="date"
-                id="paymentDate"
-                {...register("paymentDate")}
-              /> */}
                 <FormErrorMessage>
                   {errors.paymentDate?.message}
                 </FormErrorMessage>

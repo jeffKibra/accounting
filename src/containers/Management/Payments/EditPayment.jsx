@@ -41,7 +41,7 @@ function EditPayment(props) {
   const [payments, setPayments] = useState(
     payment?.payments ? { ...payment.payments } : null
   );
-  // console.log({ paymentId });
+  // console.log({ payments, formValues });
   const customerId = formValues?.customerId;
 
   useEffect(() => {
@@ -60,27 +60,28 @@ function EditPayment(props) {
   }, [customerId, paymentId, getInvoices, getInvoicesToEdit]);
 
   useEffect(() => {
-    const payments = formValues?.payments;
-    if (payments && invoices?.length > 0) {
-      const currentPayments = { ...payments };
+    setPayments((current) => {
+      const currentPayments = { ...current };
+      const paymentsArray = Object.keys(currentPayments);
+      if (paymentsArray?.length > 0) {
+        paymentsArray.forEach((invoiceId) => {
+          //check if this invoice is in the list of invoices
+          const found = invoices.find(
+            (invoice) => invoice.invoiceId === invoiceId
+          );
 
-      Object.keys(currentPayments).forEach((invoiceId) => {
-        //check if this invoice is in the list of invoices
-        const found = invoices.find(
-          (invoice) => invoice.invoiceId === invoiceId
-        );
+          if (!found) {
+            //delete the invoice payment if it has not been found
+            delete currentPayments[invoiceId];
+          }
+        });
 
-        if (!found) {
-          //delete the invoice payment if it has not been found
-          delete currentPayments[invoiceId];
-        }
-      });
-
-      setPayments(
-        Object.keys(currentPayments).length > 0 ? currentPayments : null
-      );
-    }
-  }, [invoices, setPayments, formValues?.payments]);
+        return { ...currentPayments };
+      } else {
+        return current;
+      }
+    });
+  }, [invoices, setPayments]);
 
   function updateFormValues(data) {
     setFormValues((current) => ({ ...(current ? current : {}), ...data }));
