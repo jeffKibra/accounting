@@ -2,10 +2,10 @@ import { useMemo } from "react";
 import PropTypes from "prop-types";
 
 import PaymentOptions from "../../../containers/Management/Payments/PaymentOptions";
-import CustomTable from "../CustomTable";
+import CustomRawTable from "../CustomRawTable";
 
 function PaymentsTable(props) {
-  const { payments } = props;
+  const { payments, showCustomer } = props;
 
   const columns = useMemo(() => {
     return [
@@ -13,13 +13,15 @@ function PaymentsTable(props) {
       { Header: "Date", accessor: "paymentDate" },
       { Header: "Payment#", accessor: "paymentId" },
       { Header: "Reference", accessor: "reference" },
-      { Header: "Customer", accessor: "customer.displayName" },
+      ...(showCustomer
+        ? [{ Header: "Customer", accessor: "customer.displayName" }]
+        : []),
       //   { Header: "Invoices", accessor: "invoices" },
       { Header: "Mode", accessor: "paymentMode.name" },
       { Header: "Amount", accessor: "amount", isNumeric: true },
       { Header: "Excess", accessor: "excess", isNumeric: true },
     ];
-  }, []);
+  }, [showCustomer]);
 
   const data = useMemo(() => {
     return payments.map((payment) => {
@@ -40,7 +42,7 @@ function PaymentsTable(props) {
     });
   }, [payments]);
 
-  return <CustomTable data={data} columns={columns} />;
+  return <CustomRawTable data={data} columns={columns} />;
 }
 
 PaymentsTable.propTypes = {
@@ -59,9 +61,7 @@ PaymentsTable.propTypes = {
       account: PropTypes.object.isRequired,
     })
   ),
-  deleting: PropTypes.bool.isRequired,
-  isDeleted: PropTypes.bool.isRequired,
-  handleDelete: PropTypes.func.isRequired,
+  showCustomer: PropTypes.bool,
 };
 
 export default PaymentsTable;

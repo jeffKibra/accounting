@@ -1,10 +1,8 @@
 import { useEffect } from "react";
 import { connect } from "react-redux";
+import { Box } from "@chakra-ui/react";
 
-import {
-  GET_PAYMENTS,
-  DELETE_PAYMENT,
-} from "../../../store/actions/paymentsActions";
+import { GET_PAYMENTS } from "../../../store/actions/paymentsActions";
 import { reset } from "../../../store/slices/paymentsSlice";
 
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
@@ -13,15 +11,8 @@ import Empty from "../../../components/ui/Empty";
 import PaymentsTable from "../../../components/tables/Payments/PaymentsTable";
 
 function Payments(props) {
-  const {
-    loading,
-    payments,
-    action,
-    isModified,
-    getPayments,
-    deletePayment,
-    resetPayment,
-  } = props;
+  const { loading, payments, action, isModified, getPayments, resetPayment } =
+    props;
 
   useEffect(() => {
     getPayments();
@@ -37,12 +28,17 @@ function Payments(props) {
   return loading && action === GET_PAYMENTS ? (
     <SkeletonLoader />
   ) : payments?.length > 0 ? (
-    <PaymentsTable
-      deleting={loading && action === DELETE_PAYMENT}
-      isDeleted={isModified}
-      handleDelete={deletePayment}
-      payments={payments}
-    />
+    <Box
+      mt={-2}
+      w="full"
+      bg="white"
+      shadow="md"
+      borderRadius="md"
+      py={4}
+      px={2}
+    >
+      <PaymentsTable showCustomer payments={payments} />
+    </Box>
   ) : (
     <Empty />
   );
@@ -57,7 +53,6 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     getPayments: () => dispatch({ type: GET_PAYMENTS }),
-    deletePayment: (paymentId) => dispatch({ type: DELETE_PAYMENT, paymentId }),
     resetPayment: () => dispatch(reset()),
   };
 }

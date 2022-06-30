@@ -93,12 +93,6 @@ function CustomerOverview(props) {
               {paymentTerm?.name}
             </Text>
           </Text>
-          <Text fontSize="sm" color="gray.500">
-            Customer Type:{" "}
-            <Text color="black" as="span">
-              {type}
-            </Text>
-          </Text>
           <Address customer={customer} />
         </VStack>
       </GridItem>
@@ -234,11 +228,32 @@ function AddressItem(props) {
 
   return (
     <List>
-      <ListItem>{country}</ListItem>
-      <ListItem>{state}</ListItem>
-      <ListItem>{city}</ListItem>
-      <ListItem>{postalCode}</ListItem>
-      <ListItem>{street}</ListItem>
+      <VStack spacing={1} w="full" align="flex-start">
+        {country && <CustomListItem title="Country" value={country} />}
+        {state && <CustomListItem title="State" value={state} />}
+        {city && <CustomListItem title="City" value={city} />}
+        {postalCode && (
+          <CustomListItem title="Postal Code" value={postalCode} />
+        )}
+        {street && <CustomListItem title="Street" value={street} />}
+      </VStack>
     </List>
   );
 }
+
+function CustomListItem(props) {
+  const { title, value } = props;
+  return (
+    <ListItem color="gray.500">
+      {title}:{" "}
+      <Text color="black" as="span">
+        {value}
+      </Text>
+    </ListItem>
+  );
+}
+
+CustomListItem.propTypes = {
+  title: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+};

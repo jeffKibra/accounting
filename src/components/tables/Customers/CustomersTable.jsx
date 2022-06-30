@@ -17,8 +17,13 @@ function CustomersTable(props) {
       { Header: "Email", accessor: "email" },
       { Header: "Phone", accessor: "phone" },
       {
-        Header: "Opening Balance",
-        accessor: "openingBalance",
+        Header: "Pending",
+        accessor: "receivables",
+        isNumeric: true,
+      },
+      {
+        Header: "Unused Credits",
+        accessor: "summary.unusedCredits",
         isNumeric: true,
       },
     ];
@@ -26,8 +31,14 @@ function CustomersTable(props) {
 
   const data = useMemo(() => {
     return customers.map((customer) => {
+      const {
+        summary: { invoicedAmount, invoicePayments },
+      } = customer;
+      const receivables = +invoicedAmount - +invoicePayments;
+
       return {
         ...customer,
+        receivables,
         actions: <CustomerOptions customer={customer} edit view deletion />,
       };
     });

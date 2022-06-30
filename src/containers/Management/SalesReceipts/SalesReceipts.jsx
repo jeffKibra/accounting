@@ -1,10 +1,8 @@
 import { useEffect } from "react";
 import { connect } from "react-redux";
+import { Box } from "@chakra-ui/react";
 
-import {
-  GET_SALES_RECEIPTS,
-  DELETE_SALES_RECEIPT,
-} from "../../../store/actions/salesReceiptsActions";
+import { GET_SALES_RECEIPTS } from "../../../store/actions/salesReceiptsActions";
 import { reset } from "../../../store/slices/salesReceiptsSlice";
 
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
@@ -19,7 +17,6 @@ function SalesReceipts(props) {
     action,
     isModified,
     getSalesReceipts,
-    deleteSalesReceipt,
     resetSalesReceipt,
   } = props;
 
@@ -37,12 +34,17 @@ function SalesReceipts(props) {
   return loading && action === GET_SALES_RECEIPTS ? (
     <SkeletonLoader />
   ) : salesReceipts?.length > 0 ? (
-    <SalesReceiptsTable
-      deleting={loading && action === DELETE_SALES_RECEIPT}
-      isDeleted={isModified}
-      handleDelete={deleteSalesReceipt}
-      salesReceipts={salesReceipts}
-    />
+    <Box
+      mt={-2}
+      w="full"
+      bg="white"
+      borderRadius="md"
+      shadow="md"
+      py={4}
+      px={2}
+    >
+      <SalesReceiptsTable showCustomer salesReceipts={salesReceipts} />
+    </Box>
   ) : (
     <Empty />
   );
@@ -58,8 +60,6 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     getSalesReceipts: () => dispatch({ type: GET_SALES_RECEIPTS }),
-    deleteSalesReceipt: (salesReceiptId) =>
-      dispatch({ type: DELETE_SALES_RECEIPT, salesReceiptId }),
     resetSalesReceipt: () => dispatch(reset()),
   };
 }

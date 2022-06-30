@@ -136,16 +136,16 @@ export function* watchGetInvoices() {
   yield takeLatest(GET_INVOICES, getInvoices);
 }
 
-function* getCustomerInvoices({ customerId, statuses }) {
+function* getCustomerInvoices({ customerId }) {
   yield put(start(GET_CUSTOMER_INVOICES));
   const orgId = yield select((state) => state.orgsReducer.org.id);
   // console.log({ customerId, statuses });
   async function get() {
     const q = query(
       collection(db, "organizations", orgId, "invoices"),
-      orderBy("createdAt", "asc"),
+      orderBy("createdAt", "desc"),
       where("customerId", "==", customerId),
-      where("status", "in", statuses || allStatuses),
+      where("status", "==", "active"),
       where("transactionType", "==", "invoice")
     );
     const invoices = [];

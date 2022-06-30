@@ -7,6 +7,7 @@ import { CUSTOMERS } from "../../../nav/routes";
 import {
   GET_CUSTOMER,
   UPDATE_CUSTOMER,
+  DELETE_CUSTOMER,
 } from "../../../store/actions/customersActions";
 import { reset } from "../../../store/slices/customersSlice";
 
@@ -38,9 +39,13 @@ function ViewCustomerPage(props) {
   useEffect(() => {
     if (isModified) {
       resetCustomer();
-      navigate(CUSTOMERS);
+      if (action === DELETE_CUSTOMER) {
+        navigate(CUSTOMERS);
+      } else {
+        getCustomer(customerId);
+      }
     }
-  }, [isModified, resetCustomer, navigate]);
+  }, [isModified, resetCustomer, navigate, action, getCustomer, customerId]);
 
   function update(data) {
     updateCustomer({ ...data, customerId });

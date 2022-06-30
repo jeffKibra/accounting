@@ -5,6 +5,7 @@ import SkeletonLoader from "../../../components/ui/SkeletonLoader";
 import Empty from "../../../components/ui/Empty";
 
 import CustomerOverview from "../../../components/Custom/Customers/CustomerOverview";
+import CustomerTransactions from "../../../components/Custom/Customers/CustomerTransactions";
 
 function ViewCustomer(props) {
   const { customer, loading } = props;
@@ -12,7 +13,7 @@ function ViewCustomer(props) {
   return loading ? (
     <SkeletonLoader />
   ) : customer?.displayName ? (
-    <Tabs w="full" mt={-3} bg="white" borderRadius="md" shadow="md">
+    <Tabs isLazy w="full" mt={-3} bg="white" borderRadius="md" shadow="md">
       <TabList>
         <Tab>Overview</Tab>
         <Tab>Transactions</Tab>
@@ -20,6 +21,10 @@ function ViewCustomer(props) {
       <TabPanels>
         <TabPanel w="full">
           <CustomerOverview customer={customer} />
+        </TabPanel>
+        {/* <TabPanel>plus</TabPanel> */}
+        <TabPanel p={2} w="full">
+          <CustomerTransactions customer={customer} />
         </TabPanel>
       </TabPanels>
     </Tabs>

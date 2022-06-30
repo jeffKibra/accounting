@@ -107,7 +107,7 @@ function ReceivePaymentForm(props) {
       account: { name, accountId, accountType },
     };
 
-    console.log({ newData, data });
+    // console.log({ newData, data });
 
     // console.log({ newData });
     //update form values

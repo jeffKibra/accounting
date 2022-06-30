@@ -1,16 +1,16 @@
 import { useEffect } from "react";
 import { connect } from "react-redux";
-import { Box } from "@chakra-ui/react";
+import PropTypes from "prop-types";
 
-import { GET_INVOICES } from "../../../store/actions/invoicesActions";
+import { GET_CUSTOMER_INVOICES } from "../../../store/actions/invoicesActions";
 import { reset } from "../../../store/slices/invoicesSlice";
 
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
+import CustomSpinner from "../../../components/ui/CustomSpinner";
 import Empty from "../../../components/ui/Empty";
 
 import InvoicesTable from "../../../components/tables/Invoices/InvoicesTable";
 
-function Invoices(props) {
+function CustomerInvoices(props) {
   const { loading, invoices, action, isModified, getInvoices, resetInvoices } =
     props;
 
@@ -25,24 +25,18 @@ function Invoices(props) {
     }
   }, [isModified, resetInvoices, getInvoices]);
 
-  return loading && action === GET_INVOICES ? (
-    <SkeletonLoader />
+  return loading && action === GET_CUSTOMER_INVOICES ? (
+    <CustomSpinner />
   ) : invoices?.length > 0 ? (
-    <Box
-      mt={-2}
-      w="full"
-      bg="white"
-      borderRadius="md"
-      shadow="md"
-      py={4}
-      px={2}
-    >
-      <InvoicesTable invoices={invoices} showCustomer />
-    </Box>
+    <InvoicesTable invoices={invoices} />
   ) : (
     <Empty />
   );
 }
+
+CustomerInvoices.propTypes = {
+  customerId: PropTypes.string.isRequired,
+};
 
 function mapStateToProps(state) {
   const { loading, invoices, action, isModified } = state.invoicesReducer;
@@ -50,11 +44,12 @@ function mapStateToProps(state) {
   return { loading, invoices, action, isModified };
 }
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch, ownProps) {
+  const { customerId } = ownProps;
   return {
-    getInvoices: () => dispatch({ type: GET_INVOICES }),
+    getInvoices: () => dispatch({ type: GET_CUSTOMER_INVOICES, customerId }),
     resetInvoices: () => dispatch(reset()),
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Invoices);
+export default connect(mapStateToProps, mapDispatchToProps)(CustomerInvoices);

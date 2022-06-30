@@ -5,14 +5,14 @@ import { Text } from "@chakra-ui/react";
 // import useDeleteInvoice from "../../../hooks/useDeleteInvoice";
 import InvoiceOptions from "../../../containers/Management/Invoices/InvoiceOptions";
 
-import CustomTable from "../CustomTable";
+import CustomRawTable from "../CustomRawTable";
 // import TableActions from "../TableActions";
 
 import InvoiceDates from "./InvoiceDates";
 
 import getInvoiceStatus from "../../../utils/invoices/getInvoiceStatus";
 function InvoicesTable(props) {
-  const { invoices } = props;
+  const { invoices, showCustomer } = props;
   // console.log({ invoices });
 
   const columns = useMemo(() => {
@@ -20,12 +20,14 @@ function InvoicesTable(props) {
       { Header: "", accessor: "actions" },
       { Header: "Date", accessor: "date" },
       { Header: "Invoice#", accessor: "invoiceId" },
-      { Header: "Customer", accessor: "customer.displayName" },
+      ...(showCustomer
+        ? [{ Header: "Customer", accessor: "customer.displayName" }]
+        : []),
       { Header: "Status", accessor: "status" },
-      { Header: "Amount", accessor: "summary.totalAmount" },
-      { Header: "Balance", accessor: "balance" },
+      { Header: "Amount", accessor: "summary.totalAmount", isNumeric: true },
+      { Header: "Balance", accessor: "balance", isNumeric: true },
     ];
-  }, []);
+  }, [showCustomer]);
 
   const data = useMemo(() => {
     return invoices.map((invoice) => {
@@ -53,7 +55,7 @@ function InvoicesTable(props) {
     });
   }, [invoices]);
 
-  return <CustomTable data={data} columns={columns} />;
+  return <CustomRawTable data={data} columns={columns} />;
 }
 
 InvoicesTable.propTypes = {
@@ -72,9 +74,7 @@ InvoicesTable.propTypes = {
       invoiceId: PropTypes.string.isRequired,
     })
   ),
-  deleting: PropTypes.bool.isRequired,
-  isDeleted: PropTypes.bool.isRequired,
-  handleDelete: PropTypes.func.isRequired,
+  showCustomer: PropTypes.bool,
 };
 
 export default InvoicesTable;

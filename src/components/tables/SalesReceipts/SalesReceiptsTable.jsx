@@ -4,11 +4,11 @@ import PropTypes from "prop-types";
 // import useDeletesalesReceipt from "../../../hooks/useDeletesalesReceipt";
 import SalesReceiptOptions from "../../../containers/Management/SalesReceipts/SalesReceiptOptions";
 
-import CustomTable from "../CustomTable";
+import CustomRawTable from "../CustomRawTable";
 // import TableActions from "../TableActions";
 
 function SalesReceiptsTable(props) {
-  const { salesReceipts } = props;
+  const { salesReceipts, showCustomer } = props;
   // console.log({ salesReceipts });
 
   const columns = useMemo(() => {
@@ -16,12 +16,14 @@ function SalesReceiptsTable(props) {
       { Header: "", accessor: "actions" },
       { Header: "DATE", accessor: "date" },
       { Header: "SALES RECEIPT#", accessor: "salesReceiptId" },
-      { Header: "CUSTOMER", accessor: "customer.displayName" },
+      ...(showCustomer
+        ? [{ Header: "CUSTOMER", accessor: "customer.displayName" }]
+        : []),
       { Header: "PAYMENT MODE", accessor: "paymentMode.name" },
       { Header: "REFERENCE", accessor: "reference" },
       { Header: "AMOUNT", accessor: "summary.totalAmount" },
     ];
-  }, []);
+  }, [showCustomer]);
 
   const data = useMemo(() => {
     return salesReceipts.map((salesReceipt) => {
@@ -37,7 +39,7 @@ function SalesReceiptsTable(props) {
     });
   }, [salesReceipts]);
 
-  return <CustomTable data={data} columns={columns} />;
+  return <CustomRawTable data={data} columns={columns} />;
 }
 
 SalesReceiptsTable.propTypes = {
@@ -55,9 +57,7 @@ SalesReceiptsTable.propTypes = {
       salesReceiptId: PropTypes.string.isRequired,
     })
   ),
-  deleting: PropTypes.bool.isRequired,
-  isDeleted: PropTypes.bool.isRequired,
-  handleDelete: PropTypes.func.isRequired,
+  showCustomer: PropTypes.bool,
 };
 
 export default SalesReceiptsTable;
