@@ -1,6 +1,11 @@
-import { doc, serverTimestamp, increment } from "firebase/firestore";
+import {
+  doc,
+  serverTimestamp,
+  increment,
+  Transaction,
+} from "firebase/firestore";
 
-import { db } from "../firebase";
+import { db, dbCollections } from "../firebase";
 import {
   getIncomeAccountsMapping,
   getAccountData,
@@ -30,35 +35,28 @@ import { getDateDetails } from "../dates";
  * @param {string} transactionType
  */
 
+import {
+  Org,
+  UserProfile,
+  Account,
+  InvoiceFormData,
+  InvoiceFromDb,
+} from "../../types";
+
+interface TDetails
+  extends Omit<
+    InvoiceFromDb,
+    "createdAt" | "createdBy" | "modifiedAt" | "modifiedBy"
+  > {}
+
 export default function createInvoice(
-  transaction,
-  org = { id: "" },
-  userProfile = { email: "" },
-  accounts = [{ name: "", accountd: "", accountType: {} }],
-  invoiceId = "",
-  data = {
-    customerId: "",
-    customer: {},
-    summary: {
-      shipping: 0,
-      adjustment: 0,
-      subTotal: 0,
-      totalTaxes: 0,
-      totalAmount: 0,
-    },
-    selectedItems: [
-      {
-        salesAccountId: "",
-        salesAccount: { name: "", accountd: "", accountType: {} },
-        totalAmount: 0,
-      },
-    ],
-    invoiceDate: new Date(),
-    dueDate: new Date(),
-    paymentTerm: {},
-    paymentTermId: "",
-  },
-  transactionType = "invoice"
+  transaction: Transaction,
+  org: Org,
+  userProfile: UserProfile,
+  accounts: Account[],
+  invoiceId: string,
+  data: InvoiceFormData,
+  transactionType: string = "invoice"
 ) {
   const orgId = org.id;
   const { email } = userProfile;
@@ -67,13 +65,11 @@ export default function createInvoice(
   /**
    * accounts details
    */
-
-  const customerRef = doc(db, "organizations", orgId, "customers", customerId);
   const { yearMonthDay } = getDateDetails();
 
   // console.log({ selectedItems });
 
-  const tDetails = {
+  const tDetails: TDetails = {
     ...data,
     balance: summary.totalAmount,
     payments: {},
@@ -132,6 +128,9 @@ export default function createInvoice(
     /**
      * update customer summaries
      */
+    const customersCollections = dbCollections(orgId).customers;
+    const customerRef = doc(customersCollections, customerId);
+
     transaction.update(customerRef, {
       "summary.invoices": increment(1),
       "summary.invoicedAmount": increment(totalAmount),
@@ -153,7 +152,8 @@ export default function createInvoice(
   /**
    * create invoice
    */
-  const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
+  const invoicesCollection = dbCollections(orgId).invoices;
+  const invoiceRef = doc(invoicesCollection, invoiceId);
 
   // console.log({ tDetails });
   transaction.set(invoiceRef, {

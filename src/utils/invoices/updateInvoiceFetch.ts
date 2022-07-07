@@ -24,10 +24,13 @@ import { getInvoiceData, getInvoicePaymentsTotal, mapInvoiceAccounts } from ".";
  * @returns
  */
 
+import { Transaction } from "firebase/firestore";
+import { InvoiceUpdateData } from "../../types";
+
 export default async function getInvoiceUpdateData(
-  transaction,
-  orgId,
-  incomingInvoice
+  transaction: Transaction,
+  orgId: string,
+  incomingInvoice: InvoiceUpdateData
 ) {
   console.log({ incomingInvoice });
   const { invoiceId, ...rest } = incomingInvoice;
@@ -47,7 +50,7 @@ export default async function getInvoiceUpdateData(
   /**
    * check to ensure the new total balance is not less than payments made.
    */
-  const paymentsTotal = getInvoicePaymentsTotal(payments);
+  const paymentsTotal = getInvoicePaymentsTotal(payments || {});
   /**
    * trying to update invoice total with an amount less than paymentsTotal
    * throw an error

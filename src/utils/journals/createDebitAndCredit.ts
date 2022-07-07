@@ -1,6 +1,6 @@
 import { isCreditOnIncrease, isDebitOnIncrease } from "./types";
 
-import { AccountType } from "../../models";
+import { AccountType } from "../../types";
 
 export default function createDebitAndCredit(
   accountType: AccountType,

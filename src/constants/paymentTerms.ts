@@ -1,4 +1,4 @@
-import { PaymentTerm } from "../models";
+import { PaymentTerm } from "../types";
 
 type Terms = {
   [key: string]: PaymentTerm;

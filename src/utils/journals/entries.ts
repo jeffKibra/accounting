@@ -8,7 +8,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 
-import { Entry } from "../../models";
+import { Entry } from "../../types";
 
 export async function getCustomerEntryData(
   orgId: string,

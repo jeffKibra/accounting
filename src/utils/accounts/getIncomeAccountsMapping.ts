@@ -23,7 +23,7 @@ import { mapAccounts, getIncomeAccounts } from ".";
  * @returns {accountsMapping} accountsMapping
  */
 
-import { SalesItem } from "../../models";
+import { SalesItem } from "../../types";
 
 export default function getIncomeAccountsMapping(
   items: SalesItem[],

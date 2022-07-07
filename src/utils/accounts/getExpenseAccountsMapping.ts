@@ -23,7 +23,7 @@ import { mapAccounts, getExpenseAccounts } from ".";
  * @returns {accountsMapping} accountsMapping
  */
 
-import { ExpenseItem } from "../../models";
+import { ExpenseItem } from "../../types";
 
 export default function getExpenseAccountsMapping(
   items: ExpenseItem[],

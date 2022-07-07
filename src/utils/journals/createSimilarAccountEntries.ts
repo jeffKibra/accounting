@@ -3,7 +3,7 @@ import createEntry from "./createEntry";
 import { verifyAccountId } from "./helpers";
 
 import { Transaction } from "firebase/firestore";
-import { UserProfile, Account, EntryToCreate } from "../../models";
+import { UserProfile, Account, EntryToCreate } from "../../types";
 
 export default function createSimilarAccountEntries(
   transaction: Transaction,

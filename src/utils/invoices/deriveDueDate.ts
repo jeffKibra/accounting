@@ -1,6 +1,10 @@
 import { getFutureDate } from "../dates";
+import { PaymentTerm } from "../../types";
 
-export default function deriveDueDate(paymentTerm, startDate = new Date()) {
+export default function deriveDueDate(
+  paymentTerm: PaymentTerm,
+  startDate: Date = new Date()
+) {
   const { days, value } = paymentTerm;
   let waitingDays = days || 0;
   let month = startDate.getMonth() + 1;

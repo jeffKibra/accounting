@@ -9,7 +9,7 @@
  * @returns {account} account
  */
 
-import { Account } from "../../models/accounts";
+import { Account } from "../../types/accounts";
 
 export default function getAccountData(accountId: string, accounts: Account[]) {
   console.log({ accountId, accounts });

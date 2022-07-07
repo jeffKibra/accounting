@@ -8,7 +8,7 @@ import { db } from "../firebase";
  * @returns {Promise.<{debit:0, credit:0, status:'', account:{}, entryId:"",}[]>} entries
  */
 
-import { EntryWithStatus } from "../../models";
+import { EntryWithStatus } from "../../types";
 
 export default async function getTransactionEntries(
   orgId: string,

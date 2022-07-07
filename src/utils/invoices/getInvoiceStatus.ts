@@ -1,17 +1,17 @@
 import { isSameDay } from "../dates";
+import { Invoice } from "../../types";
 
-function getDaysDifference(date = new Date(), biggerDate = new Date()) {
+function getDaysDifference(
+  date: Date = new Date(),
+  futureDate: Date = new Date()
+) {
   return Math.floor(
-    (biggerDate.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
+    (futureDate.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
   );
 }
 
-export default function getInvoiceStatus({
-  dueDate = new Date(),
-  balance = 0,
-  summary = { totalAmount: 0 },
-  isSent = false,
-}) {
+export default function getInvoiceStatus(invoice: Invoice) {
+  const { balance, summary, dueDate, isSent } = invoice;
   const { totalAmount } = summary;
   const today = new Date();
   const isDue = dueDate.getTime() > today.getTime();

@@ -20,10 +20,13 @@ import { getInvoiceData, getInvoicePaymentsTotal } from ".";
  * @param {string} invoiceId
  * @returns
  */
+
+import { Transaction } from "firebase/firestore";
+
 export default async function deleteInvoiceFetch(
-  transaction,
-  orgId,
-  invoiceId
+  transaction: Transaction,
+  orgId: string,
+  invoiceId: string
 ) {
   const [invoice, allEntries] = await Promise.all([
     getInvoiceData(transaction, orgId, invoiceId),
@@ -33,7 +36,7 @@ export default async function deleteInvoiceFetch(
   /**
    * check if the invoice has payments
    */
-  const paymentsTotal = getInvoicePaymentsTotal(invoice.payments);
+  const paymentsTotal = getInvoicePaymentsTotal(invoice.payments || {});
   if (paymentsTotal > 0) {
     //deletion not allowed
     throw new Error(

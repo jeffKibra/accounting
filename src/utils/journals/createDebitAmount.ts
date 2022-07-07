@@ -12,7 +12,7 @@ import { isCreditOnIncrease, isDebitOnIncrease } from "./types";
  * @returns {number} debitAmount
  */
 
-import { AccountType } from "../../models";
+import { AccountType } from "../../types";
 
 export default function createDebit(accountType: AccountType, amount: number) {
   const { main } = accountType;

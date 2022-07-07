@@ -1,4 +1,4 @@
-import { serverTimestamp, Transaction } from "firebase/firestore";
+import { Transaction } from "firebase/firestore";
 
 import { createSimilarAccountEntries } from "../journals";
 import { getAccountData } from "../accounts";
@@ -20,17 +20,14 @@ import { createInvoice } from "../invoices";
  * @param {number} openingBalance
  */
 
-import { CustomerWithId } from "../../models";
-import { Org } from "../../models";
-import { UserProfile } from "../../models";
-import { Account } from "../../models/accounts";
+import { Org, UserProfile, Account, CustomerFormDataWithId } from "../../types";
 
 export default function createOB(
   transaction: Transaction,
   org: Org,
   userProfile: UserProfile,
   accounts: Account[],
-  customer: CustomerWithId,
+  customer: CustomerFormDataWithId,
   openingBalance: number
 ) {
   const orgId = org.id;
@@ -90,12 +87,18 @@ export default function createOB(
     {
       customerId,
       customer: transactionDetails,
-      invoiceDate: serverTimestamp(),
-      dueDate: serverTimestamp(),
+      invoiceDate: new Date(),
+      dueDate: new Date(),
       paymentTerm,
       paymentTermId,
       summary: {
         totalAmount: openingBalance,
+        adjustment: 0,
+        shipping: 0,
+        subTotal: openingBalance,
+        taxType: "",
+        taxes: [],
+        totalTaxes: 0,
       },
       selectedItems: [
         {
@@ -104,6 +107,9 @@ export default function createOB(
           totalAmount: openingBalance,
         },
       ],
+      customerNotes: "",
+      subject: "",
+      orderNumber: "",
     },
     "customer opening balance"
   );

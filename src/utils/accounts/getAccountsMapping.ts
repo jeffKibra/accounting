@@ -12,7 +12,7 @@
  * @returns {{newAccounts:accountsData,updatedAccounts:accountsData,deletedAccounts:accountsData,similarAccounts:accountsData}} accountsMapping
  */
 
-import { AccountMapping } from "../../models/accounts";
+import { AccountMapping } from "../../types/accounts";
 
 function getAccountsMapping(accounts: AccountMapping[]) {
   let newAccounts: AccountMapping[] = [];

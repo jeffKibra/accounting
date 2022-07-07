@@ -1,6 +1,6 @@
 import accountTypes from "./accountTypes";
 
-import { AccountType } from "../models";
+import { AccountType } from "../types";
 
 interface AccountDetails {
   accountType: string | AccountType;
@@ -13,74 +13,6 @@ interface AccountDetails {
 type AccountsType = {
   [key: string]: AccountDetails;
 };
-
-// interface AssetsType {
-//   [key: string]: AccountDetails;
-//   // advance_tax: AccountDetails;
-//   // employee_advance: AccountDetails;
-//   // undeposited_funds: AccountDetails;
-//   // petty_cash: AccountDetails;
-//   // accounts_receivable: AccountDetails;
-//   // furniture_and_equipment: AccountDetails;
-//   // inventory_asset: AccountDetails;
-// }
-
-// interface LiabilitiesType
-// {
-//   tax_payable: AccountDetails;
-//   unearned_revenue: AccountDetails;
-//   opening_balance_adjustments: AccountDetails;
-//   employee_reimbursements: AccountDetails;
-//   accounts_payable: AccountDetails;
-//   tag_adjustments: AccountDetails;
-// }
-
-// interface EquityType
-// {
-//   retained_earnings: AccountDetails;
-//   owners_equity: AccountDetails;
-//   opening_balance_offset: AccountDetails;
-//   drawings: AccountDetails;
-// }
-
-// interface IncomeType
-// {
-//   other_charges: AccountDetails;
-//   sales: AccountDetails;
-//   general_income: AccountDetails;
-//   interest_income: AccountDetails;
-//   late_fee_income: AccountDetails;
-//   discount: AccountDetails;
-//   shipping_charge: AccountDetails;
-// }
-
-// interface ExpensesType
-// {
-//   lodging: AccountDetails;
-//   purchase_discounts: AccountDetails;
-//   office_supplies: AccountDetails;
-//   advertising_and_marketing: AccountDetails;
-//   bank_fees_and_charges: AccountDetails;
-//   credit_card_charges: AccountDetails;
-//   travel_expense: AccountDetails;
-//   telephone_expense: AccountDetails;
-//   automobile_expense: AccountDetails;
-//   it_and_internet_expense: AccountDetails;
-//   rent_expense: AccountDetails;
-//   janitorial_expense: AccountDetails;
-//   postage: AccountDetails;
-//   bad_debt: AccountDetails;
-//   printing_and_stationery: AccountDetails;
-//   salaries_and_employee_wages: AccountDetails;
-//   meals_and_entertainment: AccountDetails;
-//   depreciation_expense: AccountDetails;
-//   consultant_expense: AccountDetails;
-//   repairs_and_maintenance: AccountDetails;
-//   other_expenses: AccountDetails;
-//   cost_of_goods_sold: AccountDetails;
-//   uncategorized: AccountDetails;
-//   exchange_gain_or_loss: AccountDetails;
-// }
 
 export const Assets: AccountsType = {
   prepaid_expenses: {

@@ -10,7 +10,7 @@ import getAmountState from "./getAmountState";
 import createDebitAndCredit from "./createDebitAndCredit";
 import { getDateDetails } from "../dates";
 
-import { UserProfile, EntryToCreate } from "../../models";
+import { UserProfile, EntryToCreate } from "../../types";
 
 export default function createEntry(
   transaction: Transaction,

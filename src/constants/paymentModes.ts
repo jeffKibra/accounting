@@ -1,4 +1,4 @@
-import { PaymentMode } from "../models";
+import { PaymentMode } from "../types";
 
 type Modes = {
   [key: string]: PaymentMode;

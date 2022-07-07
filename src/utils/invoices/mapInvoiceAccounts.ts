@@ -12,7 +12,25 @@ import { getAccountsMapping, getIncomeAccountsMapping } from "../accounts";
  * @returns {accountsMapping} accountsMapping
  */
 
-export default function mapInvoiceAccounts(currentInvoice, incomingInvoice) {
+import {
+  Invoice,
+  InvoiceFormData,
+  InvoiceFormWithId,
+  InvoiceUpdateData,
+} from "../../types";
+
+export default function mapInvoiceAccounts(
+  currentInvoice:
+    | Invoice
+    | InvoiceFormData
+    | InvoiceFormWithId
+    | InvoiceUpdateData,
+  incomingInvoice:
+    | Invoice
+    | InvoiceFormData
+    | InvoiceFormWithId
+    | InvoiceUpdateData
+) {
   const { summary, selectedItems, customerId } = incomingInvoice;
   const { totalTaxes, shipping, adjustment, totalAmount } = summary;
 

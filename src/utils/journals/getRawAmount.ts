@@ -1,7 +1,7 @@
 import { isCreditOnIncrease, isDebitOnIncrease } from "./types";
 
-import { AccountType } from "../../models";
-import { Entry } from "../../models";
+import { AccountType } from "../../types";
+import { Entry } from "../../types";
 
 export default function getRawAmount(accountType: AccountType, data: Entry) {
   const { main } = accountType;

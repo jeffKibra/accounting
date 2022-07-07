@@ -4,7 +4,7 @@ import { verifyAccountId, verifyEntryData } from "./helpers";
 import updateEntry from "./updateEntry";
 
 import { Transaction } from "firebase/firestore";
-import { UserProfile, Account, EntryToUpdate } from "../../models";
+import { UserProfile, Account, EntryToUpdate } from "../../types";
 
 export default function updateSimilarAccountEntries(
   transaction: Transaction,

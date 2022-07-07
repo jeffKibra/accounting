@@ -9,7 +9,7 @@
  * @returns {entriesGroup[]} groupedEntries
  */
 
-import { GroupedEntries, Entry } from "../../models";
+import { GroupedEntries, Entry } from "../../types";
 
 let initialAccounts: GroupedEntries[];
 

@@ -1,4 +1,4 @@
-import { Entry } from "../../models";
+import { Entry } from "../../types";
 
 export function verifyEntryData(data: Entry) {
   const { credit, debit, entryId } = data;

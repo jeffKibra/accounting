@@ -9,7 +9,7 @@
  * @returns {accountsMapping} accountsMapping
  */
 
-import { AccountMapping } from "../../models";
+import { AccountMapping } from "../../types";
 
 type MapAccount = {
   accountId: string;

@@ -1,20 +1,33 @@
-function formatCustomerData(customer) {
+import { Timestamp } from "firebase/firestore";
+import {
+  Customer,
+  CustomerFormDataWithId,
+  CustomerSummary,
+  Vendor,
+  Invoice,
+  PaymentReceived,
+  Org,
+  SalesItem,
+  ExpenseItem,
+  SalesItemFromForm,
+  VendorSummary,
+} from "../types";
+
+function formatCustomerData(
+  customer: Customer | CustomerFormDataWithId
+): CustomerSummary {
   const { displayName, type, companyName, email, customerId } = customer;
 
-  return customer?.customerId
-    ? { displayName, type, companyName, email, customerId }
-    : customer;
+  return { displayName, type, companyName, email, customerId };
 }
 
-function formatVendorData(vendor) {
+function formatVendorData(vendor: Vendor): VendorSummary {
   const { displayName, companyName, email, vendorId } = vendor;
 
-  return vendor?.vendorId
-    ? { displayName, companyName, email, vendorId }
-    : vendor;
+  return { displayName, companyName, email, vendorId };
 }
 
-function formatInvoices(invoices = [{}]) {
+function formatInvoices(invoices: Invoice[]) {
   return invoices.map((invoice) => {
     const {
       invoiceDate,
@@ -37,7 +50,7 @@ function formatInvoices(invoices = [{}]) {
   });
 }
 
-function formatInvoicePayment(payment) {
+function formatInvoicePayment(payment: PaymentReceived) {
   const { paymentDate, reference, paymentMode, account, amount, paymentId } =
     payment;
 
@@ -51,13 +64,24 @@ function formatInvoicePayment(payment) {
   };
 }
 
-function formatOrgData(org) {
+function formatOrgData(org: Org) {
   const { orgId, businessType, name } = org;
 
   return { orgId, businessType, name };
 }
 
-function formatTransactionDetails(details) {
+interface TransactionDetails {
+  createdAt?: Date | Timestamp;
+  createdBy?: string;
+  modifiedAt: Date | Timestamp;
+  modifiedBy?: string;
+  customer: Customer;
+  paidInvoices: Invoice[];
+  org: Org;
+  [key: string]: unknown;
+}
+
+function formatTransactionDetails(details: TransactionDetails) {
   const { createdAt, createdBy, modifiedAt, modifiedBy, ...rest } = details;
   const { customer, org, paidInvoices } = rest;
   return {
@@ -68,15 +92,14 @@ function formatTransactionDetails(details) {
   };
 }
 
-function formatSaleItems(items = []) {
+function formatSaleItems(items: SalesItemFromForm[]): SalesItem[] {
   return items.map((item) => {
     const {
       createdAt,
       createdBy,
       modifiedBy,
       modifiedAt,
-      itemDescription,
-      sellingDetails,
+      extraDetails,
       status,
       salesAccountId,
       salesTaxId,
@@ -87,24 +110,13 @@ function formatSaleItems(items = []) {
   });
 }
 
-function formatExpenseItems(items = []) {
+function formatExpenseItems(items: ExpenseItem[]) {
   return items.map((item) => {
-    const {
-      createdAt,
-      createdBy,
-      modifiedBy,
-      modifiedAt,
-      status,
-      accountId,
-      taxId,
-      ...rest
-    } = item;
-
-    return { ...rest };
+    return item;
   });
 }
 
-function formatCash(num) {
+function formatCash(num: number) {
   return Number(Number(num).toFixed(2)).toLocaleString();
 }
 

@@ -4,7 +4,7 @@ import deleteEntry from "./deleteEntry";
 import updateAccount from "./updateAccount";
 
 import { Transaction } from "firebase/firestore";
-import { UserProfile, Account, EntryToDelete } from "../../models";
+import { UserProfile, Account, EntryToDelete } from "../../types";
 
 export default function deleteSimilarAccountEntries(
   transaction: Transaction,

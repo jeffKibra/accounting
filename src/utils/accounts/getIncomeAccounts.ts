@@ -9,7 +9,7 @@
  * @returns {Array.<{accountId:"", itemsTotal:0}>}
  */
 
-import { SalesItem } from "../../models";
+import { SalesItem } from "../../types";
 
 export default function getIncomeAccounts(items: SalesItem[]) {
   let accounts: { accountId: string; itemsTotal?: number }[] = [];

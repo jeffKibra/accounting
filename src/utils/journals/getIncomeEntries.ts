@@ -18,14 +18,14 @@ import { getAccountTransactionEntry } from ".";
  * @returns {Promise.<entries>}
  */
 
-import { AccountMapping } from "../../models";
+import { AccountMapping, MappedEntry } from "../../types";
 
 export default async function getIncomeEntries(
   orgId: string,
   transactionId: string,
   transactionType: string,
   incomeAccounts: AccountMapping[]
-) {
+): Promise<MappedEntry[]> {
   console.log({ incomeAccounts });
   const entries = await Promise.all(
     incomeAccounts.map(async (account) => {

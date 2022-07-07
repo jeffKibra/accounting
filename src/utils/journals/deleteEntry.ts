@@ -14,7 +14,7 @@ import { db } from "../firebase";
  * @param {string} deletionType
  */
 
-import { UserProfile } from "../../models";
+import { UserProfile } from "../../types";
 
 export default function deleteEntry(
   transaction: Transaction,

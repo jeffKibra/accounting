@@ -8,7 +8,7 @@ import { getAmountState, createDebitAndCredit } from ".";
  * credit on decrease (amount to be subtracted)
  */
 
-import { EntryToUpdate, UserProfile } from "../../models";
+import { EntryToUpdate, UserProfile } from "../../types";
 
 export default function updateEntry(
   transaction: Transaction,

@@ -1,6 +1,11 @@
-import { doc, serverTimestamp, increment } from "firebase/firestore";
+import {
+  doc,
+  serverTimestamp,
+  increment,
+  Transaction,
+} from "firebase/firestore";
 
-import { db } from "../firebase";
+import { db, dbCollections } from "../firebase";
 import { deleteSimilarAccountEntries } from "../journals";
 import { getDateDetails } from "../dates";
 
@@ -19,13 +24,16 @@ import { getDateDetails } from "../dates";
  * @param {entriesGroup[]} groupedEntries
  * @param {string} deletionType
  */
+
+import { UserProfile, Invoice, GroupedEntries } from "../../types";
+
 export default function deleteInvoiceWrite(
-  transaction,
-  orgId,
-  userProfile,
-  invoice,
-  groupedEntries,
-  deletionType = "mark"
+  transaction: Transaction,
+  orgId: string,
+  userProfile: UserProfile,
+  invoice: Invoice,
+  entriesGroups: GroupedEntries[],
+  deletionType: string = "mark"
 ) {
   const {
     invoiceId,
@@ -36,7 +44,7 @@ export default function deleteInvoiceWrite(
   /**
    * delete entries and update groupedEntries summaries
    */
-  groupedEntries.forEach((group) => {
+  entriesGroups.forEach((group) => {
     const { entries, ...account } = group;
 
     deleteSimilarAccountEntries(
@@ -51,13 +59,8 @@ export default function deleteInvoiceWrite(
     /**
      * update customer summaries
      */
-    const customerRef = doc(
-      db,
-      "organizations",
-      orgId,
-      "customers",
-      customerId
-    );
+    const customersCollection = dbCollections(orgId).customers;
+    const customerRef = doc(customersCollection, customerId);
     transaction.update(customerRef, {
       "summary.deletedInvoices": increment(1),
       "summary.invoicedAmount": increment(0 - totalAmount),
@@ -82,7 +85,8 @@ export default function deleteInvoiceWrite(
   /**
    * delete invoice
    */
-  const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
+  const invoicesCollection = dbCollections(orgId).invoices;
+  const invoiceRef = doc(invoicesCollection, invoiceId);
   /**
    * check if invoice should be deleted
    */

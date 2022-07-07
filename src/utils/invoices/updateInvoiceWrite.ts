@@ -1,6 +1,11 @@
-import { doc, serverTimestamp, increment } from "firebase/firestore";
+import {
+  doc,
+  serverTimestamp,
+  increment,
+  Transaction,
+} from "firebase/firestore";
 
-import { db } from "../firebase";
+import { dbCollections } from "../firebase";
 import {
   updateSimilarAccountEntries,
   deleteSimilarAccountEntries,
@@ -34,17 +39,26 @@ import formats from "../formats";
  * @param {string} transactionType
  */
 
+import {
+  UserProfile,
+  Account,
+  Invoice,
+  InvoiceUpdateData,
+  AccountMapping,
+  MappedEntry,
+} from "../../types";
+
 export default function updateInvoiceWrite(
-  transaction,
-  orgId,
-  userProfile,
-  accounts,
-  entriesToUpdate,
-  entriesToDelete,
-  newAccounts,
-  currentInvoice,
-  incomingInvoice,
-  transactionType = "invoice"
+  transaction: Transaction,
+  orgId: string,
+  userProfile: UserProfile,
+  accounts: Account[],
+  entriesToUpdate: MappedEntry[],
+  entriesToDelete: MappedEntry[],
+  newAccounts: AccountMapping[],
+  currentInvoice: Invoice,
+  incomingInvoice: InvoiceUpdateData,
+  transactionType: string = "invoice"
 ) {
   const { email } = userProfile;
   const { invoiceId, ...rest } = incomingInvoice;
@@ -136,21 +150,11 @@ export default function updateInvoiceWrite(
    * update customer summaries
    * only allowed where transactionType is invoice
    */
+
   if (transactionType === "invoice") {
-    const newCustomerRef = doc(
-      db,
-      "organizations",
-      orgId,
-      "customers",
-      customerId
-    );
-    const currentCustomerRef = doc(
-      db,
-      "organizations",
-      orgId,
-      "customers",
-      currentCustomerId
-    );
+    const customersCollection = dbCollections(orgId).customers;
+    const newCustomerRef = doc(customersCollection, customerId);
+    const currentCustomerRef = doc(customersCollection, currentCustomerId);
     /**
      * check if customer has been changed
      */
@@ -184,7 +188,8 @@ export default function updateInvoiceWrite(
   /**
    * update invoice
    */
-  const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
+  const invoicesCollection = dbCollections(orgId).invoices;
+  const invoiceRef = doc(invoicesCollection, invoiceId);
   console.log({ invoiceData });
   transaction.update(invoiceRef, {
     ...invoiceData,
