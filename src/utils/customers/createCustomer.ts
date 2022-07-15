@@ -3,6 +3,7 @@ import {
   serverTimestamp,
   increment,
   Transaction,
+  Timestamp,
 } from "firebase/firestore";
 
 import { db, dbCollections } from "../firebase";
@@ -14,7 +15,7 @@ import {
   UserProfile,
   Account,
   CustomerFormData,
-  CustomerFormDataWithId,
+  Customer,
 } from "../../types";
 
 export default async function createCustomer(
@@ -30,12 +31,12 @@ export default async function createCustomer(
 
   const { openingBalance } = customerData;
 
-  const customerWithId: CustomerFormDataWithId = {
+  const customerWithId = {
     ...customerData,
     customerId,
   };
 
-  const customer = {
+  const customer: Customer = {
     ...customerWithId,
     status: "active",
     summary: {
@@ -47,6 +48,10 @@ export default async function createCustomer(
       invoicedAmount: openingBalance,
       invoicePayments: 0,
     },
+    createdBy: email,
+    createdAt: serverTimestamp() as Timestamp,
+    modifiedBy: email,
+    modifiedAt: serverTimestamp() as Timestamp,
   };
 
   /**
@@ -76,9 +81,5 @@ export default async function createCustomer(
   const { customerId: cid, ...tDetails } = customer;
   transaction.set(customerRef, {
     ...tDetails,
-    createdBy: email,
-    createdAt: serverTimestamp(),
-    modifiedBy: email,
-    modifiedAt: serverTimestamp(),
   });
 }

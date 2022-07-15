@@ -1,7 +1,7 @@
-import { PaymentsToInvoices, Invoice } from "../../types";
+import { InvoicesPayments, Invoice } from "../../types";
 
 export default function selectPaidInvoices(
-  payments: PaymentsToInvoices,
+  payments: InvoicesPayments,
   invoices: Invoice[]
 ) {
   return Object.keys(payments)

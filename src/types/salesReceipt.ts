@@ -1,30 +1,44 @@
+import { Timestamp } from "firebase/firestore";
 import {
   Account,
   CustomerSummary,
+  Customer,
   OrgSummary,
   PaymentMode,
   SalesItem,
+  SalesItemFromForm,
   SalesSummary,
 } from ".";
 
-export interface SalesReceipt {
-  accountId: string;
-  account: Account;
-  createdAt: Date;
+interface Meta {
+  createdAt: Date | Timestamp;
   createdBy: string;
-  customerId: string;
-  customer: CustomerSummary;
-  customerNotes: string;
-  isSent: boolean;
   modifiedAt: Date;
   modifiedBy: string;
-  paymentModeId: string;
+  isSent: boolean;
+  status: string;
+  org: OrgSummary;
+}
+
+export interface SalesReceiptForm {
+  account: Account;
+  customer: Customer;
+  customerNotes: string;
   paymentMode: PaymentMode;
   receiptDate: Date;
   reference: string;
-  status: string;
   transactionType: string;
-  org: OrgSummary;
-  selectedItems: SalesItem[];
+  selectedItems: SalesItemFromForm[];
   summary: SalesSummary;
+}
+
+export interface SalesReceiptFromDb
+  extends Omit<SalesReceiptForm, "customer" | "selectedItems">,
+    Meta {
+  customer: CustomerSummary;
+  selectedItems: SalesItem[];
+}
+
+export interface SalesReceipt extends SalesReceiptFromDb {
+  salesReceiptId: string;
 }

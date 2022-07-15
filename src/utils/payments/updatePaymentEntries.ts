@@ -1,17 +1,13 @@
 import { updateSimilarAccountEntries } from "../journals";
 
-import {
-  UserProfile,
-  PaymentReceivedDetails,
-  InvoicePaymentEntry,
-} from "../../types";
+import { UserProfile, PaymentReceived, InvoicePaymentEntry } from "../../types";
 import { Transaction } from "firebase/firestore";
 
 export default function updatePaymentEntries(
   transaction: Transaction,
   userProfile: UserProfile,
   orgId: string,
-  transactionDetails: PaymentReceivedDetails,
+  transactionDetails: PaymentReceived,
   entries: InvoicePaymentEntry[]
 ) {
   const { account, reference, paymentId } = transactionDetails;

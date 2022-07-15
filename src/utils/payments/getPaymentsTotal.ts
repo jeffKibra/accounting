@@ -1,6 +1,6 @@
-import { PaymentsToInvoices } from "../../types";
+import { InvoicesPayments } from "../../types";
 
-export default function getPaymentsTotal(payments: PaymentsToInvoices) {
+export default function getPaymentsTotal(payments: InvoicesPayments) {
   if (!payments) return 0;
 
   const invoicesIds = Object.keys(payments);

@@ -23,7 +23,7 @@ export interface ExpenseFormData {
   vendor: Vendor | null;
   paymentAccount: Account;
   items: ExpenseItem[];
-  expenseDate: Date;
+  expenseDate: Date | Timestamp;
   summary: ExpenseSummary;
 }
 

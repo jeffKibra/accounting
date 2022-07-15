@@ -43,7 +43,13 @@ export default async function deletePayment(
     getPaymentData(transaction, orgId, paymentId),
     getAllPaymentEntries(orgId, paymentId),
   ]);
-  const { customerId, payments, excess, amount, paymentModeId } = paymentData;
+  const {
+    customer: { customerId },
+    payments,
+    amount,
+    paymentMode: { value: paymentModeId },
+  } = paymentData;
+  const excess = paymentData.excess ?? 0;
   const paymentsTotal = getPaymentsTotal(payments);
   // console.log({ allEntries });
   /**

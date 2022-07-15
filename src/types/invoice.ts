@@ -1,34 +1,31 @@
 import {
   OrgSummary,
   CustomerSummary,
-  CustomerFormDataWithId,
+  Customer,
   PaymentTerm,
   SalesItem,
   SalesSummary,
-  PaymentMode,
-  Account,
   SalesItemFromForm,
 } from ".";
 import { Timestamp } from "firebase/firestore";
 
-export interface InvoicePayment {
-  account: Account;
-  amount?: number;
-  customerId: string;
-  excess: number;
-  paidInvoicesIds: string[];
-  paymentAmount: number;
-  paymentDate: Date | Timestamp;
-  paymentId: string;
-  paymentMode: PaymentMode;
-  paymentModeId: string;
-  payments: { [key: string]: number };
-  reference: string;
-  status: string;
-}
+// export interface InvoicePayment {
+//   account: Account;
+//   amount?: number;
+//   customerId: string;
+//   excess: number;
+//   paidInvoicesIds: string[];
+//   paymentAmount: number;
+//   paymentDate: Date;
+//   paymentId: string;
+//   paymentMode: PaymentMode;
+//   payments: { [key: string]: number };
+//   reference: string;
+//   status: string;
+// }
 
 export interface InvoicePayments {
-  [key: string]: InvoicePayment;
+  [key: string]: number;
 }
 
 interface Meta {
@@ -40,36 +37,22 @@ interface Meta {
   payments: InvoicePayments;
   status: string;
   org: OrgSummary;
-  createdAt: Date;
+  createdAt: Date | Timestamp;
   createdBy: string;
-  modifiedAt: Date;
+  modifiedAt: Date | Timestamp;
   modifiedBy: string;
 }
 
 export interface InvoiceFormData {
-  customerId: string;
-  customer: CustomerFormDataWithId;
+  customer: Customer;
   customerNotes: string;
   dueDate: Date;
   invoiceDate: Date;
   orderNumber: string;
-  paymentTermId: string;
   paymentTerm: PaymentTerm;
   subject: string;
   selectedItems: SalesItemFromForm[];
   summary: SalesSummary;
-}
-
-export interface InvoiceFormWithId extends InvoiceFormData {
-  invoiceId: string;
-}
-
-export interface InvoiceUpdateData extends Partial<InvoiceFormWithId> {
-  customerId: string;
-  customer: CustomerFormDataWithId;
-  selectedItems: SalesItemFromForm[];
-  summary: SalesSummary;
-  invoiceId: string;
 }
 
 export interface InvoiceFromDb

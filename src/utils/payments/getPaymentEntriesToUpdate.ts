@@ -1,31 +1,5 @@
 import { getInvoiceFromArray, getPaymentEntry } from ".";
 
-/**
- *
- * @typedef {Object} entry
- * @property {number} credit
- * @property {number} debit
- * @property {string} entryId
- */
-/**
- *
- * @typedef {Object} paymentEntry
- * @property {number} current
- * @property {number} incoming
- * @property {string} invoiceId
- * @property {Object} invoice
- * @property {entry} entry
- */
-/**
- *
- * @param {string} orgId
- * @param {string} paymentId
- * @param {{}[]} invoices
- * @param {string} accountId
- * @param {{invoiceId:string, current:number, incoming:number}[]} payments
- * @returns {Promise.<paymentEntry[]>}
- */
-
 import { InvoiceSummary, InvoicePaymentMapping } from "../../types";
 
 export default async function getPaymentEntriesToUpdate(

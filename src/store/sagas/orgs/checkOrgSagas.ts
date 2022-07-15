@@ -1,0 +1,59 @@
+import { put, call, takeLatest, select } from "redux-saga/effects";
+
+import { CHECK_ORG } from "../../actions/orgsActions";
+import { start, orgSuccess, fail } from "../../slices/orgsSlice";
+import { error as toastError } from "../../slices/toastSlice";
+
+import { getOrg } from "./createOrgSagas";
+
+import { RootState, UserProfile, Org } from "../../../types";
+
+function* checkOrg() {
+  function fromStorage() {
+    let org: Org | null = null;
+    //check for a org in localstorage
+    const orgJson = localStorage.getItem("org");
+    if (orgJson) {
+      org = JSON.parse(orgJson);
+    }
+    return org;
+  }
+
+  async function fromDb(userId: string) {
+    const org = await getOrg(userId);
+    if (org) {
+      localStorage.setItem("org", JSON.stringify(org));
+    }
+
+    return org;
+  }
+
+  async function getOrgData(userId: string) {
+    return fromStorage() || (await fromDb(userId));
+  }
+
+  try {
+    yield put(start(CHECK_ORG));
+    const userProfile: UserProfile = yield select(
+      (state: RootState) => state.authReducer.userProfile
+    );
+
+    // console.log({ userProfile });
+    const { user_id } = userProfile;
+
+    let org: Org | null = user_id ? yield call(getOrgData, user_id) : null;
+
+    if (org) {
+      yield put(orgSuccess(org));
+    }
+  } catch (err) {
+    const error = err as Error;
+    console.log(error);
+    yield put(fail(error));
+    yield put(toastError(error.message));
+  }
+}
+
+export function* watchCheckOrg() {
+  yield takeLatest(CHECK_ORG, checkOrg);
+}

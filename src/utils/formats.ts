@@ -1,7 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 import {
   Customer,
-  CustomerFormDataWithId,
   CustomerSummary,
   Vendor,
   Invoice,
@@ -13,9 +12,7 @@ import {
   VendorSummary,
 } from "../types";
 
-function formatCustomerData(
-  customer: Customer | CustomerFormDataWithId
-): CustomerSummary {
+function formatCustomerData(customer: Customer): CustomerSummary {
   const { displayName, type, companyName, email, customerId } = customer;
 
   return { displayName, type, companyName, email, customerId };

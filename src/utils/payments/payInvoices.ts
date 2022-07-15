@@ -12,7 +12,7 @@ import { getAccountData } from "../accounts";
 
 import {
   UserProfile,
-  PaymentReceivedDetails,
+  PaymentReceived,
   InvoicePaymentMapping,
   Account,
 } from "../../types";
@@ -21,12 +21,12 @@ export default function payInvoices(
   transaction: Transaction,
   userProfile: UserProfile,
   orgId: string,
-  transactionDetails: PaymentReceivedDetails,
+  paymentData: PaymentReceived,
   payments: InvoicePaymentMapping[],
   accounts: Account[]
 ) {
   const { email } = userProfile;
-  const { reference, paymentId, account, paidInvoices } = transactionDetails;
+  const { reference, paymentId, account, paidInvoices } = paymentData;
   // console.log({ account });
   const accounts_receivable = getAccountData("accounts_receivable", accounts);
   const paymentAccount = getAccountData(account.accountId, accounts);
@@ -57,7 +57,7 @@ export default function payInvoices(
 
     if (incoming > 0) {
       //update invoice
-      const { customer, paidInvoices: inv, ...tDetails } = transactionDetails;
+      const { customer, paidInvoices: inv, ...tDetails } = paymentData;
 
       const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
       transaction.update(invoiceRef, {
@@ -95,7 +95,7 @@ export default function payInvoices(
         account: accounts_receivable,
         transactionId: invoiceId,
         transactionType: "customer payment",
-        transactionDetails: { ...transactionDetails },
+        transactionDetails: { ...paymentData },
       };
     })
   );
@@ -120,7 +120,7 @@ export default function payInvoices(
         reference,
         transactionId: invoiceId,
         transactionType: "customer payment",
-        transactionDetails: { ...transactionDetails },
+        transactionDetails: { ...paymentData },
       };
     })
   );

@@ -1,11 +1,4 @@
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  limit,
-  getDocs,
-} from "firebase/firestore";
+import { query, where, orderBy, limit, getDocs } from "firebase/firestore";
 import { dbCollections } from "../firebase";
 
 import { Entry } from "../../types";

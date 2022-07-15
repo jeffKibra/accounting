@@ -1,8 +1,8 @@
-import { PaymentsToInvoices, InvoicePaymentMapping } from "../../types";
+import { InvoicesPayments, InvoicePaymentMapping } from "../../types";
 
 export default function getPaymentsMapping(
-  payments: PaymentsToInvoices,
-  incomingPayments: PaymentsToInvoices
+  payments: InvoicesPayments,
+  incomingPayments: InvoicesPayments
 ) {
   /**
    * new array to hold all the different values

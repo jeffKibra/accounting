@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export interface OrgSummary {
   orgId?: string;
   name?: string;
@@ -7,14 +9,19 @@ export interface OrgSummary {
   };
 }
 
-export interface Org extends OrgSummary {
-  orgId: string;
+interface Meta {
+  createdAt: Timestamp | Date;
+  createdBy: string;
+  modifiedBy: string;
+  modifiedAt: Timestamp | Date;
+}
+
+export interface OrgFormData {
   name: string;
   businessType: {
     name: string;
     value: string;
   };
-  id: string;
   city: string;
   country: string;
   industry: string;
@@ -23,4 +30,10 @@ export interface Org extends OrgSummary {
   state: string;
   street: string;
   website: string;
+}
+
+export interface OrgFromDb extends OrgFormData, Meta {}
+
+export interface Org extends OrgFromDb {
+  orgId: string;
 }

@@ -1,6 +1,11 @@
-import { doc, serverTimestamp, increment } from "firebase/firestore";
+import {
+  doc,
+  serverTimestamp,
+  increment,
+  Transaction,
+} from "firebase/firestore";
 
-import { db } from "../firebase";
+import { db, dbCollections } from "../firebase";
 import {
   deleteSimilarAccountEntries,
   groupEntriesIntoAccounts,
@@ -9,22 +14,17 @@ import {
 import { getSalesReceiptData } from ".";
 import { getDateDetails } from "../dates";
 
+import { UserProfile } from "../../types";
+
 export default async function deleteSalesReceipt(
-  transaction,
-  orgId,
-  userProfile,
-  salesReceiptId
+  transaction: Transaction,
+  orgId: string,
+  userProfile: UserProfile,
+  salesReceiptId: string
 ) {
   const { email } = userProfile;
   //   console.log({ salesReceiptId, orgId, userProfile });
 
-  const salesReceiptRef = doc(
-    db,
-    "organizations",
-    orgId,
-    "salesReceipts",
-    salesReceiptId
-  );
   const { yearMonthDay } = getDateDetails();
   const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
   /**
@@ -36,8 +36,8 @@ export default async function deleteSalesReceipt(
     getTransactionEntries(orgId, salesReceiptId),
   ]);
   const {
-    customerId,
-    paymentModeId,
+    customer: { customerId },
+    paymentMode: { value: paymentModeId },
     summary: { totalAmount },
   } = salesReceiptData;
   /**
@@ -91,6 +91,8 @@ export default async function deleteSalesReceipt(
   /**
    * mark salesReceipt as deleted
    */
+  const salesReceiptsCollection = dbCollections(orgId).salesReceipts;
+  const salesReceiptRef = doc(salesReceiptsCollection, salesReceiptId);
   transaction.update(salesReceiptRef, {
     status: "deleted",
     modifiedBy: email,

@@ -3,30 +3,27 @@ import { changeEntriesAccount } from "../journals";
 import { Transaction } from "firebase/firestore";
 import {
   UserProfile,
-  Account,
-  PaymentReceivedFormWithId,
   MappedEntry,
+  PaymentReceived,
+  PaymentReceivedForm,
 } from "../../types";
-
-interface Payment {
-  account: Account;
-}
 
 export default function changePaymentAccount(
   transaction: Transaction,
   userProfile: UserProfile,
   orgId: string,
-  payment: Payment,
-  transactionDetails: PaymentReceivedFormWithId,
+  currentPayment: PaymentReceived,
+  incomingPayment: PaymentReceivedForm,
   entries: MappedEntry[]
 ) {
-  const { account, reference, paymentId } = transactionDetails;
+  const { account: incomingAccount, reference } = incomingPayment;
+  const { paymentId, account: currentAccount } = currentPayment;
   changeEntriesAccount(
     transaction,
     userProfile,
     orgId,
-    payment.account,
-    account,
+    currentAccount,
+    incomingAccount,
     entries.map((entry) => {
       const { incoming, accountId, current, ...prevEntry } = entry;
       const { account } = prevEntry;
@@ -36,7 +33,7 @@ export default function changePaymentAccount(
         prevEntry,
         reference,
         transactionId: paymentId,
-        transactionDetails: { ...transactionDetails },
+        transactionDetails: { ...incomingPayment },
         transactionType: "customer payment",
       };
     })

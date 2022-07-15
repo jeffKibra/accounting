@@ -37,8 +37,8 @@ import { db } from "../firebase";
 import {
   UserProfile,
   Account,
-  PaymentReceivedDetails,
-  PaymentReceivedFormWithId,
+  PaymentReceived,
+  PaymentReceivedForm,
 } from "../../types";
 
 export default async function updatePayment(
@@ -46,21 +46,23 @@ export default async function updatePayment(
   orgId: string,
   userProfile: UserProfile,
   accounts: Account[],
-  data: PaymentReceivedFormWithId
+  paymentId: string,
+  formData: PaymentReceivedForm
 ) {
   const { email } = userProfile;
-  console.log({ data });
+  console.log({ formData });
   const {
-    paymentId,
     payments,
     paidInvoices,
-    customerId,
     amount,
-    accountId,
+    account,
     reference,
-    paymentModeId,
+    paymentMode,
     customer,
-  } = data;
+  } = formData;
+  const { accountId } = account;
+  const { customerId } = customer;
+  const { value: paymentModeId } = paymentMode;
   /**
    * get payments total
    */
@@ -86,11 +88,17 @@ export default async function updatePayment(
     getPaymentData(transaction, orgId, paymentId),
     createDailySummary(orgId),
   ]);
+  const {
+    customer: { customerId: currentCustomerId },
+    account: { accountId: currentAccountId },
+    paymentMode: { name: currentPaymentModeId },
+    amount: currentAmount,
+  } = currentPayment;
   /**
    * check if the customer has changed. if yes
    * generate new payment number and slug
    */
-  const customerHasChanged = customerId !== currentPayment.customerId;
+  const customerHasChanged = customerId !== currentCustomerId;
 
   const allInvoices = combineInvoices(
     [...currentPayment.paidInvoices],
@@ -103,7 +111,7 @@ export default async function updatePayment(
   /**
    * check if payment account has been changed
    */
-  const paymentAccountHasChanged = accountId !== currentPayment.accountId;
+  const paymentAccountHasChanged = accountId !== currentAccountId;
 
   const {
     similarPayments,
@@ -149,14 +157,14 @@ export default async function updatePayment(
       orgId,
       paymentId,
       [...allInvoices],
-      currentPayment.accountId, //use current payment accountId
+      currentAccountId, //use current payment accountId
       [...accountPaymentsToUpdate]
     ),
     getPaymentEntriesToUpdate(
       orgId,
       paymentId,
       [...allInvoices],
-      currentPayment.accountId,
+      currentAccountId,
       [...paymentsToDelete]
     ),
     getPaymentEntriesToUpdate(
@@ -186,8 +194,8 @@ export default async function updatePayment(
   /**
    * start docs writing!
    */
-  const transactionDetails: PaymentReceivedDetails = {
-    ...data,
+  const transactionDetails: PaymentReceived = {
+    ...formData,
     paidInvoicesIds: paidInvoices.map((invoice) => invoice.invoiceId),
     excess,
     paymentId,
@@ -209,7 +217,7 @@ export default async function updatePayment(
     orgId,
     userProfile,
     currentPayment,
-    data
+    formData
   );
   /**
    * update invoices
@@ -217,7 +225,7 @@ export default async function updatePayment(
    * 2. updates accountsReceivableEntries for the updated payments
    * 3. updates paymentAccount entries fro the same
    */
-  updateInvoicesPayments(transaction, userProfile, orgId, data, [
+  updateInvoicesPayments(transaction, userProfile, orgId, paymentId, [
     ...paymentsToUpdate,
   ]);
   /**2
@@ -424,7 +432,7 @@ export default async function updatePayment(
    * update summary payment modes
    * if mode has changed, change the mode values
    */
-  if (currentPayment.paymentModeId === paymentModeId) {
+  if (currentPaymentModeId === paymentModeId) {
     if (currentPayment.amount !== amount) {
       /**
        * create adjustment by subtracting current amount from incoming amount
@@ -436,7 +444,12 @@ export default async function updatePayment(
     /**
      * payment modes are not the same
      */
-    changePaymentMode(transaction, orgId, currentPayment, data);
+    changePaymentMode(
+      transaction,
+      orgId,
+      { amount: currentAmount, paymentModeId: currentPaymentModeId },
+      { amount, paymentModeId }
+    );
   }
   /**
    * update summary

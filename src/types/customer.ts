@@ -1,3 +1,4 @@
+import { Timestamp } from "firebase/firestore";
 import { PaymentTerm } from ".";
 
 export interface CustomerSummary {
@@ -21,7 +22,6 @@ export interface CustomerFormData {
   lastName: string;
   mobile: string;
   paymentTerm: PaymentTerm;
-  paymentTermId: string;
   phone: string;
   remarks: string;
   salutation: string;
@@ -46,28 +46,16 @@ interface Meta {
     payments: number;
     unusedCredits: number;
   };
-  createdAt: string;
+  createdAt: Date | Timestamp;
   createdBy: string;
-  modifiedAt: string;
+  modifiedAt: Date | Timestamp;
   modifiedBy: string;
-}
-
-export interface CustomerFormDataWithId extends CustomerFormData {
-  customerId: string;
 }
 
 export interface CustomerFromDb extends CustomerFormData, Meta {}
 
 export interface Customer extends CustomerFromDb {
   customerId: string;
-}
-
-export interface CustomerToUpdate
-  extends Omit<
-    CustomerFromDb,
-    "createdAt" | "createdBy" | "summary" | "status"
-  > {
-  status?: string;
 }
 
 export interface OpeningBalanceFormData {

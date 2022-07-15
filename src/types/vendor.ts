@@ -40,7 +40,6 @@ export interface VendorFormData {
   lastName: string;
   mobile: string;
   paymentTerm: PaymentTerm;
-  paymentTermId: string;
   phone: string;
   remarks: string;
   salutation: string;

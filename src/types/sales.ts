@@ -44,3 +44,13 @@ export interface SalesItem
     | "salesAccountId"
     | "salesTaxId"
   > {}
+
+export interface GroupedItems {
+  accountId: string;
+  items: SalesItem[];
+}
+
+export interface SalesAccountSummary {
+  accountId: string;
+  salesAmount: number;
+}

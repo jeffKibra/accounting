@@ -5,22 +5,17 @@ import {
 import { getAccountData } from "../accounts";
 
 import { Transaction } from "firebase/firestore";
-import {
-  UserProfile,
-  PaymentReceivedDetails,
-  Account,
-  Entry,
-} from "../../types";
+import { UserProfile, PaymentReceived, Account, Entry } from "../../types";
 
 function createEntry(
   transaction: Transaction,
   userProfile: UserProfile,
   orgId: string,
   amount: number,
-  transactionDetails: PaymentReceivedDetails,
+  paymentData: PaymentReceived,
   accounts: Account[]
 ) {
-  const { reference, paymentId } = transactionDetails;
+  const { reference, paymentId } = paymentData;
   /**
    * excess amount - credit account with the excess amount
    */
@@ -39,7 +34,7 @@ function createEntry(
         account: unearned_revenue,
         amount,
         reference,
-        transactionDetails: { ...transactionDetails },
+        transactionDetails: { ...paymentData },
         transactionId: paymentId,
         transactionType: "customer payment",
       },
@@ -52,11 +47,11 @@ function updateEntry(
   userProfile: UserProfile,
   orgId: string,
   amount: number,
-  transactionDetails: PaymentReceivedDetails,
+  paymentData: PaymentReceived,
   entryData: Entry,
   accounts: Account[]
 ) {
-  const { paymentId, reference } = transactionDetails;
+  const { paymentId, reference } = paymentData;
   const { debit, credit } = entryData;
   const entryAmount = credit > 0 ? credit : debit;
   /**
@@ -80,7 +75,7 @@ function updateEntry(
           ...entryData,
           reference,
           transactionId: paymentId,
-          transactionDetails: { ...transactionDetails },
+          transactionDetails: { ...paymentData },
         },
       ]
     );

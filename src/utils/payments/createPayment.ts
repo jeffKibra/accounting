@@ -5,7 +5,7 @@ import {
   Transaction,
 } from "firebase/firestore";
 
-import { db } from "../firebase";
+import { db, dbCollections } from "../firebase";
 import { getAccountData } from "../accounts";
 import {
   getPaymentsTotal,
@@ -13,7 +13,6 @@ import {
   getPaymentsMapping,
   createPaymentId,
 } from ".";
-import { getCustomerData } from "../customers";
 import { createSimilarAccountEntries } from "../journals";
 import formats from "../formats";
 import { getDateDetails } from "../dates";
@@ -23,7 +22,7 @@ import {
   UserProfile,
   Account,
   PaymentReceivedForm,
-  PaymentReceivedDetails,
+  PaymentReceived,
 } from "../../types";
 
 export default async function createPayment(
@@ -31,19 +30,15 @@ export default async function createPayment(
   org: Org,
   userProfile: UserProfile,
   accounts: Account[],
-  paymentData: PaymentReceivedForm
+  formData: PaymentReceivedForm
 ) {
   const orgId = org.id;
   const { email } = userProfile;
   // console.log({ data, orgId, userProfile });
-  const {
-    payments,
-    customerId,
-    amount,
-    reference,
-    paidInvoices,
-    paymentModeId,
-  } = paymentData;
+  const { payments, customer, amount, reference, paidInvoices, paymentMode } =
+    formData;
+  const { customerId } = customer;
+  const { value: paymentModeId } = paymentMode;
 
   const paymentsTotal = getPaymentsTotal(payments);
   if (paymentsTotal > amount) {
@@ -67,25 +62,19 @@ export default async function createPayment(
    * get current customer data.
    * dont use submitted customer as data might be outdated
    */
-  const [customerData, paymentId] = await Promise.all([
-    getCustomerData(transaction, orgId, customerId),
-    createPaymentId(transaction, orgId),
-  ]);
+  const [paymentId] = await Promise.all([createPaymentId(transaction, orgId)]);
   /**
    * create the all inclusive payment data
    */
-  const tDetails = {
-    ...paymentData,
+  const paymentData: PaymentReceived = {
+    ...formData,
     excess,
-    customer: formats.formatCustomerData(customerData),
+    customer: formats.formatCustomerData(customer),
     paidInvoices: formats.formatInvoices(paidInvoices),
     paidInvoicesIds: paidInvoices.map((invoice) => invoice.invoiceId),
-  };
-  const transactionDetails: PaymentReceivedDetails = {
-    ...tDetails,
     paymentId,
   };
-  // console.log({ transactionDetails });
+  // console.log({ paymentData });
   /**
    * start docs writing!
    */
@@ -119,7 +108,7 @@ export default async function createPayment(
     transaction,
     userProfile,
     orgId,
-    transactionDetails,
+    paymentData,
     paymentsToCreate,
     accounts
   );
@@ -138,7 +127,7 @@ export default async function createPayment(
           amount: excess,
           reference,
           transactionId: paymentId,
-          transactionDetails: { ...transactionDetails },
+          transactionDetails: { ...paymentData },
           transactionType: "customer payment",
         },
       ]
@@ -147,7 +136,9 @@ export default async function createPayment(
   /**
    * create new payment
    */
-  const paymentRef = doc(db, "organizations", orgId, "payments", paymentId);
+  const paymentsReceivedCollection = dbCollections(orgId).paymentsReceived;
+  const paymentRef = doc(paymentsReceivedCollection, paymentId);
+  const { paymentId: pid, ...tDetails } = paymentData;
   transaction.set(paymentRef, {
     ...tDetails,
     status: "active",

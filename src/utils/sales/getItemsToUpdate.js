@@ -1,3 +1,5 @@
+// import { SalesItem, SalesItemFromForm } from "../../types";
+
 export default function getItemsToUpdate(items = [], incomingItems = []) {
   /**
    * traverse through items array

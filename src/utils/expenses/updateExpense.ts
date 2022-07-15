@@ -345,7 +345,7 @@ export default async function updateExpense(
   transaction.update(expenseRef, {
     ...tDetails,
     // classical: "plus",
-    modifiedBy: email,
+    modifiedBy: email || "",
     modifiedAt: serverTimestamp(),
   });
 }

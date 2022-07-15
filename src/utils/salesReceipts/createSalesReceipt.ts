@@ -5,7 +5,7 @@ import {
   Transaction,
 } from "firebase/firestore";
 
-import { db } from "../firebase";
+import { db, dbCollections } from "../firebase";
 
 import { createSimilarAccountEntries } from "../journals";
 import {
@@ -16,7 +16,7 @@ import {
 import formats from "../formats";
 import { getDateDetails } from "../dates";
 
-import { UserProfile, Org, Account } from "../../types";
+import { UserProfile, Org, Account, SalesReceiptForm } from "../../types";
 
 export default async function createSalesReceipt(
   transaction: Transaction,
@@ -24,44 +24,16 @@ export default async function createSalesReceipt(
   userProfile: UserProfile,
   accounts: Account[],
   salesReceiptId: string,
-  data = {
-    customerId: "",
-    customer: {},
-    summary: {
-      shipping: 0,
-      adjustment: 0,
-      subTotal: 0,
-      totalTaxes: 0,
-      totalAmount: 0,
-    },
-    selectedItems: [
-      {
-        salesAccountId: "",
-        salesAccount: { name: "", accountd: "", accountType: {} },
-        totalAmount: 0,
-      },
-    ],
-    receiptDate: new Date(),
-    accountId: "",
-    account: {},
-    paymentModeId: "",
-    paymentMode: {},
-    reference: "",
-    customerNotes: "",
-  },
+  data: SalesReceiptForm,
   transactionType = "sales receipt"
 ) {
   const orgId = org.id;
   const { email } = userProfile;
-  const {
-    customerId,
-    customer,
-    summary,
-    selectedItems,
-    accountId,
-    reference,
-    paymentModeId,
-  } = data;
+  const { customer, summary, selectedItems, reference, account, paymentMode } =
+    data;
+  const { customerId } = customer;
+  const { accountId } = account;
+  const { value: paymentModeId } = paymentMode;
   const { totalTaxes, adjustment, shipping, totalAmount } = summary;
   // console.log({ data });
 
@@ -139,13 +111,8 @@ export default async function createSalesReceipt(
   /**
    * create salesReceipt
    */
-  const salesReceiptRef = doc(
-    db,
-    "organizations",
-    orgId,
-    "salesReceipts",
-    salesReceiptId
-  );
+  const salesReceiptsCollection = dbCollections(orgId).salesReceipts;
+  const salesReceiptRef = doc(salesReceiptsCollection, salesReceiptId);
   // console.log({ salesReceiptData });
   transaction.set(salesReceiptRef, {
     ...tDetails,

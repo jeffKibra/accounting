@@ -1,5 +1,5 @@
 import { doc, Transaction } from "firebase/firestore";
-import { db, dbCollections } from "../firebase";
+import { dbCollections } from "../firebase";
 
 import { PaymentReceived } from "../../types";
 

@@ -1,6 +1,11 @@
-import { doc, serverTimestamp, increment } from "firebase/firestore";
+import {
+  doc,
+  serverTimestamp,
+  increment,
+  Transaction,
+} from "firebase/firestore";
 
-import { db } from "../firebase";
+import { db, dbCollections } from "../firebase";
 import {
   updateSimilarAccountEntries,
   deleteSimilarAccountEntries,
@@ -20,45 +25,22 @@ import { getSalesReceiptData } from ".";
 import formats from "../formats";
 import { getDateDetails } from "../dates";
 
+import { SalesReceiptForm, UserProfile, Account } from "../../types";
+
 export default async function updateSalesReceipt(
-  transaction,
-  orgId = "",
-  userProfile = { email: "" },
-  accounts = [{ name: "", accountId: "", accountType: {} }],
-  data = {
-    salesReceiptId: "",
-    summary: {
-      totalAmount: 0,
-      shipping: 0,
-      adjustment: 0,
-      totalTaxes: 0,
-      taxes: [],
-    },
-    customerId: "",
-    accountId: "",
-    reference: "",
-    customerNotes: "",
-    receiptDate: new Date(),
-    paymentModeId: "",
-    selectedItems: [
-      {
-        salesAccount: { name: "", accountId: "", accountType: {} },
-        totalAmount: 0,
-      },
-    ],
-  }
+  transaction: Transaction,
+  orgId: string,
+  userProfile: UserProfile,
+  accounts: Account[],
+  salesReceiptId: string,
+  data: SalesReceiptForm
 ) {
   const { email } = userProfile;
-  const { salesReceiptId, ...rest } = data;
-  const {
-    summary,
-    selectedItems,
-    customerId,
-    customer,
-    accountId,
-    paymentModeId,
-    reference,
-  } = rest;
+  const { summary, selectedItems, customer, account, paymentMode, reference } =
+    data;
+  const { customerId } = customer;
+  const { accountId } = account;
+  const { value: paymentModeId } = paymentMode;
   // console.log({ data });
   const { totalTaxes, shipping, adjustment, totalAmount } = summary;
 
@@ -67,7 +49,9 @@ export default async function updateSalesReceipt(
   ]);
 
   const {
-    customerId: currentCustomerId,
+    customer: { customerId: currentCustomerId },
+    account: { accountId: currentAccountId },
+    paymentMode: { value: currentPaymentModeId },
     selectedItems: items,
     summary: currentSummary,
   } = currentSalesReceipt;
@@ -116,7 +100,7 @@ export default async function updateSalesReceipt(
       getIncomeEntries(orgId, salesReceiptId, "sales receipt", deletedAccounts),
       getAccountTransactionEntry(
         orgId,
-        currentSalesReceipt.accountId,
+        currentAccountId,
         salesReceiptId,
         "sales receipt"
       ),
@@ -125,7 +109,7 @@ export default async function updateSalesReceipt(
   //currentSummary
 
   const tDetails = {
-    ...rest,
+    ...data,
     customer: formats.formatCustomerData(customer),
     selectedItems: formats.formatSaleItems(selectedItems),
   };
@@ -199,7 +183,7 @@ export default async function updateSalesReceipt(
   /**
    * check if payment account has changed
    */
-  const paymentAccountHasChanged = accountId !== currentSalesReceipt.accountId;
+  const paymentAccountHasChanged = accountId !== currentAccountId;
 
   if (paymentAccountHasChanged) {
     /**
@@ -213,13 +197,12 @@ export default async function updateSalesReceipt(
       currentSalesReceipt.account,
       depositAccount,
       paymentAccountEntries.map((entry) => {
-        const { credit, debit, entryId } = entry;
-        const prevEntry = { credit, debit, entryId };
+        const { account } = entry;
         return {
           amount: totalAmount,
-          prevAccount: currentSalesReceipt.account,
-          prevEntry,
-          transactionDetails,
+          prevAccount: account,
+          prevEntry: entry,
+          transactionDetails: { ...transactionDetails },
           reference,
         };
       })
@@ -253,7 +236,7 @@ export default async function updateSalesReceipt(
    * update summary payment modes
    * if mode has changed, change the mode values
    */
-  if (currentSalesReceipt.paymentModeId === paymentModeId) {
+  if (currentPaymentModeId === paymentModeId) {
     if (currentSummary.totalAmount !== totalAmount) {
       /**
        * create adjustment by subtracting current amount from incoming amount
@@ -270,7 +253,7 @@ export default async function updateSalesReceipt(
       orgId,
       {
         amount: currentSummary.totalAmount,
-        paymentModeId: currentSalesReceipt.paymentModeId,
+        paymentModeId: currentPaymentModeId,
       },
       { amount: totalAmount, paymentModeId }
     );
@@ -337,13 +320,8 @@ export default async function updateSalesReceipt(
   /**
    * update sales receipt
    */
-  const salesReceiptRef = doc(
-    db,
-    "organizations",
-    orgId,
-    "salesReceipts",
-    salesReceiptId
-  );
+  const salesReceiptsCollection = dbCollections(orgId).salesReceipts;
+  const salesReceiptRef = doc(salesReceiptsCollection, salesReceiptId);
   // console.log({ tDetails });
   transaction.update(salesReceiptRef, {
     ...tDetails,

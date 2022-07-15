@@ -24,42 +24,29 @@ interface Meta extends Extras {
 }
 
 export interface PaymentReceivedForm {
-  accountId: string;
   account: Account;
   amount: number;
-  customerId: string;
   customer: Customer;
   paymentDate: Date;
-  paymentModeId: string;
   paymentMode: PaymentMode;
   reference: string;
   paidInvoices: Invoice[];
   payments: { [key: string]: number };
 }
 
-export interface PaymentReceivedDetails
-  extends Omit<PaymentReceivedForm, "paidInvoices" | "customer">,
-    Extras {
-  paymentId: string;
-  paidInvoices: InvoiceSummary[];
-  customer: CustomerSummary;
-}
-
-export interface PaymentReceivedFormWithId extends PaymentReceivedForm {
-  paymentId: string;
-}
+// export interface PaymentReceivedDetails
+//   extends Omit<PaymentReceivedForm, "paidInvoices" | "customer">,
+//     Extras {
+//   paymentId: string;
+//   paidInvoices: InvoiceSummary[];
+//   customer: CustomerSummary;
+// }
 
 export interface PaymentReceivedFromDb
   extends Omit<PaymentReceivedForm, "paidInvoices" | "customer">,
     Meta {
   paidInvoices: InvoiceSummary[];
   customer: CustomerSummary;
-}
-
-export interface PaymentReceivedUpdate
-  extends PaymentReceivedForm,
-    Partial<Meta> {
-  paymentId: string;
 }
 
 export interface PaymentReceived extends PaymentReceivedFromDb {
@@ -72,6 +59,6 @@ export interface InvoicePaymentMapping {
   invoiceId: string;
 }
 
-export interface PaymentsToInvoices {
+export interface InvoicesPayments {
   [key: string]: number;
 }

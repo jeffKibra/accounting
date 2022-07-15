@@ -3,10 +3,16 @@ import {
   getAccountTransactionEntry,
 } from "../journals";
 import { getAccountData } from "../accounts";
-import { updateInvoiceFetch, updateInvoiceWrite } from "../invoices";
+import { fetchInvoiceUpdateData, updateInvoice } from "../invoices";
 
 import { Transaction } from "firebase/firestore";
-import { Account, UserProfile, Customer, InvoiceUpdateData } from "../../types";
+import {
+  Account,
+  UserProfile,
+  Customer,
+  InvoiceFormData,
+  Invoice,
+} from "../../types";
 
 export default async function updateOB(
   transaction: Transaction,
@@ -19,15 +25,13 @@ export default async function updateOB(
   const salesAccount = getAccountData("sales", accounts);
   const OBAAccount = getAccountData("opening_balance_adjustments", accounts);
 
-  const { customerId } = customer;
+  const { customerId, paymentTerm } = customer;
   const invoiceId = customerId;
 
   /**
    * create an invoice equivalent for for customer opening balance
    */
-  const incomingInvoice: InvoiceUpdateData = {
-    invoiceId,
-    customerId,
+  const invoiceData: InvoiceFormData = {
     summary: {
       totalAmount: openingBalance,
       adjustment: 0,
@@ -45,12 +49,18 @@ export default async function updateOB(
         totalAmount: openingBalance,
       },
     ],
+    customerNotes: "",
+    dueDate: new Date(),
+    invoiceDate: new Date(),
+    orderNumber: "",
+    paymentTerm,
+    subject: "",
   };
   /**
    * fetch data
    */
   const [updateData, salesEntry, OBAEntry] = await Promise.all([
-    updateInvoiceFetch(transaction, orgId, incomingInvoice),
+    fetchInvoiceUpdateData(transaction, orgId, invoiceId, invoiceData),
     getAccountTransactionEntry(
       orgId,
       salesAccount.accountId,
@@ -72,6 +82,11 @@ export default async function updateOB(
     entriesToUpdate,
     newAccounts,
   });
+
+  const incomingInvoice: Invoice = {
+    ...currentInvoice,
+    ...invoiceData,
+  };
   /**
    * compute adjustment
    */
@@ -109,7 +124,7 @@ export default async function updateOB(
   /**
    * update invoice
    */
-  updateInvoiceWrite(
+  updateInvoice(
     transaction,
     orgId,
     userProfile,

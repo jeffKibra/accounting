@@ -7,21 +7,16 @@ import {
 
 import { db } from "../firebase";
 
-import {
-  UserProfile,
-  InvoicePaymentMapping,
-  PaymentReceivedFormWithId,
-} from "../../types";
+import { UserProfile, InvoicePaymentMapping } from "../../types";
 
 export default function updateInvoicesPayments(
   transaction: Transaction,
   userProfile: UserProfile,
   orgId: string,
-  incomingPayment: PaymentReceivedFormWithId,
+  paymentId: string,
   payments: InvoicePaymentMapping[]
 ) {
   const { email } = userProfile;
-  const { paymentId } = incomingPayment;
 
   payments.forEach((payment) => {
     const { current, incoming, invoiceId } = payment;
@@ -29,7 +24,7 @@ export default function updateInvoicesPayments(
      * calculate adjustment
      */
     const adjustment = incoming - current;
-    // const tDetails = formats.formatInvoicePayment(incomingPayment);
+    // const tDetails = formats.formatInvoicePayment(formData);
     /**
      * update invoice
      * subtract adjustment from zero(0) before incrementing to invert the sign
@@ -39,10 +34,7 @@ export default function updateInvoicesPayments(
     // console.log({ tDetails, incoming });
     transaction.update(invoiceRef, {
       balance: increment(0 - adjustment),
-      [`payments.${paymentId}`]: {
-        paymentAmount: incoming,
-        ...incomingPayment,
-      },
+      [`payments.${paymentId}`]: incoming,
       modifiedBy: email,
       modifiedAt: serverTimestamp(),
     });

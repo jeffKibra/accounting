@@ -2,7 +2,7 @@ import {
   deleteSimilarAccountEntries,
   getAccountTransactionEntry,
 } from "../journals";
-import { deleteInvoiceFetch, deleteInvoiceWrite } from "../invoices";
+import { fetchInvoiceDeletionData, deleteInvoice } from "../invoices";
 import { getAccountData } from "../accounts";
 
 import { Transaction } from "firebase/firestore";
@@ -20,7 +20,7 @@ export default async function deleteOB(
   const OBAAccount = getAccountData("opening_balance_adjustments", accounts);
 
   const [updateData, salesEntry, OBAEntry] = await Promise.all([
-    deleteInvoiceFetch(transaction, orgId, invoiceId),
+    fetchInvoiceDeletionData(transaction, orgId, invoiceId),
     getAccountTransactionEntry(
       orgId,
       salesAccount.accountId,
@@ -64,7 +64,7 @@ export default async function deleteOB(
    * create an invoice equivalent for for customer opening balance
    */
   const { invoice, groupedEntries } = updateData;
-  deleteInvoiceWrite(
+  deleteInvoice(
     transaction,
     orgId,
     userProfile,

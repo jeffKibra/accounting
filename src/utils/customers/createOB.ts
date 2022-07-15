@@ -20,18 +20,24 @@ import { createInvoice } from "../invoices";
  * @param {number} openingBalance
  */
 
-import { Org, UserProfile, Account, CustomerFormDataWithId } from "../../types";
+import {
+  Org,
+  UserProfile,
+  Account,
+  Customer,
+  InvoiceFormData,
+} from "../../types";
 
 export default function createOB(
   transaction: Transaction,
   org: Org,
   userProfile: UserProfile,
   accounts: Account[],
-  customer: CustomerFormDataWithId,
+  customer: Customer,
   openingBalance: number
 ) {
   const orgId = org.id;
-  const { paymentTermId, paymentTerm, customerId } = customer;
+  const { paymentTerm, customerId } = customer;
   /**
    * create transaction details for journal entries
    */
@@ -78,39 +84,39 @@ export default function createOB(
    */
   const invoiceId = customerId;
   const salesAccount = getAccountData("sales", accounts);
+  const invoiceData: InvoiceFormData = {
+    customer: transactionDetails,
+    invoiceDate: new Date(),
+    dueDate: new Date(),
+    paymentTerm,
+    summary: {
+      totalAmount: openingBalance,
+      adjustment: 0,
+      shipping: 0,
+      subTotal: openingBalance,
+      taxType: "",
+      taxes: [],
+      totalTaxes: 0,
+    },
+    selectedItems: [
+      {
+        salesAccount,
+        salesAccountId: salesAccount.accountId,
+        totalAmount: openingBalance,
+      },
+    ],
+    customerNotes: "",
+    subject: "",
+    orderNumber: "",
+  };
+
   createInvoice(
     transaction,
     org,
     userProfile,
     accounts,
     invoiceId,
-    {
-      customerId,
-      customer: transactionDetails,
-      invoiceDate: new Date(),
-      dueDate: new Date(),
-      paymentTerm,
-      paymentTermId,
-      summary: {
-        totalAmount: openingBalance,
-        adjustment: 0,
-        shipping: 0,
-        subTotal: openingBalance,
-        taxType: "",
-        taxes: [],
-        totalTaxes: 0,
-      },
-      selectedItems: [
-        {
-          salesAccount,
-          salesAccountId: salesAccount.accountId,
-          totalAmount: openingBalance,
-        },
-      ],
-      customerNotes: "",
-      subject: "",
-      orderNumber: "",
-    },
+    invoiceData,
     "customer opening balance"
   );
 }

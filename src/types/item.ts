@@ -1,6 +1,6 @@
 import { Account, Tax } from ".";
 
-interface ItemFormData {
+export interface ItemFormData {
   costPrice: number;
   extraDetails: string;
   name: string;
@@ -18,13 +18,15 @@ interface ItemFormData {
 }
 
 interface Meta {
-  status?: string;
-  createdAt?: Date;
-  createdBy?: string;
-  modifiedAt?: Date;
-  modifiedBy?: string;
+  status: string;
+  createdAt: Date;
+  createdBy: string;
+  modifiedAt: Date;
+  modifiedBy: string;
 }
 
-export interface Item extends ItemFormData, Meta {
+export interface ItemFromDb extends ItemFormData, Meta {}
+
+export interface Item extends ItemFromDb {
   itemId: string;
 }

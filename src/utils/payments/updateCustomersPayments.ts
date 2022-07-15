@@ -18,9 +18,13 @@ export default function updateCustomersPayments(
   incomingPayment: PaymentReceivedForm
 ) {
   const { email } = userProfile;
-  const { customerId, amount, payments } = payment;
   const {
-    customerId: incomingCustomerId,
+    customer: { customerId },
+    amount,
+    payments,
+  } = payment;
+  const {
+    customer: { customerId: incomingCustomerId },
     amount: incomingAmount,
     payments: incomingPayments,
   } = incomingPayment;
