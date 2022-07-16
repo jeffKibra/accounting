@@ -16,7 +16,7 @@ import {
 } from "../../actions/authActions";
 import { auth } from "../../../utils/firebase";
 
-import { RootState } from "../../../types";
+import { RootState, UserProfile } from "../../../types";
 
 import { start, success, fail, reset } from "../../slices/authSlice";
 
@@ -53,7 +53,7 @@ export function* watchLogout() {
 }
 
 interface ChannelOutput {
-  userRecord: User | null;
+  user: User | null;
   error: Error | null;
 }
 
@@ -64,11 +64,28 @@ export function* activeAuthListener() {
     (emit) => {
       const unsubscribe = onAuthStateChanged(
         auth,
-        async (userRecord) => emit({ userRecord, error: null }),
+        async (user) => {
+          // // if latest claims are required
+          // let claims: ParsedToken | null = null;
+          // if (user) {
+          //   const tokenResult = await user.getIdTokenResult();
+          //   const tokenRe = await user.getIdToken();
+          //   console.log({ tokenRe, tokenResult });
+
+          //   claims = tokenResult.claims;
+          // } else {
+          //   // console.log("no user logged in");
+          //   claims = null;
+          // }
+
+          // console.log({ claims });
+
+          emit({ user, error: null });
+        },
         (err) => {
           const error = err as Error;
           console.log(error);
-          emit({ error, userRecord: null });
+          emit({ error, user: null });
         }
       );
 
@@ -78,24 +95,15 @@ export function* activeAuthListener() {
 
   try {
     while (true) {
-      const channelResult: ChannelOutput = yield take(authChannel);
-      const { userRecord, error } = channelResult;
-      // console.log({ userRecord, error });
+      const channelResult: { user: UserProfile; error: Error } = yield take(
+        authChannel
+      );
+      const { user, error } = channelResult;
+      console.log({ user, error });
 
       if (error) {
         throw error;
       }
-
-      // if latest claims are required
-      // let claims = null;
-      // if (userRecord) {
-      //   //const user: IdTokenResult = yield call(userRecord.getIdTokenResult);
-
-      //   claims = user.claims;
-      // } else {
-      //   // console.log("no user logged in");
-      //   claims = null;
-      // }
 
       const action: string = yield select(
         (state: RootState) => state.authReducer.action
@@ -103,7 +111,11 @@ export function* activeAuthListener() {
       // console.log({ claims });
 
       if (action !== CREATE_USER) {
-        yield put(success(userRecord));
+        if (user) {
+          yield put(success(user));
+        } else {
+          yield put(success(null));
+        }
       }
     }
   } catch (err) {
@@ -123,6 +135,7 @@ interface UserData {
 }
 
 export function* login(action: PayloadAction<UserData>) {
+  console.log({ action });
   yield put(start(LOGIN));
   const {
     payload: { email, password },
@@ -135,10 +148,13 @@ export function* login(action: PayloadAction<UserData>) {
       password
     );
 
-    // let claims = null;
+    //uncoment if custom claims have been provided
+    // let claims: ParsedToken | null = null;
 
     // if (userCredential) {
     //   const user = await userCredential.user.getIdTokenResult();
+
+    //   console.log({ user });
     //   claims = user.claims;
     // } else {
     //   claims = null;
@@ -150,7 +166,8 @@ export function* login(action: PayloadAction<UserData>) {
   try {
     yield call(removeUser);
 
-    const user: User = yield call(signin);
+    const user: UserProfile = yield call(signin);
+    console.log({ user });
 
     yield put(success(user));
   } catch (err) {

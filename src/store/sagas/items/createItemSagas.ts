@@ -24,8 +24,7 @@ import {
   error as toastError,
 } from "../../slices/toastSlice";
 
-import { RootState, ItemFormData, Org } from "../../../types";
-import { UserProfile } from "firebase/auth";
+import { RootState, ItemFormData, Org, UserProfile } from "../../../types";
 
 export async function getSimilarItem(orgId: string, sku: string) {
   const q = query(
@@ -56,7 +55,7 @@ function* createItem(action: PayloadAction<ItemFormData>) {
   const userProfile: UserProfile = yield select(
     (state: RootState) => state.authReducer.userProfile
   );
-  const { name } = userProfile;
+  const { uid } = userProfile;
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;
   // console.log({ data });
@@ -94,8 +93,8 @@ function* createItem(action: PayloadAction<ItemFormData>) {
     batch.set(newDocRef, {
       ...data,
       status: "active",
-      createdBy: name,
-      modifiedBy: name,
+      createdBy: uid,
+      modifiedBy: uid,
       createdAt: serverTimestamp(),
       modifiedAt: serverTimestamp(),
     });

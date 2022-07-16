@@ -21,7 +21,7 @@ export default async function createVendor(
   vendorId: string,
   vendorData: VendorFormData
 ) {
-  const orgId = org.id;
+  const { orgId } = org;
   const { email } = userProfile;
   const vendorRef = doc(db, "organizations", orgId, "vendors", vendorId);
   const { yearMonthDay } = getDateDetails();

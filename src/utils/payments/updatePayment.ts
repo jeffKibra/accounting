@@ -195,6 +195,7 @@ export default async function updatePayment(
    * start docs writing!
    */
   const transactionDetails: PaymentReceived = {
+    ...currentPayment,
     ...formData,
     paidInvoicesIds: paidInvoices.map((invoice) => invoice.invoiceId),
     excess,

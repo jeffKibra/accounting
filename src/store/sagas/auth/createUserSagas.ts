@@ -1,9 +1,5 @@
 import { put, call, takeLatest } from "redux-saga/effects";
-import {
-  createUserWithEmailAndPassword,
-  updateProfile,
-  User,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { setDoc, doc, serverTimestamp } from "firebase/firestore";
 import { PayloadAction } from "@reduxjs/toolkit";
 
@@ -11,6 +7,8 @@ import { auth, db } from "../../../utils/firebase";
 import { CREATE_USER } from "../../actions/authActions";
 
 import { start, success, fail } from "../../slices/authSlice";
+
+import { UserProfile } from "../../../types";
 
 interface createUserData {
   email: string;
@@ -26,7 +24,7 @@ function* createUser(action: PayloadAction<createUserData>) {
   const { email, password, firstName, lastName } = action.payload;
 
   async function create() {
-    const userRecord = await createUserWithEmailAndPassword(
+    const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
       password
@@ -37,7 +35,7 @@ function* createUser(action: PayloadAction<createUserData>) {
         displayName: `${firstName} ${lastName}`,
       });
     }
-    const user = userRecord.user;
+    const user = userCredential.user;
 
     // const tokenResult = await user.getIdTokenResult(true);
     // const claims = tokenResult.claims;
@@ -57,7 +55,7 @@ function* createUser(action: PayloadAction<createUserData>) {
   }
 
   try {
-    const userProfile: User = yield call(create);
+    const userProfile: UserProfile = yield call(create);
     // console.log({ userProfile });
 
     yield put(success(userProfile));

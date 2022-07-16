@@ -3,6 +3,7 @@ import {
   serverTimestamp,
   increment,
   Transaction,
+  Timestamp,
 } from "firebase/firestore";
 
 import { db, dbCollections } from "../firebase";
@@ -32,7 +33,7 @@ export default async function createPayment(
   accounts: Account[],
   formData: PaymentReceivedForm
 ) {
-  const orgId = org.id;
+  const { orgId } = org;
   const { email } = userProfile;
   // console.log({ data, orgId, userProfile });
   const { payments, customer, amount, reference, paidInvoices, paymentMode } =
@@ -73,6 +74,12 @@ export default async function createPayment(
     paidInvoices: formats.formatInvoices(paidInvoices),
     paidInvoicesIds: paidInvoices.map((invoice) => invoice.invoiceId),
     paymentId,
+    status: "active",
+    org: formats.formatOrgData(org),
+    createdBy: email,
+    createdAt: serverTimestamp() as Timestamp,
+    modifiedBy: email,
+    modifiedAt: serverTimestamp() as Timestamp,
   };
   // console.log({ paymentData });
   /**
@@ -141,11 +148,5 @@ export default async function createPayment(
   const { paymentId: pid, ...tDetails } = paymentData;
   transaction.set(paymentRef, {
     ...tDetails,
-    status: "active",
-    org: formats.formatOrgData(org),
-    createdBy: email,
-    createdAt: serverTimestamp(),
-    modifiedBy: email,
-    modifiedAt: serverTimestamp(),
   });
 }

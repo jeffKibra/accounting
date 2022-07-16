@@ -69,7 +69,7 @@ import { RootState, Account } from "../../../types";
 
 // function* getGroupedAccounts({ mainTypes }) {
 //   yield put(start(GET_ACCOUNTS));
-//   const orgId = yield select((state) => state.orgsReducer.org.id);
+//   const orgId = yield select((state:RootState) => state.orgsReducer.org?.orgId);
 
 //   async function get() {
 //     const q = query(

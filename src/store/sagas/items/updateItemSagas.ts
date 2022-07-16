@@ -32,7 +32,7 @@ function* updateItem(action: PayloadAction<UpdateData>) {
   const userProfile: UserProfile = yield select(
     (state: RootState) => state.authReducer.userProfile
   );
-  const { name } = userProfile;
+  const { uid } = userProfile;
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
@@ -52,7 +52,7 @@ function* updateItem(action: PayloadAction<UpdateData>) {
     console.log({ rest });
     return updateDoc(doc(db, "organizations", orgId, "items", itemId), {
       ...rest,
-      modifiedBy: name,
+      modifiedBy: uid,
       modifiedAt: serverTimestamp(),
     });
   }
@@ -80,7 +80,7 @@ function* deleteItem(action: PayloadAction<string>) {
   const userProfile: UserProfile = yield select(
     (state: RootState) => state.authReducer.userProfile
   );
-  const { name } = userProfile;
+  const { uid } = userProfile;
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
@@ -106,7 +106,7 @@ function* deleteItem(action: PayloadAction<string>) {
 
     batch.update(itemRef, {
       status: "deleted",
-      modifiedBy: name,
+      modifiedBy: uid,
       modifiedAt: serverTimestamp(),
     });
 

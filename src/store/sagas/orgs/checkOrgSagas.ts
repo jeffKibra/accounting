@@ -39,9 +39,9 @@ function* checkOrg() {
     );
 
     // console.log({ userProfile });
-    const { user_id } = userProfile;
+    const { uid } = userProfile;
 
-    let org: Org | null = user_id ? yield call(getOrgData, user_id) : null;
+    let org: Org | null = uid ? yield call(getOrgData, uid) : null;
 
     if (org) {
       yield put(orgSuccess(org));

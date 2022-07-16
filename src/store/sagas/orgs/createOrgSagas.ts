@@ -61,7 +61,7 @@ function* createOrg(action: PayloadAction<OrgFormData>) {
   const userProfile: UserProfile = yield select(
     (state) => state.authReducer.userProfile
   );
-  const { email, user_id } = userProfile;
+  const { email, uid } = userProfile;
   const dateDetails = getDateDetails();
 
   async function saveData() {
@@ -126,7 +126,7 @@ function* createOrg(action: PayloadAction<OrgFormData>) {
       status: "active",
       createdBy: email,
       modifiedBy: email,
-      owner: user_id,
+      owner: uid,
       createdAt: serverTimestamp(),
       modifiedAt: serverTimestamp(),
     });
@@ -143,8 +143,8 @@ function* createOrg(action: PayloadAction<OrgFormData>) {
   }
 
   async function userHasOrg() {
-    if (user_id) {
-      const org = await getOrg(user_id);
+    if (uid) {
+      const org = await getOrg(uid);
       if (org) {
         throw new Error("This User already has a Company account!");
       }

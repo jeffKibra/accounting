@@ -10,7 +10,7 @@ import CustomRawTable from "../CustomRawTable";
 
 import InvoiceDates from "./InvoiceDates";
 
-import getInvoiceStatus from "../../../utils/invoices/getInvoiceStatus";
+import { getInvoiceStatus } from "../../../utils/invoices";
 function InvoicesTable(props) {
   const { invoices, showCustomer } = props;
   // console.log({ invoices });

@@ -17,7 +17,7 @@ export default async function updateOpeningBalance(
   accounts: Account[],
   data: OpeningBalanceFormData
 ) {
-  const orgId = org.id;
+  const { orgId } = org;
   const { openingBalance, customerId } = data;
   const { email } = userProfile;
   /**

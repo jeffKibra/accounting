@@ -26,7 +26,7 @@ export default async function createCustomer(
   customerId: string,
   customerData: CustomerFormData
 ) {
-  const orgId = org.id;
+  const { orgId } = org;
   const { email } = userProfile;
 
   const { openingBalance } = customerData;

@@ -28,7 +28,7 @@ function* getItems() {
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
-  // const orgId = org.id;
+  // const {orgId} = org;
 
   async function get() {
     const itemsCollection = dbCollections(orgId).items;

@@ -44,7 +44,7 @@ export default async function createExpense(
   data: ExpenseFormData,
   transactionType: string = "expense"
 ) {
-  const orgId = org.id;
+  const { orgId } = org;
   const { email } = userProfile;
   const { paymentAccount, paymentMode, summary, items, reference } = data;
   // const { vendorId } = vendor;

@@ -27,7 +27,7 @@ export default async function createSalesReceipt(
   data: SalesReceiptForm,
   transactionType = "sales receipt"
 ) {
-  const orgId = org.id;
+  const { orgId } = org;
   const { email } = userProfile;
   const { customer, summary, selectedItems, reference, account, paymentMode } =
     data;

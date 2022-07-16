@@ -58,7 +58,7 @@ export default function createInvoice(
   data: InvoiceFormData,
   transactionType: string = "invoice"
 ) {
-  const orgId = org.id;
+  const { orgId } = org;
   const { email } = userProfile;
   const { customer, summary, selectedItems } = data;
   const { totalAmount, shipping, adjustment, totalTaxes } = summary;

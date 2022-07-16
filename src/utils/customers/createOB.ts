@@ -36,7 +36,7 @@ export default function createOB(
   customer: Customer,
   openingBalance: number
 ) {
-  const orgId = org.id;
+  const { orgId } = org;
   const { paymentTerm, customerId } = customer;
   /**
    * create transaction details for journal entries
