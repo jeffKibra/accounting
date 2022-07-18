@@ -33,6 +33,7 @@ export default async function createPayment(
   accounts: Account[],
   formData: PaymentReceivedForm
 ) {
+  console.log({ formData });
   const { orgId } = org;
   const { email } = userProfile;
   // console.log({ data, orgId, userProfile });
@@ -146,6 +147,7 @@ export default async function createPayment(
   const paymentsReceivedCollection = dbCollections(orgId).paymentsReceived;
   const paymentRef = doc(paymentsReceivedCollection, paymentId);
   const { paymentId: pid, ...tDetails } = paymentData;
+  console.log({ tDetails });
   transaction.set(paymentRef, {
     ...tDetails,
   });

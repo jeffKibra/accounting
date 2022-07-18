@@ -41,7 +41,7 @@ export default function deleteInvoicesPayments(
       balance: increment(0 - adjustment),
       paymentsCount: increment(-1),
       paymentsIds: arrayRemove(paymentId),
-      [`payments.${paymentId}`]: deleteField(),
+      [`paymentsReceived.${paymentId}`]: deleteField(),
       modifiedBy: email,
       modifiedAt: serverTimestamp(),
     });

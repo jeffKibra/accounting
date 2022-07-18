@@ -53,7 +53,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     getItems: () => dispatch({ type: GET_ITEMS }),
-    deleteItem: (itemId) => dispatch({ type: DELETE_ITEM, itemId }),
+    deleteItem: (itemId) => dispatch({ type: DELETE_ITEM, payload: itemId }),
     resetItem: () => dispatch(reset()),
   };
 }

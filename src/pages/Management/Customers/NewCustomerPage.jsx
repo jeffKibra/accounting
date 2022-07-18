@@ -59,7 +59,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createCustomer: (data) => dispatch({ type: CREATE_CUSTOMER, data }),
+    createCustomer: (payload) => dispatch({ type: CREATE_CUSTOMER, payload }),
     resetCustomer: () => dispatch(reset()),
   };
 }

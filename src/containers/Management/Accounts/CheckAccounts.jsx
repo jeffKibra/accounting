@@ -27,7 +27,7 @@ CheckAccounts.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const orgId = state.orgsReducer.org?.id;
+  const orgId = state.orgsReducer.org?.orgId;
   const { loading, action } = state.accountsReducer;
 
   return {

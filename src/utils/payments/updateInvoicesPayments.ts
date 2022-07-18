@@ -34,7 +34,7 @@ export default function updateInvoicesPayments(
     // console.log({ tDetails, incoming });
     transaction.update(invoiceRef, {
       balance: increment(0 - adjustment),
-      [`payments.${paymentId}`]: incoming,
+      [`paymentsReceived.${paymentId}`]: incoming,
       modifiedBy: email,
       modifiedAt: serverTimestamp(),
     });

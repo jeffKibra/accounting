@@ -115,9 +115,10 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    updateExpense: (data) => dispatch({ type: UPDATE_EXPENSE, data }),
+    updateExpense: (payload) => dispatch({ type: UPDATE_EXPENSE, payload }),
     resetExpense: () => dispatch(reset()),
-    getExpense: (expenseId) => dispatch({ type: GET_EXPENSE, expenseId }),
+    getExpense: (expenseId) =>
+      dispatch({ type: GET_EXPENSE, payload: expenseId }),
   };
 }
 

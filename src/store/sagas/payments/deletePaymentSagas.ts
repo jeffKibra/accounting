@@ -17,6 +17,7 @@ import { RootState, UserProfile } from "../../../types";
 
 function* deletePaymentSaga(action: PayloadAction<string>) {
   yield put(start(DELETE_PAYMENT));
+  console.log({ action });
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );

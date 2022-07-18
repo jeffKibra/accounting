@@ -58,7 +58,7 @@ function mapDispatchToProps(dispatch) {
   return {
     getCustomers: () => dispatch({ type: GET_CUSTOMERS }),
     deleteCustomer: (customerId) =>
-      dispatch({ type: DELETE_CUSTOMER, customerId }),
+      dispatch({ type: DELETE_CUSTOMER, payload: customerId }),
     resetCustomer: () => dispatch(reset()),
   };
 }

@@ -17,7 +17,7 @@ export default function useDeleteTax(tax) {
   const deleting = loading && action === DELETE_TAX;
 
   function handleDelete() {
-    dispatch({ type: DELETE_TAX, taxId });
+    dispatch({ type: DELETE_TAX, payload: taxId });
   }
 
   function resetTax() {

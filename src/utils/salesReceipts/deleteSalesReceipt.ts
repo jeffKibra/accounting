@@ -43,7 +43,7 @@ export default async function deleteSalesReceipt(
   /**
    * group entries into accounts
    */
-  const accounts = groupEntriesIntoAccounts(allEntries);
+  const groupedEntries = groupEntriesIntoAccounts(allEntries);
 
   /**
    * start writing
@@ -52,14 +52,12 @@ export default async function deleteSalesReceipt(
   /**
    * delete entries and update accounts summaries
    */
-  accounts.forEach((group) => {
-    const { entries, ...account } = group;
-
+  Object.values(groupedEntries).forEach((entries) => {
     deleteSimilarAccountEntries(
       transaction,
       userProfile,
       orgId,
-      account,
+      entries[0].account,
       entries
     );
   });

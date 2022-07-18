@@ -71,8 +71,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     getOrgs: () => dispatch({ type: GET_ORGS }),
-    deleteOrg: (id) =>
-      dispatch({ type: EDIT_ORG, data: { id, status: "deleted" } }),
+    deleteOrg: (orgId) =>
+      dispatch({ type: EDIT_ORG, payload: { orgId, status: "deleted" } }),
     reset: () => dispatch(modifyOrgsReset()),
   };
 }

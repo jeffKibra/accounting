@@ -1,5 +1,5 @@
 export type { OrgSummary, Org, OrgFormData, OrgFromDb } from "./org";
-export type { UserProfile } from "./userProfile";
+export type { UserProfile, LoginForm, SignupForm } from "./auth";
 export type {
   Customer,
   CustomerSummary,

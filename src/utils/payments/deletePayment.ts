@@ -51,7 +51,7 @@ export default async function deletePayment(
   } = paymentData;
   const excess = paymentData.excess ?? 0;
   const paymentsTotal = getPaymentsTotal(payments);
-  // console.log({ allEntries });
+  console.log({ allEntries });
   /**
    * group entries into accounts
    */
@@ -70,14 +70,12 @@ export default async function deletePayment(
   /**
    * delete entries
    */
-  groupedEntries.forEach((group) => {
-    const { entries, ...account } = group;
-
+  Object.values(groupedEntries).forEach((entries) => {
     deleteSimilarAccountEntries(
       transaction,
       userProfile,
       orgId,
-      account,
+      entries[0].account,
       entries
     );
   });

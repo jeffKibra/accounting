@@ -17,7 +17,7 @@ export default function useDeletePayment(payment) {
   const deleting = loading && action === DELETE_PAYMENT;
 
   function handleDelete() {
-    dispatch({ type: DELETE_PAYMENT, paymentId });
+    dispatch({ type: DELETE_PAYMENT, payload: paymentId });
   }
 
   function resetPayment() {

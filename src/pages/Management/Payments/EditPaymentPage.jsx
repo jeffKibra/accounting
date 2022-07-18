@@ -18,6 +18,28 @@ import Empty from "../../../components/ui/Empty";
 
 import EditPayment from "../../../containers/Management/Payments/EditPayment";
 
+function trimPayment(payment) {
+  const {
+    amount,
+    account,
+    customer,
+    paymentDate,
+    paymentMode,
+    reference,
+    payments,
+  } = payment;
+
+  return {
+    amount,
+    account,
+    customer,
+    paymentDate,
+    paymentMode,
+    reference,
+    payments,
+  };
+}
+
 function EditPaymentPage(props) {
   const {
     loading,
@@ -73,7 +95,7 @@ function EditPaymentPage(props) {
         <EditPayment
           updating={loading && action === UPDATE_PAYMENT}
           saveData={update}
-          payment={payment}
+          payment={trimPayment(payment)}
           paymentId={paymentId}
         />
       ) : (
@@ -91,9 +113,10 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    updatePayment: (data) => dispatch({ type: UPDATE_PAYMENT, data }),
+    updatePayment: (payload) => dispatch({ type: UPDATE_PAYMENT, payload }),
     resetPayment: () => dispatch(reset()),
-    getPayment: (paymentId) => dispatch({ type: GET_PAYMENT, paymentId }),
+    getPayment: (paymentId) =>
+      dispatch({ type: GET_PAYMENT, payload: paymentId }),
   };
 }
 

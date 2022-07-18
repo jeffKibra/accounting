@@ -56,7 +56,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createPayment: (data) => dispatch({ type: CREATE_PAYMENT, data }),
+    createPayment: (payload) => dispatch({ type: CREATE_PAYMENT, payload }),
     resetPayment: () => dispatch(reset()),
   };
 }

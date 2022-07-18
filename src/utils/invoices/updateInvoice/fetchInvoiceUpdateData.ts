@@ -26,13 +26,13 @@ export default async function getInvoiceUpdateData(
 
   const {
     customer: { customerId: currentCustomerId },
-    payments,
+    paymentsReceived,
     transactionType,
   } = currentInvoice;
   /**
    * check to ensure the new total balance is not less than payments made.
    */
-  const paymentsTotal = getInvoicePaymentsTotal(payments || {});
+  const paymentsTotal = getInvoicePaymentsTotal(paymentsReceived || {});
   /**
    * trying to update invoice total with an amount less than paymentsTotal
    * throw an error

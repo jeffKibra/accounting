@@ -8,16 +8,9 @@ import { CREATE_USER } from "../../actions/authActions";
 
 import { start, success, fail } from "../../slices/authSlice";
 
-import { UserProfile } from "../../../types";
+import { UserProfile, SignupForm } from "../../../types";
 
-interface createUserData {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-}
-
-function* createUser(action: PayloadAction<createUserData>) {
+function* createUser(action: PayloadAction<SignupForm>) {
   yield put(start(CREATE_USER));
 
   // console.log({ data });
@@ -36,6 +29,15 @@ function* createUser(action: PayloadAction<createUserData>) {
       });
     }
     const user = userCredential.user;
+    const {
+      displayName,
+      phoneNumber,
+      photoURL,
+      providerId,
+      uid,
+      emailVerified,
+      tenantId,
+    } = user;
 
     // const tokenResult = await user.getIdTokenResult(true);
     // const claims = tokenResult.claims;
@@ -43,7 +45,13 @@ function* createUser(action: PayloadAction<createUserData>) {
     await setDoc(
       doc(db, "users", user.uid),
       {
-        ...user,
+        displayName,
+        phoneNumber,
+        photoURL,
+        providerId,
+        uid,
+        emailVerified,
+        tenantId,
         org: "",
         createdAt: serverTimestamp(),
         modifiedAt: serverTimestamp(),

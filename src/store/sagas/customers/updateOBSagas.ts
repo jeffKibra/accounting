@@ -24,6 +24,7 @@ import {
 function* updateOpeningBalanceSaga(
   action: PayloadAction<OpeningBalanceFormData>
 ) {
+  console.log({ action });
   yield put(start(UPDATE_OPENING_BALANCE));
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;

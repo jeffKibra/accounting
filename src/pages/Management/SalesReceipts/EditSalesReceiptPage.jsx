@@ -116,11 +116,11 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    updateSalesReceipt: (data) =>
-      dispatch({ type: UPDATE_SALES_RECEIPT, data }),
+    updateSalesReceipt: (payload) =>
+      dispatch({ type: UPDATE_SALES_RECEIPT, payload }),
     resetSalesReceipt: () => dispatch(reset()),
     getSalesReceipt: (salesReceiptId) =>
-      dispatch({ type: GET_SALES_RECEIPT, salesReceiptId }),
+      dispatch({ type: GET_SALES_RECEIPT, payload: salesReceiptId }),
   };
 }
 

@@ -17,7 +17,7 @@ export default function useDeleteInvoice(invoice) {
   const deleting = loading && action === DELETE_INVOICE;
 
   function handleDelete() {
-    dispatch({ type: DELETE_INVOICE, invoiceId });
+    dispatch({ type: DELETE_INVOICE, payload: invoiceId });
   }
 
   function resetInvoice() {

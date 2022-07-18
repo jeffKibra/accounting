@@ -5,7 +5,7 @@ import {
   Transaction,
 } from "firebase/firestore";
 
-import { db, createCollection, dbCollections } from "../firebase";
+import { db, dbCollections } from "../firebase";
 import {
   updateSimilarAccountEntries,
   deleteSimilarAccountEntries,
@@ -32,7 +32,6 @@ import {
   Account,
   ExpenseFormData,
   ExpenseUpdateData,
-  Expense,
 } from "../../types";
 
 interface ExpenseFormUpdate extends ExpenseFormData {
@@ -52,17 +51,20 @@ export default async function updateExpense(
 ) {
   const { email } = userProfile;
   const { expenseId, ...rest } = data;
+  //create a copy of the vendor
+  const vendor = { ...rest }.vendor;
+  //delete the vendor field in object
+  delete rest.vendor;
+
   const { summary, items, paymentAccount, paymentMode, reference } = rest;
-  // console.log({ data });
+  console.log({ data });
   const { accountId: paymentAccountId } = paymentAccount;
   const { value: paymentModeId } = paymentMode;
   const { totalTaxes, totalAmount } = summary;
   /**
    * check vendor
    */
-  const formVendor = data.vendor;
-  let vendorId = formVendor ? formVendor.vendorId : "";
-  const vendor = formVendor ? formats.formatVendorData(formVendor) : formVendor;
+  let vendorId = vendor?.vendorId;
   /**
    * fetch current expense
    */
@@ -77,7 +79,7 @@ export default async function updateExpense(
     paymentAccount: { accountId: currentPaymentAccountId },
     paymentMode: { value: currentPaymentModeId },
   } = currentExpense;
-  const currentVendorId = currentVendor ? currentVendor.vendorId : "";
+  const currentVendorId = currentVendor?.vendorId;
   /**
    * total amount adjustment
    */
@@ -85,6 +87,7 @@ export default async function updateExpense(
   /**
    * check if vendor has been changed
    */
+  console.log({ currentVendorId, vendorId });
   const vendorHasChanged = currentVendorId !== vendorId;
 
   let { deletedAccounts, newAccounts, updatedAccounts, similarAccounts } =
@@ -121,9 +124,14 @@ export default async function updateExpense(
 
   const tDetails: TDetails = {
     ...rest,
-    vendor,
     items: formats.formatExpenseItems(items),
   };
+  /**
+   * if vendor is not undefined, add it to tDetails
+   */
+  if (vendor) {
+    tDetails.vendor = formats.formatVendorData(vendor);
+  }
 
   const transactionDetails = {
     ...tDetails,
@@ -341,7 +349,7 @@ export default async function updateExpense(
    */
   const expensesCollection = dbCollections(orgId).expenses;
   const expenseRef = doc(expensesCollection, expenseId);
-  // console.log({ tDetails });
+  console.log({ tDetails });
   transaction.update(expenseRef, {
     ...tDetails,
     // classical: "plus",

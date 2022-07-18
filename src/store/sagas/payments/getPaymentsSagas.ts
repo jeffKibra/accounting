@@ -136,7 +136,7 @@ function* getCustomerPayments(action: PayloadAction<string>) {
     const q = query(
       paymentsCollection,
       orderBy("createdAt", "asc"),
-      where("customerId", "==", customerId),
+      where("customer.customerId", "==", customerId),
       where("status", "==", "active")
     );
     const snap = await getDocs(q);

@@ -69,8 +69,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    updateOpeningBalance: (data) =>
-      dispatch({ type: UPDATE_OPENING_BALANCE, data }),
+    updateOpeningBalance: (payload) =>
+      dispatch({ type: UPDATE_OPENING_BALANCE, payload }),
     resetCustomer: () => dispatch(reset()),
   };
 }

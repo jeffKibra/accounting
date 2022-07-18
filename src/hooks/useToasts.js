@@ -6,7 +6,7 @@ function useToasts() {
   const success = (msg) =>
     toast({
       duration: 9000,
-      position: "top",
+      position: "bottom-left",
       isClosable: true,
       status: "success",
       variant: "subtle",
@@ -16,7 +16,7 @@ function useToasts() {
   const info = (msg) =>
     toast({
       duration: 9000,
-      position: "top",
+      position: "bottom-left",
       isClosable: true,
       status: "info",
       variant: "subtle",
@@ -26,7 +26,7 @@ function useToasts() {
   const error = (msg) =>
     toast({
       duration: 9000,
-      position: "top",
+      position: "bottom-left",
       isClosable: true,
       status: "error",
       variant: "subtle",
@@ -36,7 +36,7 @@ function useToasts() {
   const warning = (msg) =>
     toast({
       duration: 9000,
-      position: "top",
+      position: "bottom-left",
       isClosable: true,
       status: "warning",
       variant: "subtle",

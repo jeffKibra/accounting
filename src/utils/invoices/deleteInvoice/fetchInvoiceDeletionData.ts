@@ -19,7 +19,7 @@ export default async function fetchInvoiceDeletionData(
   /**
    * check if the invoice has payments
    */
-  const paymentsTotal = getInvoicePaymentsTotal(invoice.payments || {});
+  const paymentsTotal = getInvoicePaymentsTotal(invoice.paymentsReceived || {});
   if (paymentsTotal > 0) {
     //deletion not allowed
     throw new Error(

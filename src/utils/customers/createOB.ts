@@ -4,22 +4,6 @@ import { createSimilarAccountEntries } from "../journals";
 import { getAccountData } from "../accounts";
 import { createInvoice } from "../invoices";
 
-/**
- *
- * @typedef {import('.').customer} customer
- * @typedef {import('../accounts').account} account
- * @typedef {import('firebase/firestore').Transaction} transaction
- */
-/**
- *
- * @param {transaction} transaction
- * @param {{id:''}} org
- * @param {{email:''}} userProfile
- * @param {account[]} accounts
- * @param {customer} customer
- * @param {number} openingBalance
- */
-
 import {
   Org,
   UserProfile,

@@ -419,9 +419,10 @@ let accounts: AccountsType = {
   ...Expenses,
 };
 
-Object.keys(Assets).forEach((key) => {
+Object.keys(accounts).forEach((key) => {
   const account = accounts[key];
   const { accountType } = account;
+  // console.log({ key, accountType });
 
   if (typeof accountType === "string") {
     accounts = {

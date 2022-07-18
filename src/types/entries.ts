@@ -8,8 +8,8 @@ export interface Entry {
   credit: number;
 }
 
-export interface GroupedEntries extends Account {
-  entries: Entry[];
+export interface GroupedEntries {
+  [key: string]: Entry[];
 }
 
 export interface MappedEntry extends Entry, AccountMapping {}

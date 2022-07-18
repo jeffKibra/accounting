@@ -418,19 +418,23 @@ service cloud.firestore {
             request.resource.data.balance <= request.resource.data.summary.totalAmount
         }
 
+        function invoiceFixed(){
+          return ['org', 'transactionType', 'createdAt', 'createdBy'];
+        }
+        
         function verifyInvoiceData(){
-          let form=['customerId', 'invoiceDate', "paymentTermId", 'dueDate'];
-          let formExtras=['customer', 'selectedItems', 'summary', "balance", "paymentTerm"];
-          let additional=['payments', 'paymentsIds', 'paymentsCount', 'status', "isSent", 'org'];
-          let meta=['transactionType', 'createdAt', 'modifiedAt', 'createdBy', 'modifiedBy'];
-          let required=form.concat(formExtras).concat(additional).concat(meta);
+          let form=['customer', 'invoiceDate', "paymentTerm", 'dueDate', 'selectedItems'];
+          let formExtras=['summary', "balance", 'paymentsReceived','paymentsIds','paymentsCount'];
           let optional=['orderNumber', 'subject', 'customerNotes'];
+          let meta=['status', "isSent", 'modifiedAt', 'modifiedBy'];
+          let fixed=invoiceFixed();
+          let required=form.concat(formExtras).concat(fixed).concat(meta);
           let allFields=required.concat(optional);
 
           return request.resource.data.keys().hasAll(required) &&
             request.resource.data.keys().hasOnly(allFields) &&
             request.resource.data.selectedItems is list &&
-            request.resource.data.payments is map &&
+            request.resource.data.paymentsReceived is map &&
             request.resource.data.paymentsIds is list &&
             request.resource.data.paymentsCount is int &&
             request.resource.data.summary is map &&
@@ -441,7 +445,9 @@ service cloud.firestore {
             optionalNumber("summary.totalTaxes") &&
             request.resource.data.get("summary.taxes", []) is list &&
             request.resource.data.customer is map &&
-            request.resource.data.customerId is string &&
+            request.resource.data.customer.customerId is string &&
+            request.resource.data.paymentTerm is map &&
+            request.resource.data.paymentTerm.value is string &&
             request.resource.data.invoiceDate is timestamp &&
             request.resource.data.dueDate is timestamp &&
             request.resource.data.createdAt is timestamp &&
@@ -458,16 +464,12 @@ service cloud.firestore {
             balanceIsValid()
         }
 
-        function allowInvoiceUpdate(){
-          let form=['customerId', 'invoiceDate', "paymentTermId", 'dueDate'];
-          let formExtras=['customer', 'selectedItems', 'summary', 'invoiceSlug', "balance", "paymentTerm"];
-          let additional=['payments', 'paymentsIds', 'paymentsCount', 'status', "isSent", 'org'];
-          let meta=['modifiedAt', 'modifiedBy'];
-          let required=form.concat(formExtras).concat(additional).concat(meta);
-          let optional=['orderNumber', 'subject', 'customerNotes'];
-          let allFields=required.concat(optional);
+        
 
-          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+        function allowInvoiceUpdate(){
+          let fixedFields=invoiceFixed();
+
+          return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fixedFields)
         }
 
         function invoiceIsPaid(){
@@ -476,7 +478,7 @@ service cloud.firestore {
         }
         function allowCustomerChange(){
           return !invoiceIsPaid() &&
-            request.resource.data.customerId != resource.data.customerId
+            request.resource.data.customer.customerId != resource.data.customer.customerId
         }
         function allowDelete(){
           return !invoiceIsPaid() &&
@@ -484,7 +486,7 @@ service cloud.firestore {
         }
         function allowNormalUpdate(){
           return request.resource.data.status != "deleted" &&
-            request.resource.data.customerId == resource.data.customerId
+            request.resource.data.customer.customerId == resource.data.customer.customerId
         }
 
         allow read: if isOwner()
@@ -497,26 +499,30 @@ service cloud.firestore {
 
      
       match /payments/{paymentId} {
+        function paymentsFixed(){
+          return ['org', 'createdBy', "createdAt"];
+        }
 
         function verifyPaymentData(){
-          let form=['accountId', 'amount', 'customerId', 'paymentDate', "paymentModeId"];
-          let details=["payments", "paidInvoices", "paidInvoicesIds", "account", 'customer', "paymentMode", 'excess'];
-          let additional=['status', 'org', 'createdBy', "createdAt", 'modifiedBy', "modifiedAt"];
-          let required=form.concat(details).concat(additional);
+          let form=['account', 'amount', 'customer', 'paymentDate', "paymentMode"];
+          let details=["payments", "paidInvoices", "paidInvoicesIds", 'excess'];
+          let meta=['status', 'modifiedBy', "modifiedAt"];
           let optional=['reference'];
+          let fixed=paymentsFixed();
+          let required=form.concat(details).concat(meta).concat(fixed);
           let allFields=required.concat(optional);
 
           return request.resource.data.keys().hasAll(required) &&
             request.resource.data.keys().hasOnly(allFields) &&
-            request.resource.data.accountId is string &&
             request.resource.data.account is map &&
+            request.resource.data.account.accountId is string &&
             numberValue(request.resource.data.amount) &&
             numberValue(request.resource.data.excess) &&
-            request.resource.data.customerId is string &&
             request.resource.data.customer is map &&
+            request.resource.data.customer.customerId is string &&
             request.resource.data.paymentDate is timestamp &&
-            request.resource.data.paymentModeId is string &&
             request.resource.data.paymentMode is map &&
+            request.resource.data.paymentMode.value is string &&
             request.resource.data.payments is map &&
             request.resource.data.paidInvoices is list &&
             request.resource.data.paidInvoicesIds is list &&
@@ -526,7 +532,7 @@ service cloud.firestore {
             request.resource.data.createdAt is timestamp &&
             request.resource.data.modifiedBy is string &&
             request.resource.data.modifiedAt is timestamp &&
-            request.resource.data.reference is string
+            request.resource.data.get("reference", "") is string
             // numberValue(request.resource.data.bankCharges) &&
             // request.resource.data.taxDeducted is string &&
             // request.resource.data.tdsTaxAccount is string 
@@ -534,14 +540,9 @@ service cloud.firestore {
         }
 
         function allowPaymentUpdate(){
-          let form=['accountId', 'amount', 'customerId', 'paymentDate', "paymentModeId"];
-          let details=["payments", "paidInvoices", "paidInvoicesIds", "account", 'customer', "paymentMode"];
-          let additional=['status', 'modifiedBy', "modifiedAt", 'excess'];
-          let required=form.concat(details).concat(additional);
-          let optional=['reference'];
-          let allFields=required.concat(optional);
+          let fixed=paymentsFixed();
 
-          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fixed)
         }
 
         allow read: if isOwner()
@@ -550,22 +551,23 @@ service cloud.firestore {
       }
 
       match /salesReceipts/{receiptId} {
+        function salesReceiptsFixed(){
+          return ['createdAt', 'createdBy', 'org', 'transactionType'];
+        }
         function verifySalesReceiptData(){
-          let form=["receiptDate", "accountId", 'paymentModeId', "reference", 'customerNotes'];
-          let optional=["customerId"];
-          let formExtras=['customer', 'account', 'paymentMode'];
-          let sale=['selectedItems', 'summary', 'org', 'transactionType'];
-          let meta=['createdAt', 'createdBy', 'modifiedAt', 'modifiedBy', 'isSent', 'status'];
-          let required=form.concat(formExtras).concat(sale).concat(meta);
+          let form=["receiptDate", "account", 'paymentMode', "reference", 'customerNotes'];
+          let optional=["customer"];
+          let sale=['selectedItems', 'summary'];
+          let meta=['modifiedAt', 'modifiedBy', 'isSent', 'status'];
+          let fixed=salesReceiptsFixed();
+          let required=form.concat(sale).concat(fixed).concat(meta);
           let allFields=required.concat(optional);
 
-          return request.resource.data.keys().hasAll(allFields) &&
-            request.resource.data.get("customerId", '') is string &&
-            request.resource.data.customer is map &&
+          return request.resource.data.keys().hasAll(required) &&
+            request.resource.data.keys().hasOnly(allFields) &&
+            request.resource.data.get("customer", {}) is map &&
             request.resource.data.receiptDate is timestamp &&
-            request.resource.data.accountId is string &&
             request.resource.data.account is map &&
-            request.resource.data.paymentModeId is string &&
             request.resource.data.paymentMode is map &&
             request.resource.data.reference is string &&
             request.resource.data.customerNotes is string &&
@@ -582,15 +584,9 @@ service cloud.firestore {
         }
 
         function allowSalesReceiptUpdate(){
-          let form=["receiptDate", "accountId", 'paymentModeId', "reference", 'customerNotes'];
-          let optional=["customerId"];
-          let formExtras=['customer', 'account', 'paymentMode'];
-          let sale=['selectedItems', 'summary'];
-          let meta=['modifiedAt', 'modifiedBy', 'isSent', 'status'];
-          let required=form.concat(formExtras).concat(sale).concat(meta);
-          let allFields=required.concat(optional);
+          let fixed=salesReceiptsFixed();
 
-          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+          return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fixed)
         }
 
         allow read: if isOwner()
@@ -600,18 +596,25 @@ service cloud.firestore {
       }
 
       match /expenses/{expenseId} {
+        function expenseFixed(){
+          return ['createdAt', 'createdBy', 'org'];
+        }
         function verifyExpenseData(){
-          let form=["expenseDate", "paymentAccount", 'paymentMode', "reference", 'vendor'];
+          let form=["expenseDate", "paymentAccount", 'paymentMode', "reference"];
+          let optional=['vendor'];
           let expense=['items', 'summary', 'transactionType', 'taxType'];
-          let meta=['createdAt', 'createdBy', 'modifiedAt', 'modifiedBy', 'status', 'org'];
-          let allFields=form.concat(expense).concat(meta);
+          let meta=['modifiedAt', 'modifiedBy', 'status'];
+          let fixed=expenseFixed();
+          let required=form.concat(expense).concat(meta).concat(fixed);
+          let allFields=required.concat(optional);
 
-          return request.resource.data.keys().hasAll(allFields) &&
+          return request.resource.data.keys().hasAll(required) &&
+            request.resource.data.keys().hasOnly(allFields) &&
             request.resource.data.expenseDate is timestamp &&
             request.resource.data.paymentAccount is map &&
             request.resource.data.paymentMode is map &&
             request.resource.data.reference is string &&
-            request.resource.data.vendor is map &&
+            request.resource.data.get('vendor', {}) is map &&
             request.resource.data.items is list &&
             request.resource.data.summary is map &&
             numberValue(request.resource.data.summary.subTotal) &&
@@ -629,12 +632,9 @@ service cloud.firestore {
         }
 
         function allowExpenseUpdate(){
-          let form=["expenseDate", "paymentAccount", 'paymentMode', "reference", 'vendor'];
-          let expense=['items', 'summary', 'transactionType', 'taxType'];
-          let meta=['modifiedAt', 'modifiedBy', 'status'];
-          let allFields=form.concat(expense).concat(meta);
+          let fixed=expenseFixed();
 
-          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+          return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fixed)
         }
 
         allow read: if isOwner()

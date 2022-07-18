@@ -54,22 +54,18 @@ export default function payInvoices(
    */
   invoicesPayments.forEach((payment) => {
     const { invoiceId, incoming } = payment;
+    console.log({ invoiceId, incoming, paymentId });
 
     if (incoming > 0) {
       //update invoice
-      const { customer, paidInvoices: inv, ...tDetails } = paymentData;
-
       const invoiceRef = doc(db, "organizations", orgId, "invoices", invoiceId);
       transaction.update(invoiceRef, {
         balance: increment(0 - incoming),
         paymentsCount: increment(1),
         paymentsIds: arrayUnion(paymentId),
-        [`payments.${paymentId}`]: {
-          paymentAmount: incoming,
-          ...tDetails,
-        },
-        modifiedBy: email,
-        modifiedAt: serverTimestamp(),
+        [`paymentsReceived.${paymentId}`]: incoming,
+        // modifiedBy: email,
+        // modifiedAt: serverTimestamp(),
       });
     }
   });

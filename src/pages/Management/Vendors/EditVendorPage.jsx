@@ -91,8 +91,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getVendor: (vendorId) => dispatch({ type: GET_VENDOR, vendorId }),
-    updateVendor: (data) => dispatch({ type: UPDATE_VENDOR, data }),
+    getVendor: (vendorId) => dispatch({ type: GET_VENDOR, payload: vendorId }),
+    updateVendor: (payload) => dispatch({ type: UPDATE_VENDOR, payload }),
     resetVendor: () => dispatch(reset()),
   };
 }

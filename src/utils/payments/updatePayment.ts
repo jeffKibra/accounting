@@ -194,21 +194,25 @@ export default async function updatePayment(
   /**
    * start docs writing!
    */
-  const transactionDetails: PaymentReceived = {
-    ...currentPayment,
+  const updateData = {
     ...formData,
     paidInvoicesIds: paidInvoices.map((invoice) => invoice.invoiceId),
     excess,
-    paymentId,
     customer: formats.formatCustomerData(customer),
     paidInvoices: formats.formatInvoices(paidInvoices),
   };
+  const transactionDetails: PaymentReceived = {
+    ...currentPayment,
+    ...updateData,
+    paymentId,
+  };
   // console.log({ transactionDetails });
   const newDetails = {
-    ...transactionDetails,
+    ...updateData,
     modifiedBy: email,
     modifiedAt: serverTimestamp(),
   };
+  console.log({ newDetails });
   /**
    * update customers
    * function also handles a change of customer situation.
@@ -473,8 +477,7 @@ export default async function updatePayment(
   /**
    * update payment
    */
-  const { paymentId: pid, ...tDetails } = newDetails;
-  // console.log({ tDetails });
+  console.log({ newDetails });
   const paymentRef = doc(db, "organizations", orgId, "payments", paymentId);
-  transaction.update(paymentRef, { ...tDetails });
+  transaction.update(paymentRef, { ...newDetails });
 }

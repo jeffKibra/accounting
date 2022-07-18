@@ -162,7 +162,7 @@ function* getCustomerInvoices(action: PayloadAction<string>) {
     const q = query(
       invoicesCollection,
       orderBy("createdAt", "desc"),
-      where("customerId", "==", customerId),
+      where("customer.customerId", "==", customerId),
       where("status", "==", "active"),
       where("transactionType", "==", "invoice")
     );
@@ -210,7 +210,7 @@ function* getUnpaidCustomerInvoices(action: PayloadAction<string>) {
     const q = query(
       invoicesCollection,
       // orderBy("createdAt", "asc"),
-      where("customerId", "==", customerId),
+      where("customer.customerId", "==", customerId),
       where("status", "==", "active"),
       where("balance", ">", 0)
     );
@@ -279,7 +279,7 @@ function* getPaymentInvoicesToEdit(action: PayloadAction<Details>) {
     const q2 = query(
       invoicesCollection,
       // orderBy("createdAt", "asc"),
-      where("customerId", "==", customerId),
+      where("customer.customerId", "==", customerId),
       where("status", "==", "active"),
       where("balance", ">", 0)
     );

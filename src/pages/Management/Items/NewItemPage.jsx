@@ -58,7 +58,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createItem: (data) => dispatch({ type: CREATE_ITEM, data }),
+    createItem: (payload) => dispatch({ type: CREATE_ITEM, payload }),
     resetItem: () => dispatch(reset()),
   };
 }

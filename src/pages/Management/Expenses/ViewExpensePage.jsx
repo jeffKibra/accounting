@@ -59,7 +59,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     resetExpense: () => dispatch(reset()),
-    getExpense: (expenseId) => dispatch({ type: GET_EXPENSE, expenseId }),
+    getExpense: (expenseId) =>
+      dispatch({ type: GET_EXPENSE, payload: expenseId }),
   };
 }
 

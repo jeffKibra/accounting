@@ -55,7 +55,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createExpense: (data) => dispatch({ type: CREATE_EXPENSE, data }),
+    createExpense: (payload) => dispatch({ type: CREATE_EXPENSE, payload }),
     resetExpense: () => dispatch(reset()),
   };
 }

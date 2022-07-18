@@ -16,6 +16,7 @@ import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import StepperContext from "../../../contexts/StepperContext";
+import { useToasts } from "../../../hooks";
 
 import NumInput from "../../ui/NumInput";
 // import RadioInput from "../../ui/RadioInput";
@@ -53,7 +54,7 @@ function ReceivePaymentForm(props) {
     defaultValues,
     paymentModes,
   } = props;
-
+  const toasts = useToasts();
   const { nextStep } = useContext(StepperContext);
 
   const paymentAccounts = accounts.filter((account) => {
@@ -71,11 +72,11 @@ function ReceivePaymentForm(props) {
     mode: "onChange",
     resolver: yupResolver(schema),
     defaultValues: {
-      customerId: defaultValues?.customerId || "",
+      customerId: defaultValues?.customer?.customerId || "",
       paymentDate: defaultValues?.paymentDate || new Date(),
       amount: defaultValues?.amount || 0,
-      accountId: defaultValues?.accountId || "undeposited_funds",
-      paymentModeId: defaultValues?.paymentModeId || "cash",
+      accountId: defaultValues?.account?.accountId || "undeposited_funds",
+      paymentModeId: defaultValues?.paymentMode?.value || "cash",
       reference: defaultValues?.reference || "",
     },
   });
@@ -89,19 +90,30 @@ function ReceivePaymentForm(props) {
 
   function onSubmit(data) {
     // console.log({ data });
-    const { customerId, accountId, paymentModeId } = data;
+    const { customerId, accountId, paymentModeId, ...formData } = data;
     const customer = customers.find(
       (customer) => customer.customerId === customerId
     );
+    if (!customer) {
+      return toasts.error("The selected customer is not valid");
+    }
+
     const paymentMode = paymentModes.find(
       (mode) => mode.value === paymentModeId
     );
+    if (!paymentMode) {
+      return toasts.error("The selected payment mode is not valid");
+    }
+
     const account = paymentAccounts.find(
       (account) => account.accountId === accountId
     );
+    if (!account) {
+      return toasts.error("The selected account is not valid");
+    }
     const { name, accountType } = account;
     const newData = {
-      ...data,
+      ...formData,
       customer,
       paymentMode,
       account: { name, accountId, accountType },

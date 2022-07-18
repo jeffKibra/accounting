@@ -17,7 +17,7 @@ export default function useDeleteVendor(vendor) {
   const deleting = loading && action === DELETE_VENDOR;
 
   function handleDelete() {
-    dispatch({ type: DELETE_VENDOR, vendorId });
+    dispatch({ type: DELETE_VENDOR, payload: vendorId });
   }
 
   function resetvendor() {

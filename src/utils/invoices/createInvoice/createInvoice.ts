@@ -15,26 +15,6 @@ import { createSimilarAccountEntries } from "../../journals";
 import formats from "../../formats";
 import { getDateDetails } from "../../dates";
 
-/**
- *
- * @typedef {import('.').invoice} invoice
- */
-/**
- *
- * @typedef {import('../accounts').account} account
- */
-
-/**
- *
- * @param {*} transaction
- * @param {Object} org
- * @param {{email:''}} userProfile
- * @param {account[]} accounts
- * @param {string} invoiceId
- * @param {invoice} data
- * @param {string} transactionType
- */
-
 import {
   Org,
   UserProfile,
@@ -58,6 +38,7 @@ export default function createInvoice(
   data: InvoiceFormData,
   transactionType: string = "invoice"
 ) {
+  console.log("creating invoice", transactionType, data);
   const { orgId } = org;
   const { email } = userProfile;
   const { customer, summary, selectedItems } = data;
@@ -73,7 +54,7 @@ export default function createInvoice(
   const tDetails: TDetails = {
     ...data,
     balance: summary.totalAmount,
-    payments: {},
+    paymentsReceived: {},
     paymentsIds: [],
     paymentsCount: 0,
     status: "active",

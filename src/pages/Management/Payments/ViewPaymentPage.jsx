@@ -60,7 +60,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     resetPayment: () => dispatch(reset()),
-    getPayment: (paymentId) => dispatch({ type: GET_PAYMENT, paymentId }),
+    getPayment: (paymentId) =>
+      dispatch({ type: GET_PAYMENT, payload: paymentId }),
   };
 }
 

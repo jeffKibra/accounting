@@ -36,7 +36,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    create: (data) => dispatch({ type: CREATE_USER, data }),
+    create: (payload) => dispatch({ type: CREATE_USER, payload }),
   };
 }
 

@@ -41,8 +41,8 @@ function EditPayment(props) {
   const [payments, setPayments] = useState(
     payment?.payments ? { ...payment.payments } : null
   );
-  // console.log({ payments, formValues });
-  const customerId = formValues?.customerId;
+  console.log({ invoices });
+  const customerId = formValues?.customer?.customerId;
 
   useEffect(() => {
     getCustomers();
@@ -60,27 +60,30 @@ function EditPayment(props) {
   }, [customerId, paymentId, getInvoices, getInvoicesToEdit]);
 
   useEffect(() => {
-    setPayments((current) => {
-      const currentPayments = { ...current };
-      const paymentsArray = Object.keys(currentPayments);
-      if (paymentsArray?.length > 0) {
-        paymentsArray.forEach((invoiceId) => {
-          //check if this invoice is in the list of invoices
-          const found = invoices.find(
-            (invoice) => invoice.invoiceId === invoiceId
-          );
+    if (invoices?.length > 0) {
+      setPayments((current) => {
+        const currentPayments = { ...current };
+        const paymentsArray = Object.keys(currentPayments);
+        console.log({ current, paymentsArray });
+        if (paymentsArray?.length > 0) {
+          paymentsArray.forEach((invoiceId) => {
+            //check if this invoice is in the list of invoices
+            const found = invoices.find(
+              (invoice) => invoice.invoiceId === invoiceId
+            );
 
-          if (!found) {
-            //delete the invoice payment if it has not been found
-            delete currentPayments[invoiceId];
-          }
-        });
+            if (!found) {
+              //delete the invoice payment if it has not been found
+              delete currentPayments[invoiceId];
+            }
+          });
 
-        return { ...currentPayments };
-      } else {
-        return current;
-      }
-    });
+          return { ...currentPayments };
+        } else {
+          return current;
+        }
+      });
+    }
   }, [invoices, setPayments]);
 
   function updateFormValues(data) {
@@ -203,9 +206,12 @@ function mapDispatchToProps(dispatch) {
     getCustomers: () => dispatch({ type: GET_CUSTOMERS }),
     getPaymentModes: () => dispatch({ type: GET_PAYMENT_MODES }),
     getInvoices: (customerId) =>
-      dispatch({ type: GET_UNPAID_CUSTOMER_INVOICES, customerId }),
+      dispatch({ type: GET_UNPAID_CUSTOMER_INVOICES, payload: customerId }),
     getInvoicesToEdit: (customerId, paymentId) =>
-      dispatch({ type: GET_PAYMENT_INVOICES_TO_EDIT, customerId, paymentId }),
+      dispatch({
+        type: GET_PAYMENT_INVOICES_TO_EDIT,
+        payload: { customerId, paymentId },
+      }),
   };
 }
 

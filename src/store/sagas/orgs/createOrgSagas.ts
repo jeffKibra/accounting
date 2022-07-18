@@ -56,7 +56,7 @@ export function getOrg(userId: string) {
 
 function* createOrg(action: PayloadAction<OrgFormData>) {
   yield put(start(CREATE_ORG));
-  // console.log({ data });
+  console.log({ payload: action.payload });
 
   const userProfile: UserProfile = yield select(
     (state) => state.authReducer.userProfile

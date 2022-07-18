@@ -57,7 +57,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createReceipt: (data) => dispatch({ type: CREATE_SALES_RECEIPT, data }),
+    createReceipt: (payload) =>
+      dispatch({ type: CREATE_SALES_RECEIPT, payload }),
     resetReceipt: () => dispatch(reset()),
   };
 }

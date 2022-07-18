@@ -35,17 +35,17 @@ const orgsSlice = createSlice({
         error: null,
       };
     },
-    success: (state: State, action: PayloadAction<Org | undefined>) => {
+    success: (state: State, action: PayloadAction<Org | null>) => {
       const { payload } = action;
 
       return {
         ...state,
         loading: false,
-        org: payload || null,
+        org: payload,
         isModified: true,
       };
     },
-    orgsSuccess: (state: State, action: PayloadAction<Org[]>) => {
+    orgsSuccess: (state: State, action: PayloadAction<Org[] | null>) => {
       const { payload } = action;
       return {
         ...state,
@@ -53,7 +53,7 @@ const orgsSlice = createSlice({
         orgs: payload,
       };
     },
-    orgSuccess: (state: State, action: PayloadAction<Org>) => {
+    orgSuccess: (state: State, action: PayloadAction<Org | null>) => {
       const { payload } = action;
       return {
         ...state,

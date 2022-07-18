@@ -113,9 +113,10 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    updateInvoice: (data) => dispatch({ type: UPDATE_INVOICE, data }),
+    updateInvoice: (payload) => dispatch({ type: UPDATE_INVOICE, payload }),
     resetInvoice: () => dispatch(reset()),
-    getInvoice: (invoiceId) => dispatch({ type: GET_INVOICE, invoiceId }),
+    getInvoice: (invoiceId) =>
+      dispatch({ type: GET_INVOICE, payload: invoiceId }),
   };
 }
 

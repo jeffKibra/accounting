@@ -71,7 +71,7 @@ function mapDispatchToProps(dispatch) {
   return {
     resetSalesReceipt: () => dispatch(reset()),
     getSalesReceipt: (salesReceiptId) =>
-      dispatch({ type: GET_SALES_RECEIPT, salesReceiptId }),
+      dispatch({ type: GET_SALES_RECEIPT, payload: salesReceiptId }),
   };
 }
 

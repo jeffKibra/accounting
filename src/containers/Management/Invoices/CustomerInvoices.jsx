@@ -47,7 +47,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch, ownProps) {
   const { customerId } = ownProps;
   return {
-    getInvoices: () => dispatch({ type: GET_CUSTOMER_INVOICES, customerId }),
+    getInvoices: () =>
+      dispatch({ type: GET_CUSTOMER_INVOICES, payload: customerId }),
     resetInvoices: () => dispatch(reset()),
   };
 }

@@ -87,8 +87,9 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getCustomer: (customerId) => dispatch({ type: GET_CUSTOMER, customerId }),
-    updateCustomer: (data) => dispatch({ type: UPDATE_CUSTOMER, data }),
+    getCustomer: (customerId) =>
+      dispatch({ type: GET_CUSTOMER, payload: customerId }),
+    updateCustomer: (payload) => dispatch({ type: UPDATE_CUSTOMER, payload }),
     resetCustomer: () => dispatch(reset()),
   };
 }

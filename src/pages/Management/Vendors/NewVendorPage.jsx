@@ -60,7 +60,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createVendor: (data) => dispatch({ type: CREATE_VENDOR, data }),
+    createVendor: (payload) => dispatch({ type: CREATE_VENDOR, payload }),
     resetVendor: () => dispatch(reset()),
   };
 }

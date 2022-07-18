@@ -44,6 +44,7 @@ function* updateExpenseSaga(action: PayloadAction<updateData>) {
     /**
      * update SalesReceipt using a transaction
      */
+    console.log({ pay: action.payload });
     await runTransaction(db, async (transaction) => {
       await updateExpense(
         transaction,

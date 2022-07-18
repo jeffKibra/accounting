@@ -89,8 +89,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    updateItem: (data) => dispatch({ type: UPDATE_ITEM, data }),
-    getItem: (itemId) => dispatch({ type: GET_ITEM, itemId }),
+    updateItem: (payload) => dispatch({ type: UPDATE_ITEM, payload }),
+    getItem: (itemId) => dispatch({ type: GET_ITEM, payload: itemId }),
     resetItem: () => dispatch(reset()),
   };
 }

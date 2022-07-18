@@ -17,7 +17,7 @@ export default function useDeleteCustomer(customer) {
   const deleting = loading && action === DELETE_CUSTOMER;
 
   function handleDelete() {
-    dispatch({ type: DELETE_CUSTOMER, customerId });
+    dispatch({ type: DELETE_CUSTOMER, payload: customerId });
   }
 
   function resetCustomer() {

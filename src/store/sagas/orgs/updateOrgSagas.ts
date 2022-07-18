@@ -36,7 +36,7 @@ function* updateOrg(action: PayloadAction<UpdateData>) {
   try {
     yield call(update);
 
-    yield put(success());
+    yield put(success(null));
     yield put(toastSuccess("Organization successfully updated!"));
   } catch (err) {
     const error = err as Error;

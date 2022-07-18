@@ -16,7 +16,7 @@ export default function deleteInvoice(
   orgId: string,
   userProfile: UserProfile,
   invoice: Invoice,
-  entriesGroups: GroupedEntries[],
+  groupedEntries: GroupedEntries,
   deletionType: string = "mark"
 ) {
   const {
@@ -28,14 +28,12 @@ export default function deleteInvoice(
   /**
    * delete entries and update groupedEntries summaries
    */
-  entriesGroups.forEach((group) => {
-    const { entries, ...account } = group;
-
+  Object.values(groupedEntries).forEach((entries) => {
     deleteSimilarAccountEntries(
       transaction,
       userProfile,
       orgId,
-      account,
+      entries[0].account,
       entries
     );
   });

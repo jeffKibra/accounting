@@ -38,14 +38,12 @@ function* checkOrg() {
       (state: RootState) => state.authReducer.userProfile
     );
 
-    // console.log({ userProfile });
+    console.log({ userProfile });
     const { uid } = userProfile;
 
     let org: Org | null = uid ? yield call(getOrgData, uid) : null;
-
-    if (org) {
-      yield put(orgSuccess(org));
-    }
+    console.log({ org });
+    yield put(orgSuccess(org));
   } catch (err) {
     const error = err as Error;
     console.log(error);

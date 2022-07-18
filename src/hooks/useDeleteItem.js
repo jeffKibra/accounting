@@ -17,7 +17,7 @@ export default function useDeleteItem(item) {
   const deleting = loading && action === DELETE_ITEM;
 
   function handleDelete() {
-    dispatch({ type: DELETE_ITEM, itemId });
+    dispatch({ type: DELETE_ITEM, payload: itemId });
   }
 
   function resetItem() {

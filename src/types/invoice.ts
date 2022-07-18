@@ -34,7 +34,7 @@ interface Meta {
   isSent: boolean;
   paymentsCount: number;
   paymentsIds: string[];
-  payments: InvoicePayments;
+  paymentsReceived: InvoicePayments;
   status: string;
   org: OrgSummary;
   createdAt: Date | Timestamp;

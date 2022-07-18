@@ -26,7 +26,6 @@ import {
   Account,
   ExpenseFormData,
   ExpenseFromDb,
-  VendorSummary,
 } from "../../types";
 
 interface TDetails
@@ -46,7 +45,8 @@ export default async function createExpense(
 ) {
   const { orgId } = org;
   const { email } = userProfile;
-  const { paymentAccount, paymentMode, summary, items, reference } = data;
+  const { paymentAccount, paymentMode, summary, items, reference, vendor } =
+    data;
   // const { vendorId } = vendor;
   const { accountId: paymentAccountId } = paymentAccount;
   const { value: paymentModeId } = paymentMode;
@@ -55,11 +55,6 @@ export default async function createExpense(
   /**
    * check is account has enough funds
    */
-  let formVendor = data.vendor;
-  let vendor: VendorSummary | null = formVendor
-    ? formats.formatVendorData(formVendor)
-    : formVendor;
-  let vendorId: string = formVendor ? formVendor.vendorId : "";
 
   // console.log({ items });
   const tDetails: TDetails = {
@@ -67,9 +62,14 @@ export default async function createExpense(
     status: "active",
     transactionType,
     org: formats.formatOrgData(org),
-    vendor,
     items: formats.formatExpenseItems(items),
   };
+  /**
+   * if the vendor is not undefined, add it to the object
+   */
+  if (vendor) {
+    tDetails.vendor = formats.formatVendorData(vendor);
+  }
   const transactionDetails = {
     ...tDetails,
     expenseId,
@@ -121,7 +121,9 @@ export default async function createExpense(
   /**
    * update vendor summaries if a vendor was selected
    */
-  if (vendorId) {
+  if (vendor) {
+    let vendorId = vendor.vendorId || "";
+
     const vendorRef = doc(db, "organizations", orgId, "vendors", vendorId);
 
     transaction.update(vendorRef, {

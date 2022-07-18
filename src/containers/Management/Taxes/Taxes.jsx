@@ -47,7 +47,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     getTaxes: () => dispatch({ type: GET_TAXES }),
-    deleteTax: (taxId) => dispatch({ type: DELETE_TAX, taxId }),
+    deleteTax: (taxId) => dispatch({ type: DELETE_TAX, payload: taxId }),
     resetTax: () => dispatch(reset()),
   };
 }

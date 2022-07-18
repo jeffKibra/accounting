@@ -53,7 +53,8 @@ function ExpenseForm(props) {
 
   function formulateData(formData) {
     const { vendorId, paymentAccountId, paymentModeId, ...rest } = formData;
-    const vendor = vendors.find((vendor) => vendor.vendorId === vendorId) || {};
+    const vendor =
+      vendors.find((vendor) => vendor.vendorId === vendorId) || null;
     const paymentAccount = paymentAccounts.find(
       (account) => account.accountId === paymentAccountId
     );
@@ -61,12 +62,17 @@ function ExpenseForm(props) {
       (mode) => mode.value === paymentModeId
     );
 
-    return {
+    const newData = {
       ...rest,
-      vendor,
       paymentAccount,
       paymentMode,
     };
+
+    if (vendor) {
+      newData.vendor = vendor;
+    }
+
+    return { ...newData };
   }
 
   function goBack() {
@@ -79,6 +85,7 @@ function ExpenseForm(props) {
 
   function saveData(data) {
     const formData = formulateData(data);
+
     handleFormSubmit(formData);
   }
 

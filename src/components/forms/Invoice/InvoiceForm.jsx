@@ -17,7 +17,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { deriveDueDate } from "../../../utils/invoices";
 import { confirmFutureDate } from "../../../utils/dates";
 
-import useToasts from "../../../hooks/useToasts";
+import { useToasts } from "../../../hooks";
 
 import SalesContext from "../../../contexts/SalesContext";
 import StepperContext from "../../../contexts/StepperContext";
@@ -35,10 +35,10 @@ function InvoiceForm() {
     const today = new Date();
 
     return {
-      customerId: formValues?.customerId || "",
+      customerId: formValues?.customer?.customerId || "",
       orderNumber: formValues?.orderNumber || "",
       invoiceDate: formValues?.invoiceDate || today,
-      paymentTermId: formValues?.paymentTermId || "on_receipt",
+      paymentTermId: formValues?.paymentTerm?.value || "on_receipt",
       dueDate: formValues?.dueDate || today,
       subject: formValues?.subject || "",
       customerNotes: formValues?.customerNotes || "",
@@ -102,7 +102,8 @@ function InvoiceForm() {
   const toasts = useToasts();
 
   function onSubmit(data) {
-    const { customerId, invoiceDate, dueDate, paymentTermId } = data;
+    const { customerId, paymentTermId, ...formData } = data;
+    const { invoiceDate, dueDate } = formData;
     /**
      * ensure dueDate is not a past date
      */
@@ -112,12 +113,18 @@ function InvoiceForm() {
     }
 
     const customer = getCustomer(customerId);
+    if (!customer) {
+      return toasts.error("Selected an Invalid customer");
+    }
     const paymentTerm = paymentTerms.find(
       (term) => term.value === paymentTermId
     );
+    if (!paymentTerm) {
+      return toasts.error("Selected Payment Term is not a valid Payment Term");
+    }
 
     const newData = {
-      ...data,
+      ...formData,
       customer,
       paymentTerm,
     };

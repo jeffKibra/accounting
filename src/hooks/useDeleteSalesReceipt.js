@@ -17,7 +17,7 @@ export default function useDeleteSalesReceipt(salesReceipt) {
   const deleting = loading && action === DELETE_SALES_RECEIPT;
 
   function handleDelete() {
-    dispatch({ type: DELETE_SALES_RECEIPT, salesReceiptId });
+    dispatch({ type: DELETE_SALES_RECEIPT, payload: salesReceiptId });
   }
 
   function resetSalesReceipt() {

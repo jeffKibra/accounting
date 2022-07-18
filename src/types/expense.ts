@@ -20,7 +20,7 @@ export interface ExpenseFormData {
   reference: string;
   taxType: string;
   transactionType: string;
-  vendor: Vendor | null;
+  vendor?: Vendor;
   paymentAccount: Account;
   items: ExpenseItem[];
   expenseDate: Date | Timestamp;
@@ -37,7 +37,7 @@ interface Meta {
 }
 
 export interface ExpenseFromDb extends Omit<ExpenseFormData, "vendor">, Meta {
-  vendor: VendorSummary | null;
+  vendor?: VendorSummary;
 }
 
 export interface ExpenseUpdateData

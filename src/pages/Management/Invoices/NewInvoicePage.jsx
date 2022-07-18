@@ -57,7 +57,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createInvoice: (data) => dispatch({ type: CREATE_INVOICE, data }),
+    createInvoice: (payload) => dispatch({ type: CREATE_INVOICE, payload }),
     resetInvoice: () => dispatch(reset()),
   };
 }

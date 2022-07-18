@@ -16,7 +16,7 @@ import {
 } from "../../actions/authActions";
 import { auth } from "../../../utils/firebase";
 
-import { RootState, UserProfile } from "../../../types";
+import { RootState, UserProfile, LoginForm } from "../../../types";
 
 import { start, success, fail, reset } from "../../slices/authSlice";
 
@@ -129,12 +129,7 @@ export function* watchAuthListener() {
   yield takeLatest(AUTH_LISTENER, activeAuthListener);
 }
 
-interface UserData {
-  email: string;
-  password: string;
-}
-
-export function* login(action: PayloadAction<UserData>) {
+export function* login(action: PayloadAction<LoginForm>) {
   console.log({ action });
   yield put(start(LOGIN));
   const {

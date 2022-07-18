@@ -53,6 +53,7 @@ function* checkAccounts(action: PayloadAction<string>) {
   try {
     if (orgId) {
       let accounts: Account[] = yield call(fetchAccounts, orgId);
+      // console.log({ accounts });
 
       yield put(accountsSuccess(accounts));
     } else {

@@ -78,7 +78,7 @@ function EditItem(props) {
 
   return loading && action === GET_TAXES ? (
     <SkeletonLoader />
-  ) : accounts ? (
+  ) : incomeAccounts?.length > 0 ? (
     <Stepper
       steps={[
         {
