@@ -107,12 +107,6 @@ function formatSaleItems(items: SalesItemFromForm[]): SalesItem[] {
   });
 }
 
-function formatExpenseItems(items: ExpenseItem[]) {
-  return items.map((item) => {
-    return item;
-  });
-}
-
 function formatCash(num: number) {
   return Number(Number(num).toFixed(2)).toLocaleString();
 }
@@ -124,7 +118,6 @@ const formats = {
   formatOrgData,
   formatTransactionDetails,
   formatSaleItems,
-  formatExpenseItems,
   formatVendorData,
   formatCash,
 };

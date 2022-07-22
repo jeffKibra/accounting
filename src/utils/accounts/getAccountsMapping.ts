@@ -1,48 +1,19 @@
-/**
- * @typedef {Object} account
- * @property {number} current
- * @property {number} incoming
- * @property {string} accountId
- */
-/**
- * @typedef {account[]} accountsData
- */
-/**
- * @param {account[]} accounts
- * @returns {{newAccounts:accountsData,updatedAccounts:accountsData,deletedAccounts:accountsData,similarAccounts:accountsData}} accountsMapping
- */
+import { mapAccounts, summarizeItemsIntoAccounts } from ".";
 
-import { AccountMapping } from "../../types/accounts";
-
-function getAccountsMapping(accounts: AccountMapping[]) {
-  let newAccounts: AccountMapping[] = [];
-  let updatedAccounts: AccountMapping[] = [];
-  let deletedAccounts: AccountMapping[] = [];
-  let similarAccounts: AccountMapping[] = [];
-
-  accounts.forEach((account) => {
-    const { current, incoming } = account;
-
-    if (current === incoming) {
-      similarAccounts.push({ ...account });
-    } else {
-      if (current === 0) {
-        newAccounts.push({ ...account });
-      } else if (incoming === 0) {
-        deletedAccounts.push({ ...account });
-      } else {
-        updatedAccounts.push({ ...account });
-      }
-    }
-  });
-  similarAccounts = similarAccounts.filter((account) => account.incoming !== 0);
-
-  return {
-    newAccounts,
-    updatedAccounts,
-    deletedAccounts,
-    similarAccounts,
-  };
+interface Item {
+  accountId: string;
+  amount: number;
 }
 
-export default getAccountsMapping;
+export default function getAccountsMapping(
+  currentItems: Item[],
+  incomingItems: Item[]
+) {
+  /**
+   * group both items arrays into their respective income accounts
+   */
+  const currentAccounts = summarizeItemsIntoAccounts(currentItems);
+  const incomingAccounts = summarizeItemsIntoAccounts(incomingItems);
+
+  return mapAccounts(currentAccounts, incomingAccounts);
+}

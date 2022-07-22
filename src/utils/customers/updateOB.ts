@@ -1,6 +1,6 @@
 import {
   updateSimilarAccountEntries,
-  getAccountTransactionEntry,
+  getAccountEntryForTransaction,
 } from "../journals";
 import { getAccountData } from "../accounts";
 import { fetchInvoiceUpdateData, updateInvoice } from "../invoices";
@@ -61,17 +61,17 @@ export default async function updateOB(
    */
   const [updateData, salesEntry, OBAEntry] = await Promise.all([
     fetchInvoiceUpdateData(transaction, orgId, invoiceId, invoiceData),
-    getAccountTransactionEntry(
+    getAccountEntryForTransaction(
       orgId,
       salesAccount.accountId,
       customerId,
-      "opening balance"
+      "opening_balance"
     ),
-    getAccountTransactionEntry(
+    getAccountEntryForTransaction(
       orgId,
       OBAAccount.accountId,
       customerId,
-      "opening balance"
+      "opening_balance"
     ),
   ]);
   const { currentInvoice, entriesToDelete, entriesToUpdate, newAccounts } =
@@ -91,6 +91,7 @@ export default async function updateOB(
    * compute adjustment
    */
   const adjustment = +openingBalance - +currentInvoice.summary.totalAmount;
+  console.log({ adjustment });
   /**
    * update 2 journal entries
    * 1. debit sales transactionType= opening balance
@@ -102,7 +103,7 @@ export default async function updateOB(
    */
   updateSimilarAccountEntries(transaction, userProfile, orgId, salesAccount, [
     {
-      amount: 0 - adjustment,
+      amount: 0 - openingBalance,
       account: salesEntry.account,
       credit: salesEntry.credit,
       debit: salesEntry.debit,
@@ -114,7 +115,7 @@ export default async function updateOB(
    */
   updateSimilarAccountEntries(transaction, userProfile, orgId, OBAAccount, [
     {
-      amount: +adjustment,
+      amount: openingBalance,
       account: OBAEntry.account,
       credit: OBAEntry.credit,
       debit: OBAEntry.debit,
@@ -133,7 +134,6 @@ export default async function updateOB(
     entriesToDelete,
     newAccounts,
     currentInvoice,
-    incomingInvoice,
-    "customer opening balance"
+    incomingInvoice
   );
 }

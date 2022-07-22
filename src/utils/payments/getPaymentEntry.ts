@@ -7,8 +7,7 @@ export default async function getPaymentEntry(
   orgId: string,
   paymentId: string,
   accountId: string,
-  transactionId: string,
-  transactionType: string = "customer payment",
+  invoiceId: string,
   status: string = "active"
 ) {
   // console.log({
@@ -24,9 +23,9 @@ export default async function getPaymentEntry(
     entriesCollection,
     orderBy("createdAt", "desc"),
     where("transactionDetails.paymentId", "==", paymentId),
-    where("transactionId", "==", transactionId),
+    where("transactionId", "==", invoiceId),
     where("account.accountId", "==", accountId),
-    where("transactionType", "==", transactionType),
+    where("transactionType", "==", "invoice_payment"),
     where("status", "==", status),
     limit(1)
   );

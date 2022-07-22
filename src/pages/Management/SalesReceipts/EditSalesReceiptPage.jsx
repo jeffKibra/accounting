@@ -20,24 +20,24 @@ import EditSalesReceipt from "../../../containers/Management/SalesReceipts/EditS
 
 function getFormValuesOnly(salesReceipt = {}) {
   const {
-    customerId,
+    customer,
     customerNotes,
     receiptDate,
     salesReceiptId,
-    accountId,
-    paymentModeId,
+    account,
+    paymentMode,
     reference,
     summary,
     selectedItems,
   } = salesReceipt;
 
   return {
-    customerId,
+    customer,
     customerNotes,
     receiptDate,
     salesReceiptId,
-    accountId,
-    paymentModeId,
+    account,
+    paymentMode,
     reference,
     summary,
     selectedItems,

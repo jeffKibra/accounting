@@ -8,7 +8,7 @@ type State = {
   payment: PaymentReceived | null;
   payments: PaymentReceived[] | null;
   action: string | null;
-  error: { code?: string; message?: string } | null;
+  error: Error | null;
 };
 
 const initialState: State = {
@@ -41,7 +41,10 @@ const paymentsSlice = createSlice({
         isModified: true,
       };
     },
-    paymentSuccess: (state: State, action: PayloadAction<PaymentReceived>) => {
+    paymentSuccess: (
+      state: State,
+      action: PayloadAction<PaymentReceived | null>
+    ) => {
       return {
         ...state,
         loading: false,
@@ -50,7 +53,7 @@ const paymentsSlice = createSlice({
     },
     paymentsSuccess: (
       state: State,
-      action: PayloadAction<PaymentReceived[]>
+      action: PayloadAction<PaymentReceived[] | null>
     ) => {
       return {
         ...state,
@@ -58,7 +61,7 @@ const paymentsSlice = createSlice({
         payments: action.payload,
       };
     },
-    fail: (state: State, action: PayloadAction<{}>) => {
+    fail: (state: State, action: PayloadAction<Error>) => {
       return {
         ...state,
         loading: false,

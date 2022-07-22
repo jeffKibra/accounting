@@ -24,6 +24,7 @@ function ExpenseItemsList(props) {
        */
       if (tax?.rate) {
         if (taxType === "taxInclusive") {
+          console.log({ taxType });
           /**
            * item rate is inclusive of tax
            * compute final tax and adjust itemRate accordingly
@@ -38,6 +39,7 @@ function ExpenseItemsList(props) {
           itemTax = (tax.rate / 100) * itemRate;
         }
       }
+      console.log({ itemRate });
 
       const itemData = {
         ...item,

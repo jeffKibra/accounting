@@ -6,6 +6,7 @@ import {
   SalesItem,
   SalesSummary,
   SalesItemFromForm,
+  InvoiceTransactionTypes,
 } from ".";
 import { Timestamp } from "firebase/firestore";
 
@@ -29,7 +30,7 @@ export interface InvoicePayments {
 }
 
 interface Meta {
-  transactionType: string;
+  transactionType: keyof InvoiceTransactionTypes;
   balance: number;
   isSent: boolean;
   paymentsCount: number;

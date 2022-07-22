@@ -1,10 +1,4 @@
-import {
-  doc,
-  increment,
-  serverTimestamp,
-  arrayUnion,
-  Transaction,
-} from "firebase/firestore";
+import { doc, increment, arrayUnion, Transaction } from "firebase/firestore";
 
 import { db } from "../firebase";
 import { createSimilarAccountEntries } from "../journals";
@@ -12,47 +6,32 @@ import { getAccountData } from "../accounts";
 
 import {
   UserProfile,
-  PaymentReceived,
   InvoicePaymentMapping,
   Account,
+  PaymentReceivedForm,
 } from "../../types";
+
+interface PaymentData extends PaymentReceivedForm {
+  paymentId: string;
+}
 
 export default function payInvoices(
   transaction: Transaction,
   userProfile: UserProfile,
   orgId: string,
-  paymentData: PaymentReceived,
-  payments: InvoicePaymentMapping[],
+  paymentData: PaymentData,
+  mappedPayments: InvoicePaymentMapping[],
   accounts: Account[]
 ) {
-  const { email } = userProfile;
-  const { reference, paymentId, account, paidInvoices } = paymentData;
+  const { reference, paymentId, account } = paymentData;
   // console.log({ account });
   const accounts_receivable = getAccountData("accounts_receivable", accounts);
   const paymentAccount = getAccountData(account.accountId, accounts);
-  /**
-   * map payments to invoices
-   */
-  const invoicesPayments = payments.map((payment) => {
-    // console.log({ payment });
-    const { invoiceId } = payment;
 
-    const invoice = paidInvoices.find(
-      (invoice) => invoice.invoiceId === invoiceId
-    );
-    if (!invoice) {
-      throw new Error(`Invoice data with id ${invoiceId} not found!`);
-    }
-
-    return {
-      ...payment,
-      invoice,
-    };
-  });
   /**
    * update invoices with the current payment
    */
-  invoicesPayments.forEach((payment) => {
+  mappedPayments.forEach((payment) => {
     const { invoiceId, incoming } = payment;
     console.log({ invoiceId, incoming, paymentId });
 
@@ -77,9 +56,8 @@ export default function payInvoices(
     userProfile,
     orgId,
     accounts_receivable,
-    invoicesPayments.map((payment) => {
-      const { incoming, invoice } = payment;
-      const { invoiceId } = invoice;
+    mappedPayments.map((payment) => {
+      const { incoming, invoiceId } = payment;
 
       /**
        * accounts receivable account should be credited
@@ -90,7 +68,7 @@ export default function payInvoices(
         reference,
         account: accounts_receivable,
         transactionId: invoiceId,
-        transactionType: "customer payment",
+        transactionType: "invoice_payment",
         transactionDetails: { ...paymentData },
       };
     })
@@ -103,9 +81,8 @@ export default function payInvoices(
     userProfile,
     orgId,
     paymentAccount,
-    invoicesPayments.map((payment) => {
-      const { incoming, invoice } = payment;
-      const { invoiceId } = invoice;
+    mappedPayments.map((payment) => {
+      const { incoming, invoiceId } = payment;
       /**
        * payment account should be increased
        * amount should be positive
@@ -115,7 +92,7 @@ export default function payInvoices(
         account: paymentAccount,
         reference,
         transactionId: invoiceId,
-        transactionType: "customer payment",
+        transactionType: "invoice_payment",
         transactionDetails: { ...paymentData },
       };
     })

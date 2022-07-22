@@ -17,6 +17,7 @@ import {
   GET_CUSTOMER_INVOICES,
   GET_UNPAID_CUSTOMER_INVOICES,
   GET_PAYMENT_INVOICES_TO_EDIT,
+  GET_PAYMENT_INVOICES,
 } from "../../actions/invoicesActions";
 import {
   start,
@@ -271,6 +272,7 @@ function* getPaymentInvoicesToEdit(action: PayloadAction<Details>) {
     const q1 = query(
       invoicesCollection,
       orderBy("createdAt", "asc"),
+      where("customer.customerId", "==", customerId),
       where("paymentsIds", "array-contains", paymentId),
       where("status", "==", "active"),
       where("balance", "==", 0)
@@ -307,6 +309,7 @@ function* getPaymentInvoicesToEdit(action: PayloadAction<Details>) {
      */
     invoices1.sort(sortByDateAsc);
     invoices2.sort(sortByDateAsc);
+    console.log({ invoices1, invoices2 });
 
     return [...invoices1, ...invoices2];
   }
@@ -326,4 +329,53 @@ function* getPaymentInvoicesToEdit(action: PayloadAction<Details>) {
 
 export function* watchGetPaymentInvoicesToEdit() {
   yield takeLatest(GET_PAYMENT_INVOICES_TO_EDIT, getPaymentInvoicesToEdit);
+}
+
+function* getPaymentInvoices(action: PayloadAction<Details>) {
+  const { type, payload: paymentId } = action;
+  yield put(start(type));
+  console.log("fetching payment invoices");
+  const orgId: string = yield select(
+    (state: RootState) => state.orgsReducer.org?.orgId
+  );
+  // console.log({ customerId, statuses });
+  async function get() {
+    const invoicesCollection = dbCollections(orgId).invoices;
+    //paid invoices to edit
+    const q1 = query(
+      invoicesCollection,
+      orderBy("createdAt", "asc"),
+      where("paymentsIds", "array-contains", paymentId),
+      where("status", "==", "active")
+    );
+
+    const [snap] = await Promise.all([getDocs(q1)]);
+
+    const invoices1 = snap.docs.map((invoiceDoc) => {
+      return {
+        ...formatInvoiceDates({
+          ...invoiceDoc.data(),
+          invoiceId: invoiceDoc.id,
+        }),
+      };
+    });
+
+    return invoices1;
+  }
+
+  try {
+    const invoices: Invoice[] = yield call(get);
+    // console.log({ invoices });
+
+    yield put(invoicesSuccess(invoices));
+  } catch (err) {
+    const error = err as Error;
+    console.log(error);
+    yield put(fail(error));
+    yield put(toastError(error.message));
+  }
+}
+
+export function* watchGetPaymentInvoices() {
+  yield takeLatest(GET_PAYMENT_INVOICES, getPaymentInvoices);
 }

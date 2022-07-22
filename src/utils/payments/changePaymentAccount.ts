@@ -34,7 +34,6 @@ export default function changePaymentAccount(
         reference,
         transactionId: paymentId,
         transactionDetails: { ...incomingPayment },
-        transactionType: "customer payment",
       };
     })
   );

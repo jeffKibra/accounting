@@ -1,6 +1,6 @@
 import {
   deleteSimilarAccountEntries,
-  getAccountTransactionEntry,
+  getAccountEntryForTransaction,
 } from "../journals";
 import { fetchInvoiceDeletionData, deleteInvoice } from "../invoices";
 import { getAccountData } from "../accounts";
@@ -21,19 +21,22 @@ export default async function deleteOB(
 
   const [updateData, salesEntry, OBAEntry] = await Promise.all([
     fetchInvoiceDeletionData(transaction, orgId, invoiceId),
-    getAccountTransactionEntry(
+    getAccountEntryForTransaction(
       orgId,
       salesAccount.accountId,
       customerId,
-      "opening balance"
+      "opening_balance"
     ),
-    getAccountTransactionEntry(
+    getAccountEntryForTransaction(
       orgId,
       OBAAccount.accountId,
       customerId,
-      "opening balance"
+      "opening_balance"
     ),
   ]);
+  console.log({ updateData });
+  console.log({ salesEntry, OBAEntry });
+  console.log({ salesAccount, OBAAccount });
   /**
    * delete 2 journal entries
    */

@@ -7,18 +7,11 @@ import {
 
 import { db, dbCollections } from "../firebase";
 
-import {
-  createSimilarAccountEntries,
-  createDebitAmount,
-  createCreditAmount,
-} from "../journals";
-import {
-  getAccountData,
-  getAccountsMapping,
-  getExpenseAccountsMapping,
-} from "../accounts";
+import { createSimilarAccountEntries } from "../journals";
+import { getAccountData, getAccountsMapping } from "../accounts";
 import formats from "../formats";
 import { getDateDetails } from "../dates";
+import { getEntryAmount } from ".";
 
 import {
   Org,
@@ -26,7 +19,8 @@ import {
   Account,
   ExpenseFormData,
   ExpenseFromDb,
-} from "../../types";
+  TransactionTypes,
+} from "types";
 
 interface TDetails
   extends Omit<
@@ -41,7 +35,7 @@ export default async function createExpense(
   accounts: Account[],
   expenseId: string,
   data: ExpenseFormData,
-  transactionType: string = "expense"
+  transactionType: keyof Pick<TransactionTypes, "expense"> = "expense"
 ) {
   const { orgId } = org;
   const { email } = userProfile;
@@ -62,7 +56,7 @@ export default async function createExpense(
     status: "active",
     transactionType,
     org: formats.formatOrgData(org),
-    items: formats.formatExpenseItems(items),
+    items: items,
   };
   /**
    * if the vendor is not undefined, add it to the object
@@ -79,26 +73,24 @@ export default async function createExpense(
   /**
    * create journal entries for income accounts
    */
-  let { newAccounts } = getExpenseAccountsMapping([], items);
-  const summaryAccounts = getAccountsMapping([
-    { accountId: "tax_payable", incoming: totalTaxes, current: 0 },
-    { accountId: paymentAccountId, incoming: totalAmount, current: 0 },
-  ]);
-  newAccounts = [...newAccounts, ...summaryAccounts.newAccounts];
+  const allItems = [
+    ...items.map((item) => {
+      const {
+        account: { accountId },
+        itemRate,
+      } = item;
+      return { accountId, amount: itemRate };
+    }),
+    { accountId: "tax_payable", amount: totalTaxes },
+    { accountId: paymentAccountId, amount: totalAmount },
+  ];
+  const { newAccounts } = getAccountsMapping([], allItems);
 
   newAccounts.forEach((newAccount) => {
     const { accountId, incoming } = newAccount;
     const expenseAccount = getAccountData(accountId, accounts);
-    const { accountType } = expenseAccount;
 
-    let amount = incoming;
-    if (accountId === paymentAccountId) {
-      //this account should be credited
-      amount = createCreditAmount(accountType, incoming);
-    } else {
-      //all other accounts should be debited
-      amount = createDebitAmount(accountType, incoming);
-    }
+    let amount = getEntryAmount(incoming, expenseAccount, paymentAccountId);
     console.log({ amount, accountId });
 
     createSimilarAccountEntries(

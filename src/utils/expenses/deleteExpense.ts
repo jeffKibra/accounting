@@ -31,7 +31,7 @@ export default async function deleteExpense(
    */
   const [expenseData, allEntries] = await Promise.all([
     getExpenseData(transaction, orgId, expenseId),
-    getTransactionEntries(orgId, expenseId),
+    getTransactionEntries(orgId, expenseId, "expense"),
   ]);
   const {
     vendor,

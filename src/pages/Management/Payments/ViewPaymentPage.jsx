@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { connect } from "react-redux";
 
 import { GET_PAYMENT } from "../../../store/actions/paymentsActions";
+import { GET_PAYMENT_INVOICES } from "../../../store/actions/invoicesActions";
 import { reset } from "../../../store/slices/paymentsSlice";
 
 import { PAYMENTS } from "../../../nav/routes";
@@ -18,7 +19,7 @@ import Empty from "../../../components/ui/Empty";
 import ViewPayment from "../../../containers/Management/Payments/ViewPayment";
 
 function ViewPaymentPage(props) {
-  const { loading, action, isModified, payment, resetPayment, getPayment } =
+  const { loading, isModified, payment, invoices, resetPayment, getPayment } =
     props;
   const { paymentId } = useParams();
   const navigate = useNavigate();
@@ -40,10 +41,10 @@ function ViewPaymentPage(props) {
       pageTitle={payment?.paymentId || "View Payment"}
       actions={payment && <PaymentOptions payment={payment} edit deletion />}
     >
-      {loading && action === GET_PAYMENT ? (
+      {loading ? (
         <SkeletonLoader />
       ) : payment ? (
-        <ViewPayment payment={payment} />
+        <ViewPayment payment={payment} invoices={invoices} />
       ) : (
         <Empty message="payment not found!" />
       )}
@@ -52,16 +53,28 @@ function ViewPaymentPage(props) {
 }
 
 function mapStateToProps(state) {
-  const { loading, action, isModified, payment } = state.paymentsReducer;
+  let { loading, action, isModified, payment } = state.paymentsReducer;
+  let {
+    invoices,
+    loading: invoicesLoading,
+    action: invoicesAction,
+  } = state.invoicesReducer;
+  loading =
+    (loading && action === GET_PAYMENT) ||
+    (invoicesLoading && invoicesAction === GET_PAYMENT_INVOICES);
 
-  return { loading, action, isModified, payment };
+  console.log({ invoices, payment });
+
+  return { loading, isModified, payment, invoices };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     resetPayment: () => dispatch(reset()),
-    getPayment: (paymentId) =>
-      dispatch({ type: GET_PAYMENT, payload: paymentId }),
+    getPayment: (paymentId) => {
+      dispatch({ type: GET_PAYMENT, payload: paymentId });
+      dispatch({ type: GET_PAYMENT_INVOICES, payload: paymentId });
+    },
   };
 }
 

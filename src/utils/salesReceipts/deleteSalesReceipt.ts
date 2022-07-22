@@ -31,10 +31,15 @@ export default async function deleteSalesReceipt(
    * fetch sales receipt data
    * fetch journal entries related to this sales receipt
    */
-  const [salesReceiptData, allEntries] = await Promise.all([
+  const [salesReceiptData] = await Promise.all([
     getSalesReceiptData(transaction, orgId, salesReceiptId),
-    getTransactionEntries(orgId, salesReceiptId),
   ]);
+  const allEntries = await getTransactionEntries(
+    orgId,
+    salesReceiptId,
+    salesReceiptData.transactionType
+  );
+
   const {
     customer: { customerId },
     paymentMode: { value: paymentModeId },

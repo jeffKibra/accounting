@@ -494,7 +494,7 @@ service cloud.firestore {
         allow update: if isOwner() && verifyInvoiceData() && allowInvoiceUpdate() &&
           (allowNormalUpdate() || allowCustomerChange() || allowDelete())
         allow delete: if isOwner() &&
-          resource.data.transactionType == "customer opening balance"
+          resource.data.transactionType == "customer_opening_balance"
       }
 
      
@@ -505,8 +505,8 @@ service cloud.firestore {
 
         function verifyPaymentData(){
           let form=['account', 'amount', 'customer', 'paymentDate', "paymentMode"];
-          let details=["payments", "paidInvoices", "paidInvoicesIds", 'excess'];
-          let meta=['status', 'modifiedBy', "modifiedAt"];
+          let details=["payments", "paidInvoicesIds", 'excess'];
+          let meta=['status', 'modifiedBy', "modifiedAt", "transactionType"];
           let optional=['reference'];
           let fixed=paymentsFixed();
           let required=form.concat(details).concat(meta).concat(fixed);
@@ -524,7 +524,6 @@ service cloud.firestore {
             request.resource.data.paymentMode is map &&
             request.resource.data.paymentMode.value is string &&
             request.resource.data.payments is map &&
-            request.resource.data.paidInvoices is list &&
             request.resource.data.paidInvoicesIds is list &&
             request.resource.data.status is string &&
             request.resource.data.org is map &&
@@ -532,6 +531,7 @@ service cloud.firestore {
             request.resource.data.createdAt is timestamp &&
             request.resource.data.modifiedBy is string &&
             request.resource.data.modifiedAt is timestamp &&
+            request.resource.data.transactionType is string &&
             request.resource.data.get("reference", "") is string
             // numberValue(request.resource.data.bankCharges) &&
             // request.resource.data.taxDeducted is string &&
@@ -542,7 +542,7 @@ service cloud.firestore {
         function allowPaymentUpdate(){
           let fixed=paymentsFixed();
 
-          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fixed)
+          return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fixed)
         }
 
         allow read: if isOwner()

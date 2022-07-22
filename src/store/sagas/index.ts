@@ -33,6 +33,7 @@ import {
   watchGetCustomerInvoices,
   watchGetUnpaidCustomerInvoices,
   watchGetPaymentInvoicesToEdit,
+  watchGetPaymentInvoices,
 } from "./invoices/getInvoicesSagas";
 import { watchUpdateInvoice } from "./invoices/updateInvoiceSagas";
 import { watchDeleteInvoice } from "./invoices/deleteInvoiceSagas";
@@ -113,6 +114,7 @@ export default function* rootSaga() {
     watchGetCustomerInvoices(),
     watchGetUnpaidCustomerInvoices(),
     watchGetPaymentInvoicesToEdit(),
+    watchGetPaymentInvoices(),
     watchUpdateInvoice(),
     watchDeleteInvoice(),
     watchCreatePayment(),

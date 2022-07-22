@@ -5,14 +5,18 @@ import {
 import { getAccountData } from "../accounts";
 
 import { Transaction } from "firebase/firestore";
-import { UserProfile, PaymentReceived, Account, Entry } from "../../types";
+import { UserProfile, Account, Entry, PaymentReceivedForm } from "../../types";
+
+interface PaymentData extends PaymentReceivedForm {
+  paymentId: string;
+}
 
 function createEntry(
   transaction: Transaction,
   userProfile: UserProfile,
   orgId: string,
   amount: number,
-  paymentData: PaymentReceived,
+  paymentData: PaymentData,
   accounts: Account[]
 ) {
   const { reference, paymentId } = paymentData;
@@ -36,7 +40,7 @@ function createEntry(
         reference,
         transactionDetails: { ...paymentData },
         transactionId: paymentId,
-        transactionType: "customer payment",
+        transactionType: "customer_payment",
       },
     ]
   );
@@ -47,7 +51,7 @@ function updateEntry(
   userProfile: UserProfile,
   orgId: string,
   amount: number,
-  paymentData: PaymentReceived,
+  paymentData: PaymentData,
   entryData: Entry,
   accounts: Account[]
 ) {

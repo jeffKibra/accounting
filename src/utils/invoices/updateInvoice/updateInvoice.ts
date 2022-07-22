@@ -32,8 +32,7 @@ export default function updateInvoice(
   entriesToDelete: MappedEntry[],
   newAccounts: AccountMapping[],
   currentInvoice: Invoice,
-  incomingInvoice: Invoice,
-  transactionType: string = "invoice"
+  incomingInvoice: Invoice
 ) {
   const { email } = userProfile;
   const { invoiceId, ...invoiceData } = incomingInvoice;
@@ -45,6 +44,7 @@ export default function updateInvoice(
   const {
     summary: { totalAmount: currentTotal },
     customer: { customerId: currentCustomerId },
+    transactionType,
   } = currentInvoice;
 
   // console.log({ data });
@@ -111,7 +111,7 @@ export default function updateInvoice(
         reference: "",
         transactionDetails,
         transactionId,
-        transactionType: "invoice",
+        transactionType,
       },
     ]);
   });

@@ -33,6 +33,46 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
+          "fieldPath": "customer.customerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "balance",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "customer.customerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "transactionType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
           "fieldPath": "customerId",
           "order": "ASCENDING"
         },
@@ -57,6 +97,28 @@
         {
           "fieldPath": "balance",
           "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "customer.customerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "paymentsIds",
+          "arrayConfig": "CONTAINS"
         },
         {
           "fieldPath": "status",
@@ -303,11 +365,11 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "status",
+          "fieldPath": "transactionId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "transactionId",
+          "fieldPath": "transactionType",
           "order": "ASCENDING"
         },
         {

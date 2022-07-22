@@ -1,5 +1,5 @@
 import { Timestamp } from "firebase/firestore";
-import { Account, DateDetails, AccountMapping } from ".";
+import { Account, DateDetails, AccountMapping, TransactionTypes } from ".";
 
 export interface Entry {
   entryId: string;
@@ -26,7 +26,7 @@ export interface EntryToChange {
   amount: number;
   prevAccount: Account;
   prevEntry: Entry;
-  transactionType?: string;
+  // transactionType?: keyof TransactionTypes;
   transactionId?: string;
   reference?: string;
   transactionDetails?: TransactionDetails;
@@ -34,7 +34,7 @@ export interface EntryToChange {
 
 export interface EntryToCreate {
   amount: number;
-  transactionType: string;
+  transactionType: keyof TransactionTypes;
   transactionId: string;
   reference: string;
   account: Account;
@@ -67,7 +67,7 @@ export interface EntryFromDb extends Omit<Entry, "entryId"> {
   reference: string;
   status: string;
   transactionId: string;
-  transactionType: string;
+  transactionType: keyof TransactionTypes;
   transactionDetails: TransactionDetails;
 }
 

@@ -6,6 +6,7 @@ import {
   Vendor,
   VendorSummary,
   OrgSummary,
+  TransactionTypes,
 } from ".";
 
 export interface ExpenseSummary {
@@ -19,7 +20,6 @@ export interface ExpenseFormData {
   paymentMode: PaymentMode;
   reference: string;
   taxType: string;
-  transactionType: string;
   vendor?: Vendor;
   paymentAccount: Account;
   items: ExpenseItem[];
@@ -34,6 +34,7 @@ interface Meta {
   modifiedBy: string;
   status: string;
   org: OrgSummary;
+  transactionType: keyof Pick<TransactionTypes, "expense">;
 }
 
 export interface ExpenseFromDb extends Omit<ExpenseFormData, "vendor">, Meta {

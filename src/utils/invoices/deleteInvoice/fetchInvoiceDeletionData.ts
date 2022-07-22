@@ -11,10 +11,15 @@ export default async function fetchInvoiceDeletionData(
   orgId: string,
   invoiceId: string
 ) {
-  const [invoice, allEntries] = await Promise.all([
+  const [invoice] = await Promise.all([
     getInvoiceData(transaction, orgId, invoiceId),
-    getTransactionEntries(orgId, invoiceId),
   ]);
+  const allEntries = await getTransactionEntries(
+    orgId,
+    invoiceId,
+    invoice.transactionType
+  );
+
   console.log({ allEntries });
   /**
    * check if the invoice has payments

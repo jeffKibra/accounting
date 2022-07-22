@@ -25,24 +25,16 @@ import { error as toastError } from "../../slices/toastSlice";
 
 import { dateFromTimestamp } from "../../../utils/dates";
 
-import { RootState, PaymentReceived, InvoiceSummary } from "../../../types";
+import { RootState, PaymentReceived } from "../../../types";
 
 function formatPaymentDates(payment: PaymentReceived) {
-  const { paymentDate, createdAt, modifiedAt, paidInvoices } = payment;
+  const { paymentDate, createdAt, modifiedAt } = payment;
 
   return {
     ...payment,
     paymentDate: dateFromTimestamp(paymentDate),
     createdAt: dateFromTimestamp(createdAt),
     modifiedAt: dateFromTimestamp(modifiedAt),
-    paidInvoices: paidInvoices.map((invoice: InvoiceSummary) => {
-      const { invoiceDate, dueDate } = invoice;
-      return {
-        ...invoice,
-        invoiceDate: dateFromTimestamp(invoiceDate),
-        dueDate: dateFromTimestamp(dueDate),
-      };
-    }),
   };
 }
 
@@ -55,14 +47,20 @@ function* getPayment(action: PayloadAction<string>) {
 
   async function get() {
     const paymentsCollection = dbCollections(orgId).paymentsReceived;
-    const paymentDoc = await getDoc(doc(paymentsCollection, paymentId));
+
+    const [paymentDoc] = await Promise.all([
+      getDoc(doc(paymentsCollection, paymentId)),
+    ]);
     const paymentReceived = paymentDoc.data();
     if (!paymentDoc.exists || !paymentReceived) {
       throw new Error("payment not found!");
     }
 
     return {
-      ...formatPaymentDates({ ...paymentReceived, paymentId: paymentDoc.id }),
+      ...formatPaymentDates({
+        ...paymentReceived,
+        paymentId: paymentDoc.id,
+      }),
     };
   }
 

@@ -2,7 +2,7 @@ import { put, call, select, takeLatest } from "redux-saga/effects";
 import { runTransaction } from "firebase/firestore";
 import { PayloadAction } from "@reduxjs/toolkit";
 
-import { updatePayment } from "../../../utils/payments";
+import { updatePayment, fetchPaymentUpdateData } from "../../../utils/payments";
 import { createDailySummary } from "../../../utils/summaries";
 
 import { db } from "../../../utils/firebase";
@@ -41,16 +41,35 @@ function* updatePaymentSaga(action: PayloadAction<UpdateData>) {
   const { paymentId, ...formData } = action.payload;
 
   async function update() {
+    /**
+     * create daily summary before proceeding
+     */
     await createDailySummary(orgId);
-
+    /**
+     * use a transaction to update payment
+     */
     await runTransaction(db, async (transaction) => {
-      await updatePayment(
+      /**
+       * fetch update data
+       */
+      const updateData = await fetchPaymentUpdateData(
         transaction,
         orgId,
-        userProfile,
         accounts,
         paymentId,
         formData
+      );
+      /**
+       * update payment
+       */
+      updatePayment(
+        transaction,
+        orgId,
+        userProfile,
+        paymentId,
+        formData,
+        updateData,
+        accounts
       );
     });
   }

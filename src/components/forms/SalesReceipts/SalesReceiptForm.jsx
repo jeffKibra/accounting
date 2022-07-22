@@ -27,15 +27,15 @@ function SalesReceiptForm(props) {
   const { formValues, updateFormValues, customers, loading, finish } =
     useContext(SalesContext);
   const { prevStep } = useContext(StepperContext);
-
+  console.log({ formValues });
   const defaults = useMemo(() => {
     const today = new Date();
 
     return {
-      customerId: formValues?.customerId || "",
+      customerId: formValues?.customer?.customerId || "",
       receiptDate: formValues?.receiptDate || today,
-      accountId: formValues?.accountId || "",
-      paymentModeId: formValues?.paymentModeId || "",
+      accountId: formValues?.account?.accountId || "undeposited_funds",
+      paymentModeId: formValues?.paymentMode?.value || "cash",
       reference: formValues?.reference || "",
       customerNotes: formValues?.customerNotes || "",
     };
@@ -80,7 +80,7 @@ function SalesReceiptForm(props) {
   }
 
   function onSubmit(data) {
-    let { customerId, paymentModeId, accountId } = data;
+    let { customerId, paymentModeId, accountId, ...rest } = data;
     let customer = {
       displayName: "Walk-in customer",
       email: "",
@@ -102,7 +102,7 @@ function SalesReceiptForm(props) {
     );
     const { name, accountType } = account;
     const newData = {
-      ...data,
+      ...rest,
       customer,
       paymentMode,
       account: { name, accountId, accountType },

@@ -20,7 +20,7 @@ import EditInvoice from "../../../containers/Management/Invoices/EditInvoice";
 
 function getFormValuesOnly(invoice = {}) {
   const {
-    customerId,
+    customer,
     customerNotes,
     dueDate,
     invoiceDate,
@@ -31,7 +31,7 @@ function getFormValuesOnly(invoice = {}) {
   } = invoice;
 
   return {
-    customerId,
+    customer,
     customerNotes,
     dueDate,
     invoiceDate,

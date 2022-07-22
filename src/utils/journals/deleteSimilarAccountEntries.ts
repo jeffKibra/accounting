@@ -18,6 +18,7 @@ export default function deleteSimilarAccountEntries(
    * value is also given the correct sign (+ve || -ve)
    */
   const adjustment = calculateAccountAdjustment(entries);
+  console.log({ adjustment, accountId: account.accountId });
   /**
    * add adjustment to the accounts amount
    */
@@ -48,6 +49,7 @@ function calculateAccountAdjustment(entries: EntryToDelete[]) {
     } = entry;
 
     const prevAmount = getRawAmount(accountType, entry);
+    console.log({ prevAmount });
 
     return sum + +prevAmount;
   }, 0);

@@ -110,6 +110,7 @@ export default async function deletePayment(
    * adjust payment mode value by negative of payment amount
    */
   const adjustment = 0 - +amount;
+  console.log({ adjustment });
   transaction.update(summaryRef, {
     deletedPayments: increment(1),
     [`paymentModes.${paymentModeId}`]: increment(adjustment),

@@ -11,19 +11,16 @@ import {
   deleteSimilarAccountEntries,
   createSimilarAccountEntries,
   changeEntriesAccount,
-  getIncomeEntries,
-  getAccountTransactionEntry,
+  getAccountsEntriesForTransaction,
+  getAccountEntryForTransaction,
 } from "../journals";
 
-import {
-  getAccountData,
-  getAccountsMapping,
-  getIncomeAccountsMapping,
-} from "../accounts";
+import { getAccountData, getAccountsMapping } from "../accounts";
 import { changePaymentMode, updatePaymentMode } from "../summaries";
 import { getSalesReceiptData } from ".";
 import formats from "../formats";
 import { getDateDetails } from "../dates";
+import { formatSalesItems } from "../sales";
 
 import { SalesReceiptForm, UserProfile, Account } from "../../types";
 
@@ -35,6 +32,7 @@ export default async function updateSalesReceipt(
   salesReceiptId: string,
   data: SalesReceiptForm
 ) {
+  console.log({ data });
   const { email } = userProfile;
   const { summary, selectedItems, customer, account, paymentMode, reference } =
     data;
@@ -52,57 +50,70 @@ export default async function updateSalesReceipt(
     customer: { customerId: currentCustomerId },
     account: { accountId: currentAccountId },
     paymentMode: { value: currentPaymentModeId },
-    selectedItems: items,
     summary: currentSummary,
   } = currentSalesReceipt;
   /**
    * check if customer has been changed
    */
+  const currentItems = [
+    ...formatSalesItems(currentSalesReceipt.selectedItems),
+    {
+      amount: currentSummary.shipping,
+      accountId: "shipping_charge",
+    },
+    {
+      amount: currentSummary.adjustment,
+      accountId: "other_charges",
+    },
+    {
+      amount: currentSummary.totalTaxes,
+      accountId: "tax_payable",
+    },
+  ];
+  const incomingItems = [
+    ...formatSalesItems(selectedItems),
+    {
+      amount: shipping,
+      accountId: "shipping_charge",
+    },
+    {
+      amount: adjustment,
+      accountId: "other_charges",
+    },
+    {
+      amount: totalTaxes,
+      accountId: "tax_payable",
+    },
+  ];
 
   const customerHasChanged = currentCustomerId !== customerId;
 
   let { deletedAccounts, newAccounts, updatedAccounts, similarAccounts } =
-    getIncomeAccountsMapping(items, selectedItems);
-  const summaryAccounts = getAccountsMapping([
-    {
-      incoming: shipping,
-      current: currentSummary.shipping,
-      accountId: "shipping_charge",
-    },
-    {
-      incoming: adjustment,
-      current: currentSummary.adjustment,
-      accountId: "other_charges",
-    },
-    {
-      incoming: totalTaxes,
-      current: currentSummary.totalTaxes,
-      accountId: "tax_payable",
-    },
-  ]);
+    getAccountsMapping(currentItems, incomingItems);
 
-  similarAccounts = [...similarAccounts, ...summaryAccounts.similarAccounts];
-  deletedAccounts = [...deletedAccounts, ...summaryAccounts.deletedAccounts];
-  newAccounts = [...newAccounts, ...summaryAccounts.newAccounts];
-  updatedAccounts = [...updatedAccounts, ...summaryAccounts.updatedAccounts];
   const accountsToUpdate = [...similarAccounts, ...updatedAccounts];
   /**
    * get entries data for deletedAccounts and accountsToUpdate
    */
   const [entriesToUpdate, entriesToDelete, paymentAccountEntry] =
     await Promise.all([
-      getIncomeEntries(
+      getAccountsEntriesForTransaction(
         orgId,
         salesReceiptId,
-        "sales receipt",
+        "sales_receipt",
         accountsToUpdate
       ),
-      getIncomeEntries(orgId, salesReceiptId, "sales receipt", deletedAccounts),
-      getAccountTransactionEntry(
+      getAccountsEntriesForTransaction(
+        orgId,
+        salesReceiptId,
+        "sales_receipt",
+        deletedAccounts
+      ),
+      getAccountEntryForTransaction(
         orgId,
         currentAccountId,
         salesReceiptId,
-        "sales receipt"
+        "sales_receipt"
       ),
     ]);
   const paymentAccountEntries = [paymentAccountEntry];
@@ -170,7 +181,7 @@ export default async function updateSalesReceipt(
         reference: "",
         transactionDetails,
         transactionId: salesReceiptId,
-        transactionType: "sales receipt",
+        transactionType: "sales_receipt",
       },
     ]);
   });

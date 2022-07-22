@@ -15,6 +15,7 @@ import PropTypes from "prop-types";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
+import formats from "utils/formats";
 import StepperContext from "../../../contexts/StepperContext";
 import { useToasts } from "../../../hooks";
 
@@ -114,7 +115,7 @@ function ReceivePaymentForm(props) {
     const { name, accountType } = account;
     const newData = {
       ...formData,
-      customer,
+      customer: formats.formatCustomerData(customer),
       paymentMode,
       account: { name, accountId, accountType },
     };

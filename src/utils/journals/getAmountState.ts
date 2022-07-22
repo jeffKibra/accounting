@@ -1,8 +1,3 @@
-/**
- *
- * @param {*} amount
- * @returns {"positive"||"negative"||"zero"}
- */
 export default function getAmountState(amount: number) {
   /**
    * functions returns a string to represent the amount value

@@ -24,6 +24,7 @@ import {
   Account,
   PaymentReceivedForm,
   PaymentReceived,
+  TransactionTypes,
 } from "../../types";
 
 export default async function createPayment(
@@ -31,14 +32,17 @@ export default async function createPayment(
   org: Org,
   userProfile: UserProfile,
   accounts: Account[],
-  formData: PaymentReceivedForm
+  formData: PaymentReceivedForm,
+  transactionType: keyof Pick<
+    TransactionTypes,
+    "customer_payment"
+  > = "customer_payment"
 ) {
   console.log({ formData });
   const { orgId } = org;
   const { email } = userProfile;
   // console.log({ data, orgId, userProfile });
-  const { payments, customer, amount, reference, paidInvoices, paymentMode } =
-    formData;
+  const { payments, customer, amount, reference, paymentMode } = formData;
   const { customerId } = customer;
   const { value: paymentModeId } = paymentMode;
 
@@ -71,10 +75,9 @@ export default async function createPayment(
   const paymentData: PaymentReceived = {
     ...formData,
     excess,
-    customer: formats.formatCustomerData(customer),
-    paidInvoices: formats.formatInvoices(paidInvoices),
-    paidInvoicesIds: paidInvoices.map((invoice) => invoice.invoiceId),
+    paidInvoicesIds: Object.keys(payments),
     paymentId,
+    transactionType,
     status: "active",
     org: formats.formatOrgData(org),
     createdBy: email,
@@ -136,7 +139,7 @@ export default async function createPayment(
           reference,
           transactionId: paymentId,
           transactionDetails: { ...paymentData },
-          transactionType: "customer payment",
+          transactionType: "customer_payment",
         },
       ]
     );

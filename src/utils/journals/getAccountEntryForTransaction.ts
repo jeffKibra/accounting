@@ -8,23 +8,13 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 
-/**
- *
- * @param {string} orgId
- * @param {string} accountId
- * @param {string} transactionId
- * @param {string} transactionType
- * @param {string} status
- * @returns {Promise.<{debit:0, credit:0, account:{}, entryId:""}>} entry
- */
+import { Entry, TransactionTypes } from "../../types";
 
-import { Entry } from "../../types";
-
-export default async function getAccountTransactionEntry(
+export default async function getAccountEntryForTransaction(
   orgId: string,
   accountId: string,
   transactionId: string,
-  transactionType: string,
+  transactionType: keyof TransactionTypes,
   status = "active"
 ): Promise<Entry> {
   const q = query(

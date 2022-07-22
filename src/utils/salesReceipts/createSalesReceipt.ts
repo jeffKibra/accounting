@@ -8,15 +8,18 @@ import {
 import { db, dbCollections } from "../firebase";
 
 import { createSimilarAccountEntries } from "../journals";
-import {
-  getAccountData,
-  getAccountsMapping,
-  getIncomeAccountsMapping,
-} from "../accounts";
+import { getAccountData, getAccountsMapping } from "../accounts";
 import formats from "../formats";
 import { getDateDetails } from "../dates";
+import { formatSalesItems } from "../sales";
 
-import { UserProfile, Org, Account, SalesReceiptForm } from "../../types";
+import {
+  UserProfile,
+  Org,
+  Account,
+  SalesReceiptForm,
+  TransactionTypes,
+} from "../../types";
 
 export default async function createSalesReceipt(
   transaction: Transaction,
@@ -25,7 +28,10 @@ export default async function createSalesReceipt(
   accounts: Account[],
   salesReceiptId: string,
   data: SalesReceiptForm,
-  transactionType = "sales receipt"
+  transactionType: keyof Pick<
+    TransactionTypes,
+    "sales_receipt"
+  > = "sales_receipt"
 ) {
   const { orgId } = org;
   const { email } = userProfile;
@@ -35,7 +41,7 @@ export default async function createSalesReceipt(
   const { accountId } = account;
   const { value: paymentModeId } = paymentMode;
   const { totalTaxes, adjustment, shipping, totalAmount } = summary;
-  // console.log({ data });
+  console.log({ data });
 
   // console.log({ selectedItems });
   const tDetails = {
@@ -56,14 +62,14 @@ export default async function createSalesReceipt(
   /**
    * create journal entries for income accounts
    */
-  let { newAccounts } = getIncomeAccountsMapping([], selectedItems);
-  const summaryAccounts = getAccountsMapping([
-    { accountId: "shipping_charge", incoming: shipping, current: 0 },
-    { accountId: "other_charges", incoming: adjustment, current: 0 },
-    { accountId: "tax_payable", incoming: totalTaxes, current: 0 },
-    { accountId, incoming: totalAmount, current: 0 },
-  ]);
-  newAccounts = [...newAccounts, ...summaryAccounts.newAccounts];
+  const allItems = [
+    ...formatSalesItems(selectedItems),
+    { accountId: "shipping_charge", amount: shipping },
+    { accountId: "other_charges", amount: adjustment },
+    { accountId: "tax_payable", amount: totalTaxes },
+    { accountId, amount: totalAmount },
+  ];
+  const { newAccounts } = getAccountsMapping([], allItems);
 
   newAccounts.forEach((newAccount) => {
     const { accountId, incoming } = newAccount;

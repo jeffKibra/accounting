@@ -1,4 +1,4 @@
-import { getIncomeEntries } from "../../journals";
+import { getAccountsEntriesForTransaction } from "../../journals";
 import {
   getInvoiceData,
   getInvoicePaymentsTotal,
@@ -64,8 +64,18 @@ export default async function getInvoiceUpdateData(
    * get entries data for deletedAccounts and accountsToUpdate
    */
   const [entriesToUpdate, entriesToDelete] = await Promise.all([
-    getIncomeEntries(orgId, invoiceId, transactionType, updatedAccounts),
-    getIncomeEntries(orgId, invoiceId, transactionType, deletedAccounts),
+    getAccountsEntriesForTransaction(
+      orgId,
+      invoiceId,
+      transactionType,
+      updatedAccounts
+    ),
+    getAccountsEntriesForTransaction(
+      orgId,
+      invoiceId,
+      transactionType,
+      deletedAccounts
+    ),
   ]);
 
   return {

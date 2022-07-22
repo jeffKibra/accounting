@@ -6,14 +6,11 @@ import {
 } from "firebase/firestore";
 
 import { db, dbCollections } from "../../firebase";
-import {
-  getIncomeAccountsMapping,
-  getAccountData,
-  getAccountsMapping,
-} from "../../accounts";
+import { getAccountData, getAccountsMapping } from "../../accounts";
 import { createSimilarAccountEntries } from "../../journals";
 import formats from "../../formats";
 import { getDateDetails } from "../../dates";
+import { formatSalesItems } from "../../sales";
 
 import {
   Org,
@@ -21,7 +18,8 @@ import {
   Account,
   InvoiceFormData,
   InvoiceFromDb,
-} from "../../../types";
+  InvoiceTransactionTypes,
+} from "types";
 
 interface TDetails
   extends Omit<
@@ -36,7 +34,7 @@ export default function createInvoice(
   accounts: Account[],
   invoiceId: string,
   data: InvoiceFormData,
-  transactionType: string = "invoice"
+  transactionType: keyof InvoiceTransactionTypes = "invoice"
 ) {
   console.log("creating invoice", transactionType, data);
   const { orgId } = org;
@@ -74,14 +72,14 @@ export default function createInvoice(
   /**
    * create journal entries for income accounts
    */
-  let { newAccounts } = getIncomeAccountsMapping([], selectedItems);
-  const summaryAccounts = getAccountsMapping([
-    { accountId: "shipping_charge", current: 0, incoming: shipping || 0 },
-    { accountId: "other_charges", current: 0, incoming: adjustment || 0 },
-    { accountId: "tax_payable", current: 0, incoming: totalTaxes || 0 },
-    { accountId: "accounts_receivable", current: 0, incoming: totalAmount },
-  ]);
-  newAccounts = [...newAccounts, ...summaryAccounts.newAccounts];
+  const allItems = [
+    ...formatSalesItems(selectedItems),
+    { accountId: "shipping_charge", amount: shipping || 0 },
+    { accountId: "other_charges", amount: adjustment || 0 },
+    { accountId: "tax_payable", amount: totalTaxes || 0 },
+    { accountId: "accounts_receivable", amount: totalAmount },
+  ];
+  const { newAccounts } = getAccountsMapping([], allItems);
   /**
    * create all accounts
    */

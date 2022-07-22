@@ -1,40 +1,33 @@
 import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 
-/**
- * @param {string} orgId
- * @param {string} transactionId
- * @param {Array.<string>} statuses
- * @returns {Promise.<{debit:0, credit:0, status:'', account:{}, entryId:"",}[]>} entries
- */
-
-import { EntryWithStatus } from "../../types";
+import { EntryWithStatus, TransactionTypes } from "../../types";
 
 export default async function getTransactionEntries(
   orgId: string,
   transactionId: string,
-  statuses: string[] = ["active"]
+  transactionType: keyof TransactionTypes
 ) {
-  console.log({ transactionId, orgId });
+  // console.log({ transactionId, orgId, transactionType });
+
   const q = query(
     collection(db, "organizations", orgId, "journals"),
     orderBy("createdAt", "desc"),
     where("transactionId", "==", transactionId),
-    where("status", "in", statuses)
+    where("transactionType", "==", transactionType)
   );
 
   const snap = await getDocs(q);
-  const entries: EntryWithStatus[] = [];
-
-  snap.forEach((entryDoc) => {
+  const entries: EntryWithStatus[] = snap.docs.map((entryDoc) => {
     const { credit, debit, status, account } = entryDoc.data();
-    entries.push({
+
+    return {
       debit,
       credit,
       status,
       account,
       entryId: entryDoc.id,
-    });
+    };
   });
 
   return entries;

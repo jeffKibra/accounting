@@ -1,19 +1,8 @@
-/**
- *
- * @typedef {import('.').accountsMapping} accountsMapping
- */
-/**
- *
- * @param {{accountId:"", itemsTotal:0}[]} items
- * @param {{accountId:"", itemsTotal:0}[]} incomingItems
- * @returns {accountsMapping} accountsMapping
- */
-
 import { AccountMapping } from "../../types";
 
 type MapAccount = {
   accountId: string;
-  itemsTotal: number;
+  amount: number;
 };
 
 export default function mapAccounts(
@@ -26,9 +15,9 @@ export default function mapAccounts(
   const deletedAccounts: AccountMapping[] = [];
 
   currentAccounts.forEach((account) => {
-    const { accountId, itemsTotal } = account;
+    const { accountId, amount } = account;
     let dataMapping: AccountMapping = {
-      current: itemsTotal,
+      current: amount,
       incoming: 0,
       accountId,
     };
@@ -44,7 +33,7 @@ export default function mapAccounts(
        * account is in both arrays
        * remove account from incomingAccounts array
        */
-      const incomingTotal = incomingAccounts.splice(index, 1)[0].itemsTotal;
+      const incomingTotal = incomingAccounts.splice(index, 1)[0].amount;
       dataMapping.incoming = incomingTotal;
       if (dataMapping.current === incomingTotal) {
         similarAccounts.push(dataMapping);
@@ -66,10 +55,10 @@ export default function mapAccounts(
    */
   if (incomingAccounts.length > 0) {
     incomingAccounts.forEach((account) => {
-      const { itemsTotal, accountId } = account;
+      const { amount, accountId } = account;
       const dataMapping: AccountMapping = {
         current: 0,
-        incoming: itemsTotal,
+        incoming: amount,
         accountId,
       };
 

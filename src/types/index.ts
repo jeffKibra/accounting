@@ -58,6 +58,7 @@ export type {
   PaymentReceivedForm,
   InvoicesPayments,
   InvoicePaymentMapping,
+  PaymentWithInvoices,
 } from "./paymentReceived";
 export type { DailySummary } from "./dailySummary";
 export type {
@@ -72,7 +73,13 @@ export type {
   SalesReceiptForm,
   SalesReceiptFromDb,
 } from "./salesReceipt";
+export type {
+  TransactionTypes,
+  InvoiceTransactionTypes,
+} from "./transactionTypes";
 export type { DateDetails } from "./others";
+
+export type { OneOfType } from "./oneOfType";
 
 export type MakeAllFieldsOptional<T> = {
   [Property in keyof T]?: T[Property] extends Object

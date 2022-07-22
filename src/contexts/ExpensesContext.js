@@ -64,6 +64,7 @@ function Provider(props) {
       const { amount, tax } = item;
       let itemRate = amount;
       let itemTax = 0;
+      console.log({ taxType });
       /**
        * set all rates to be tax exclusive
        */

@@ -5,47 +5,35 @@ import {
   Customer,
   Account,
   PaymentMode,
-  InvoiceSummary,
+  TransactionTypes,
   Invoice,
 } from ".";
 
-interface Extras {
-  paidInvoicesIds: string[];
-  excess: number;
-}
-
-interface Meta extends Extras {
+interface Meta {
   createdAt: Date | Timestamp;
   createdBy: string;
   modifiedAt: Date | Timestamp;
   modifiedBy: string;
   status: string;
   org: OrgSummary;
+  transactionType: keyof Pick<TransactionTypes, "customer_payment">;
+  paidInvoicesIds: string[];
+  excess: number;
 }
 
 export interface PaymentReceivedForm {
   account: Account;
   amount: number;
-  customer: Customer;
+  customer: Customer | CustomerSummary;
   paymentDate: Date;
   paymentMode: PaymentMode;
   reference: string;
-  paidInvoices: Invoice[];
   payments: { [key: string]: number };
 }
 
-// export interface PaymentReceivedDetails
-//   extends Omit<PaymentReceivedForm, "paidInvoices" | "customer">,
-//     Extras {
-//   paymentId: string;
-//   paidInvoices: InvoiceSummary[];
-//   customer: CustomerSummary;
-// }
-
 export interface PaymentReceivedFromDb
-  extends Omit<PaymentReceivedForm, "paidInvoices" | "customer">,
+  extends Omit<PaymentReceivedForm, "customer">,
     Meta {
-  paidInvoices: InvoiceSummary[];
   customer: CustomerSummary;
 }
 
@@ -61,4 +49,8 @@ export interface InvoicePaymentMapping {
 
 export interface InvoicesPayments {
   [key: string]: number;
+}
+
+export interface PaymentWithInvoices extends PaymentReceived {
+  invoices: Invoice[];
 }

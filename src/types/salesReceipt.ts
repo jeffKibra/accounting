@@ -8,6 +8,7 @@ import {
   SalesItem,
   SalesItemFromForm,
   SalesSummary,
+  TransactionTypes,
 } from ".";
 
 interface Meta {
@@ -18,6 +19,7 @@ interface Meta {
   isSent: boolean;
   status: string;
   org: OrgSummary;
+  transactionType: keyof Pick<TransactionTypes, "sales_receipt">;
 }
 
 export interface SalesReceiptForm {
@@ -27,7 +29,6 @@ export interface SalesReceiptForm {
   paymentMode: PaymentMode;
   receiptDate: Date;
   reference: string;
-  transactionType: string;
   selectedItems: SalesItemFromForm[];
   summary: SalesSummary;
 }

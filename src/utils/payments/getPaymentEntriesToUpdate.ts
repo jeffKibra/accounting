@@ -1,11 +1,13 @@
-import { getInvoiceFromArray, getPaymentEntry } from ".";
+import {
+  // getInvoiceFromArray,
+  getPaymentEntry,
+} from ".";
 
-import { InvoiceSummary, InvoicePaymentMapping } from "../../types";
+import { InvoicePaymentMapping } from "../../types";
 
 export default async function getPaymentEntriesToUpdate(
   orgId: string,
   paymentId: string,
-  invoices: InvoiceSummary[],
   accountId: string,
   payments: InvoicePaymentMapping[]
 ) {
@@ -15,11 +17,12 @@ export default async function getPaymentEntriesToUpdate(
   const entries = await Promise.all(
     payments.map(async (payment) => {
       const { invoiceId, current, incoming } = payment;
-      const invoice = getInvoiceFromArray(invoiceId, invoices);
+      // const invoice = getInvoiceFromArray(invoiceId, invoices);
 
       /**
        * get customer entry data for the given account
        */
+
       const entry = await getPaymentEntry(
         orgId,
         paymentId,
@@ -32,7 +35,7 @@ export default async function getPaymentEntriesToUpdate(
         incoming,
         invoiceId,
         entry,
-        invoice,
+        // invoice,
       };
     })
   );

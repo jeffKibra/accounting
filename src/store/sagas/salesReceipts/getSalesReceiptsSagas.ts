@@ -107,7 +107,7 @@ function* getSalesReceipts() {
     );
     const snap = await getDocs(q);
 
-    const salesReceipts = snap.forEach((receiptDoc) => {
+    const salesReceipts = snap.docs.map((receiptDoc) => {
       return {
         ...formatReceiptDates({
           ...receiptDoc.data(),
@@ -152,7 +152,7 @@ function* getCustomerSalesReceipts(action: PayloadAction<string>) {
     );
     const snap = await getDocs(q);
 
-    const salesReceipts = snap.forEach((receiptDoc) => {
+    const salesReceipts = snap.docs.map((receiptDoc) => {
       return {
         ...formatReceiptDates({
           ...receiptDoc.data(),

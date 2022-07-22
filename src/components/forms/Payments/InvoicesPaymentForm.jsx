@@ -12,7 +12,7 @@ import {
 import PropTypes from "prop-types";
 
 import useToasts from "../../../hooks/useToasts";
-import { selectPaidInvoices, getPaymentsTotal } from "../../../utils/payments";
+import { getPaymentsTotal } from "../../../utils/payments";
 import { getInvoiceBalance } from "../../../utils/invoices";
 
 import StepperContext from "../../../contexts/StepperContext";
@@ -125,9 +125,8 @@ function InvoicesPaymentForm(props) {
         delete paymentsData[key];
       }
     });
-    const paidInvoices = selectPaidInvoices(paymentsData, invoices);
 
-    handleFormSubmit({ payments: paymentsData, paidInvoices });
+    handleFormSubmit({ payments: paymentsData });
   }
 
   return (

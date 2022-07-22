@@ -46,7 +46,7 @@ export default function createOB(
       reference: "",
       transactionDetails,
       transactionId: customerId,
-      transactionType: "opening balance",
+      transactionType: "opening_balance",
     },
   ]);
   /**
@@ -60,7 +60,7 @@ export default function createOB(
       reference: "",
       transactionDetails,
       transactionId: customerId,
-      transactionType: "opening balance",
+      transactionType: "opening_balance",
     },
   ]);
   /**
@@ -101,6 +101,6 @@ export default function createOB(
     accounts,
     invoiceId,
     invoiceData,
-    "customer opening balance"
+    "customer_opening_balance"
   );
 }

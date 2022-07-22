@@ -9,51 +9,37 @@ import {
   deleteSimilarAccountEntries,
   updateSimilarAccountEntries,
   changeEntriesAccount,
-} from "../journals";
+} from "../../journals";
 import {
-  getPaymentsTotal,
-  getPaymentData,
-  getPaymentEntriesToUpdate,
-  getPaymentsMapping,
   updateCustomersPayments,
   updateInvoicesPayments,
   payInvoices,
   deleteInvoicesPayments,
   overPay,
-  getPaymentEntry,
-  combineInvoices,
-} from ".";
-import { getAccountData } from "../accounts";
-import {
-  createDailySummary,
-  changePaymentMode,
-  updatePaymentMode,
-} from "../summaries";
-import formats from "../formats";
-import { getDateDetails } from "../dates";
+} from "..";
+import { getAccountData } from "../../accounts";
+import { changePaymentMode, updatePaymentMode } from "../../summaries";
+import { getDateDetails } from "../../dates";
 
-import { db } from "../firebase";
+import { db } from "../../firebase";
 
-import {
-  UserProfile,
-  Account,
-  PaymentReceived,
-  PaymentReceivedForm,
-} from "../../types";
+import { UserProfile, Account, PaymentReceivedForm } from "../../../types";
+import { UpdateData } from ".";
 
-export default async function updatePayment(
+export default function updatePayment(
   transaction: Transaction,
   orgId: string,
   userProfile: UserProfile,
-  accounts: Account[],
   paymentId: string,
-  formData: PaymentReceivedForm
+  formData: PaymentReceivedForm,
+  updateData: UpdateData,
+  accounts: Account[]
 ) {
   const { email } = userProfile;
   console.log({ formData });
   const {
     payments,
-    paidInvoices,
+    // paidInvoices,
     amount,
     account,
     reference,
@@ -63,48 +49,37 @@ export default async function updatePayment(
   const { accountId } = account;
   const { customerId } = customer;
   const { value: paymentModeId } = paymentMode;
-  /**
-   * get payments total
-   */
-  const paymentsTotal = getPaymentsTotal(payments);
-  if (paymentsTotal > amount) {
-    throw new Error("Invoices payments cannot be more than customer payment!");
-  }
+  //extract update Data
+  const {
+    accountsReceivableEntriesToDelete,
+    accountsReceivableEntriesToUpdate,
+    currentPayment,
+    overPayEntry,
+    paymentAccountEntriesToDelete,
+    paymentAccountEntriesToUpdate,
+    paymentsToCreate,
+    paymentsToDelete,
+    paymentsToUpdate,
+    paymentsTotal,
+  } = updateData;
   /**
    * compute excess amount if any
    */
   const excess = amount - paymentsTotal;
 
   //accounts data
-  const unearned_revenue = getAccountData("unearned_revenue", accounts);
   const accounts_receivable = getAccountData("accounts_receivable", accounts);
   const depositAccount = getAccountData(accountId, accounts);
-
-  /**
-   * get current currentPayment and incoming customer details
-   * create daily summary since all updates also update the summary
-   */
-  const [currentPayment] = await Promise.all([
-    getPaymentData(transaction, orgId, paymentId),
-    createDailySummary(orgId),
-  ]);
   const {
     customer: { customerId: currentCustomerId },
     account: { accountId: currentAccountId },
-    paymentMode: { name: currentPaymentModeId },
+    paymentMode: { value: currentPaymentModeId },
     amount: currentAmount,
   } = currentPayment;
   /**
-   * check if the customer has changed. if yes
-   * generate new payment number and slug
+   * check if the customer has changed.
    */
   const customerHasChanged = customerId !== currentCustomerId;
-
-  const allInvoices = combineInvoices(
-    [...currentPayment.paidInvoices],
-    [...paidInvoices]
-  );
-
   if (customerHasChanged) {
     console.log("customer has changed");
   }
@@ -113,106 +88,10 @@ export default async function updatePayment(
    */
   const paymentAccountHasChanged = accountId !== currentAccountId;
 
-  const {
-    similarPayments,
-    paymentsToUpdate,
-    paymentsToCreate,
-    paymentsToDelete,
-  } = getPaymentsMapping(currentPayment.payments, payments);
-  // console.log({
-  //   similarPayments,
-  //   paymentsToUpdate,
-  //   paymentsToCreate,
-  //   paymentsToDelete,
-  // });
-  /**
-   * create two different update values based on the accounts:
-   * 1. accountsReceivable account
-   * 2. deposit account
-   * if either customer or deposit account has changed:
-   * values include paymentsToUpdate and similarPayments
-   * else, paymentsToUpdate only
-   */
-  const accountsReceivablePaymentsToUpdate = customerHasChanged
-    ? [...paymentsToUpdate, ...similarPayments]
-    : paymentsToUpdate;
-  const accountPaymentsToUpdate =
-    customerHasChanged || paymentAccountHasChanged
-      ? [...paymentsToUpdate, ...similarPayments]
-      : paymentsToUpdate;
-  /**
-   * divide the payments entries into:
-   * 1. accounts_receivable account
-   * 2. selected paymentAccount
-   * get entries for each payments that needs updating
-   */
-  const [
-    paymentAccountEntries,
-    paymentAccountEntriesToDelete,
-    accountsReceivableEntries,
-    accountsReceivableEntriesToDelete,
-    overPayEntry,
-  ] = await Promise.all([
-    getPaymentEntriesToUpdate(
-      orgId,
-      paymentId,
-      [...allInvoices],
-      currentAccountId, //use current payment accountId
-      [...accountPaymentsToUpdate]
-    ),
-    getPaymentEntriesToUpdate(
-      orgId,
-      paymentId,
-      [...allInvoices],
-      currentAccountId,
-      [...paymentsToDelete]
-    ),
-    getPaymentEntriesToUpdate(
-      orgId,
-      paymentId,
-      [...allInvoices],
-      accounts_receivable.accountId,
-      [...accountsReceivablePaymentsToUpdate]
-    ),
-    getPaymentEntriesToUpdate(
-      orgId,
-      paymentId,
-      [...allInvoices],
-      accounts_receivable.accountId,
-      [...paymentsToDelete]
-    ),
-    getPaymentEntry(orgId, paymentId, unearned_revenue.accountId, paymentId),
-  ]);
-
-  // console.log({
-  //   paymentAccountEntries,
-  //   paymentAccountEntriesToDelete,
-  //   accountsReceivableEntries,
-  //   accountsReceivableEntriesToDelete,
-  //   overPayEntry,
-  // });
-  /**
-   * start docs writing!
-   */
-  const updateData = {
+  const transactionDetails = {
     ...formData,
-    paidInvoicesIds: paidInvoices.map((invoice) => invoice.invoiceId),
-    excess,
-    customer: formats.formatCustomerData(customer),
-    paidInvoices: formats.formatInvoices(paidInvoices),
-  };
-  const transactionDetails: PaymentReceived = {
-    ...currentPayment,
-    ...updateData,
     paymentId,
   };
-  // console.log({ transactionDetails });
-  const newDetails = {
-    ...updateData,
-    modifiedBy: email,
-    modifiedAt: serverTimestamp(),
-  };
-  console.log({ newDetails });
   /**
    * update customers
    * function also handles a change of customer situation.
@@ -243,14 +122,14 @@ export default async function updatePayment(
     userProfile,
     orgId,
     accounts_receivable,
-    accountsReceivableEntries.map((entry) => {
+    accountsReceivableEntriesToUpdate.map((entry) => {
       if (!entry.entry) {
         throw new Error("Entry data not found");
       }
       const {
         incoming,
         entry: { credit, debit, entryId },
-        invoice,
+        invoiceId,
       } = entry;
 
       return {
@@ -259,7 +138,7 @@ export default async function updatePayment(
         credit,
         debit,
         entryId,
-        transactionId: invoice.invoiceId,
+        transactionId: invoiceId,
         transactionDetails: { ...transactionDetails },
       };
     })
@@ -278,18 +157,17 @@ export default async function updatePayment(
       orgId,
       currentPayment.account,
       depositAccount,
-      paymentAccountEntries.map((entry) => {
+      paymentAccountEntriesToUpdate.map((entry) => {
         if (!entry.entry) {
           throw new Error("Entry data not found");
         }
-        const { invoice, incoming } = entry;
+        const { invoiceId, incoming } = entry;
         return {
           amount: incoming,
           prevAccount: currentPayment.account,
           prevEntry: entry.entry,
           transactionDetails: { ...transactionDetails },
-          transactionId: invoice.invoiceId,
-          transactionType: "customer payment",
+          transactionId: invoiceId,
           reference,
         };
       })
@@ -304,14 +182,14 @@ export default async function updatePayment(
       userProfile,
       orgId,
       depositAccount,
-      paymentAccountEntries.map((entry) => {
+      paymentAccountEntriesToUpdate.map((entry) => {
         if (!entry.entry) {
           throw new Error("Entry data not found");
         }
         const {
           entry: { credit, debit, entryId },
           incoming,
-          invoice,
+          invoiceId,
         } = entry;
         return {
           account: depositAccount,
@@ -319,7 +197,7 @@ export default async function updatePayment(
           credit,
           debit,
           entryId,
-          transactionId: invoice.invoiceId,
+          transactionId: invoiceId,
           transactionDetails: { ...transactionDetails },
         };
       })
@@ -356,6 +234,9 @@ export default async function updatePayment(
       paymentsToDelete
     );
   }
+  /**
+   * delete paymentAccountEntries for deleted invoices payments
+   */
   if (paymentAccountEntriesToDelete.length > 0) {
     console.log("deleting deposit account entries");
 
@@ -380,6 +261,10 @@ export default async function updatePayment(
       })
     );
   }
+
+  /**
+   * delete accounts_receivable entries for deleted invoice payments
+   */
   if (accountsReceivableEntriesToDelete.length > 0) {
     console.log("deleting accounts_receivebale entries");
 
@@ -477,6 +362,15 @@ export default async function updatePayment(
   /**
    * update payment
    */
+
+  // console.log({ transactionDetails });
+  const newDetails = {
+    ...formData,
+    paidInvoicesIds: Object.keys(payments),
+    excess,
+    modifiedBy: email,
+    modifiedAt: serverTimestamp(),
+  };
   console.log({ newDetails });
   const paymentRef = doc(db, "organizations", orgId, "payments", paymentId);
   transaction.update(paymentRef, { ...newDetails });
