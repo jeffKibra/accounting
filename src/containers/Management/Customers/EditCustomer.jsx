@@ -1,6 +1,11 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { Container } from "@chakra-ui/react";
+import { useForm, FormProvider } from "react-hook-form";
+
+import { useToasts } from "../../../hooks";
+import { getDirtyFields } from "../../../utils/functions";
 
 import { GET_PAYMENT_TERMS } from "../../../store/actions/paymentTermsActions";
 
@@ -22,67 +27,104 @@ function EditCustomer(props) {
     loadingPaymentTerms,
     paymentTerms,
   } = props;
-  const [formValues, setFormValues] = useState(customer || {});
+  const toasts = useToasts();
 
   useEffect(() => {
     getPaymentTerms();
   }, [getPaymentTerms]);
 
-  function updateFormValues(data) {
-    setFormValues((current) => ({ ...current, ...data }));
+  const formMethods = useForm({
+    mode: "onChange",
+    defaultValues: {
+      type: customer?.type || "",
+      companyName: customer?.companyName || "",
+      salutation: customer?.salutation || "",
+      firstName: customer?.firstName || "",
+      lastName: customer?.lastName || "",
+      displayName: customer?.displayName || "",
+      email: customer?.email || "",
+      phone: customer?.phone || "",
+      mobile: customer?.mobile || "",
+      billingStreet: customer?.billingStreet || "",
+      billingCity: customer?.billingCity || "",
+      billingState: customer?.billingState || "",
+      billingPostalCode: customer?.billingPostalCode || "",
+      billingCountry: customer?.billingCountry || "",
+      shippingStreet: customer?.shippingStreet || "",
+      shippingCity: customer?.shippingCity || "",
+      shippingState: customer?.shippingState || "",
+      shippingPostalCode: customer?.shippingPostalCode || "",
+      shippingCountry: customer?.shippingCountry || "",
+      paymentTerm: customer?.paymentTerm?.value || "on_receipt",
+      website: customer?.website || "",
+      remarks: customer?.remarks || "",
+      ...(customer ? {} : { openingBalance: customer?.openingBalance || 0 }),
+    },
+  });
+  const {
+    handleSubmit,
+    formState: { dirtyFields },
+  } = formMethods;
+
+  function handleFormSubmit(data) {
+    const { paymentTerm: paymentTermId, ...rest } = data;
+    let formValues = { ...rest };
+
+    //retrieve payment term object
+    const paymentTerm = paymentTerms.find(
+      (term) => term.value === paymentTermId
+    );
+    if (!paymentTerm) {
+      return toasts.error("Selected Payment Term not found!");
+    }
+    formValues.paymentTerm = paymentTerm;
+
+    if (customer) {
+      //the customer is being updated-submit only changed form values
+      formValues = getDirtyFields(dirtyFields, formValues);
+    }
+
+    saveData(formValues);
   }
-
-  function finish(data) {
-    updateFormValues(data);
-
-    saveData({
-      ...formValues,
-      ...data,
-    });
-  }
-
-  console.log({ paymentTerms });
 
   return loadingPaymentTerms ? (
     <SkeletonLoader />
   ) : paymentTerms?.length > 0 ? (
-    <Stepper
-      steps={[
-        {
-          label: "Details",
-          content: (
-            <DetailsForm
-              handleFormSubmit={updateFormValues}
-              defaultValues={formValues}
-              loading={loading}
-            />
-          ),
-        },
-        {
-          label: "Address",
-          content: (
-            <AddressForm
-              handleFormSubmit={updateFormValues}
-              loading={loading}
-              defaultValues={formValues}
-            />
-          ),
-        },
-        {
-          label: "Extras",
-          content: (
-            <ExtraDetailsForm
-              handleFormSubmit={finish}
-              loading={loading}
-              defaultValues={formValues}
-              updateFormValues={updateFormValues}
-              paymentTerms={paymentTerms}
-              customerId={customer?.customerId || ""}
-            />
-          ),
-        },
-      ]}
-    />
+    <FormProvider {...formMethods}>
+      <Container
+        maxW="container.sm"
+        p={4}
+        bg="white"
+        borderRadius="md"
+        shadow="md"
+        as="form"
+        role="form"
+        onSubmit={handleSubmit(handleFormSubmit)}
+      >
+        <Stepper
+          steps={[
+            {
+              label: "Details",
+              content: <DetailsForm loading={loading} />,
+            },
+            {
+              label: "Address",
+              content: <AddressForm loading={loading} />,
+            },
+            {
+              label: "Extras",
+              content: (
+                <ExtraDetailsForm
+                  loading={loading}
+                  paymentTerms={paymentTerms}
+                  customerId={customer?.customerId || ""}
+                />
+              ),
+            },
+          ]}
+        />
+      </Container>
+    </FormProvider>
   ) : (
     <Empty message="Payment Terms not found! Try to reload the page!" />
   );
@@ -92,28 +134,35 @@ EditCustomer.propTypes = {
   loading: PropTypes.bool.isRequired,
   saveData: PropTypes.func.isRequired,
   customer: PropTypes.shape({
-    status: PropTypes.string,
     type: PropTypes.string,
+    companyName: PropTypes.string,
+    salutation: PropTypes.string,
     firstName: PropTypes.string,
     lastName: PropTypes.string,
-    companyName: PropTypes.string,
     displayName: PropTypes.string,
     email: PropTypes.string,
-    workPhone: PropTypes.string,
+    phone: PropTypes.string,
     mobile: PropTypes.string,
-    openingBalance: PropTypes.number,
-    city: PropTypes.string,
-    zipcode: PropTypes.string,
+    billingStreet: PropTypes.string,
+    billingCity: PropTypes.string,
+    billingState: PropTypes.string,
+    billingPostalCode: PropTypes.string,
+    billingCountry: PropTypes.string,
+    shippingStreet: PropTypes.string,
+    shippingCity: PropTypes.string,
+    shippingState: PropTypes.string,
+    shippingPostalCode: PropTypes.string,
+    shippingCountry: PropTypes.string,
+    paymentTerm: PropTypes.object,
     website: PropTypes.string,
-    address: PropTypes.string,
     remarks: PropTypes.string,
+    openingBalance: PropTypes.number,
   }),
 };
 
 function mapStateToProps(state) {
   const { loading, action, paymentTerms } = state.paymentTermsReducer;
   const loadingPaymentTerms = loading && action === GET_PAYMENT_TERMS;
-  console.log({ paymentTerms });
 
   return { loadingPaymentTerms, paymentTerms };
 }

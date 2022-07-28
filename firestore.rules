@@ -255,12 +255,16 @@ service cloud.firestore {
       }
 
       match /customers/{customerId} {
+        function customerFixed(){
+          return ['createdAt', 'createdBy'];
+        }
         function verifyCustomerData(){
           let details=['type','salutation','companyName','firstName','lastName','displayName','email','phone','mobile'];
           let address1=['billingStreet','billingCity','billingState','billingPostalCode','billingCountry'];
           let address2=['shippingStreet','shippingCity','shippingState','shippingPostalCode','shippingCountry'];
-          let extras=['openingBalance','paymentTermId','paymentTerm','website','remarks'];
-          let additional=['status', "summary", 'createdAt', 'createdBy', 'modifiedAt', 'modifiedBy'];
+          let extras=['openingBalance', 'paymentTerm', 'website', 'remarks'];
+          let fixed=customerFixed();
+          let additional=['status', "summary", 'modifiedAt', 'modifiedBy'].concat(fixed);
           let allFields=details.concat(address1).concat(address2).concat(extras).concat(additional);
 
           return request.resource.data.keys().hasAll(allFields) &&
@@ -285,7 +289,6 @@ service cloud.firestore {
             request.resource.data.shippingPostalCode is string &&
             request.resource.data.shippingCountry is string &&
             numberValue(request.resource.data.openingBalance) &&
-            request.resource.data.paymentTermId is string &&
             request.resource.data.paymentTerm is map &&
             request.resource.data.website is string &&
             request.resource.data.remarks is string &&
@@ -305,14 +308,10 @@ service cloud.firestore {
         }
 
         function allowCustomerUpdate(){
-          let details=['type','salutation','companyName','firstName','lastName','displayName','email','phone','mobile'];
-          let address1=['billingStreet','billingCity','billingState','billingPostalCode','billingCountry'];
-          let address2=['shippingStreet','shippingCity','shippingState','shippingPostalCode','shippingCountry'];
-          let extras=['paymentTermId','paymentTerm','website','remarks'];
-          let additional=['status', "summary", 'modifiedAt', 'modifiedBy'];
-          let allFields=details.concat(address1).concat(address2).concat(extras).concat(additional);
+          let fixed=customerFixed();
+          let allFields=["openingBalance"].concat(fixed);
 
-          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+          return !request.resource.data.diff(resource.data).affectedKeys().hasAny(allFields)
         }
 
         function updateOpeningBalance(){
@@ -332,7 +331,7 @@ service cloud.firestore {
           let details=['salutation','companyName','firstName','lastName','displayName','email','phone','mobile'];
           let address1=['billingStreet','billingCity','billingState','billingPostalCode','billingCountry'];
           let address2=['shippingStreet','shippingCity','shippingState','shippingPostalCode','shippingCountry'];
-          let extras=['paymentTermId','paymentTerm','website','remarks'];
+          let extras=['paymentTerm','website','remarks'];
           let additional=['status', "summary", 'createdAt', 'createdBy', 'modifiedAt', 'modifiedBy'];
           let allFields=details.concat(address1).concat(address2).concat(extras).concat(additional);
 
@@ -356,7 +355,6 @@ service cloud.firestore {
             request.resource.data.shippingState is string &&
             request.resource.data.shippingPostalCode is string &&
             request.resource.data.shippingCountry is string &&
-            request.resource.data.paymentTermId is string &&
             request.resource.data.paymentTerm is map &&
             request.resource.data.website is string &&
             request.resource.data.remarks is string &&
@@ -382,7 +380,7 @@ service cloud.firestore {
           let details=['salutation','companyName','firstName','lastName','displayName','email','phone','mobile'];
           let address1=['billingStreet','billingCity','billingState','billingPostalCode','billingCountry'];
           let address2=['shippingStreet','shippingCity','shippingState','shippingPostalCode','shippingCountry'];
-          let extras=['paymentTermId','paymentTerm','website','remarks'];
+          let extras=['paymentTerm','website','remarks'];
           let additional=['status', "summary", 'modifiedAt', 'modifiedBy'];
           let allFields=details.concat(address1).concat(address2).concat(extras).concat(additional);
 
