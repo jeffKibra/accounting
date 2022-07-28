@@ -23,7 +23,7 @@ import { getSimilarItem } from "./createItemSagas";
 
 import { ItemFormData, UserProfile, RootState } from "../../../types";
 
-interface UpdateData extends ItemFormData {
+interface UpdateData extends Partial<ItemFormData> {
   itemId: string;
 }
 
@@ -40,16 +40,15 @@ function* updateItem(action: PayloadAction<UpdateData>) {
   async function update() {
     const { itemId, ...rest } = action.payload;
     const { sku } = rest;
-    const similarItem = await getSimilarItem(orgId, sku);
-
-    if (similarItem) {
+    let similarItem: { itemId: string } | null = null;
+    if (sku) {
+      similarItem = await getSimilarItem(orgId, sku);
       //check its not the same document being updated
-      if (similarItem.itemId !== itemId) {
+      if (similarItem && similarItem.itemId !== itemId) {
         throw new Error("There is another item with similar details!");
       }
     }
 
-    console.log({ rest });
     return updateDoc(doc(db, "organizations", orgId, "items", itemId), {
       ...rest,
       modifiedBy: uid,

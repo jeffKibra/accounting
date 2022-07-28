@@ -51,14 +51,14 @@ function* deleteVendor(action: PayloadAction<string>) {
       const q = query(
         collection(db, "organizations", orgId, "journals"),
         orderBy("createdAt", "desc"),
-        where("transactionDetails.vendorId", "==", vendorId),
+        where("transactionDetails.vendor.vendorId", "==", vendorId),
         where("status", "==", "active"),
         limit(1)
       );
 
       const snap = await getDocs(q);
       const { size } = snap;
-      console.log({ size });
+      console.log({ size, data: snap.docs[0].data() });
 
       if (size > 0) {
         //deletion not allowed

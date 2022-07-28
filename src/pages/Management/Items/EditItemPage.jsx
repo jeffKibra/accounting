@@ -38,7 +38,11 @@ function EditItemPage(props) {
   }, [isModified, resetItem, navigate]);
 
   function handleSubmit(data) {
-    // console.log({ data });
+    if (Object.keys(data).length === 0) {
+      //no form data has been changed. redirect to items page
+      return navigate(ITEMS);
+    }
+
     updateItem({
       ...data,
       itemId,

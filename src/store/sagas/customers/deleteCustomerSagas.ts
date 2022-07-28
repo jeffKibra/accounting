@@ -58,7 +58,7 @@ function* deleteCustomer(action: PayloadAction<string>) {
       const q = query(
         collection(db, "organizations", orgId, "journals"),
         orderBy("createdAt", "desc"),
-        where("transactionDetails.customerId", "==", customerId),
+        where("transactionDetails.customer.customerId", "==", customerId),
         where("status", "==", "active"),
         limit(1)
       );

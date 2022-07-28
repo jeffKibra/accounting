@@ -23,3 +23,27 @@ export function sortStrings(a: string, b: string, direction: string = "asc") {
     return 0;
   }
 }
+
+interface DirtyFields {
+  [key: string]: boolean;
+}
+
+interface FormValues {
+  [key: string]: string | number;
+}
+
+export function getDirtyFields(
+  dirtyFields: DirtyFields,
+  formValues: FormValues
+) {
+  return Object.keys(dirtyFields).reduce((fields: FormValues, key) => {
+    if (dirtyFields[key] === true) {
+      return {
+        ...fields,
+        [key]: formValues[key],
+      };
+    } else {
+      return fields;
+    }
+  }, {});
+}

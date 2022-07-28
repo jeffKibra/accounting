@@ -141,29 +141,32 @@ service cloud.firestore {
       
 
       match /items/{itemId} {
+        function getFixedValues(){
+          return ['createdBy', 'createdAt'];
+        }
 
         function verifyItemData(){
-          let form1=['name', 'type', 'variant', 'sku', 'skuOption', 'unit', 'costPrice'];
-          let form2=['sellingPrice',"salesAccountId", 'salesAccount','salesTax', 'salesTaxId', "salesTaxType",'extraDetails'];
-          let additional=['status', 'createdBy', 'modifiedBy', 'createdAt', 'modifiedAt'];
-          let allFields=form1.concat(form2).concat(additional);
+          let form1=['name', 'type', 'sku', 'skuOption', 'unit'];
+          let form2=['sellingPrice', 'salesAccount'];
+          let additional=['status', 'createdBy', 'createdAt', 'modifiedBy',  'modifiedAt'];
+          let optional=['variant', 'costPrice', 'salesTax', "salesTaxType", 'extraDetails'];
+          let required=form1.concat(form2).concat(additional);
+          let allFields=required.concat(optional);
 
-          return request.resource.data.keys().hasAll(allFields) &&
+          return request.resource.data.keys().hasAll(required) &&
             request.resource.data.keys().hasOnly(allFields) &&
             request.resource.data.name is string &&
             request.resource.data.type is string &&
-            request.resource.data.variant is string &&
             request.resource.data.sku is string &&
             request.resource.data.skuOption is string &&
             request.resource.data.unit is string &&
-            numberValue(request.resource.data.costPrice) &&
             numberValue(request.resource.data.sellingPrice) &&
-            request.resource.data.salesAccountId is string &&
             request.resource.data.salesAccount is map &&
-            request.resource.data.salesTax is map &&
-            request.resource.data.salesTaxId is string &&
-            request.resource.data.salesTaxType is string &&
-            request.resource.data.extraDetails is string &&  
+            request.resource.data.get("variant", '') is string &&
+            optionalNumber("costPrice") &&
+            request.resource.data.get('salesTax', {}) is map &&
+            request.resource.data.get("salesTaxType", "") is string &&
+            request.resource.data.get("extraDetails", "") is string &&  
             request.resource.data.status is string &&
             request.resource.data.createdBy is string &&
             request.resource.data.modifiedBy is string &&
@@ -172,12 +175,9 @@ service cloud.firestore {
         }
 
         function allowItemUpdate(){
-          let form1=['name', 'type', 'variant', 'sku', 'skuOption', 'unit', 'costPrice'];
-          let form2=['sellingPrice',"salesAccountId", 'salesAccount','salesTax', 'salesTaxId', "salesTaxType",'extraDetails'];
-          let additional=['status', 'modifiedBy', 'modifiedAt'];
-          let allFields=form1.concat(form2).concat(additional);
+         let fixed=getFixedValues();
 
-          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+          return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fixed)
         }
 
         allow read: if isOwner();
