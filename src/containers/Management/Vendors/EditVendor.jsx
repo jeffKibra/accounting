@@ -1,7 +1,11 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { Container } from "@chakra-ui/react";
+import { useForm, FormProvider } from "react-hook-form";
 
+import { useToasts } from "hooks";
+import { getDirtyFields } from "utils/functions";
 import { GET_PAYMENT_TERMS } from "../../../store/actions/paymentTermsActions";
 
 import Stepper from "../../../components/ui/Stepper";
@@ -22,67 +26,102 @@ function EditVendor(props) {
     loadingPaymentTerms,
     paymentTerms,
   } = props;
-  const [formValues, setFormValues] = useState(vendor || {});
+
+  const toasts = useToasts();
 
   useEffect(() => {
     getPaymentTerms();
   }, [getPaymentTerms]);
 
-  function updateFormValues(data) {
-    setFormValues((current) => ({ ...current, ...data }));
+  const formMethods = useForm({
+    mode: "onChange",
+    defaultValues: {
+      companyName: vendor?.companyName || "",
+      salutation: vendor?.salutation || "",
+      firstName: vendor?.firstName || "",
+      lastName: vendor?.lastName || "",
+      displayName: vendor?.displayName || "",
+      email: vendor?.email || "",
+      phone: vendor?.phone || "",
+      mobile: vendor?.mobile || "",
+      billingStreet: vendor?.billingStreet || "",
+      billingCity: vendor?.billingCity || "",
+      billingState: vendor?.billingState || "",
+      billingPostalCode: vendor?.billingPostalCode || "",
+      billingCountry: vendor?.billingCountry || "",
+      shippingStreet: vendor?.shippingStreet || "",
+      shippingCity: vendor?.shippingCity || "",
+      shippingState: vendor?.shippingState || "",
+      shippingPostalCode: vendor?.shippingPostalCode || "",
+      shippingCountry: vendor?.shippingCountry || "",
+      paymentTerm: vendor?.paymentTerm?.value || "on_receipt",
+      website: vendor?.website || "",
+      remarks: vendor?.remarks || "",
+    },
+  });
+  const {
+    handleSubmit,
+    formState: { dirtyFields },
+  } = formMethods;
+
+  function handleFormSubmit(data) {
+    const { paymentTerm: paymentTermId, ...rest } = data;
+    let formValues = { ...rest };
+    //retrieve paymentTerm object
+    const paymentTerm = paymentTerms.find(
+      (term) => term.value === paymentTermId
+    );
+    if (!paymentTerm) {
+      toasts.error("Selected Payment Term not found!");
+    }
+    formValues.paymentTerm = paymentTerm;
+
+    if (vendor) {
+      //the vendor is being updated-submit only fields which have been changed
+      formValues = getDirtyFields(dirtyFields, formValues);
+    }
+
+    saveData(formValues);
   }
-
-  function finish(data) {
-    updateFormValues(data);
-
-    saveData({
-      ...formValues,
-      ...data,
-    });
-  }
-
-  console.log({ paymentTerms });
 
   return loadingPaymentTerms ? (
     <SkeletonLoader />
   ) : paymentTerms?.length > 0 ? (
-    <Stepper
-      steps={[
-        {
-          label: "Details",
-          content: (
-            <DetailsForm
-              handleFormSubmit={updateFormValues}
-              defaultValues={formValues}
-              loading={loading}
-            />
-          ),
-        },
-        {
-          label: "Address",
-          content: (
-            <AddressForm
-              handleFormSubmit={updateFormValues}
-              loading={loading}
-              defaultValues={formValues}
-            />
-          ),
-        },
-        {
-          label: "Extras",
-          content: (
-            <ExtraDetailsForm
-              handleFormSubmit={finish}
-              loading={loading}
-              defaultValues={formValues}
-              updateFormValues={updateFormValues}
-              paymentTerms={paymentTerms}
-              vendorId={vendor?.vendorId || ""}
-            />
-          ),
-        },
-      ]}
-    />
+    <FormProvider {...formMethods}>
+      <Container
+        maxW="container.sm"
+        p={4}
+        bg="white"
+        borderRadius="md"
+        shadow="md"
+        as="form"
+        role="form"
+        onSubmit={handleSubmit(handleFormSubmit)}
+      >
+        <Stepper
+          steps={[
+            {
+              label: "Details",
+              content: <DetailsForm loading={loading} />,
+            },
+            {
+              label: "Address",
+              content: <AddressForm loading={loading} />,
+            },
+            {
+              label: "Extras",
+              content: (
+                <ExtraDetailsForm
+                  loading={loading}
+                  paymentTerms={paymentTerms}
+                  vendorId={vendor?.vendorId || ""}
+                />
+              ),
+            },
+          ]}
+        />
+      </Container>
+    </FormProvider>
   ) : (
     <Empty message="Payment Terms not found! Try to reload the page!" />
   );

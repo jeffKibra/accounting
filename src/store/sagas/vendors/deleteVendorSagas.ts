@@ -27,6 +27,8 @@ import { RootState, UserProfile } from "../../../types";
 
 function* deleteVendor(action: PayloadAction<string>) {
   yield put(start(DELETE_VENDOR));
+  console.log({ action });
+
   const vendorId = action.payload;
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
@@ -58,7 +60,7 @@ function* deleteVendor(action: PayloadAction<string>) {
 
       const snap = await getDocs(q);
       const { size } = snap;
-      console.log({ size, data: snap.docs[0].data() });
+      // console.log({ size });
 
       if (size > 0) {
         //deletion not allowed
