@@ -51,7 +51,7 @@ export default async function createSalesReceipt(
     transactionType,
     org: formats.formatOrgData(org),
     customer: formats.formatCustomerData(customer),
-    selectedItems: formats.formatSaleItems(selectedItems),
+    selectedItems: selectedItems,
   };
   const transactionDetails = {
     ...tDetails,

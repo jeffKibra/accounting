@@ -1,18 +1,18 @@
-import { Account, Tax, SalesItem } from "types";
+import { SalesItem, Item } from "types";
 
 interface SelectedItemData {
   itemId: string;
-  name: string;
-  salesAccount: Account;
-  salesTax: Tax | null;
-  salesTaxType: string;
   rate: number;
   quantity: number;
 }
 
-export default function formatSalesItem(salesItem: SelectedItemData) {
+export default function getSalesItemData(
+  salesItem: SelectedItemData,
+  item: Item
+) {
   // console.log({ data });
-  const { rate, quantity, salesTax, salesTaxType } = salesItem;
+  const { rate, quantity, itemId } = salesItem;
+  const { salesTax, salesTaxType, salesAccount, name, variant } = item;
   let itemRate = rate;
   let itemTax = 0;
 
@@ -34,12 +34,22 @@ export default function formatSalesItem(salesItem: SelectedItemData) {
   const itemTaxTotal = itemTax * quantity;
 
   const itemData: SalesItem = {
-    ...salesItem,
+    itemId,
+    name,
+    variant: variant || "",
+    salesAccount,
+    salesTaxType: salesTaxType || "",
+    rate,
+    quantity,
     itemRate: +itemRate.toFixed(2),
     itemTax: +itemTax.toFixed(2),
     itemRateTotal: +itemRateTotal.toFixed(2),
     itemTaxTotal: +itemTaxTotal.toFixed(2),
   };
+
+  if (salesTax?.rate) {
+    itemData.salesTax = salesTax;
+  }
   // console.log({ itemData });
 
   return itemData;

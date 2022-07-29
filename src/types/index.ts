@@ -31,7 +31,6 @@ export type {
   SalesItem,
   SalesSummary,
   SalesTax,
-  SalesItemFromForm,
   GroupedItems,
   SalesAccountSummary,
 } from "./sales";

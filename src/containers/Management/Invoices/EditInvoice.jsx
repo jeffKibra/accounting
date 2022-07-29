@@ -1,49 +1,23 @@
-import { useCallback, useState, useMemo } from "react";
 import { Box } from "@chakra-ui/react";
 import PropTypes from "prop-types";
-import {
-  Container,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-  IconButton,
-} from "@chakra-ui/react";
-import { useForm, FormProvider, useFieldArray } from "react-hook-form";
-import { RiAddLine } from "react-icons/ri";
+import { Container } from "@chakra-ui/react";
+import { useForm, FormProvider } from "react-hook-form";
 
-import { formatSalesItem, getSaleSummary } from "utils/sales";
 import { confirmFutureDate } from "utils/dates";
 import { useToasts, useGetSalesProps } from "hooks";
 import { getDirtyFields } from "utils/functions";
 
-import { SalesContextProvider } from "../../../contexts/SalesContext";
 import Stepper from "../../../components/ui/Stepper";
 import SkeletonLoader from "components/ui/SkeletonLoader";
 import Empty from "components/ui/Empty";
 
 import InvoiceForm from "../../../components/forms/Invoice/InvoiceForm";
-import SaleItemsForm from "../../../components/forms/Sales/SaleItemsForm";
-import SelectItemForm from "components/forms/Sales/SelectItemForm";
+import EditSale from "../Sales/EditSale";
 
 function EditInvoice(props) {
   const { invoice, handleFormSubmit, updating } = props;
   // console.log({ props });
   const today = new Date();
-
-  const [itemToEdit, setItemToEdit] = useState({
-    index: null,
-    item: null,
-  });
-
-  function stopEditing() {
-    setItemToEdit({
-      index: null,
-      item: null,
-    });
-  }
 
   const { loading, items, customers, paymentTerms } = useGetSalesProps();
 
@@ -60,27 +34,13 @@ function EditInvoice(props) {
       taxType: invoice?.summary?.taxType || "taxExclusive",
       shipping: invoice?.summary?.shipping || 0,
       adjustment: invoice?.summary?.adjustment || 0,
+      selectedItems: invoice?.selectedItems || {},
     },
   });
   const {
     handleSubmit,
     formState: { dirtyFields },
   } = formMethods;
-
-  const { fields, append, remove } = useFieldArray({
-    name: "selectedItems",
-  });
-
-  const summary = useMemo(() => {
-    return getSaleSummary(fields);
-  }, [fields]);
-
-  const getCustomer = useCallback(
-    (customerId) => {
-      return customers.find((customer) => customer.customerId === customerId);
-    },
-    [customers]
-  );
 
   const toasts = useToasts();
 
@@ -96,7 +56,9 @@ function EditInvoice(props) {
       return toasts.error("Due date cannot be less than invoice date");
     }
 
-    const customer = getCustomer(customerId);
+    const customer = customers.find(
+      (customer) => customer.customerId === customerId
+    );
     if (!customer) {
       return toasts.error("Selected an Invalid customer");
     }
@@ -119,129 +81,54 @@ function EditInvoice(props) {
     //submit the data
   }
 
-  function addNewLine() {
-    append({
-      itemId: "",
-      name: "",
-      salesAccount: null,
-      salesTax: null,
-      salesTaxType: null,
-      rate: 0,
-      quantity: 0,
-      itemRate: 0,
-      itemRateTotal: 0,
-      itemTax: 0,
-      itemTaxTotal: 0,
-    });
-  }
-
   console.log({ customers, items, paymentTerms, loading });
 
-  return (
-    <>
-      {loading ? (
-        <SkeletonLoader />
-      ) : customers?.length > 0 &&
-        items?.length > 0 &&
-        paymentTerms?.length > 0 ? (
-        <SalesContextProvider
-          defaultValues={invoice}
-          updating={updating}
-          saveData={handleFormSubmit}
-          customers={customers}
-          items={items}
-          loading={loading}
-          paymentTerms={paymentTerms}
-        >
-          <FormProvider {...formMethods}>
-            <Box
-              as="form"
-              role="form"
-              onSubmit={handleSubmit(onSubmit)}
-              w="full"
-              h="full"
-            >
-              <Stepper
-                steps={[
-                  {
-                    label: "Invoice Details",
-                    content: (
-                      <Container
-                        mt={2}
-                        p={4}
-                        bg="white"
-                        borderRadius="md"
-                        shadow="md"
-                        maxW="container.sm"
-                      >
-                        <InvoiceForm
-                          customers={customers}
-                          paymentTerms={paymentTerms}
-                          loading={loading}
-                        />
-                      </Container>
-                    ),
-                  },
-                  {
-                    label: "Add Items",
-                    content: (
-                      <SaleItemsForm
-                        removeItem={remove}
-                        summary={summary}
-                        loading={loading}
-                        editItem={setItemToEdit}
-                        selectedItems={fields}
-                      />
-                    ),
-                  },
-                ]}
-              />
-            </Box>
-          </FormProvider>
-        </SalesContextProvider>
-      ) : items?.length === 0 ? (
-        <Empty message="Please add atleast one ITEM to continue or reload the page" />
-      ) : customers?.length === 0 ? (
-        <Empty message="Please add atleast one CUSTOMER to continue or reload the page" />
-      ) : (
-        <Empty message="Payment Terms not Found. Try Reloading the page" />
-      )}
-
-      <IconButton
-        onClick={addNewLine}
-        colorScheme="cyan"
-        icon={<RiAddLine />}
-        borderRadius="full"
-        position="fixed"
-        bottom="50px"
-        right="30px"
-        zIndex="banner"
-        title="add item"
-        isDisabled={loading}
-      />
-
-      <Modal
-        onClose={stopEditing}
-        // finalFocusRef={btnRef}
-        isOpen={!!itemToEdit.item}
-        scrollBehavior="inside"
-        closeOnOverlayClick
+  return loading ? (
+    <SkeletonLoader />
+  ) : customers?.length > 0 && items?.length > 0 && paymentTerms?.length > 0 ? (
+    <FormProvider {...formMethods}>
+      <Box
+        as="form"
+        role="form"
+        onSubmit={handleSubmit(onSubmit)}
+        w="full"
+        h="full"
       >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Item Details</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <SelectItemForm
-              items={items}
-              onClose={stopEditing}
-              handleFormSubmit={() => {}}
-              item={itemToEdit.item}
-            />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    </>
+        <Stepper
+          steps={[
+            {
+              label: "Add Items",
+              content: <EditSale loading={updating} items={items} />,
+            },
+            {
+              label: "Invoice Details",
+              content: (
+                <Container
+                  mt={2}
+                  p={4}
+                  bg="white"
+                  borderRadius="md"
+                  shadow="md"
+                  maxW="container.sm"
+                >
+                  <InvoiceForm
+                    customers={customers}
+                    paymentTerms={paymentTerms}
+                    loading={loading}
+                  />
+                </Container>
+              ),
+            },
+          ]}
+        />
+      </Box>
+    </FormProvider>
+  ) : items?.length === 0 ? (
+    <Empty message="Please add atleast one ITEM to continue or reload the page" />
+  ) : customers?.length === 0 ? (
+    <Empty message="Please add atleast one CUSTOMER to continue or reload the page" />
+  ) : (
+    <Empty message="Payment Terms not Found. Try Reloading the page" />
   );
 }
 

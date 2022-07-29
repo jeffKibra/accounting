@@ -4,8 +4,8 @@ import { Stack, IconButton } from "@chakra-ui/react";
 import { RiDeleteBin4Line, RiEdit2Line } from "react-icons/ri";
 
 import CustomTable from "../CustomTable";
-import CustomModal from "../../ui/CustomModal";
-import SelectItemForm from "../../forms/Sales/SelectItemForm";
+// import CustomModal from "../../ui/CustomModal";
+// import SelectItemForm from "../../forms/Sales/SelectItemForm";
 
 function SaleItemsTable(props) {
   const { items, handleDelete, handleEdit, loading, taxType } = props;
@@ -17,7 +17,6 @@ function SaleItemsTable(props) {
       { Header: "Name", accessor: "displayName" },
       { Header: "Quantity", accessor: "quantity", isNumeric: true },
       { Header: "Rate", accessor: "itemRate", isNumeric: true },
-      { Header: "Discount", accessor: "discount", isNumeric: true },
       { Header: "Tax", accessor: "tax", isNumeric: true },
       { Header: "Amount", accessor: "totalAmount", isNumeric: true },
     ];
@@ -29,57 +28,39 @@ function SaleItemsTable(props) {
         name,
         variant,
         salesTax,
-        discount,
-        discountType,
-        totalAmount,
-        totalTax,
+        itemRateTotal,
+        itemTaxTotal,
         itemRate,
         itemTax,
+        itemId,
       } = item;
 
       const rate = taxType === "taxInclusive" ? itemRate + itemTax : itemRate;
       const amount =
-        taxType === "taxInclusive" ? totalAmount + totalTax : totalAmount;
+        taxType === "taxInclusive"
+          ? itemRateTotal + itemTaxTotal
+          : itemRateTotal;
 
       return {
         ...item,
         itemRate: rate,
         totalAmount: amount,
         displayName: `${name}-${variant}`,
-        discount: `${discount} (${discountType})`,
         tax: salesTax?.name ? `${salesTax?.name} (${salesTax?.rate}%)` : "",
         actions: (
           <Stack direction="row" spacing={1}>
-            <CustomModal
-              closeOnOverlayClick={false}
-              title="Edit Item"
-              renderTrigger={(onOpen) => {
-                return (
-                  <IconButton
-                    size="xs"
-                    onClick={onOpen}
-                    colorScheme="cyan"
-                    icon={<RiEdit2Line />}
-                    title="Edit"
-                    isDisabled={loading}
-                  />
-                );
-              }}
-              renderContent={(onClose) => {
-                return (
-                  <SelectItemForm
-                    handleFormSubmit={() => handleEdit(index, item)}
-                    items={items}
-                    item={item}
-                    onClose={onClose}
-                  />
-                );
-              }}
+            <IconButton
+              size="xs"
+              onClick={() => handleEdit(itemId)}
+              colorScheme="cyan"
+              icon={<RiEdit2Line />}
+              title="Edit"
+              isDisabled={loading}
             />
 
             <IconButton
               size="xs"
-              onClick={() => handleDelete(index)}
+              onClick={() => handleDelete(itemId)}
               colorScheme="red"
               icon={<RiDeleteBin4Line />}
               title="Delete"
@@ -109,11 +90,10 @@ SaleItemsTable.propTypes = {
           taxId: PropTypes.string,
         }),
       ]),
-      totalAmount: PropTypes.number.isRequired,
+      itemRateTotal: PropTypes.number.isRequired,
       itemRate: PropTypes.number.isRequired,
       itemTax: PropTypes.number.isRequired,
-      totalTax: PropTypes.number.isRequired,
-      totalDiscount: PropTypes.number.isRequired,
+      itemTaxTotal: PropTypes.number.isRequired,
       quantity: PropTypes.number.isRequired,
     })
   ),

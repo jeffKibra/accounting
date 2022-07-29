@@ -1,4 +1,4 @@
-// import { SalesItem, SalesItemFromForm } from "../../types";
+// import { SalesItem, salesItem } from "../../types";
 
 export default function getItemsToUpdate(items = [], incomingItems = []) {
   /**

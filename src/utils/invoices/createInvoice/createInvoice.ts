@@ -60,7 +60,7 @@ export default function createInvoice(
     transactionType,
     org: formats.formatOrgData(org),
     customer: formats.formatCustomerData(customer),
-    selectedItems: formats.formatSaleItems(selectedItems),
+    selectedItems,
   };
   const transactionDetails = {
     ...tDetails,

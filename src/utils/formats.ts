@@ -6,9 +6,6 @@ import {
   Invoice,
   PaymentReceived,
   Org,
-  SalesItem,
-  ExpenseItem,
-  SalesItemFromForm,
   VendorSummary,
 } from "../types";
 
@@ -89,24 +86,6 @@ function formatTransactionDetails(details: TransactionDetails) {
   };
 }
 
-function formatSaleItems(items: SalesItemFromForm[]): SalesItem[] {
-  return items.map((item) => {
-    const {
-      createdAt,
-      createdBy,
-      modifiedBy,
-      modifiedAt,
-      extraDetails,
-      status,
-      salesAccountId,
-      salesTaxId,
-      ...rest
-    } = item;
-
-    return { ...rest };
-  });
-}
-
 function formatCash(num: number) {
   return Number(Number(num).toFixed(2)).toLocaleString();
 }
@@ -117,7 +96,6 @@ const formats = {
   formatCustomerData,
   formatOrgData,
   formatTransactionDetails,
-  formatSaleItems,
   formatVendorData,
   formatCash,
 };

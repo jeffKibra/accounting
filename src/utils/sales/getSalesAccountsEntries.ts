@@ -9,7 +9,7 @@ export default function getSalesAccountsEntries(selectedItems: SalesItem[]) {
     (groupedItems) => {
       const { items, accountId } = groupedItems;
       const salesAmount: number = items.reduce<number>((sum, item) => {
-        return sum + item.totalAmount;
+        return sum + item.itemRateTotal;
       }, 0);
 
       return {

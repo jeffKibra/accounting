@@ -6,7 +6,6 @@ import {
   OrgSummary,
   PaymentMode,
   SalesItem,
-  SalesItemFromForm,
   SalesSummary,
   TransactionTypes,
 } from ".";
@@ -29,15 +28,14 @@ export interface SalesReceiptForm {
   paymentMode: PaymentMode;
   receiptDate: Date;
   reference: string;
-  selectedItems: SalesItemFromForm[];
+  selectedItems: SalesItem[];
   summary: SalesSummary;
 }
 
 export interface SalesReceiptFromDb
-  extends Omit<SalesReceiptForm, "customer" | "selectedItems">,
+  extends Omit<SalesReceiptForm, "customer">,
     Meta {
   customer: CustomerSummary;
-  selectedItems: SalesItem[];
 }
 
 export interface SalesReceipt extends SalesReceiptFromDb {

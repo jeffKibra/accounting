@@ -45,8 +45,14 @@ export default async function updateOB(
     selectedItems: [
       {
         salesAccount,
-        salesAccountId: salesAccount.accountId,
-        totalAmount: openingBalance,
+        itemId: customerId,
+        name: customer.displayName,
+        rate: openingBalance,
+        itemRate: openingBalance,
+        itemTax: 0,
+        quantity: 1,
+        itemTaxTotal: 0,
+        itemRateTotal: openingBalance,
       },
     ],
     customerNotes: "",

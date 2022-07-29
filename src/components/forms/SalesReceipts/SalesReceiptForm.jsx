@@ -15,7 +15,6 @@ import {
 } from "@chakra-ui/react";
 import { useForm, FormProvider } from "react-hook-form";
 
-import SalesContext from "../../../contexts/SalesContext";
 import StepperContext from "../../../contexts/StepperContext";
 
 import CustomSelect from "../../ui/CustomSelect";
@@ -23,9 +22,16 @@ import CustomDatePicker from "../../ui/CustomDatePicker";
 import { useEffect } from "react";
 
 function SalesReceiptForm(props) {
-  const { accounts, paymentModes } = props;
-  const { formValues, updateFormValues, customers, loading, finish } =
-    useContext(SalesContext);
+  const {
+    accounts,
+    paymentModes,
+    formValues,
+    updateFormValues,
+    customers,
+    loading,
+    finish,
+  } = props;
+
   const { prevStep } = useContext(StepperContext);
   console.log({ formValues });
   const defaults = useMemo(() => {

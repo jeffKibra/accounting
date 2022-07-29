@@ -5,7 +5,7 @@ import TableNumInput from "../../ui/TableNumInput";
 
 function SaleSummaryTable(props) {
   const { summary, loading, taxType, totalAmount } = props;
-  const { subTotal, taxes, totalTaxes } = summary;
+  const { subTotal, taxes, totalTax } = summary;
 
   return (
     <TableContainer>
@@ -14,7 +14,7 @@ function SaleSummaryTable(props) {
           <Tr>
             <Td>Sub Total</Td>
             <Td isNumeric>
-              {taxType === "taxInclusive" ? subTotal + totalTaxes : subTotal}
+              {taxType === "taxInclusive" ? subTotal + totalTax : subTotal}
             </Td>
           </Tr>
 
@@ -73,3 +73,28 @@ SaleSummaryTable.propTypes = {
 };
 
 export default SaleSummaryTable;
+
+// <GridItem colSpan={7}>
+//           <FormControl isInvalid={errors.discount}>
+//             <FormLabel htmlFor="discount">Discount</FormLabel>
+//             <NumInput name="discount" min={0} />
+//             <FormErrorMessage>{errors.discount?.message}</FormErrorMessage>
+//           </FormControl>
+//         </GridItem>
+
+//         <GridItem colSpan={5}>
+//           <FormControl isInvalid={errors.discountType}>
+//             <FormLabel htmlFor="discountType">Discount Type</FormLabel>
+//             <Select
+//               id="discountType"
+//               defaultValue="KES"
+//               {...register("discountType")}
+//             >
+//               <option value="KES">KES</option>
+//               <option value="%">%</option>
+//             </Select>
+//             <FormErrorMessage>
+//               {errors.discountType?.message}
+//             </FormErrorMessage>
+//           </FormControl>
+//         </GridItem>

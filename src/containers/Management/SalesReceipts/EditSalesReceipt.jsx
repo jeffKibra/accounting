@@ -3,8 +3,6 @@ import { Box } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
-import { SalesContextProvider } from "../../../contexts/SalesContext";
-
 import { GET_PAYMENT_MODES } from "../../../store/actions/paymentModesActions";
 
 import Stepper from "../../../components/ui/Stepper";
@@ -33,31 +31,25 @@ function EditSalesReceipt(props) {
   return loadingPaymentModes ? (
     <SkeletonLoader />
   ) : paymentModes?.length > 0 ? (
-    <SalesContextProvider
-      defaultValues={salesReceipt}
-      updating={updating}
-      saveData={handleFormSubmit}
-    >
-      <Box w="full" h="full">
-        <Stepper
-          steps={[
-            {
-              label: "Add Items",
-              content: <SaleItemsForm />,
-            },
-            {
-              label: "Payment Details",
-              content: (
-                <SalesReceiptForm
-                  paymentModes={paymentModes}
-                  accounts={accounts}
-                />
-              ),
-            },
-          ]}
-        />
-      </Box>
-    </SalesContextProvider>
+    <Box w="full" h="full">
+      <Stepper
+        steps={[
+          {
+            label: "Add Items",
+            content: <SaleItemsForm />,
+          },
+          {
+            label: "Payment Details",
+            content: (
+              <SalesReceiptForm
+                paymentModes={paymentModes}
+                accounts={accounts}
+              />
+            ),
+          },
+        ]}
+      />
+    </Box>
   ) : (
     <Empty message="Payment modes not found! Please try Reloading the page!" />
   );

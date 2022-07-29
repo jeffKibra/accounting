@@ -122,7 +122,7 @@ export default async function updateSalesReceipt(
   const tDetails = {
     ...data,
     customer: formats.formatCustomerData(customer),
-    selectedItems: formats.formatSaleItems(selectedItems),
+    selectedItems: selectedItems,
   };
 
   const transactionDetails = {

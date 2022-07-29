@@ -5,7 +5,6 @@ import {
   PaymentTerm,
   SalesItem,
   SalesSummary,
-  SalesItemFromForm,
   InvoiceTransactionTypes,
 } from ".";
 import { Timestamp } from "firebase/firestore";
@@ -52,15 +51,12 @@ export interface InvoiceFormData {
   orderNumber: string;
   paymentTerm: PaymentTerm;
   subject: string;
-  selectedItems: SalesItemFromForm[];
+  selectedItems: SalesItem[];
   summary: SalesSummary;
 }
 
-export interface InvoiceFromDb
-  extends Omit<InvoiceFormData, "customer" | "selectedItems">,
-    Meta {
+export interface InvoiceFromDb extends Omit<InvoiceFormData, "customer">, Meta {
   customer: CustomerSummary;
-  selectedItems: SalesItem[];
 }
 
 export interface Invoice extends InvoiceFromDb {

@@ -5,169 +5,182 @@ import {
   Select,
   FormErrorMessage,
   Button,
-  Box,
   Flex,
   Grid,
   GridItem,
 } from "@chakra-ui/react";
 import { RiAddLine } from "react-icons/ri";
-import { useForm, FormProvider } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 
 import NumInput from "../../ui/NumInput";
 
-const schema = yup.object().shape({
-  itemId: yup.string().required("*Required!"),
-  rate: yup
-    .number()
-    .typeError("Value must be a number")
-    .positive("value must be a positive number!")
-    .min(1, "Value should be greater than zero(0)!")
-    .required("*Required"),
-  quantity: yup
-    .number()
-    .typeError("Value must be a number")
-    .positive("value must be a positive number!")
-    .min(1, "Value should be greater than zero(0)!")
-    .required("*Required"),
-  discount: yup
-    .number()
-    .typeError("Value must be a number")
-    .positive("value must be a positive number!")
-    .min(0, "Value should not be less than zero(0)!")
-    .required("*Required"),
-  discountType: yup.string().required("*Required"),
-});
-
 function SelectItemForm(props) {
-  const { items, handleFormSubmit, item, onClose } = props;
-  const formMethods = useForm({
-    mode: "onChange",
-    resolver: yupResolver(schema),
-    ...(item ? { defaultValues: { ...item } } : {}),
-  });
+  const { itemsObject, handleFormSubmit, item, onClose } = props;
+
   const {
     register,
-    handleSubmit,
     formState: { errors },
     watch,
     setValue,
-    reset,
-  } = formMethods;
+    getValues,
+    unregister,
+    trigger,
+  } = useFormContext();
 
-  const itemId = watch("itemId");
+  const itemId = watch("editItem.itemId");
+
+  useEffect(() => {
+    //register an item field to hold the original item data
+    register("editItem.item", {
+      required: { value: true, message: "Item is Required" },
+    });
+
+    return () => {
+      // unregister(["editItem.itemId", "editItem.rate", "editItem.quantity"]);
+      unregister("editItem");
+    };
+  }, [unregister, register]);
+
+  useEffect(() => {
+    //set default values
+    if (item) {
+      console.log("item available", item);
+      setValue("editItem.itemId", item.itemId);
+      setValue("editItem.rate", item.rate);
+      setValue("editItem.quantity", item.quantity);
+    }
+  }, [item, setValue]);
 
   useEffect(() => {
     if (itemId) {
-      const item = items.find((item) => item.itemId === itemId);
-      const { sellingPrice } = item;
+      const selectedItem = itemsObject[itemId];
+      const { sellingPrice } = selectedItem;
 
-      setValue("rate", sellingPrice);
+      //set values of item and rate and index
+      setValue("editItem.item", selectedItem);
+      setValue("editItem.rate", sellingPrice);
     }
-  }, [itemId, items, setValue]);
+  }, [itemId, itemsObject, setValue]);
 
-  function onSubmit(data) {
-    // console.log({ data });
-    onClose();
-    handleFormSubmit(data);
-    reset();
+  async function submitForm() {
+    //trigger validation
+    await trigger([
+      "editItem.itemId",
+      "editItem.item",
+      "editItem.rate",
+      "editItem.quantity",
+    ]);
+    const fieldsValid = Object.keys(errors).length === 0;
+    //only submit the data when there are no errors
+    if (fieldsValid) {
+      //get data from form
+      const editItem = getValues("editItem");
+      //submit data- function will close the editor
+      handleFormSubmit(editItem);
+    }
   }
 
   return (
-    <FormProvider {...formMethods}>
-      <Box as="form" role="form" onSubmit={handleSubmit(onSubmit)}>
-        <Grid rowGap={2} columnGap={2} templateColumns="repeat(12, 1fr)">
-          <GridItem colSpan={12}>
-            <FormControl isRequired isInvalid={errors.itemId}>
-              <FormLabel htmlFor="itemId">Item</FormLabel>
-              <Select
-                id="itemId"
-                placeholder="---select item---"
-                {...register("itemId")}
-              >
-                {items.map((item, i) => {
-                  const { name, variant, itemId } = item;
+    <Grid rowGap={2} columnGap={2} templateColumns="repeat(12, 1fr)">
+      <GridItem colSpan={12}>
+        <FormControl isRequired isInvalid={errors.editItem?.itemId}>
+          <FormLabel htmlFor="itemId">Item</FormLabel>
+          <Select
+            id="itemId"
+            placeholder="---select item---"
+            {...register("editItem.itemId", {
+              required: { value: true, message: "*Required" },
+            })}
+          >
+            {Object.values(itemsObject).map((item, i) => {
+              const { name, variant, itemId, added } = item;
 
-                  return (
-                    <option key={i} value={itemId}>
-                      {name} - {variant}
-                    </option>
-                  );
-                })}
-              </Select>
-              <FormErrorMessage>{errors.itemId?.message}</FormErrorMessage>
-            </FormControl>
-          </GridItem>
-          <GridItem colSpan={12}>
-            {itemId && (
-              <FormControl isInvalid={errors.rate}>
-                <FormLabel htmlFor="rate">Rate</FormLabel>
-                <NumInput name="rate" min={0} />
-                <FormErrorMessage>{errors.rate?.message}</FormErrorMessage>
-              </FormControl>
-            )}
-          </GridItem>
-          <GridItem colSpan={12}>
-            <FormControl isInvalid={errors.quantity}>
-              <FormLabel htmlFor="quantity">Quantity</FormLabel>
-              <NumInput name="quantity" defaultValue={1} min={1} />
-              <FormErrorMessage>{errors.quantity?.message}</FormErrorMessage>
-            </FormControl>
-          </GridItem>
+              if (added) {
+                return null;
+              }
+              return (
+                <option key={i} value={itemId}>
+                  {name} - {variant}
+                </option>
+              );
+            })}
+          </Select>
+          <FormErrorMessage>
+            {errors.editItem?.itemId?.message}
+          </FormErrorMessage>
+          <FormErrorMessage>{errors.editItem?.item?.message}</FormErrorMessage>
+        </FormControl>
+      </GridItem>
 
-          <GridItem colSpan={7}>
-            <FormControl isInvalid={errors.discount}>
-              <FormLabel htmlFor="discount">Discount</FormLabel>
-              <NumInput name="discount" min={0} />
-              <FormErrorMessage>{errors.discount?.message}</FormErrorMessage>
-            </FormControl>
-          </GridItem>
+      <GridItem colSpan={12}>
+        <FormControl isInvalid={errors.editItem?.rate}>
+          <FormLabel htmlFor="rate">Rate</FormLabel>
+          <NumInput
+            name="editItem.rate"
+            rules={{
+              required: { value: true, message: "*Required" },
+              min: {
+                value: 1,
+                message: "Value should be greater than zero(0)!",
+              },
+            }}
+            min={0}
+          />
+          <FormErrorMessage>{errors.editItem?.rate?.message}</FormErrorMessage>
+        </FormControl>
+      </GridItem>
 
-          <GridItem colSpan={5}>
-            <FormControl isInvalid={errors.discountType}>
-              <FormLabel htmlFor="discountType">Discount Type</FormLabel>
-              <Select
-                id="discountType"
-                defaultValue="KES"
-                {...register("discountType")}
-              >
-                <option value="KES">KES</option>
-                <option value="%">%</option>
-              </Select>
-              <FormErrorMessage>
-                {errors.discountType?.message}
-              </FormErrorMessage>
-            </FormControl>
-          </GridItem>
-        </Grid>
+      <GridItem colSpan={12}>
+        <FormControl isInvalid={errors.editItem?.quantity}>
+          <FormLabel htmlFor="quantity">Quantity</FormLabel>
+          <NumInput
+            name="editItem.quantity"
+            rules={{
+              required: { value: true, message: "*Required" },
+              min: {
+                value: 1,
+                message: "Value should be greater than zero(0)!",
+              },
+            }}
+            defaultValue={1}
+            min={1}
+          />
+          <FormErrorMessage>
+            {errors.editItem?.quantity?.message}
+          </FormErrorMessage>
+        </FormControl>
+      </GridItem>
 
+      <GridItem colSpan={12}>
         <Flex my={4} w="full" justify="flex-end">
           {onClose && (
-            <Button mr={2} onClick={onClose}>
+            <Button type="button" mr={2} onClick={onClose}>
               CLOSE
             </Button>
           )}
-          <Button type="submit" rightIcon={<RiAddLine />} colorScheme="cyan">
+          <Button
+            onClick={submitForm}
+            type="button"
+            rightIcon={<RiAddLine />}
+            colorScheme="cyan"
+          >
             ADD
           </Button>
         </Flex>
-      </Box>
-    </FormProvider>
+      </GridItem>
+    </Grid>
   );
 }
 
 SelectItemForm.propTypes = {
-  items: PropTypes.array.isRequired,
+  itemsObject: PropTypes.object.isRequired,
   handleFormSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func,
   item: PropTypes.shape({
     itemId: PropTypes.string,
     rate: PropTypes.number,
     quantity: PropTypes.number,
-    discount: PropTypes.number,
-    discountType: PropTypes.string,
   }),
 };
 
