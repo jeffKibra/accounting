@@ -24,9 +24,8 @@ function SaleItemsTable(props) {
   }, []);
 
   const data = useMemo(() => {
-    return [...items].map((item) => {
+    return [...items].map((item, index) => {
       const {
-        itemId,
         name,
         variant,
         salesTax,
@@ -69,7 +68,7 @@ function SaleItemsTable(props) {
               renderContent={(onClose) => {
                 return (
                   <SelectItemForm
-                    handleFormSubmit={handleEdit}
+                    handleFormSubmit={() => handleEdit(index, item)}
                     items={items}
                     item={item}
                     onClose={onClose}
@@ -80,7 +79,7 @@ function SaleItemsTable(props) {
 
             <IconButton
               size="xs"
-              onClick={() => handleDelete(itemId)}
+              onClick={() => handleDelete(index)}
               colorScheme="red"
               icon={<RiDeleteBin4Line />}
               title="Delete"

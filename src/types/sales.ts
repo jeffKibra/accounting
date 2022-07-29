@@ -32,18 +32,19 @@ export interface SalesItemFromForm extends Omit<Partial<Item>, "salesTax"> {
   totalAmount: number;
 }
 
-export interface SalesItem
-  extends Omit<
-    SalesItemFromForm,
-    | "createdAt"
-    | "createdBy"
-    | "modifiedBy"
-    | "modifiedAt"
-    | "extraDetails"
-    | "status"
-    | "salesAccountId"
-    | "salesTaxId"
-  > {}
+export interface SalesItem {
+  itemId: string;
+  name: string;
+  salesAccount: Account;
+  salesTax: Tax | null;
+  salesTaxType: string;
+  rate: number;
+  quantity: number;
+  itemRate: number;
+  itemTax: number;
+  itemRateTotal: number;
+  itemTaxTotal: number;
+}
 
 export interface GroupedItems {
   accountId: string;

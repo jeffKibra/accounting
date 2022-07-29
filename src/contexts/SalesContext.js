@@ -1,10 +1,5 @@
 import { createContext, useState, useMemo, useEffect } from "react";
-import { connect } from "react-redux";
 import PropTypes from "prop-types";
-
-import { GET_ITEMS } from "../store/actions/itemsActions";
-import { GET_CUSTOMERS } from "../store/actions/customersActions";
-import { GET_PAYMENT_TERMS } from "../store/actions/paymentTermsActions";
 
 import SkeletonLoader from "../components/ui/SkeletonLoader";
 import Empty from "../components/ui/Empty";
@@ -38,25 +33,14 @@ function Provider(props) {
     saveData,
     defaultValues,
     items,
-    loadingItems,
-    loadingCustomers,
     customers,
-    getItems,
-    getCustomers,
     updating,
-    getPaymentTerms,
     paymentTerms,
-    loadingPaymentTerms,
+    loading,
   } = props;
 
   // console.log({ paymentTerms customers, items });
   // console.log({ props });
-
-  useEffect(() => {
-    getItems();
-    getCustomers();
-    getPaymentTerms();
-  }, [getItems, getCustomers, getPaymentTerms]);
 
   const [formValues, setFormValues] = useState(
     defaultValues ? { ...defaultValues } : null
@@ -67,71 +51,6 @@ function Provider(props) {
   const [remainingItems, setRemainingItems] = useState(items ? [...items] : []);
 
   const selectedItems = useMemo(() => {
-    function deriveData(data) {
-      // console.log({ data });
-      const { itemId, rate, quantity, discount, discountType } = data;
-      const item = items.find((item) => item.itemId === itemId);
-      let itemRate = rate;
-      let itemTax = 0;
-      let itemDiscount = discount;
-
-      const { salesTax, salesTaxType } = item;
-
-      //set all rates to be tax exclusive
-      if (salesTax?.rate) {
-        if (salesTaxType === "tax inclusive") {
-          //item rate is inclusive of tax
-          const tax = (salesTax.rate / (100 + salesTax.rate)) * rate;
-          itemRate = rate - tax;
-        }
-      }
-
-      //discounts
-      if (discount > 0) {
-        if (discountType === "KES") {
-          itemDiscount = discount;
-        } else {
-          itemDiscount = (discount * itemRate) / 100;
-        }
-      }
-      /**
-       * adjust item rate based on discount given
-       * for uniformity, discounts are applied to the tax exclusive amount
-       * ask user to consider giving the discount at transaction level
-       * instead of item level
-       */
-      if (itemDiscount && itemDiscount > 0) {
-        itemRate -= itemDiscount;
-      }
-
-      //compute final tax after discounts
-      if (salesTax?.rate) {
-        //item rate does not have tax
-        itemTax = (salesTax.rate / 100) * itemRate;
-      }
-      /**
-       * finally compute amounts based on item quantity
-       */
-      const totalAmount = itemRate * quantity;
-      const totalTax = itemTax * quantity;
-      const totalDiscount = itemDiscount * quantity;
-
-      const itemData = {
-        ...item,
-        ...data,
-        itemId,
-        itemRate: +itemRate.toFixed(2),
-        itemTax: +itemTax.toFixed(2),
-        itemDiscount: +itemDiscount.toFixed(2),
-        totalDiscount: +totalDiscount.toFixed(2),
-        totalAmount: +totalAmount.toFixed(2),
-        totalTax: +totalTax.toFixed(2),
-      };
-      // console.log({ itemData });
-
-      return itemData;
-    }
-
     return items
       ? addedItems.map((item) => {
           return deriveData(item);
@@ -252,7 +171,7 @@ function Provider(props) {
   // console.log({ selectedItems });
   // console.log({ formValues });
 
-  return loadingItems || loadingCustomers || loadingPaymentTerms ? (
+  return loading ? (
     <SkeletonLoader />
   ) : items?.length > 0 && paymentTerms?.length > 0 ? (
     <SalesContext.Provider
@@ -280,6 +199,10 @@ function Provider(props) {
 Provider.propTypes = {
   updating: PropTypes.bool.isRequired,
   saveData: PropTypes.func.isRequired,
+  items: PropTypes.array.isRequired,
+  customers: PropTypes.array.isRequired,
+  paymentTerms: PropTypes.array.isRequired,
+  loading: PropTypes.bool.isRequired,
   defaultValues: PropTypes.shape({
     summary: PropTypes.shape({
       shipping: PropTypes.number,
@@ -294,47 +217,4 @@ Provider.propTypes = {
   }),
 };
 
-function mapStateToProps(state) {
-  let {
-    loading: loadingItems,
-    items,
-    action: itemsAction,
-  } = state.itemsReducer;
-  loadingItems = loadingItems && itemsAction === GET_ITEMS;
-
-  let {
-    loading: loadingCustomers,
-    customers,
-    action: customersAction,
-  } = state.customersReducer;
-  loadingCustomers = loadingCustomers && customersAction === GET_CUSTOMERS;
-
-  let {
-    loading: loadingPaymentTerms,
-    paymentTerms,
-    action: ptAction,
-  } = state.paymentTermsReducer;
-  loadingPaymentTerms = loadingPaymentTerms && ptAction === GET_PAYMENT_TERMS;
-
-  return {
-    loadingItems,
-    items,
-    loadingCustomers,
-    customers,
-    loadingPaymentTerms,
-    paymentTerms,
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    getItems: () => dispatch({ type: GET_ITEMS }),
-    getCustomers: () => dispatch({ type: GET_CUSTOMERS }),
-    getPaymentTerms: () => dispatch({ type: GET_PAYMENT_TERMS }),
-  };
-}
-
-export const SalesContextProvider = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Provider);
+export const SalesContextProvider = Provider;

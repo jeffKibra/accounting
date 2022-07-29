@@ -9,51 +9,36 @@ import {
   VStack,
   Text,
 } from "@chakra-ui/react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
+import PropTypes from "prop-types";
 
-import SalesContext from "../../../contexts/SalesContext";
+import { useToasts } from "hooks";
+
 import StepperContext from "../../../contexts/StepperContext";
-
-import useToasts from "../../../hooks/useToasts";
 
 import SaleItemsTable from "../../tables/Sales/SaleItemsTable";
 import SaleSummaryTable from "../../tables/Sales/SaleSummaryTable";
-import AddItem from "../../Custom/Sales/AddItem";
 
 import CustomSelect from "../../ui/CustomSelect";
 
 function SaleItemsForm(props) {
-  const {
-    addItem,
-    items,
-    removeItem,
-    selectedItems,
-    summary,
-    loading,
-    finish,
-    formValues,
-    updateFormValues,
-  } = useContext(SalesContext);
+  const { selectedItems, loading, summary, removeItem, editItem } = props;
+
+  const toasts = useToasts();
+
   const { prevStep, nextStep, activeStep, totalSteps } =
     useContext(StepperContext);
   const isLastStep = activeStep === totalSteps - 1;
 
-  const toasts = useToasts();
   const [portalNode, setPortalNode] = useState(null);
 
   const onRefChange = useCallback((node) => {
     setPortalNode(node);
   }, []);
 
-  const formMethods = useForm({
-    mode: "onBlur",
-    defaultValues: {
-      taxType: formValues?.summary?.taxType || "taxExclusive",
-      shipping: formValues?.summary?.shipping || 0,
-      adjustment: formValues?.summary?.adjustment || 0,
-    },
-  });
-  const { handleSubmit, watch, getValues } = formMethods;
+  const { watch } = useFormContext();
+
+  console.log({ selectedItems });
 
   const taxType = watch("taxType");
   const shipping = watch("shipping");
@@ -62,29 +47,7 @@ function SaleItemsForm(props) {
   const { subTotal, totalTaxes } = summary;
   const totalAmount = subTotal + totalTaxes + +shipping + +adjustment;
 
-  function newSummary(data) {
-    return {
-      ...summary,
-      ...data,
-      totalAmount,
-    };
-  }
-
-  function goBack() {
-    const allValues = getValues();
-    const saleSummary = newSummary(allValues);
-    updateFormValues({
-      summary: saleSummary,
-    });
-    prevStep();
-  }
-
-  function goNext(saleSummary) {
-    updateFormValues({ summary: saleSummary });
-    nextStep();
-  }
-
-  function save(data) {
+  function next(data) {
     // console.log("submitting form");
     if (selectedItems.length === 0) {
       return toasts.error("Please add atleast one(1) item to proceed!");
@@ -93,26 +56,24 @@ function SaleItemsForm(props) {
       return toasts.error("Total Sale Amount should be greater than ZERO(0)!");
     }
 
-    const saleSummary = newSummary(data);
-
-    isLastStep ? finish({ summary: saleSummary }) : goNext(saleSummary);
+    nextStep();
   }
 
   return (
-    <VStack mt="0px !important" maxW="full">
-      <AddItem loading={loading} addItem={addItem} items={items || []} />
-      <Flex ref={onRefChange} w="full" />
+    <>
+      <VStack mt="0px !important" maxW="full">
+        {/* <AddItem loading={loading} addItem={addItem} items={items || []} /> */}
+        <Flex ref={onRefChange} w="full" />
 
-      <SaleItemsTable
-        loading={loading}
-        handleEdit={addItem}
-        handleDelete={removeItem}
-        items={selectedItems}
-        taxType={taxType}
-      />
+        <SaleItemsTable
+          loading={loading}
+          handleEdit={editItem}
+          handleDelete={removeItem}
+          items={selectedItems}
+          taxType={taxType}
+        />
 
-      <FormProvider {...formMethods}>
-        <Box as="form" role="form" w="full" onSubmit={handleSubmit(save)}>
+        <Box w="full">
           {portalNode &&
             createPortal(
               <Flex w="full" justify="flex-end" align="center">
@@ -164,19 +125,32 @@ function SaleItemsForm(props) {
                 isLoading={loading}
                 variant="outline"
                 colorScheme="cyan"
-                onClick={goBack}
+                onClick={prevStep}
               >
                 back
               </Button>
             )}
-            <Button type="submit" isLoading={loading} colorScheme="cyan">
+            <Button
+              onClick={isLastStep ? () => {} : next}
+              type={isLastStep ? "submit" : "button"}
+              isLoading={loading}
+              colorScheme="cyan"
+            >
               {isLastStep ? "save" : "next"}
             </Button>
           </Flex>
         </Box>
-      </FormProvider>
-    </VStack>
+      </VStack>
+    </>
   );
 }
+
+SaleItemsForm.propTypes = {
+  selectedItems: PropTypes.array.isRequired,
+  loading: PropTypes.bool.isRequired,
+  summary: PropTypes.object.isRequired,
+  removeItem: PropTypes.func.isRequired,
+  editItem: PropTypes.func.isRequired,
+};
 
 export default SaleItemsForm;

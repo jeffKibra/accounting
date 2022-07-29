@@ -44,9 +44,9 @@ function AddressForm(props) {
     setValue("shippingCountry", country, { shouldDirty: true });
   }
 
-  function next() {
+  async function next() {
     //trigger validation
-    trigger([
+    await trigger([
       "billingStreet",
       "billingCity",
       "billingState",

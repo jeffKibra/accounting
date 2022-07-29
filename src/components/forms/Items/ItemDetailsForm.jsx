@@ -75,8 +75,8 @@ function ItemDetailsForm(props) {
     }
   }, [itemName, itemVariant, setValue, skuOption]);
 
-  function next() {
-    trigger([
+  async function next() {
+    await trigger([
       "name",
       "type",
       "variant",

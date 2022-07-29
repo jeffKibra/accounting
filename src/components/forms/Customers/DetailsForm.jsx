@@ -36,9 +36,9 @@ function DetailsForm(props) {
   } = useFormContext();
   // console.log({ details });
 
-  function next() {
+  async function next() {
     //trigger validation
-    trigger([
+    await trigger([
       "type",
       "companyName",
       "salutation",
