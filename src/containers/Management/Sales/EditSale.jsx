@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useContext } from "react";
 import { useFormContext } from "react-hook-form";
 import {
   Modal,
@@ -13,22 +13,33 @@ import {
   Text,
   VStack,
   useDisclosure,
+  Button,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import { RiAddLine } from "react-icons/ri";
 import PropTypes from "prop-types";
-
-import CustomSelect from "components/ui/CustomSelect";
-
-import SelectItemForm from "components/forms/Sales/SelectItemForm";
-
-import SaleItemsForm from "components/forms/Sales/SaleItemsForm";
-import SaleItemsTable from "components/tables/Sales/SaleItemsTable";
-
+//contexts
+import StepperContext from "contexts/StepperContext";
+//hooks
+import { useToasts } from "hooks";
+//utils
 import { getSaleSummary, getSalesItemData } from "utils/sales";
+//ui components
+import CustomSelect from "components/ui/CustomSelect";
+//forms
+import SelectItemForm from "components/forms/Sales/SelectItemForm";
+//tables
+import SaleItemsTable from "components/tables/Sales/SaleItemsTable";
+import SaleSummaryTable from "components/tables/Sales/SaleSummaryTable";
 
 export default function EditSale(props) {
   const { loading } = props;
   const { isOpen, onClose, onOpen } = useDisclosure();
+  //contexts
+  const { nextStep } = useContext(StepperContext);
+  //hooks
+  const toasts = useToasts();
   /**
    * convert items into an object for easier updates .
    * helps to avoid iterating the whole array for every update
@@ -79,17 +90,6 @@ export default function EditSale(props) {
   //form methhods
   const { watch, setValue, register, unregister, getValues } = useFormContext();
 
-  /**
-   * selected items is a map-convert to array for use in table and summary
-   * use watch to get updates
-   */
-  const formItems = watch("selectedItems") || {};
-  const selectedItems = Object.values(formItems).filter((item) => item);
-  //compute summary values whenever selected items change
-  const summary = useMemo(() => {
-    return getSaleSummary(selectedItems);
-  }, [selectedItems]);
-
   //function to start editing
   function startEditing(itemId) {
     if (itemId) {
@@ -134,12 +134,66 @@ export default function EditSale(props) {
   }
 
   function removeItem(itemId) {
+    //remove it from form by unregistering
     unregister(`selectedItems.${itemId}`);
     //unmark item
     unmarkItemAsAdded(itemId);
   }
 
-  const taxType = watch("taxType");
+  /**
+   * function triggers validation for selected items before moving to the next step
+   */
+  function next() {
+    const selectedItems = getValues("selectedItems");
+    console.log({ selectedItems });
+
+    const fieldsValid =
+      (selectedItems &&
+        Object.values(selectedItems).filter((item) => item).length > 0) ||
+      false;
+
+    if (!fieldsValid) {
+      return toasts.error("Please add atleast one(1) item to proceed!");
+    }
+    // if (totalAmount <= 0) {
+    //   return toasts.error("Total Sale Amount should be greater than ZERO(0)!");
+    // }
+
+    // nextStep();
+  }
+  /**
+   * selected items is a map-convert to array for use in table and summary
+   * use watch to get updates
+   */
+  const formItems = watch("selectedItems");
+  /**
+   * form items change on every render.
+   * to avoid performance issues, convert formItems into a JSON string
+   * useMemo and useEffect with be able to compare strings appropriately
+   * and only rerender when value changes
+   */
+  const formItemsString = JSON.stringify(formItems || {});
+
+  //compute summary values whenever selected items change
+  const { summary, selectedItems } = useMemo(() => {
+    /**
+     * parse the json string to get back formItems
+     */
+    const formItems = JSON.parse(formItemsString);
+    //initializa selected items as an empty array
+    let selectedItems = [];
+    //update selected items based on formItems
+    if (formItems && typeof formItems === "object") {
+      selectedItems = Object.values(formItems).filter((item) => item);
+    }
+
+    console.log("generating summary", formItemsString);
+    const summary = getSaleSummary(selectedItems);
+
+    return { summary, selectedItems };
+  }, [formItemsString]);
+
+  // console.log(watch());
 
   return (
     <VStack mt={1}>
@@ -152,7 +206,7 @@ export default function EditSale(props) {
             isDisabled={loading}
             size="sm"
             colorScheme="cyan"
-            name="taxType"
+            name="summary.taxType"
             options={[
               { name: "Inclusive of Tax", value: "taxInclusive" },
               { name: "Exclusive of Tax", value: "taxExclusive" },
@@ -166,16 +220,38 @@ export default function EditSale(props) {
         handleEdit={startEditing}
         handleDelete={removeItem}
         items={selectedItems}
-        taxType={taxType}
+        taxType={watch("summary.taxType")}
       />
 
-      <SaleItemsForm
-        loading={loading}
-        selectedItems={selectedItems}
-        summary={summary}
-        taxType={taxType}
-      />
+      <Grid w="full" rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
+        <GridItem colSpan={[1, 4, 6]}></GridItem>
+        <GridItem
+          colSpan={[11, 8, 6]}
+          bg="white"
+          p={4}
+          borderRadius="md"
+          shadow="md"
+        >
+          <SaleSummaryTable loading={loading} summary={summary} />
+        </GridItem>
+      </Grid>
 
+      <Flex w="full" py={4} justify="space-evenly">
+        <Button
+          onClick={next}
+          type="button"
+          isLoading={loading}
+          colorScheme="cyan"
+        >
+          next
+        </Button>
+      </Flex>
+
+      {/**
+       * components below are out of the normal page ui
+       * either a modal
+       * or a component with position set to fixed
+       */}
       <IconButton
         onClick={() => startEditing(null, null)}
         colorScheme="cyan"

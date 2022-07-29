@@ -31,10 +31,16 @@ function EditInvoice(props) {
       dueDate: invoice?.dueDate || today,
       subject: invoice?.subject || "",
       customerNotes: invoice?.customerNotes || "",
-      taxType: invoice?.summary?.taxType || "taxExclusive",
-      shipping: invoice?.summary?.shipping || 0,
-      adjustment: invoice?.summary?.adjustment || 0,
       selectedItems: invoice?.selectedItems || {},
+      summary: invoice?.summary || {
+        adjustment: 0,
+        shipping: 0,
+        subTotal: 0,
+        taxes: [],
+        totalAmount: 0,
+        totalTax: 0,
+        taxType: "taxExclusive",
+      },
     },
   });
   const {
@@ -76,12 +82,12 @@ function EditInvoice(props) {
       //invoice is being updated-submit only the changed values
       formValues = getDirtyFields(dirtyFields, formValues);
     }
-    console.log({ formValues });
+    // console.log({ formValues });
 
     //submit the data
   }
 
-  console.log({ customers, items, paymentTerms, loading });
+  // console.log({ customers, items, paymentTerms, loading });
 
   return loading ? (
     <SkeletonLoader />

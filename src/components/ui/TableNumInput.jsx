@@ -3,7 +3,7 @@ import { useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 
 function TableNumInput(props) {
-  const { name, min, max, defaultValue, loading, rules } = props;
+  const { name, min, max, defaultValue, isReadOnly, isDisabled, rules } = props;
   const { register, setValue, watch } = useFormContext();
 
   function handleChange(value) {
@@ -20,7 +20,8 @@ function TableNumInput(props) {
       max={max}
       defaultValue={defaultValue || 0}
       size="sm"
-      isReadOnly={loading}
+      isReadOnly={isReadOnly}
+      isDisabled={isDisabled}
     >
       <NumberInputField
         minW="90px"
@@ -41,7 +42,8 @@ TableNumInput.propTypes = {
   min: PropTypes.number,
   max: PropTypes.number,
   defaultValue: PropTypes.number,
-  loading: PropTypes.bool.isRequired,
+  isReadOnly: PropTypes.bool,
+  isDisabled: PropTypes.bool,
   rules: PropTypes.shape({
     required: PropTypes.shape({
       value: PropTypes.bool,

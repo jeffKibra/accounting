@@ -10,7 +10,8 @@ import SkeletonLoader from "../../../components/ui/SkeletonLoader";
 import Empty from "../../../components/ui/Empty";
 
 import SalesReceiptForm from "../../../components/forms/SalesReceipts/SalesReceiptForm";
-import SaleItemsForm from "../../../components/forms/Sales/SaleItemsForm";
+import EditSale from "../Sales/EditSale";
+// import SaleItemsForm from "../../../components/forms/Sales/SaleItemsForm";
 
 function EditSalesReceipt(props) {
   const {
@@ -36,7 +37,7 @@ function EditSalesReceipt(props) {
         steps={[
           {
             label: "Add Items",
-            content: <SaleItemsForm />,
+            content: <EditSale />,
           },
           {
             label: "Payment Details",

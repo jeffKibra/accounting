@@ -43,9 +43,8 @@ function SelectItemForm(props) {
   }, [unregister, register]);
 
   useEffect(() => {
-    //set default values
+    //if we have an item to edit-set default values
     if (item) {
-      console.log("item available", item);
       setValue("editItem.itemId", item.itemId);
       setValue("editItem.rate", item.rate);
       setValue("editItem.quantity", item.quantity);
@@ -93,17 +92,23 @@ function SelectItemForm(props) {
               required: { value: true, message: "*Required" },
             })}
           >
-            {Object.values(itemsObject).map((item, i) => {
-              const { name, variant, itemId, added } = item;
-
-              if (added) {
+            {Object.values(itemsObject).map((originalItem, i) => {
+              const { name, variant, itemId, added } = originalItem;
+              /**
+               * to return a field:
+               * 1. if there is and itemToEdit and current item is similar to itemToEdit
+               * 2. return all field not marked as added if there is no itemToEdit
+               */
+              if ((item && item.itemId === itemId) || (!item && !added)) {
+                return (
+                  <option key={i} value={itemId}>
+                    {name} - {variant}
+                  </option>
+                );
+              } else {
+                //hide fields otherwise
                 return null;
               }
-              return (
-                <option key={i} value={itemId}>
-                  {name} - {variant}
-                </option>
-              );
             })}
           </Select>
           <FormErrorMessage>
