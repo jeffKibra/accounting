@@ -1,15 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  TableContainer,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Tr,
-  VisuallyHidden,
-  NumberInput,
-  NumberInputField,
-} from "@chakra-ui/react";
+import { TableContainer, Table, Tbody, Td, Th, Tr } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 import { Controller, useFormContext } from "react-hook-form";
 
@@ -18,12 +8,21 @@ import TableNumInput from "../../ui/TableNumInput";
 function SaleSummaryTable(props) {
   const { summary, loading } = props;
   const { taxes } = summary;
+  const { control, getValues, watch, setValue } = useFormContext();
 
-  const { control, setValue, watch } = useFormContext();
+  const [shipping, setShipping] = useState(getValues("summary.shipping") || 0);
+  const [adjustment, setAdjustment] = useState(
+    getValues("summary.adjustment") || 0
+  );
+
+  function updateShipping() {
+    setShipping(getValues("summary.shipping"));
+  }
+  function updateAdjustment() {
+    setAdjustment(getValues("summary.adjustment"));
+  }
 
   const taxType = watch("summary.taxType");
-  const shipping = watch("summary.shipping");
-  const adjustment = watch("summary.adjustment");
   /**
    * update summary values
    */
@@ -82,6 +81,7 @@ function SaleSummaryTable(props) {
                 name="summary.shipping"
                 min={0}
                 isReadOnly={loading}
+                onBlur={updateShipping}
               />
             </Th>
           </Tr>
@@ -102,50 +102,36 @@ function SaleSummaryTable(props) {
           <Tr>
             <Td>Adjustments </Td>
             <Th w="16%" isNumeric>
-              <Controller
+              <TableNumInput
+                onBlur={updateAdjustment}
                 name="summary.adjustment"
-                control={control}
-                render={({ field: { onBlur, value, ref, onChange } }) => {
-                  function updateValue(val) {
-                    console.log({ val });
-                    onChange(val);
-
-                    onBlur();
-                  }
-
-                  return <OnBlurNumInput updateValue={updateValue} />;
-                }}
+                isReadOnly={loading}
               />
-              {/* <TableNumInput name="summary.adjustment" isReadOnly={loading} /> */}
             </Th>
           </Tr>
 
-          {/* <VisuallyHidden>
-            {/**
-             * add totalTax to form but hide from view
-             */}
-          {/* <Controller
-              name="summary.totalTax"
-              control={control}
-              rules={{
-                required: { value: true, message: "Required" },
-                min: { value: 0, message: "Value should be a positive number" },
-              }}
-              render={() => <></>}
-            />
-          </VisuallyHidden> */}
+          {/**
+           * add totalTax to form but hide from view-returns nothing
+           */}
+          <Controller
+            name="summary.totalTax"
+            control={control}
+            rules={{
+              required: { value: true, message: "Required" },
+              min: { value: 0, message: "Value should be a positive number" },
+            }}
+            render={() => <></>}
+          />
 
-          {/* <VisuallyHidden>
-            {/**
-             * add taxes to form but hide from view
-             */}
-          {/* <Controller
-              name="summary.taxes"
-              control={control}
-              rules={{ required: { value: true, message: "Required" } }}
-              render={() => <></>}
-            />
-          </VisuallyHidden> */}
+          {/**
+           * add taxes to form but hide from view-returns nothing
+           */}
+          <Controller
+            name="summary.taxes"
+            control={control}
+            rules={{ required: { value: true, message: "Required" } }}
+            render={() => <></>}
+          />
 
           <Tr>
             <Th>Total (KES)</Th>
@@ -182,50 +168,11 @@ SaleSummaryTable.propTypes = {
         totalTax: PropTypes.number,
       })
     ),
-    totalTaxes: PropTypes.number,
+    totalTax: PropTypes.number,
   }),
-  taxType: PropTypes.string.isRequired,
 };
 
 export default SaleSummaryTable;
-
-function OnBlurNumInput(props) {
-  const { updateValue } = props;
-  const [value, setValue] = useState(0);
-
-  function handleChange(inputValue) {
-    console.log({ inputValue });
-    setValue(inputValue);
-  }
-
-  function handleBlur() {
-    updateValue(value);
-  }
-
-  return (
-    <NumberInput
-      onChange={handleChange}
-      onBlur={handleBlur}
-      value={value}
-      min={0}
-      // defaultValue={defaultValue || 0}
-      size="sm"
-      // isReadOnly={isReadOnly}
-      // isDisabled={isDisabled}
-    >
-      <NumberInputField
-        minW="90px"
-        textAlign="right"
-        pl="8px!important"
-        pr="8px!important"
-        // {...register(name, {
-        //   valueAsNumber: true,
-        //   ...(rules ? rules : {}),
-        // })}
-      />
-    </NumberInput>
-  );
-}
 
 // <GridItem colSpan={7}>
 //           <FormControl isInvalid={errors.discount}>

@@ -11,6 +11,7 @@ import {
   Grid,
   GridItem,
   Container,
+  Heading,
 } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
@@ -25,14 +26,13 @@ import { useEffect } from "react";
 
 function InvoiceForm(props) {
   const { customers, paymentTerms, loading } = props;
-  const { nextStep } = useContext(StepperContext);
+  const { prevStep } = useContext(StepperContext);
 
   const {
     register,
     formState: { errors },
     setValue,
     watch,
-    trigger,
   } = useFormContext();
 
   const customerId = watch("customer");
@@ -68,28 +68,14 @@ function InvoiceForm(props) {
     }
   }, [paymentTermId, invoiceDate, paymentTerms, setValue]);
 
-  async function next() {
-    await trigger([
-      "customer",
-      "orderNumber",
-      "invoiceDate",
-      "paymentTerm",
-      "dueDate",
-      "subject",
-      "customerNotes",
-    ]);
-
-    const fieldsValid = Object.keys(errors).length === 0;
-
-    if (fieldsValid) {
-      //move to the next step if all fields are valid
-      nextStep();
-    }
-  }
-
   return (
     <Container py={4}>
       <Grid rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
+        <GridItem colSpan={12}>
+          <Heading size="sm">
+            Total: {Number(watch("summary.totalAmount")).toLocaleString()}
+          </Heading>
+        </GridItem>
         <GridItem colSpan={[12, 6]}>
           <FormControl
             isDisabled={loading}
@@ -100,6 +86,7 @@ function InvoiceForm(props) {
             <CustomSelect
               name="customer"
               placeholder="--select customer--"
+              isDisabled={loading}
               rules={{ required: { value: true, message: "*Required!" } }}
               options={customers.map((customer) => {
                 const { customerId, displayName } = customer;
@@ -181,12 +168,17 @@ function InvoiceForm(props) {
 
       <Flex justify="space-evenly" mt={4}>
         <Button
-          onClick={next}
-          isLoading={loading}
-          colorScheme="cyan"
+          onClick={prevStep}
+          isDisabled={loading}
           type="button"
+          colorScheme="cyan"
+          variant="outline"
         >
-          next
+          back
+        </Button>
+
+        <Button isLoading={loading} colorScheme="cyan" type="submit">
+          save
         </Button>
       </Flex>
     </Container>

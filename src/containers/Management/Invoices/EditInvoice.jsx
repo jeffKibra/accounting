@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Container } from "@chakra-ui/react";
 import { useForm, FormProvider } from "react-hook-form";
 
+import formats from "utils/formats";
 import { confirmFutureDate } from "utils/dates";
 import { useToasts, useGetSalesProps } from "hooks";
 import { getDirtyFields } from "utils/functions";
@@ -68,7 +69,7 @@ function EditInvoice(props) {
     if (!customer) {
       return toasts.error("Selected an Invalid customer");
     }
-    formValues.customer = customer;
+    formValues.customer = formats.formatCustomerData(customer);
 
     const paymentTerm = paymentTerms.find(
       (term) => term.value === paymentTermId
@@ -85,6 +86,7 @@ function EditInvoice(props) {
     // console.log({ formValues });
 
     //submit the data
+    handleFormSubmit(formValues);
   }
 
   // console.log({ customers, items, paymentTerms, loading });
@@ -120,7 +122,7 @@ function EditInvoice(props) {
                   <InvoiceForm
                     customers={customers}
                     paymentTerms={paymentTerms}
-                    loading={loading}
+                    loading={updating}
                   />
                 </Container>
               ),

@@ -3,7 +3,16 @@ import { useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 
 function TableNumInput(props) {
-  const { name, min, max, defaultValue, isReadOnly, isDisabled, rules } = props;
+  const {
+    name,
+    min,
+    max,
+    defaultValue,
+    isReadOnly,
+    isDisabled,
+    rules,
+    onBlur,
+  } = props;
   const { register, setValue, watch } = useFormContext();
 
   function handleChange(value) {
@@ -15,6 +24,7 @@ function TableNumInput(props) {
   return (
     <NumberInput
       onChange={handleChange}
+      onBlur={onBlur}
       value={numvalue}
       min={min}
       max={max}
@@ -44,6 +54,7 @@ TableNumInput.propTypes = {
   defaultValue: PropTypes.number,
   isReadOnly: PropTypes.bool,
   isDisabled: PropTypes.bool,
+  onBlur: PropTypes.func,
   rules: PropTypes.shape({
     required: PropTypes.shape({
       value: PropTypes.bool,

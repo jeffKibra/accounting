@@ -106,16 +106,16 @@ export default function EditSale(props) {
 
   //function to stop editing
   function stopEditing() {
-    //close editor
+    //close editor first
     onClose();
     //set item to edit to be null
-    setItemToEdit({
-      index: null,
-      item: null,
-    });
+    setItemToEdit(null);
   }
 
   function updateItem(editItem) {
+    //stop editing-first activity-close the editor firt to avoid ui lagging
+    stopEditing();
+    //process the data
     const { item, itemId, rate, quantity } = editItem;
     //formulate selected items data
     const itemData = getSalesItemData({ itemId, rate, quantity }, item);
@@ -127,10 +127,7 @@ export default function EditSale(props) {
       markItemAsAdded(itemId);
     }
     //update the field value with item data
-    setValue(`selectedItems.${itemId}`, { ...itemData });
-
-    //stop editing-last activity-function closes the editor
-    stopEditing();
+    setValue(`selectedItems.${itemId}`, { ...itemData }, { shouldDirty: true });
   }
 
   function removeItem(itemId) {
@@ -145,7 +142,6 @@ export default function EditSale(props) {
    */
   function next() {
     const selectedItems = getValues("selectedItems");
-    console.log({ selectedItems });
 
     const fieldsValid =
       (selectedItems &&
@@ -159,7 +155,7 @@ export default function EditSale(props) {
     //   return toasts.error("Total Sale Amount should be greater than ZERO(0)!");
     // }
 
-    // nextStep();
+    nextStep();
   }
   /**
    * selected items is a map-convert to array for use in table and summary
@@ -187,13 +183,11 @@ export default function EditSale(props) {
       selectedItems = Object.values(formItems).filter((item) => item);
     }
 
-    console.log("generating summary", formItemsString);
+    console.log("generating summary");
     const summary = getSaleSummary(selectedItems);
 
     return { summary, selectedItems };
   }, [formItemsString]);
-
-  // console.log(watch());
 
   return (
     <VStack mt={1}>

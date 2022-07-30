@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   FormControl,
   FormLabel,
@@ -13,11 +13,14 @@ import { RiAddLine } from "react-icons/ri";
 import { useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 
+import { useToasts } from "hooks";
 import NumInput from "../../ui/NumInput";
 
 function SelectItemForm(props) {
   const { itemsObject, handleFormSubmit, item, onClose } = props;
+  const [loading, setLoading] = useState(false);
 
+  const toasts = useToasts();
   const {
     register,
     formState: { errors },
@@ -63,6 +66,8 @@ function SelectItemForm(props) {
   }, [itemId, itemsObject, setValue]);
 
   async function submitForm() {
+    //start a loading spinner incase the promise takes longer to resolve
+    setLoading(true);
     //trigger validation
     await trigger([
       "editItem.itemId",
@@ -70,14 +75,18 @@ function SelectItemForm(props) {
       "editItem.rate",
       "editItem.quantity",
     ]);
-    const fieldsValid = Object.keys(errors).length === 0;
+    const fieldsValid = !errors.editItem;
     //only submit the data when there are no errors
     if (fieldsValid) {
       //get data from form
       const editItem = getValues("editItem");
       //submit data- function will close the editor
       handleFormSubmit(editItem);
+    } else {
+      toasts.error("Please provide all the fields marked as required!");
     }
+    //stop loading
+    setLoading(false);
   }
 
   return (
@@ -160,7 +169,7 @@ function SelectItemForm(props) {
       <GridItem colSpan={12}>
         <Flex my={4} w="full" justify="flex-end">
           {onClose && (
-            <Button type="button" mr={2} onClick={onClose}>
+            <Button isLoading={loading} type="button" mr={2} onClick={onClose}>
               CLOSE
             </Button>
           )}
@@ -169,6 +178,7 @@ function SelectItemForm(props) {
             type="button"
             rightIcon={<RiAddLine />}
             colorScheme="cyan"
+            isLoading={loading}
           >
             ADD
           </Button>
