@@ -1,11 +1,13 @@
 import { SalesItem } from "types";
 
 export default function formatSaleItems(items: SalesItem[]) {
-  return items.map((item) => {
+  return items.map((saleItem) => {
     const {
       itemRateTotal,
-      salesAccount: { accountId },
-    } = item;
+      item: {
+        salesAccount: { accountId },
+      },
+    } = saleItem;
 
     return { accountId, amount: itemRateTotal };
   });

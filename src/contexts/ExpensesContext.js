@@ -16,7 +16,7 @@ const initialState = {
   summary: {
     taxes: [],
     subTotal: 0,
-    totalTaxes: 0,
+    totalTax: 0,
     totalAmount: 0,
   },
   removeItem: () => {},
@@ -135,7 +135,7 @@ function Provider(props) {
         return { ...tax, totalTax };
       });
 
-    const totalTaxes = expenseTaxes.reduce((sum, taxGroup) => {
+    const totalTax = expenseTaxes.reduce((sum, taxGroup) => {
       return sum + taxGroup.totalTax;
     }, 0);
 
@@ -144,12 +144,12 @@ function Provider(props) {
     }, 0);
 
     const totalAmount =
-      taxType === "taxInclusive" ? subTotal : subTotal + +totalTaxes;
+      taxType === "taxInclusive" ? subTotal : subTotal + +totalTax;
 
     return {
       expenseTaxes,
       subTotal: +subTotal.toFixed(2),
-      totalTaxes: +totalTaxes.toFixed(2),
+      totalTax: +totalTax.toFixed(2),
       totalAmount: +totalAmount.toFixed(2),
     };
   }, [items, taxType]);

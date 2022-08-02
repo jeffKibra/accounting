@@ -10,7 +10,7 @@ function ViewSaleSummaryTable(props) {
     totalAmount,
     shipping,
     adjustment,
-    totalTaxes,
+    totalTax,
     taxType,
   } = summary;
   let balance = totalAmount - +paymentsTotal;
@@ -23,7 +23,7 @@ function ViewSaleSummaryTable(props) {
             <Td isNumeric>Sub Total</Td>
             <Td isNumeric>
               {Number(
-                taxType === "taxInclusive" ? subTotal + totalTaxes : subTotal
+                taxType === "taxInclusive" ? subTotal + totalTax : subTotal
               ).toLocaleString()}
             </Td>
           </Tr>
@@ -108,7 +108,7 @@ ViewSaleSummaryTable.propTypes = {
     ),
     shipping: PropTypes.number.isRequired,
     adjustment: PropTypes.number.isRequired,
-    totalTaxes: PropTypes.number,
+    totalTax: PropTypes.number,
     totalAmount: PropTypes.number,
     taxType: PropTypes.string.isRequired,
   }),

@@ -55,7 +55,7 @@ export default async function updateExpense(
   console.log({ data });
   const { accountId: paymentAccountId } = paymentAccount;
   const { value: paymentModeId } = paymentMode;
-  const { totalTaxes, totalAmount } = summary;
+  const { totalTax, totalAmount } = summary;
   /**
    * check vendor
    */
@@ -69,7 +69,7 @@ export default async function updateExpense(
 
   const {
     vendor: currentVendor,
-    summary: { totalTaxes: currentTaxes, totalAmount: currentTotal },
+    summary: { totalTax: currentTaxes, totalAmount: currentTotal },
     paymentAccount: { accountId: currentPaymentAccountId },
     paymentMode: { value: currentPaymentModeId },
   } = currentExpense;
@@ -116,7 +116,7 @@ export default async function updateExpense(
     }),
     {
       accountId: "tax_payable",
-      amount: totalTaxes,
+      amount: totalTax,
     },
     {
       accountId: paymentAccountId,

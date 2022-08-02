@@ -32,7 +32,7 @@ export default function getSaleSummary(selectedItems: SalesItem[]) {
         const currentTax = taxes[taxId];
 
         if (currentTax) {
-          //if tax is available in the tax summary, increment its totalTaxes value
+          //if tax is available in the tax summary, increment its totalTax value
           newTaxes[taxId] = {
             ...currentTax,
             totalTax: currentTax.totalTax + itemTaxTotal,

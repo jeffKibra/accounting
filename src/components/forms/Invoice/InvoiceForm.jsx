@@ -1,24 +1,19 @@
-import { useContext, useCallback } from "react";
+import { useCallback } from "react";
 import {
-  Flex,
   FormControl,
   FormLabel,
   Input,
   Textarea,
   FormHelperText,
   FormErrorMessage,
-  Button,
   Grid,
   GridItem,
-  Container,
-  Heading,
+  Box,
 } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 
 import { deriveDueDate } from "../../../utils/invoices";
-
-import StepperContext from "../../../contexts/StepperContext";
 
 import CustomSelect from "../../ui/CustomSelect";
 import CustomDatePicker from "../../ui/CustomDatePicker";
@@ -26,7 +21,6 @@ import { useEffect } from "react";
 
 function InvoiceForm(props) {
   const { customers, paymentTerms, loading } = props;
-  const { prevStep } = useContext(StepperContext);
 
   const {
     register,
@@ -69,14 +63,9 @@ function InvoiceForm(props) {
   }, [paymentTermId, invoiceDate, paymentTerms, setValue]);
 
   return (
-    <Container py={4}>
+    <Box py={4}>
       <Grid rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
-        <GridItem colSpan={12}>
-          <Heading size="sm">
-            Total: {Number(watch("summary.totalAmount")).toLocaleString()}
-          </Heading>
-        </GridItem>
-        <GridItem colSpan={[12, 6]}>
+        <GridItem colSpan={[12, 6, 4]}>
           <FormControl
             isDisabled={loading}
             isRequired
@@ -98,12 +87,13 @@ function InvoiceForm(props) {
           </FormControl>
         </GridItem>
 
-        <GridItem colSpan={[12, 6]}>
+        <GridItem colSpan={[12, 6, 4]}>
           <FormControl isDisabled={loading} isInvalid={errors.orderNumber}>
             <FormLabel htmlFor="orderNumber">Order Number</FormLabel>
             <Input id="orderNumber" {...register("orderNumber")} />
           </FormControl>
         </GridItem>
+        <GridItem colSpan={[0, null, 4]}></GridItem>
 
         <GridItem colSpan={[12, 4]}>
           <FormControl
@@ -145,7 +135,7 @@ function InvoiceForm(props) {
           </FormControl>
         </GridItem>
 
-        <GridItem colSpan={[12, 6]}>
+        <GridItem colSpan={[12, 6, 4]}>
           <FormControl isDisabled={loading} isInvalid={errors.subject}>
             <FormLabel htmlFor="subject">Subject</FormLabel>
             <Input {...register("subject")} />
@@ -156,17 +146,20 @@ function InvoiceForm(props) {
           </FormControl>
         </GridItem>
 
-        <GridItem colSpan={[12, 6]}>
+        <GridItem colSpan={[12, 6, 4]}>
           <FormControl isDisabled={loading} isInvalid={errors.customerNotes}>
             <FormLabel htmlFor="customerNotes">Customer Notes</FormLabel>
-            <Textarea id="customerNotes" {...register("customerNotes")} />
+            <Textarea
+              placeholder="Include a note for the customer."
+              id="customerNotes"
+              {...register("customerNotes")}
+            />
             <FormErrorMessage>{errors.customerNotes?.message}</FormErrorMessage>
-            <FormHelperText>Include a note for the customer.</FormHelperText>
           </FormControl>
         </GridItem>
       </Grid>
 
-      <Flex justify="space-evenly" mt={4}>
+      {/* <Flex justify="space-evenly" mt={4}>
         <Button
           onClick={prevStep}
           isDisabled={loading}
@@ -180,8 +173,8 @@ function InvoiceForm(props) {
         <Button isLoading={loading} colorScheme="cyan" type="submit">
           save
         </Button>
-      </Flex>
-    </Container>
+      </Flex> */}
+    </Box>
   );
 }
 

@@ -2,7 +2,6 @@ import { Timestamp } from "firebase/firestore";
 import {
   Account,
   CustomerSummary,
-  Customer,
   OrgSummary,
   PaymentMode,
   SalesItem,
@@ -23,7 +22,7 @@ interface Meta {
 
 export interface SalesReceiptForm {
   account: Account;
-  customer: Customer;
+  customer: CustomerSummary;
   customerNotes: string;
   paymentMode: PaymentMode;
   receiptDate: Date;
@@ -32,12 +31,11 @@ export interface SalesReceiptForm {
   summary: SalesSummary;
 }
 
-export interface SalesReceiptFromDb
-  extends Omit<SalesReceiptForm, "customer">,
-    Meta {
-  customer: CustomerSummary;
+export interface SalesReceipt extends SalesReceiptForm, Meta {
+  salesReceiptId: string;
 }
 
-export interface SalesReceipt extends SalesReceiptFromDb {
-  salesReceiptId: string;
+export interface SalesReceiptFromDb
+  extends Omit<SalesReceipt, "salesReceiptId"> {
+  salesReceiptId?: string;
 }

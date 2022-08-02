@@ -1,32 +1,36 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { TableContainer, Table, Tbody, Td, Th, Tr } from "@chakra-ui/react";
 import PropTypes from "prop-types";
 import { Controller, useFormContext } from "react-hook-form";
 
+import { getSaleSummary } from "utils/sales";
 import TableNumInput from "../../ui/TableNumInput";
 
 function SaleSummaryTable(props) {
-  const { summary, loading } = props;
-  const { taxes } = summary;
+  const { selectedItems, loading, summary } = props;
   const { control, getValues, watch, setValue } = useFormContext();
 
-  const [shipping, setShipping] = useState(getValues("summary.shipping") || 0);
-  const [adjustment, setAdjustment] = useState(
-    getValues("summary.adjustment") || 0
-  );
-
-  function updateShipping() {
-    setShipping(getValues("summary.shipping"));
-  }
-  function updateAdjustment() {
-    setAdjustment(getValues("summary.adjustment"));
+  const [updateTracker, setUpdateTracker] = useState(0);
+  function triggerUpdateTracker() {
+    //set a random value to trigger the update
+    setUpdateTracker(Math.random());
   }
 
   const taxType = watch("summary.taxType");
+
+  const { taxes } = summary;
+
   /**
    * update summary values
    */
   useEffect(() => {
+    /**
+     * retrieve current shipping and adjustment values from the form
+     */
+    const [shipping, adjustment] = getValues([
+      "summary.shipping",
+      "summary.adjustment",
+    ]);
     console.log("updating summary values");
     let { subTotal, totalTax, taxes } = summary;
     const newSubTotal = subTotal + totalTax;
@@ -48,9 +52,8 @@ function SaleSummaryTable(props) {
     });
     setValue("summary.totalAmount", totalAmount, {
       shouldDirty: true,
-      shouldValidate: true,
     });
-  }, [setValue, taxType, summary, shipping, adjustment]);
+  }, [setValue, taxType, summary, getValues, updateTracker]);
 
   return (
     <TableContainer>
@@ -81,7 +84,7 @@ function SaleSummaryTable(props) {
                 name="summary.shipping"
                 min={0}
                 isReadOnly={loading}
-                onBlur={updateShipping}
+                onBlur={triggerUpdateTracker}
               />
             </Th>
           </Tr>
@@ -103,7 +106,7 @@ function SaleSummaryTable(props) {
             <Td>Adjustments </Td>
             <Th w="16%" isNumeric>
               <TableNumInput
-                onBlur={updateAdjustment}
+                onBlur={triggerUpdateTracker}
                 name="summary.adjustment"
                 isReadOnly={loading}
               />
@@ -158,6 +161,7 @@ function SaleSummaryTable(props) {
 
 SaleSummaryTable.propTypes = {
   loading: PropTypes.bool.isRequired,
+  selectedItems: PropTypes.array.isRequired,
   summary: PropTypes.shape({
     subTotal: PropTypes.number,
     taxes: PropTypes.arrayOf(

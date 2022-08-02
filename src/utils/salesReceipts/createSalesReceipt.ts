@@ -40,7 +40,7 @@ export default async function createSalesReceipt(
   const { customerId } = customer;
   const { accountId } = account;
   const { value: paymentModeId } = paymentMode;
-  const { totalTaxes, adjustment, shipping, totalAmount } = summary;
+  const { totalTax, adjustment, shipping, totalAmount } = summary;
   console.log({ data });
 
   // console.log({ selectedItems });
@@ -50,8 +50,6 @@ export default async function createSalesReceipt(
     isSent: false,
     transactionType,
     org: formats.formatOrgData(org),
-    customer: formats.formatCustomerData(customer),
-    selectedItems: selectedItems,
   };
   const transactionDetails = {
     ...tDetails,
@@ -66,7 +64,7 @@ export default async function createSalesReceipt(
     ...formatSalesItems(selectedItems),
     { accountId: "shipping_charge", amount: shipping },
     { accountId: "other_charges", amount: adjustment },
-    { accountId: "tax_payable", amount: totalTaxes },
+    { accountId: "tax_payable", amount: totalTax },
     { accountId, amount: totalAmount },
   ];
   const { newAccounts } = getAccountsMapping([], allItems);

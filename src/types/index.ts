@@ -29,6 +29,7 @@ export type {
 export type { Tax, TaxForm, TaxFromDb } from "./tax";
 export type {
   SalesItem,
+  SelectedItem,
   SalesSummary,
   SalesTax,
   GroupedItems,

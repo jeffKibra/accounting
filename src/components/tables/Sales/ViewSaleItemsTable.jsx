@@ -88,10 +88,8 @@ function ViewSaleItemsTable(props) {
                 quantity,
                 itemRate,
                 itemTax,
-                discount,
-                discountType,
-                totalAmount,
-                totalTax,
+                itemRateTotal,
+                itemTaxTotal,
               } = item;
               return (
                 <Tr key={i}>
@@ -103,18 +101,12 @@ function ViewSaleItemsTable(props) {
                       taxType === "taxInclusive" ? itemRate + itemTax : itemRate
                     ).toLocaleString()}
                   </Td>
-                  {discounts && (
-                    <Td isNumeric>
-                      {Number(discount).toLocaleString()}
-                      {discountType === "%" && discountType}
-                    </Td>
-                  )}
 
                   <Td isNumeric>
                     {Number(
                       taxType === "taxInclusive"
-                        ? totalAmount + totalTax
-                        : totalAmount
+                        ? itemRateTotal + itemTaxTotal
+                        : itemRateTotal
                     ).toLocaleString()}
                   </Td>
                 </Tr>
@@ -142,7 +134,7 @@ ViewSaleItemsTable.propTypes = {
         }),
         PropTypes.string,
       ]),
-      totalAmount: PropTypes.number.isRequired,
+      itemRateTotal: PropTypes.number.isRequired,
       itemRate: PropTypes.number.isRequired,
       quantity: PropTypes.number.isRequired,
     })

@@ -5,13 +5,13 @@ import formats from "../../../utils/formats";
 
 function ExpenseSummaryTable(props) {
   const { summary } = props;
-  const { subTotal, expenseTaxes, totalAmount, totalTaxes } = summary;
+  const { subTotal, expenseTaxes, totalAmount, totalTax } = summary;
 
   return (
     <TableContainer>
       <Table size="sm">
         <Tbody>
-          {totalTaxes > 0 && (
+          {totalTax > 0 && (
             <Tr>
               <Td>Sub Total</Td>
               <Td isNumeric>{formats.formatCash(subTotal)}</Td>
@@ -52,7 +52,7 @@ ExpenseSummaryTable.propTypes = {
         totalTax: PropTypes.number,
       })
     ),
-    totalTaxes: PropTypes.number.isRequired,
+    totalTax: PropTypes.number.isRequired,
     totalAmount: PropTypes.number.isRequired,
   }),
 };

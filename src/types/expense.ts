@@ -13,7 +13,7 @@ export interface ExpenseSummary {
   expenseTaxes: [];
   subTotal: number;
   totalAmount: number;
-  totalTaxes: number;
+  totalTax: number;
 }
 
 export interface ExpenseFormData {

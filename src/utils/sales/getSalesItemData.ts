@@ -11,8 +11,18 @@ export default function getSalesItemData(
   item: Item
 ) {
   // console.log({ data });
-  const { rate, quantity, itemId } = salesItem;
-  const { salesTax, salesTaxType, salesAccount, name, variant } = item;
+  const { rate, quantity } = salesItem;
+  const {
+    createdAt,
+    createdBy,
+    modifiedAt,
+    modifiedBy,
+    status,
+    ...itemFormData
+  } = item;
+
+  const { salesTax, salesTaxType } = itemFormData;
+
   let itemRate = rate;
   let itemTax = 0;
 
@@ -34,11 +44,7 @@ export default function getSalesItemData(
   const itemTaxTotal = itemTax * quantity;
 
   const itemData: SalesItem = {
-    itemId,
-    name,
-    variant: variant || "",
-    salesAccount,
-    salesTaxType: salesTaxType || "",
+    item: { ...itemFormData },
     rate,
     quantity,
     itemRate: +itemRate.toFixed(2),

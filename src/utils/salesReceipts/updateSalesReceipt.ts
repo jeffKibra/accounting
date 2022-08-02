@@ -18,7 +18,6 @@ import {
 import { getAccountData, getAccountsMapping } from "../accounts";
 import { changePaymentMode, updatePaymentMode } from "../summaries";
 import { getSalesReceiptData } from ".";
-import formats from "../formats";
 import { getDateDetails } from "../dates";
 import { formatSalesItems } from "../sales";
 
@@ -40,7 +39,7 @@ export default async function updateSalesReceipt(
   const { accountId } = account;
   const { value: paymentModeId } = paymentMode;
   // console.log({ data });
-  const { totalTaxes, shipping, adjustment, totalAmount } = summary;
+  const { totalTax, shipping, adjustment, totalAmount } = summary;
 
   const [currentSalesReceipt] = await Promise.all([
     getSalesReceiptData(transaction, orgId, salesReceiptId),
@@ -66,7 +65,7 @@ export default async function updateSalesReceipt(
       accountId: "other_charges",
     },
     {
-      amount: currentSummary.totalTaxes,
+      amount: currentSummary.totalTax,
       accountId: "tax_payable",
     },
   ];
@@ -81,7 +80,7 @@ export default async function updateSalesReceipt(
       accountId: "other_charges",
     },
     {
-      amount: totalTaxes,
+      amount: totalTax,
       accountId: "tax_payable",
     },
   ];
@@ -119,14 +118,8 @@ export default async function updateSalesReceipt(
   const paymentAccountEntries = [paymentAccountEntry];
   //currentSummary
 
-  const tDetails = {
-    ...data,
-    customer: formats.formatCustomerData(customer),
-    selectedItems: selectedItems,
-  };
-
   const transactionDetails = {
-    ...tDetails,
+    ...data,
     salesReceiptId,
   };
   /**
@@ -335,7 +328,7 @@ export default async function updateSalesReceipt(
   const salesReceiptRef = doc(salesReceiptsCollection, salesReceiptId);
   // console.log({ tDetails });
   transaction.update(salesReceiptRef, {
-    ...tDetails,
+    ...data,
     // classical: "plus",
     modifiedBy: email,
     modifiedAt: serverTimestamp(),

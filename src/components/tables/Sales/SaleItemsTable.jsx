@@ -32,7 +32,6 @@ function SaleItemsTable(props) {
         itemTaxTotal,
         itemRate,
         itemTax,
-        itemId,
       } = item;
 
       const rate = taxType === "taxInclusive" ? itemRate + itemTax : itemRate;
@@ -51,7 +50,7 @@ function SaleItemsTable(props) {
           <Stack direction="row" spacing={1}>
             <IconButton
               size="xs"
-              onClick={() => handleEdit(itemId)}
+              onClick={() => handleEdit(index)}
               colorScheme="cyan"
               icon={<RiEdit2Line />}
               title="Edit"
@@ -60,7 +59,7 @@ function SaleItemsTable(props) {
 
             <IconButton
               size="xs"
-              onClick={() => handleDelete(itemId)}
+              onClick={() => handleDelete(index)}
               colorScheme="red"
               icon={<RiDeleteBin4Line />}
               title="Delete"

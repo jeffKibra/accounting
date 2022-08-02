@@ -140,7 +140,7 @@ ViewInvoice.propTypes = {
       adjustment: PropTypes.number.isRequired,
       totalAmount: PropTypes.number.isRequired,
       subTotal: PropTypes.number.isRequired,
-      totalTaxes: PropTypes.number.isRequired,
+      totalTax: PropTypes.number.isRequired,
       taxes: PropTypes.array.isRequired,
     }),
     invoiceDate: PropTypes.instanceOf(Date).isRequired,

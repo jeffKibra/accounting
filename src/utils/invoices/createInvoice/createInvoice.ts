@@ -40,7 +40,7 @@ export default function createInvoice(
   const { orgId } = org;
   const { email } = userProfile;
   const { customer, summary, selectedItems } = data;
-  const { totalAmount, shipping, adjustment, totalTaxes } = summary;
+  const { totalAmount, shipping, adjustment, totalTax } = summary;
   const { customerId } = customer;
   /**
    * accounts details
@@ -59,8 +59,6 @@ export default function createInvoice(
     isSent: false,
     transactionType,
     org: formats.formatOrgData(org),
-    customer: formats.formatCustomerData(customer),
-    selectedItems,
   };
   const transactionDetails = {
     ...tDetails,
@@ -76,7 +74,7 @@ export default function createInvoice(
     ...formatSalesItems(selectedItems),
     { accountId: "shipping_charge", amount: shipping || 0 },
     { accountId: "other_charges", amount: adjustment || 0 },
-    { accountId: "tax_payable", amount: totalTaxes || 0 },
+    { accountId: "tax_payable", amount: totalTax || 0 },
     { accountId: "accounts_receivable", amount: totalAmount },
   ];
   const { newAccounts } = getAccountsMapping([], allItems);

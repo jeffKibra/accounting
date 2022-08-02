@@ -1,202 +1,271 @@
-import { useEffect, useState } from "react";
 import {
   FormControl,
   FormLabel,
-  Select,
   FormErrorMessage,
   Button,
   Flex,
   Grid,
   GridItem,
+  IconButton,
+  Heading,
+  Show,
+  Divider,
+  Stack,
 } from "@chakra-ui/react";
-import { RiAddLine } from "react-icons/ri";
-import { useFormContext } from "react-hook-form";
+import { RiDeleteBinLine } from "react-icons/ri";
+import { useFormContext, Controller } from "react-hook-form";
 import PropTypes from "prop-types";
 
-import { useToasts } from "hooks";
-import NumInput from "../../ui/NumInput";
+import TableNumInput from "components/ui/TableNumInput";
+import ControlledSelect from "components/ui/ControlledSelect";
+
+function CustomLabel({ children }) {
+  return (
+    <FormLabel fontSize="smaller" mb={0}>
+      {children}
+    </FormLabel>
+  );
+}
 
 function SelectItemForm(props) {
-  const { itemsObject, handleFormSubmit, item, onClose } = props;
-  const [loading, setLoading] = useState(false);
-
-  const toasts = useToasts();
   const {
-    register,
+    itemsObject,
+    index,
+    field,
+    updateFieldOnBlur,
+    handleItemChange,
+    removeItem,
+  } = props;
+
+  const {
     formState: { errors },
     watch,
-    setValue,
     getValues,
-    unregister,
-    trigger,
+    control,
   } = useFormContext();
 
-  const itemId = watch("editItem.itemId");
-
-  useEffect(() => {
-    //register an item field to hold the original item data
-    register("editItem.item", {
-      required: { value: true, message: "Item is Required" },
-    });
-
-    return () => {
-      // unregister(["editItem.itemId", "editItem.rate", "editItem.quantity"]);
-      unregister("editItem");
-    };
-  }, [unregister, register]);
-
-  useEffect(() => {
-    //if we have an item to edit-set default values
-    if (item) {
-      setValue("editItem.itemId", item.itemId);
-      setValue("editItem.rate", item.rate);
-      setValue("editItem.quantity", item.quantity);
-    }
-  }, [item, setValue]);
-
-  useEffect(() => {
-    if (itemId) {
-      const selectedItem = itemsObject[itemId];
-      const { sellingPrice } = selectedItem;
-
-      //set values of item and rate and index
-      setValue("editItem.item", selectedItem);
-      setValue("editItem.rate", sellingPrice);
-    }
-  }, [itemId, itemsObject, setValue]);
-
-  async function submitForm() {
-    //start a loading spinner incase the promise takes longer to resolve
-    setLoading(true);
-    //trigger validation
-    await trigger([
-      "editItem.itemId",
-      "editItem.item",
-      "editItem.rate",
-      "editItem.quantity",
-    ]);
-    const fieldsValid = !errors.editItem;
-    //only submit the data when there are no errors
-    if (fieldsValid) {
-      //get data from form
-      const editItem = getValues("editItem");
-      //submit data- function will close the editor
-      handleFormSubmit(editItem);
-    } else {
-      toasts.error("Please provide all the fields marked as required!");
-    }
-    //stop loading
-    setLoading(false);
-  }
+  const taxType = watch("summary.taxType");
+  const selectedItem = getValues(`selectedItems.${index}.item`);
 
   return (
-    <Grid rowGap={2} columnGap={2} templateColumns="repeat(12, 1fr)">
-      <GridItem colSpan={12}>
-        <FormControl isRequired isInvalid={errors.editItem?.itemId}>
-          <FormLabel htmlFor="itemId">Item</FormLabel>
-          <Select
-            id="itemId"
-            placeholder="---select item---"
-            {...register("editItem.itemId", {
-              required: { value: true, message: "*Required" },
-            })}
-          >
-            {Object.values(itemsObject).map((originalItem, i) => {
-              const { name, variant, itemId, added } = originalItem;
-              /**
-               * to return a field:
-               * 1. if there is and itemToEdit and current item is similar to itemToEdit
-               * 2. return all field not marked as added if there is no itemToEdit
-               */
-              if ((item && item.itemId === itemId) || (!item && !added)) {
+    <Stack direction="column" mt="0px!important">
+      <Stack w="full" direction={["column", null, "row"]}>
+        <Grid
+          key={field.id}
+          rowGap={2}
+          columnGap={2}
+          templateColumns="repeat(12, 1fr)"
+          flexGrow={1}
+        >
+          <GridItem colSpan={[12, 6]}>
+            <Controller
+              name={`selectedItems.${index}.item`}
+              control={control}
+              shouldUnregister={true}
+              rules={{
+                required: { value: true, message: "*Required" },
+              }}
+              render={({
+                field: { value, onChange, onBlur },
+                fieldState: { error },
+              }) => {
                 return (
-                  <option key={i} value={itemId}>
-                    {name} - {variant}
-                  </option>
+                  <FormControl isRequired isInvalid={!!error?.message}>
+                    <CustomLabel htmlFor="item">Item</CustomLabel>
+                    <ControlledSelect
+                      onChange={(itemId) =>
+                        handleItemChange(itemId, index, onChange)
+                      }
+                      value={value?.itemId || ""}
+                      id={field.id}
+                      placeholder="---select item---"
+                      onBlur={onBlur}
+                      allowClearSelection={false}
+                      options={Object.values(itemsObject)
+                        .map((originalItem, i) => {
+                          const { name, variant, itemId, added } = originalItem;
+                          /**
+                           * to return a field:
+                           * 1. if there is and itemToEdit and current item is similar to itemToEdit
+                           * 2. return all field not marked as added if there is no itemToEdit
+                           */
+                          if (value?.itemId === itemId || !added) {
+                            return {
+                              name: `${name} - ${variant}`,
+                              value: itemId,
+                            };
+                          } else {
+                            //hide fields otherwise
+                            return null;
+                          }
+                        })
+                        .filter((item) => item)}
+                    />
+
+                    <FormErrorMessage>
+                      {errors.editItem?.item?.message}
+                    </FormErrorMessage>
+                  </FormControl>
                 );
-              } else {
-                //hide fields otherwise
-                return null;
-              }
-            })}
-          </Select>
-          <FormErrorMessage>
-            {errors.editItem?.itemId?.message}
-          </FormErrorMessage>
-          <FormErrorMessage>{errors.editItem?.item?.message}</FormErrorMessage>
-        </FormControl>
-      </GridItem>
+              }}
+            />
+          </GridItem>
 
-      <GridItem colSpan={12}>
-        <FormControl isInvalid={errors.editItem?.rate}>
-          <FormLabel htmlFor="rate">Rate</FormLabel>
-          <NumInput
-            name="editItem.rate"
-            rules={{
-              required: { value: true, message: "*Required" },
-              min: {
-                value: 1,
-                message: "Value should be greater than zero(0)!",
-              },
-            }}
-            min={0}
-          />
-          <FormErrorMessage>{errors.editItem?.rate?.message}</FormErrorMessage>
-        </FormControl>
-      </GridItem>
+          <GridItem colSpan={[6, null, 3]}>
+            <Controller
+              name={`selectedItems.${index}.salesTax`}
+              control={control}
+              shouldUnregister={true}
+              rules={{ required: { value: true, message: "*Required" } }}
+              render={({ field: { name, onChange, value, onBlur } }) => {
+                function handleTaxChange(taxId) {
+                  // console.log({ taxId });
+                  //todo: handle tax change for sale
+                }
 
-      <GridItem colSpan={12}>
-        <FormControl isInvalid={errors.editItem?.quantity}>
-          <FormLabel htmlFor="quantity">Quantity</FormLabel>
-          <NumInput
-            name="editItem.quantity"
-            rules={{
-              required: { value: true, message: "*Required" },
-              min: {
-                value: 1,
-                message: "Value should be greater than zero(0)!",
-              },
-            }}
-            defaultValue={1}
-            min={1}
-          />
-          <FormErrorMessage>
-            {errors.editItem?.quantity?.message}
-          </FormErrorMessage>
-        </FormControl>
-      </GridItem>
+                return (
+                  <FormControl isInvalid={errors.selectedItems?.salesTax}>
+                    <CustomLabel htmlFor="salesTax">Item Tax</CustomLabel>
+                    <ControlledSelect
+                      id={`${field.id}-salesTax`}
+                      onChange={handleTaxChange}
+                      onBlur={onBlur}
+                      placeholder="Item Tax"
+                      options={[]}
+                      value={value?.taxId || ""}
+                      isDisabled={!selectedItem?.itemId}
+                    />
 
-      <GridItem colSpan={12}>
-        <Flex my={4} w="full" justify="flex-end">
-          {onClose && (
-            <Button isLoading={loading} type="button" mr={2} onClick={onClose}>
-              CLOSE
+                    <FormErrorMessage>
+                      {errors.selectedItems?.salesTax?.message}
+                    </FormErrorMessage>
+                  </FormControl>
+                );
+              }}
+            />
+          </GridItem>
+
+          <GridItem colSpan={[6, 4, 1]}>
+            <FormControl isInvalid={errors.selectedItems?.rate}>
+              <CustomLabel htmlFor="rate">Rate</CustomLabel>
+              <TableNumInput
+                name={`selectedItems.${index}.rate`}
+                rules={{
+                  required: { value: true, message: "*Required" },
+                  min: {
+                    value: 1,
+                    message: "Value should be greater than zero(0)!",
+                  },
+                }}
+                min={1}
+                onBlur={() => updateFieldOnBlur(index)}
+                isDisabled={!selectedItem?.itemId}
+              />
+              <FormErrorMessage>
+                {errors.selectedItems?.rate?.message}
+              </FormErrorMessage>
+            </FormControl>
+          </GridItem>
+
+          <GridItem colSpan={[6, 4, 1]}>
+            <FormControl isInvalid={errors.selectedItems?.quantity}>
+              <CustomLabel htmlFor="quantity">Quantity</CustomLabel>
+              <TableNumInput
+                name={`selectedItems.${index}.quantity`}
+                rules={{
+                  required: { value: true, message: "*Required" },
+                  min: {
+                    value: 1,
+                    message: "Value should be greater than zero(0)!",
+                  },
+                }}
+                min={1}
+                onBlur={() => updateFieldOnBlur(index)}
+                isDisabled={!selectedItem?.itemId}
+              />
+              <FormErrorMessage>
+                {errors.editItem?.quantity?.message}
+              </FormErrorMessage>
+            </FormControl>
+          </GridItem>
+
+          <GridItem colSpan={[6, 4, 1]}>
+            <FormControl isInvalid={errors.selectedItems?.itemRateTotal}>
+              <FormLabel textAlign="right" fontSize="smaller" mb={0}>
+                Total
+              </FormLabel>
+
+              {(() => {
+                const fieldValues = getValues(`selectedItems.${index}`);
+                const itemRateTotal = fieldValues?.itemRateTotal || 0;
+                const itemTaxTotal = fieldValues?.itemTaxTotal || 0;
+
+                return (
+                  <Flex
+                    justifyContent="flex-end"
+                    alignItems="center"
+                    px={2}
+                    h="32px"
+                    w="full"
+                  >
+                    <Heading size="xs">
+                      {taxType === "taxInclusive"
+                        ? itemTaxTotal + itemRateTotal
+                        : itemRateTotal}
+                    </Heading>
+                  </Flex>
+                );
+              })()}
+
+              <FormErrorMessage>
+                {errors.editItem?.quantity?.message}
+              </FormErrorMessage>
+            </FormControl>
+          </GridItem>
+        </Grid>
+
+        <Show above="md">
+          <Flex alignItems="flex-end" justifyContent="flex-end">
+            <IconButton
+              ml={1}
+              size="sm"
+              borderRadius="sm"
+              colorScheme="red"
+              icon={<RiDeleteBinLine />}
+              onClick={() => removeItem(index)}
+              title="remove item"
+            />
+          </Flex>
+        </Show>
+
+        <Show below="md">
+          <Flex w="full" alignItems="flex-end" justifyContent="flex-end">
+            <Button
+              mt={1}
+              size="sm"
+              borderRadius="sm"
+              colorScheme="red"
+              leftIcon={<RiDeleteBinLine />}
+              variant="ghost"
+              onClick={() => removeItem(index)}
+            >
+              Remove
             </Button>
-          )}
-          <Button
-            onClick={submitForm}
-            type="button"
-            rightIcon={<RiAddLine />}
-            colorScheme="cyan"
-            isLoading={loading}
-          >
-            ADD
-          </Button>
-        </Flex>
-      </GridItem>
-    </Grid>
+          </Flex>
+        </Show>
+      </Stack>
+      <Divider />
+    </Stack>
   );
 }
 
 SelectItemForm.propTypes = {
   itemsObject: PropTypes.object.isRequired,
-  handleFormSubmit: PropTypes.func.isRequired,
-  onClose: PropTypes.func,
-  item: PropTypes.shape({
-    itemId: PropTypes.string,
-    rate: PropTypes.number,
-    quantity: PropTypes.number,
-  }),
+  updateFieldOnBlur: PropTypes.func.isRequired,
+  handleItemChange: PropTypes.func.isRequired,
+  removeItem: PropTypes.func.isRequired,
+  field: PropTypes.object.isRequired,
+  index: PropTypes.number.isRequired,
 };
 
 export default SelectItemForm;

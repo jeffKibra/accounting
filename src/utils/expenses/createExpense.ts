@@ -44,7 +44,7 @@ export default async function createExpense(
   // const { vendorId } = vendor;
   const { accountId: paymentAccountId } = paymentAccount;
   const { value: paymentModeId } = paymentMode;
-  const { totalTaxes, totalAmount } = summary;
+  const { totalTax, totalAmount } = summary;
   // console.log({ data });
   /**
    * check is account has enough funds
@@ -81,7 +81,7 @@ export default async function createExpense(
       } = item;
       return { accountId, amount: itemRate };
     }),
-    { accountId: "tax_payable", amount: totalTaxes },
+    { accountId: "tax_payable", amount: totalTax },
     { accountId: paymentAccountId, amount: totalAmount },
   ];
   const { newAccounts } = getAccountsMapping([], allItems);

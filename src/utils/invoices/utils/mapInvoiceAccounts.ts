@@ -1,18 +1,21 @@
 import { getAccountsMapping } from "../../accounts";
 
 import { formatSalesItems } from "../../sales";
-import { Invoice, InvoiceFormData } from "types";
+import { SalesSummary, SalesItem, CustomerSummary } from "types";
+
+interface PartialInvoice {
+  summary: SalesSummary;
+  selectedItems: SalesItem[];
+  customer?: CustomerSummary;
+}
 
 export default function mapInvoiceAccounts(
-  currentInvoice: Invoice | InvoiceFormData,
-  incomingInvoice: Invoice | InvoiceFormData
+  currentInvoice: Required<PartialInvoice>,
+  incomingInvoice: PartialInvoice
 ) {
-  const {
-    summary,
-    selectedItems,
-    customer: { customerId },
-  } = incomingInvoice;
-  const { totalTaxes, shipping, adjustment, totalAmount } = summary;
+  const { summary, selectedItems, customer } = incomingInvoice;
+  const customerId = customer?.customerId ?? "";
+  const { totalTax, shipping, adjustment, totalAmount } = summary;
 
   const {
     customer: { customerId: currentCustomerId },
@@ -35,7 +38,7 @@ export default function mapInvoiceAccounts(
     },
     {
       accountId: "tax_payable",
-      amount: currentSummary.totalTaxes,
+      amount: currentSummary.totalTax,
     },
     {
       accountId: "accounts_receivable",
@@ -55,7 +58,7 @@ export default function mapInvoiceAccounts(
     },
     {
       accountId: "tax_payable",
-      amount: totalTaxes,
+      amount: totalTax,
     },
     {
       accountId: "accounts_receivable",

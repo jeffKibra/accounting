@@ -122,7 +122,7 @@ export default async function createVendor(
 //         shipping: 0,
 //         adjustment: 0,
 //         subTotal: 0,
-//         totalTaxes: 0,
+//         totalTax: 0,
 //         totalAmount: openingBalance,
 //       },
 //       selectedItems: [

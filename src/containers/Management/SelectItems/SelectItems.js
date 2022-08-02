@@ -153,7 +153,7 @@ function SelectItems(props) {
         return { ...tax, totalTax };
       });
 
-    const totalTaxes = taxes.reduce((sum, taxGroup) => {
+    const totalTax = taxes.reduce((sum, taxGroup) => {
       return sum + taxGroup.totalTax;
     }, 0);
 
@@ -164,7 +164,7 @@ function SelectItems(props) {
     return {
       taxes,
       subTotal: +subTotal.toFixed(2),
-      totalTaxes: +totalTaxes.toFixed(2),
+      totalTax: +totalTax.toFixed(2),
     };
   }, [selectedItems]);
 

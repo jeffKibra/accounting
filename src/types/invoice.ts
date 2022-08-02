@@ -1,7 +1,6 @@
 import {
   OrgSummary,
   CustomerSummary,
-  Customer,
   PaymentTerm,
   SalesItem,
   SalesSummary,
@@ -44,7 +43,7 @@ interface Meta {
 }
 
 export interface InvoiceFormData {
-  customer: Customer;
+  customer: CustomerSummary;
   customerNotes: string;
   dueDate: Date;
   invoiceDate: Date;
@@ -55,9 +54,7 @@ export interface InvoiceFormData {
   summary: SalesSummary;
 }
 
-export interface InvoiceFromDb extends Omit<InvoiceFormData, "customer">, Meta {
-  customer: CustomerSummary;
-}
+export interface InvoiceFromDb extends InvoiceFormData, Meta {}
 
 export interface Invoice extends InvoiceFromDb {
   invoiceId: string;

@@ -10,7 +10,9 @@ export default function groupItemsBasedOnAccounts(itemsList: SalesItem[]) {
   const salesAccountsWithItems: SalesAccountsWithItems = itemsList.reduce(
     (summary: SalesAccountsWithItems, item) => {
       const {
-        salesAccount: { accountId },
+        item: {
+          salesAccount: { accountId },
+        },
       } = item;
 
       const updatedItems = summary[accountId]

@@ -25,25 +25,29 @@ export function sortStrings(a: string, b: string, direction: string = "asc") {
 }
 
 interface DirtyFields {
-  [key: string]: boolean;
+  [key: string]: boolean | DirtyFields;
 }
 
+type FormValue =
+  | string
+  | number
+  | { [key: string]: string | number | FormValue }
+  | [];
+
 interface FormValues {
-  [key: string]: string | number;
+  [key: string]: FormValue;
 }
 
 export function getDirtyFields(
   dirtyFields: DirtyFields,
   formValues: FormValues
-) {
+): FormValues {
   return Object.keys(dirtyFields).reduce((fields: FormValues, key) => {
-    if (dirtyFields[key] === true) {
-      return {
-        ...fields,
-        [key]: formValues[key],
-      };
-    } else {
-      return fields;
-    }
+    const formValue = formValues[key];
+
+    return {
+      ...fields,
+      [key]: formValue,
+    };
   }, {});
 }

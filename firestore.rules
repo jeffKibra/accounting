@@ -405,7 +405,7 @@ service cloud.firestore {
           numberValue(data.summary.adjustment) &&
           numberValue(data.summary.subTotal) &&
           numberValue(data.summary.totalAmount) &&
-          numberValue(data.summary.totalTaxes) &&
+          numberValue(data.summary.totalTax) &&
           data.get("summary.taxes", []) is list
       }
 
@@ -440,7 +440,7 @@ service cloud.firestore {
             optionalNumber("summary.adjustment") &&
             optionalNumber("summary.subTotal") &&
             numberValue(request.resource.data.summary.totalAmount) &&
-            optionalNumber("summary.totalTaxes") &&
+            optionalNumber("summary.totalTax") &&
             request.resource.data.get("summary.taxes", []) is list &&
             request.resource.data.customer is map &&
             request.resource.data.customer.customerId is string &&
@@ -617,7 +617,7 @@ service cloud.firestore {
             request.resource.data.summary is map &&
             numberValue(request.resource.data.summary.subTotal) &&
             numberValue(request.resource.data.summary.totalAmount) &&
-            numberValue(request.resource.data.summary.totalTaxes) &&
+            numberValue(request.resource.data.summary.totalTax) &&
             request.resource.data.get("summary.taxes", []) is list &&
             request.resource.data.transactionType is string &&
             request.resource.data.taxType is string &&

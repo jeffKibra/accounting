@@ -6,9 +6,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import formats from "utils/formats";
 import { confirmFutureDate } from "utils/dates";
 import { useToasts, useGetSalesProps } from "hooks";
-import { getDirtyFields } from "utils/functions";
 
-import Stepper from "../../../components/ui/Stepper";
 import SkeletonLoader from "components/ui/SkeletonLoader";
 import Empty from "components/ui/Empty";
 
@@ -32,7 +30,8 @@ function EditInvoice(props) {
       dueDate: invoice?.dueDate || today,
       subject: invoice?.subject || "",
       customerNotes: invoice?.customerNotes || "",
-      selectedItems: invoice?.selectedItems || {},
+      selectedItems: invoice?.selectedItems || [],
+      // selectedItems: [],
       summary: invoice?.summary || {
         adjustment: 0,
         shipping: 0,
@@ -44,12 +43,15 @@ function EditInvoice(props) {
       },
     },
   });
-  const {
-    handleSubmit,
-    formState: { dirtyFields },
-  } = formMethods;
+  const { handleSubmit } = formMethods;
 
   const toasts = useToasts();
+
+  // console.log({
+  //   dirtyFields,
+  //   isDirty,
+  //   totalAmount: invoice?.summary?.totalAmount,
+  // });
 
   function onSubmit(data) {
     const { customer: customerId, paymentTerm: paymentTermId, ...rest } = data;
@@ -79,11 +81,11 @@ function EditInvoice(props) {
     }
     formValues.paymentTerm = paymentTerm;
 
-    if (invoice) {
-      //invoice is being updated-submit only the changed values
-      formValues = getDirtyFields(dirtyFields, formValues);
-    }
-    // console.log({ formValues });
+    // if (invoice) {
+    //   //invoice is being updated-submit only the changed values
+    //   formValues = getDirtyFields(dirtyFields, formValues);
+    // }
+    console.log({ formValues });
 
     //submit the data
     handleFormSubmit(formValues);
@@ -100,35 +102,32 @@ function EditInvoice(props) {
         role="form"
         onSubmit={handleSubmit(onSubmit)}
         w="full"
-        h="full"
+        // h="full"
+        mt={2}
+        p={4}
+        bg="white"
+        borderRadius="md"
+        shadow="md"
+        // maxW="container.sm"
       >
-        <Stepper
-          steps={[
-            {
-              label: "Add Items",
-              content: <EditSale loading={updating} items={items} />,
-            },
-            {
-              label: "Invoice Details",
-              content: (
-                <Container
-                  mt={2}
-                  p={4}
-                  bg="white"
-                  borderRadius="md"
-                  shadow="md"
-                  maxW="container.sm"
-                >
-                  <InvoiceForm
-                    customers={customers}
-                    paymentTerms={paymentTerms}
-                    loading={updating}
-                  />
-                </Container>
-              ),
-            },
-          ]}
+        <InvoiceForm
+          customers={customers}
+          paymentTerms={paymentTerms}
+          loading={updating}
         />
+        <EditSale
+          loading={updating}
+          items={items}
+          preSelectedItems={invoice?.selectedItems || []}
+        />
+        {/* <Container
+          mt={2}
+          p={4}
+          bg="white"
+          borderRadius="md"
+          shadow="md"
+          maxW="container.sm"
+        ></Container> */}
       </Box>
     </FormProvider>
   ) : items?.length === 0 ? (
