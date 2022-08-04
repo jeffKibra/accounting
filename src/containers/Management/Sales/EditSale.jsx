@@ -8,7 +8,6 @@ import {
   Button,
   Grid,
   GridItem,
-  Stack,
   Heading,
 } from "@chakra-ui/react";
 import { RiAddLine } from "react-icons/ri";
@@ -207,8 +206,9 @@ export default function EditSale(props) {
     [remove, getValues, toasts, unmarkItemAsAdded]
   );
 
-  const updateFieldOnBlur = useCallback(
-    (index) => {
+  const updateItemOnFieldBlur = useCallback(
+    (fieldName, value, index) => {
+      console.log({ fieldName, value });
       //only call onBlur
       const fieldId = `selectedItems.${index}`;
       const currentValues = getValues(fieldId);
@@ -228,6 +228,11 @@ export default function EditSale(props) {
           itemId,
           quantity,
           rate,
+          /**
+           * field name could be either quantity or rate.
+           * add at bottom to overide current value
+           */
+          [fieldName]: +value,
         },
         originalItem
       );
@@ -297,7 +302,7 @@ export default function EditSale(props) {
             itemsObject={itemsObject}
             removeItem={removeItem}
             handleItemChange={handleItemChange}
-            updateFieldOnBlur={updateFieldOnBlur}
+            updateItemOnFieldBlur={updateItemOnFieldBlur}
             field={field}
           />
         );

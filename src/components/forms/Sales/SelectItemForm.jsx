@@ -16,8 +16,8 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { useFormContext, Controller } from "react-hook-form";
 import PropTypes from "prop-types";
 
-import TableNumInput from "components/ui/TableNumInput";
 import ControlledSelect from "components/ui/ControlledSelect";
+import RHFPlainNumInput from "components/ui/RHFPlainNumInput";
 
 function CustomLabel({ children }) {
   return (
@@ -32,7 +32,7 @@ function SelectItemForm(props) {
     itemsObject,
     index,
     field,
-    updateFieldOnBlur,
+    updateItemOnFieldBlur,
     handleItemChange,
     removeItem,
   } = props;
@@ -148,8 +148,12 @@ function SelectItemForm(props) {
           <GridItem colSpan={[6, 4, 1]}>
             <FormControl isInvalid={errors.selectedItems?.rate}>
               <CustomLabel htmlFor="rate">Rate</CustomLabel>
-              <TableNumInput
+              {/* <TableNumInput onBlur={() => } /> */}
+              <RHFPlainNumInput
                 name={`selectedItems.${index}.rate`}
+                mode="onBlur"
+                updateValueOnBlur={false}
+                onBlur={(value) => updateItemOnFieldBlur("rate", value, index)}
                 rules={{
                   required: { value: true, message: "*Required" },
                   min: {
@@ -158,9 +162,9 @@ function SelectItemForm(props) {
                   },
                 }}
                 min={1}
-                onBlur={() => updateFieldOnBlur(index)}
                 isDisabled={!selectedItem?.itemId}
               />
+
               <FormErrorMessage>
                 {errors.selectedItems?.rate?.message}
               </FormErrorMessage>
@@ -170,8 +174,15 @@ function SelectItemForm(props) {
           <GridItem colSpan={[6, 4, 1]}>
             <FormControl isInvalid={errors.selectedItems?.quantity}>
               <CustomLabel htmlFor="quantity">Quantity</CustomLabel>
-              <TableNumInput
+              <RHFPlainNumInput
                 name={`selectedItems.${index}.quantity`}
+                mode="onBlur"
+                updateValueOnBlur={false}
+                onBlur={(value) =>
+                  updateItemOnFieldBlur("quantity", value, index)
+                }
+                min={1}
+                isDisabled={!selectedItem?.itemId}
                 rules={{
                   required: { value: true, message: "*Required" },
                   min: {
@@ -179,10 +190,8 @@ function SelectItemForm(props) {
                     message: "Value should be greater than zero(0)!",
                   },
                 }}
-                min={1}
-                onBlur={() => updateFieldOnBlur(index)}
-                isDisabled={!selectedItem?.itemId}
               />
+
               <FormErrorMessage>
                 {errors.editItem?.quantity?.message}
               </FormErrorMessage>
@@ -261,7 +270,7 @@ function SelectItemForm(props) {
 
 SelectItemForm.propTypes = {
   itemsObject: PropTypes.object.isRequired,
-  updateFieldOnBlur: PropTypes.func.isRequired,
+  updateItemOnFieldBlur: PropTypes.func.isRequired,
   handleItemChange: PropTypes.func.isRequired,
   removeItem: PropTypes.func.isRequired,
   field: PropTypes.object.isRequired,
