@@ -30,7 +30,18 @@ function EditInvoice(props) {
       dueDate: invoice?.dueDate || today,
       subject: invoice?.subject || "",
       customerNotes: invoice?.customerNotes || "",
-      selectedItems: invoice?.selectedItems || [],
+      selectedItems: invoice?.selectedItems || [
+        {
+          item: null,
+          rate: 0,
+          quantity: 0,
+          itemRate: 0,
+          itemTax: 0,
+          itemRateTotal: 0,
+          itemTaxTotal: 0,
+          salesTax: null,
+        },
+      ],
       // selectedItems: [],
       summary: invoice?.summary || {
         adjustment: 0,

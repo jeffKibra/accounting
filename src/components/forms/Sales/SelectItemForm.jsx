@@ -30,6 +30,7 @@ function CustomLabel({ children }) {
 function SelectItemForm(props) {
   const {
     itemsObject,
+    selectedItemsObject,
     index,
     field,
     updateItemOnFieldBlur,
@@ -82,24 +83,32 @@ function SelectItemForm(props) {
                       onBlur={onBlur}
                       allowClearSelection={false}
                       options={Object.values(itemsObject)
-                        .map((originalItem, i) => {
-                          const { name, variant, itemId, added } = originalItem;
+                        .filter((originalItem) => {
+                          const { itemId } = originalItem;
                           /**
-                           * to return a field:
+                           * filter to remove selected items-valid items include:
                            * 1. if there is and itemToEdit and current item is similar to itemToEdit
-                           * 2. return all field not marked as added if there is no itemToEdit
+                           * 2. field is not in the selected items object
                            */
-                          if (value?.itemId === itemId || !added) {
-                            return {
-                              name: `${name} - ${variant}`,
-                              value: itemId,
-                            };
+                          const itemInSelectedItems =
+                            selectedItemsObject[itemId];
+                          if (
+                            value?.itemId === itemId ||
+                            !itemInSelectedItems
+                          ) {
+                            return true;
                           } else {
-                            //hide fields otherwise
-                            return null;
+                            return false;
                           }
                         })
-                        .filter((item) => item)}
+                        .map((originalItem, i) => {
+                          const { name, variant, itemId } = originalItem;
+
+                          return {
+                            name: `${name} - ${variant}`,
+                            value: itemId,
+                          };
+                        })}
                     />
 
                     <FormErrorMessage>
@@ -270,6 +279,7 @@ function SelectItemForm(props) {
 
 SelectItemForm.propTypes = {
   itemsObject: PropTypes.object.isRequired,
+  selectedItemsObject: PropTypes.object.isRequired,
   updateItemOnFieldBlur: PropTypes.func.isRequired,
   handleItemChange: PropTypes.func.isRequired,
   removeItem: PropTypes.func.isRequired,

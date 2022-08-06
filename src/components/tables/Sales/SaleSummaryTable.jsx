@@ -180,7 +180,6 @@ function SaleSummaryTable(props) {
 
 SaleSummaryTable.propTypes = {
   loading: PropTypes.bool.isRequired,
-  selectedItems: PropTypes.array.isRequired,
   summary: PropTypes.shape({
     subTotal: PropTypes.number,
     taxes: PropTypes.arrayOf(

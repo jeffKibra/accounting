@@ -1,4 +1,4 @@
-import { useMemo, useState, useContext, useEffect, useCallback } from "react";
+import { useMemo, useContext, useCallback } from "react";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import {
   Box,
@@ -27,7 +27,7 @@ import SelectItemForm from "components/forms/Sales/SelectItemForm";
 import SaleSummaryTable from "components/tables/Sales/SaleSummaryTable";
 
 export default function EditSale(props) {
-  const { loading, preSelectedItems } = props;
+  const { loading } = props;
   //contexts
   const { nextStep } = useContext(StepperContext);
   //form methhods
@@ -43,6 +43,7 @@ export default function EditSale(props) {
     control,
     shouldUnregister: true,
   });
+
   const itemsFields = watch("selectedItems");
 
   /**
@@ -53,102 +54,49 @@ export default function EditSale(props) {
    */
   const fieldsString = JSON.stringify(itemsFields || []);
   //compute summary values whenever selected items change
-  const { summary, selectedItems } = useMemo(() => {
+  const { summary, selectedItemsObject } = useMemo(() => {
     /**
      * parse the json string to get back field values
      */
     const selectedItems = JSON.parse(fieldsString);
 
+    const selectedItemsObject = selectedItems.reduce((summary, itemDetails) => {
+      const { item } = itemDetails;
+      if (item) {
+        return {
+          ...summary,
+          [item.itemId]: itemDetails,
+        };
+      } else {
+        return summary;
+      }
+    }, {});
+
     console.log("generating summary");
     const summary = getSaleSummary(selectedItems);
 
-    return { selectedItems, summary };
+    return { selectedItemsObject, summary };
   }, [fieldsString]);
-
   /**
    * convert items into an object for easier updates .
    * helps to avoid iterating the whole array for every update
    */
-  const [itemsObject, setItemsObject] = useState({});
-  /**
-   * set the items object on mount
-   * incase its an update-mark all pre-selected items as added
-   */
-  useEffect(() => {
-    console.log("regenerating selectable Items");
+  const itemsObject = useMemo(() => {
+    const items = props.items;
     let itemsObject = {};
-    const { items } = props;
-
-    console.log({ preSelectedItems });
 
     if (items && Array.isArray(items)) {
       itemsObject = items.reduce((obj, item) => {
         const { itemId } = item;
-        let added = false;
-
-        if (Array.isArray(preSelectedItems)) {
-          const preSelectedItem = preSelectedItems.find(
-            (preItem) => preItem.itemId === itemId
-          );
-
-          if (preSelectedItem) {
-            //added is only true if preSelectedItem is found
-            added = true;
-          }
-        }
-
         return {
           ...obj,
-          [itemId]: { ...item, added },
+          [itemId]: { ...item },
         };
       }, {});
     }
 
-    if (
-      preSelectedItems &&
-      Array.isArray(preSelectedItems) &&
-      preSelectedItems.length > 0
-    ) {
-      /**
-       * append all preSelectedItems to field arrays
-       */
-      append(preSelectedItems, {});
-    }
-
-    //set items object
-    setItemsObject(itemsObject);
-    //dont add dependency array-code should run only once-onmount
-  }, []);
-
-  const markItemAsAdded = useCallback((itemId) => {
-    setItemsObject((currentItems) => {
-      const item = currentItems[itemId];
-
-      //return new object with the item marked as added
-      return {
-        ...currentItems,
-        [itemId]: {
-          ...item,
-          added: true,
-        },
-      };
-    });
-  }, []);
-
-  const unmarkItemAsAdded = useCallback((itemId) => {
-    setItemsObject((currentItems) => {
-      const item = currentItems[itemId];
-
-      //return new object with the item unmarked as added
-      return {
-        ...currentItems,
-        [itemId]: {
-          ...item,
-          added: false,
-        },
-      };
-    });
-  }, []);
+    return itemsObject;
+  }, [props.items]);
 
   /**
    * function triggers validation for selected items before moving to the next step
@@ -196,14 +144,12 @@ export default function EditSale(props) {
       if (item && typeof item === "object") {
         //remove it from form
         remove(index);
-        //unmark item
-        unmarkItemAsAdded(item.itemId);
       } else {
         //item is undefined
         toasts.error(`Item at Index ${index} not found`);
       }
     },
-    [remove, getValues, toasts, unmarkItemAsAdded]
+    [remove, getValues, toasts]
   );
 
   const updateItemOnFieldBlur = useCallback(
@@ -262,10 +208,8 @@ export default function EditSale(props) {
 
       //set items rate
       setValue(`selectedItems.${index}`, { ...itemData });
-      //mark item as added to list to avoid duplicate values in list
-      markItemAsAdded(itemId);
     },
-    [setValue, markItemAsAdded, itemsObject]
+    [setValue, itemsObject]
   );
 
   return (
@@ -300,6 +244,7 @@ export default function EditSale(props) {
             key={field.id}
             index={index}
             itemsObject={itemsObject}
+            selectedItemsObject={selectedItemsObject}
             removeItem={removeItem}
             handleItemChange={handleItemChange}
             updateItemOnFieldBlur={updateItemOnFieldBlur}
@@ -328,11 +273,7 @@ export default function EditSale(props) {
       <Grid w="full" rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
         <GridItem colSpan={[1, 4, 6]}></GridItem>
         <GridItem colSpan={[11, 8, 6]}>
-          <SaleSummaryTable
-            loading={loading}
-            selectedItems={selectedItems}
-            summary={summary}
-          />
+          <SaleSummaryTable loading={loading} summary={summary} />
         </GridItem>
       </Grid>
       <Flex w="full" py={4} justify="space-evenly">
