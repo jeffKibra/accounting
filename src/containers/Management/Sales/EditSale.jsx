@@ -1,4 +1,4 @@
-import { useMemo, useContext, useCallback } from "react";
+import { useMemo, useCallback, useEffect } from "react";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import {
   Box,
@@ -13,7 +13,6 @@ import {
 import { RiAddLine } from "react-icons/ri";
 import PropTypes from "prop-types";
 //contexts
-import StepperContext from "contexts/StepperContext";
 //hooks
 import { useToasts } from "hooks";
 //utils
@@ -27,11 +26,16 @@ import SelectItemForm from "components/forms/Sales/SelectItemForm";
 import SaleSummaryTable from "components/tables/Sales/SaleSummaryTable";
 
 export default function EditSale(props) {
-  const { loading } = props;
+  const { loading, preSelectedItems } = props;
   //contexts
-  const { nextStep } = useContext(StepperContext);
   //form methhods
-  const { watch, setValue, getValues, control } = useFormContext();
+  const {
+    watch,
+    setValue,
+    getValues,
+    control,
+    formState: { errors },
+  } = useFormContext();
   //hooks
   const toasts = useToasts();
   //state
@@ -43,6 +47,46 @@ export default function EditSale(props) {
     control,
     shouldUnregister: true,
   });
+  console.log({
+    fields,
+    slItems: watch("selectedItems"),
+    customer: watch("customer"),
+  });
+
+  useEffect(() => {
+    console.log("mounting");
+
+    return () => console.log("unmounting");
+  }, []);
+
+  useEffect(() => {
+    /**
+     * add default selectedItems
+     */
+    console.log("updating default selectedItems");
+    if (
+      preSelectedItems &&
+      Array.isArray(preSelectedItems) &&
+      preSelectedItems.length > 0
+    ) {
+      preSelectedItems.forEach((item) => {
+        append({ ...item });
+      });
+    } else {
+      append({
+        item: null,
+        rate: 0,
+        quantity: 0,
+        itemRate: 0,
+        itemTax: 0,
+        itemRateTotal: 0,
+        itemTaxTotal: 0,
+        salesTax: null,
+      });
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const itemsFields = watch("selectedItems");
 
@@ -97,27 +141,6 @@ export default function EditSale(props) {
 
     return itemsObject;
   }, [props.items]);
-
-  /**
-   * function triggers validation for selected items before moving to the next step
-   */
-  const next = useCallback(() => {
-    const selectedItems = getValues("selectedItems");
-    console.log({ selectedItems });
-
-    const fieldsValid =
-      (selectedItems && selectedItems.filter((item) => item).length > 0) ||
-      false;
-
-    if (!fieldsValid) {
-      return toasts.error("Please add atleast one(1) item to proceed!");
-    }
-    // if (totalAmount <= 0) {
-    //   return toasts.error("Total Sale Amount should be greater than ZERO(0)!");
-    // }
-
-    nextStep();
-  }, [getValues, nextStep, toasts]);
 
   const addNewLine = useCallback(() => {
     console.log("adding new line");
@@ -212,6 +235,8 @@ export default function EditSale(props) {
     [setValue, itemsObject]
   );
 
+  console.log({ errors });
+
   return (
     <VStack mt={1}>
       <Flex w="full" justify="flex-end" align="center">
@@ -263,13 +288,6 @@ export default function EditSale(props) {
         </Button>
       </Flex>
       );
-      {/* <SaleItemsTable
-        loading={loading}
-        handleEdit={startEditing}
-        handleDelete={removeItem}
-        items={selectedItems}
-        taxType={watch("summary.taxType")}
-      /> */}
       <Grid w="full" rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
         <GridItem colSpan={[1, 4, 6]}></GridItem>
         <GridItem colSpan={[11, 8, 6]}>
@@ -277,12 +295,7 @@ export default function EditSale(props) {
         </GridItem>
       </Grid>
       <Flex w="full" py={4} justify="space-evenly">
-        <Button
-          onClick={next}
-          type="submit"
-          isLoading={loading}
-          colorScheme="cyan"
-        >
+        <Button type="submit" isLoading={loading} colorScheme="cyan">
           save
         </Button>
       </Flex>

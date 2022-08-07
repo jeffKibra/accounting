@@ -9,6 +9,7 @@ import {
   Grid,
   GridItem,
   Box,
+  Show,
 } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
@@ -93,7 +94,10 @@ function InvoiceForm(props) {
             <Input id="orderNumber" {...register("orderNumber")} />
           </FormControl>
         </GridItem>
-        <GridItem colSpan={[0, null, 4]}></GridItem>
+
+        <Show above="md">
+          <GridItem colSpan={4}></GridItem>
+        </Show>
 
         <GridItem colSpan={[12, 4]}>
           <FormControl

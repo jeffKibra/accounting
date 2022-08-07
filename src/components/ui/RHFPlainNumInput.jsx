@@ -23,7 +23,7 @@ function RHFPlainNumInput(props) {
     <Controller
       name={name}
       control={control}
-      shouldUnregister={true}
+      // shouldUnregister={true}
       rules={rules}
       render={({
         field: { value, onBlur: onInputBlur, onChange: onInputChange },

@@ -96,10 +96,21 @@ function SaleSummaryTable(props) {
                 onBlur={(value) =>
                   updateSummaryOnFieldBlur("shipping", value, summary)
                 }
+                rules={{
+                  min: { value: 0, message: "Value must be a positive number" },
+                }}
               />
             </Th>
           </Tr>
 
+          {/**
+           * add taxes to form but hide from view-returns nothing
+           */}
+          <Controller
+            name="summary.taxes"
+            control={control}
+            render={() => <></>}
+          />
           {taxes.map((tax, i) => {
             const { name, rate, totalTax } = tax;
             return (
@@ -142,16 +153,6 @@ function SaleSummaryTable(props) {
               required: { value: true, message: "Required" },
               min: { value: 0, message: "Value should be a positive number" },
             }}
-            render={() => <></>}
-          />
-
-          {/**
-           * add taxes to form but hide from view-returns nothing
-           */}
-          <Controller
-            name="summary.taxes"
-            control={control}
-            rules={{ required: { value: true, message: "Required" } }}
             render={() => <></>}
           />
 

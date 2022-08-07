@@ -1,6 +1,6 @@
+import { useMemo, useEffect } from "react";
 import { Box } from "@chakra-ui/react";
 import PropTypes from "prop-types";
-import { Container } from "@chakra-ui/react";
 import { useForm, FormProvider } from "react-hook-form";
 
 import formats from "utils/formats";
@@ -16,13 +16,13 @@ import EditSale from "../Sales/EditSale";
 function EditInvoice(props) {
   const { invoice, handleFormSubmit, updating } = props;
   // console.log({ props });
-  const today = new Date();
 
   const { loading, items, customers, paymentTerms } = useGetSalesProps();
 
-  const formMethods = useForm({
-    mode: "onChange",
-    defaultValues: {
+  const defaultValues = useMemo(() => {
+    const today = new Date();
+
+    return {
       customer: invoice?.customer?.customerId || "",
       orderNumber: invoice?.orderNumber || "",
       invoiceDate: invoice?.invoiceDate || today,
@@ -30,19 +30,6 @@ function EditInvoice(props) {
       dueDate: invoice?.dueDate || today,
       subject: invoice?.subject || "",
       customerNotes: invoice?.customerNotes || "",
-      selectedItems: invoice?.selectedItems || [
-        {
-          item: null,
-          rate: 0,
-          quantity: 0,
-          itemRate: 0,
-          itemTax: 0,
-          itemRateTotal: 0,
-          itemTaxTotal: 0,
-          salesTax: null,
-        },
-      ],
-      // selectedItems: [],
       summary: invoice?.summary || {
         adjustment: 0,
         shipping: 0,
@@ -52,9 +39,18 @@ function EditInvoice(props) {
         totalTax: 0,
         taxType: "taxExclusive",
       },
-    },
+    };
+  }, [invoice]);
+
+  const formMethods = useForm({
+    mode: "onChange",
+    defaultValues,
   });
-  const { handleSubmit } = formMethods;
+  const { handleSubmit, reset } = formMethods;
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   const toasts = useToasts();
 
@@ -66,8 +62,25 @@ function EditInvoice(props) {
 
   function onSubmit(data) {
     const { customer: customerId, paymentTerm: paymentTermId, ...rest } = data;
-    const { invoiceDate, dueDate } = rest;
+    const { invoiceDate, dueDate, selectedItems } = rest;
     let formValues = { ...rest };
+    /**
+     * check if selected items is not an empty array or
+     * values are not empty objects-item set to null
+     */
+
+    const fieldsValid =
+      (selectedItems && selectedItems.filter((item) => item).length > 0) ||
+      false;
+    console.log({ selectedItems });
+
+    if (!fieldsValid) {
+      return toasts.error("Please add atleast one(1) item to proceed!");
+    }
+    // if (totalAmount <= 0) {
+    //   return toasts.error("Total Sale Amount should be greater than ZERO(0)!");
+    // }
+
     /**
      * ensure dueDate is not a past date
      */
@@ -129,7 +142,7 @@ function EditInvoice(props) {
         <EditSale
           loading={updating}
           items={items}
-          preSelectedItems={invoice?.selectedItems || []}
+          preSelectedItems={invoice?.selectedItems}
         />
         {/* <Container
           mt={2}
