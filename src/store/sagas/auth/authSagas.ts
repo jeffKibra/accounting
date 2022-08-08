@@ -1,40 +1,40 @@
-import { put, call, takeLatest, take, select } from "redux-saga/effects";
-import { eventChannel, EventChannel } from "redux-saga";
+import { put, call, takeLatest, take, select } from 'redux-saga/effects';
+import { eventChannel, EventChannel } from 'redux-saga';
 import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
   User,
-} from "firebase/auth";
-import { PayloadAction } from "@reduxjs/toolkit";
+} from 'firebase/auth';
+import { PayloadAction } from '@reduxjs/toolkit';
 
 import {
   AUTH_LISTENER,
   LOGIN,
   LOGOUT,
   CREATE_USER,
-} from "../../actions/authActions";
-import { auth } from "../../../utils/firebase";
+} from '../../actions/authActions';
+import { auth } from '../../../utils/firebase';
 
-import { RootState, UserProfile, LoginForm } from "../../../types";
+import { RootState, UserProfile, LoginForm } from '../../../types';
 
-import { start, success, fail, reset } from "../../slices/authSlice";
+import { start, success, fail, reset } from '../../slices/authSlice';
 
 function removeUser() {
   // console.log("removing current user if any!");
   //remove blog data
-  localStorage.removeItem("org");
+  localStorage.removeItem('org');
   //remove accounts data
-  localStorage.removeItem("accounts");
+  localStorage.removeItem('accounts');
   //remove location data
-  localStorage.removeItem("location");
+  localStorage.removeItem('location');
 
   return signOut(auth);
 }
 
 export function* logout() {
   yield put(start(LOGOUT));
-  console.log("logging out");
+  console.log('logging out');
 
   try {
     yield call(removeUser);
@@ -61,10 +61,10 @@ export function* activeAuthListener() {
   yield put(start(AUTH_LISTENER));
 
   const authChannel: EventChannel<ChannelOutput> = eventChannel<ChannelOutput>(
-    (emit) => {
+    emit => {
       const unsubscribe = onAuthStateChanged(
         auth,
-        async (user) => {
+        async user => {
           // // if latest claims are required
           // let claims: ParsedToken | null = null;
           // if (user) {
@@ -82,7 +82,7 @@ export function* activeAuthListener() {
 
           emit({ user, error: null });
         },
-        (err) => {
+        err => {
           const error = err as Error;
           console.log(error);
           emit({ error, user: null });
@@ -135,7 +135,7 @@ export function* login(action: PayloadAction<LoginForm>) {
   const {
     payload: { email, password },
   } = action;
-
+  console.log({ email });
   async function signin() {
     const userCredential = await signInWithEmailAndPassword(
       auth,

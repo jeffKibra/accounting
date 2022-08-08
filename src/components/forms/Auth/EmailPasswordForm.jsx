@@ -1,4 +1,4 @@
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 import {
   FormControl,
   Input,
@@ -9,21 +9,21 @@ import {
   Box,
   Text,
   Flex,
-} from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+} from '@chakra-ui/react';
+import { useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 
-import * as routes from "../../../nav/routes";
-import PasswordInput from "../../ui/PasswordInput";
+import * as routes from '../../../nav/routes';
+import PasswordInput from '../../ui/PasswordInput';
 
-import { CardHeader } from "../../ui/Card";
+import { CardHeader } from '../../ui/Card';
 
 function EmailPasswordForm(props) {
   const {
     register,
     formState: { errors },
     handleSubmit,
-  } = useForm({ mode: "onChange" });
+  } = useForm({ mode: 'onChange' });
 
   const { handleFormSubmit, loading } = props;
 
@@ -48,8 +48,8 @@ function EmailPasswordForm(props) {
             >
               <FormLabel>Email</FormLabel>
               <Input
-                {...register("email", {
-                  required: { value: true, message: "Required!" },
+                {...register('email', {
+                  required: { value: true, message: 'Required!' },
                 })}
               />
               <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
@@ -63,8 +63,8 @@ function EmailPasswordForm(props) {
               <FormLabel>Password</FormLabel>
               <PasswordInput
                 register={() =>
-                  register("password", {
-                    required: { value: true, message: "Required!" },
+                  register('password', {
+                    required: { value: true, message: 'Required!' },
                   })
                 }
               />
@@ -74,7 +74,7 @@ function EmailPasswordForm(props) {
             <Button
               style={{ marginTop: 16 }}
               colorScheme="cyan"
-              isFullWidth
+              width="full"
               type="submit"
               isLoading={loading}
             >
@@ -85,7 +85,7 @@ function EmailPasswordForm(props) {
 
         <Flex p={4} pt={0} justifyContent="center">
           <Text>
-            Don't have an Account?{" "}
+            Don't have an Account?{' '}
             <Link to={routes.SIGNUP}>
               <Button isDisabled={loading} variant="link">
                 signup

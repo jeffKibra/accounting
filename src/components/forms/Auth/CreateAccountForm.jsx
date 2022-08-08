@@ -1,4 +1,4 @@
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 import {
   FormControl,
   Input,
@@ -9,14 +9,14 @@ import {
   Box,
   Flex,
   Text,
-} from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+} from '@chakra-ui/react';
+import { useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 
-import * as routes from "../../../nav/routes";
-import PasswordInput from "../../ui/PasswordInput";
+import * as routes from '../../../nav/routes';
+import PasswordInput from '../../ui/PasswordInput';
 
-import { CardHeader } from "../../ui/Card";
+import { CardHeader } from '../../ui/Card';
 
 function CreateAccountForm(props) {
   const {
@@ -24,11 +24,11 @@ function CreateAccountForm(props) {
     formState: { errors },
     handleSubmit,
     watch,
-  } = useForm({ mode: "onChange" });
+  } = useForm({ mode: 'onChange' });
 
   const { handleFormSubmit, loading } = props;
 
-  const password = watch("password");
+  const password = watch('password');
 
   return (
     <VStack w="full" h="full" overflowY="auto">
@@ -59,8 +59,8 @@ function CreateAccountForm(props) {
             >
               <FormLabel>First Name</FormLabel>
               <Input
-                {...register("firstName", {
-                  required: { value: true, message: "Required!" },
+                {...register('firstName', {
+                  required: { value: true, message: 'Required!' },
                 })}
               />
               <FormErrorMessage>{errors.firstName?.message}</FormErrorMessage>
@@ -73,8 +73,8 @@ function CreateAccountForm(props) {
             >
               <FormLabel>Last Name</FormLabel>
               <Input
-                {...register("lastName", {
-                  required: { value: true, message: "Required!" },
+                {...register('lastName', {
+                  required: { value: true, message: 'Required!' },
                 })}
               />
               <FormErrorMessage>{errors.lastName?.message}</FormErrorMessage>
@@ -87,8 +87,8 @@ function CreateAccountForm(props) {
             >
               <FormLabel>Email</FormLabel>
               <Input
-                {...register("email", {
-                  required: { value: true, message: "Required!" },
+                {...register('email', {
+                  required: { value: true, message: 'Required!' },
                 })}
               />
               <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
@@ -102,8 +102,8 @@ function CreateAccountForm(props) {
               <FormLabel>Password</FormLabel>
               <PasswordInput
                 register={() =>
-                  register("password", {
-                    required: { value: true, message: "Required!" },
+                  register('password', {
+                    required: { value: true, message: 'Required!' },
                   })
                 }
               />
@@ -118,11 +118,11 @@ function CreateAccountForm(props) {
               <FormLabel>Confirm Password</FormLabel>
               <PasswordInput
                 register={() =>
-                  register("confirmPassword", {
-                    required: { value: true, message: "Required!" },
-                    validate: (value) => {
+                  register('confirmPassword', {
+                    required: { value: true, message: 'Required!' },
+                    validate: value => {
                       if (value !== password) {
-                        return "Passwords dont match";
+                        return 'Passwords dont match';
                       }
                     },
                   })
@@ -136,7 +136,7 @@ function CreateAccountForm(props) {
             <Button
               style={{ marginTop: 16 }}
               colorScheme="cyan"
-              isFullWidth
+              w="full"
               type="submit"
               isLoading={loading}
             >
@@ -147,7 +147,7 @@ function CreateAccountForm(props) {
 
         <Flex p={4} pt={0} justifyContent="center">
           <Text>
-            Have an Account?{" "}
+            Have an Account?{' '}
             <Link to={routes.LOGIN_USER}>
               <Button isDisabled={loading} variant="link">
                 login

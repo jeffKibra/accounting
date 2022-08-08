@@ -1,64 +1,65 @@
-import { ChakraProvider, extendTheme } from "@chakra-ui/react";
-import { StepsStyleConfig as Steps } from "chakra-ui-steps";
-import { BrowserRouter } from "react-router-dom";
-import { mode } from "@chakra-ui/theme-tools";
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
+import { StepsStyleConfig as Steps } from 'chakra-ui-steps';
+import { BrowserRouter } from 'react-router-dom';
+import { mode } from '@chakra-ui/theme-tools';
 
-import Layout from "./components/layout/Layout";
-import Router from "./nav/Router";
-import CheckAuth from "./containers/Auth/CheckAuth";
-import CheckOrg from "./containers/Management/Orgs/CheckOrg";
-import CheckAccounts from "./containers/Management/Accounts/CheckAccounts";
+import Layout from './components/layout/Layout';
+import Router from './nav/Router';
+import CheckAuth from './containers/Auth/CheckAuth';
+import CheckOrg from './containers/Management/Orgs/CheckOrg';
+import CheckAccounts from './containers/Management/Accounts/CheckAccounts';
 
-import Toasts from "./components/ui/Toasts";
+import Toasts from './components/ui/Toasts';
+// import { ColorModeSwitcher } from './ColorModeSwitcher';
 
 const Input = {
   defaultProps: {
-    size: "sm",
+    size: 'sm',
   },
 };
 const NumberInput = {
   defaultProps: {
-    size: "sm",
+    size: 'sm',
   },
 };
 const Textarea = {
   defaultProps: {
-    size: "sm",
+    size: 'sm',
   },
 };
 const Select = {
   defaultProps: {
-    size: "sm",
+    size: 'sm',
   },
 };
 
-const config = (theme) => {
+const config = theme => {
   return {
-    initialColorMode: "dark",
+    initialColorMode: 'dark',
     useSystemColorMode: false,
   };
 };
 
 const colors = {
-  card: "#fff",
+  card: '#fff',
 };
 
 const styles = {
-  global: (props) => {
+  global: props => {
     // console.log({ props });
     return {
       body: {
-        fontFamily: "body",
-        color: mode("gray.800", "whiteAlpha.900")(props),
-        bg: mode("gray.100", "gray.800")(props),
-        lineHeight: "base",
+        fontFamily: 'body',
+        color: mode('gray.800', 'whiteAlpha.900')(props),
+        bg: mode('gray.100', 'gray.800')(props),
+        lineHeight: 'base',
       },
-      "*::placeholder": {
-        color: mode("gray.400", "whiteAlpha.400")(props),
+      '*::placeholder': {
+        color: mode('gray.400', 'whiteAlpha.400')(props),
       },
-      "*, *::before, &::after": {
-        borderColor: mode("gray.200", "whiteAlpha.300")(props),
-        wordWrap: "break-word",
+      '*, *::before, &::after': {
+        borderColor: mode('gray.200', 'whiteAlpha.300')(props),
+        wordWrap: 'break-word',
       },
     };
   },
