@@ -1,9 +1,10 @@
-import { SalesItem, Item } from "types";
+import { SalesItem, Item, Tax } from 'types';
 
 interface SelectedItemData {
   itemId: string;
   rate: number;
   quantity: number;
+  salesTax?: Tax;
 }
 
 export default function getSalesItemData(
@@ -11,7 +12,7 @@ export default function getSalesItemData(
   item: Item
 ) {
   // console.log({ data });
-  const { rate, quantity } = salesItem;
+  const { rate, quantity, salesTax } = salesItem;
   const {
     createdAt,
     createdBy,
@@ -21,14 +22,14 @@ export default function getSalesItemData(
     ...itemFormData
   } = item;
 
-  const { salesTax, salesTaxType } = itemFormData;
+  const { salesTaxType } = itemFormData;
 
   let itemRate = rate;
   let itemTax = 0;
 
   //set all rates to be tax exclusive
   if (salesTax?.rate) {
-    if (salesTaxType === "tax inclusive") {
+    if (salesTaxType === 'tax inclusive') {
       //item rate is inclusive of tax
       const tax = (salesTax.rate / (100 + salesTax.rate)) * rate;
       itemRate = rate - tax;

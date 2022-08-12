@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback } from 'react';
 import {
   FormControl,
   FormLabel,
@@ -10,15 +10,15 @@ import {
   GridItem,
   Box,
   Show,
-} from "@chakra-ui/react";
-import { useFormContext } from "react-hook-form";
-import PropTypes from "prop-types";
+} from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
+import PropTypes from 'prop-types';
 
-import { deriveDueDate } from "../../../utils/invoices";
+import { deriveDueDate } from '../../../utils/invoices';
 
-import CustomSelect from "../../ui/CustomSelect";
-import CustomDatePicker from "../../ui/CustomDatePicker";
-import { useEffect } from "react";
+import CustomSelect from '../../ui/CustomSelect';
+import CustomDatePicker from '../../ui/CustomDatePicker';
+import { useEffect } from 'react';
 
 function InvoiceForm(props) {
   const { customers, paymentTerms, loading } = props;
@@ -30,13 +30,13 @@ function InvoiceForm(props) {
     watch,
   } = useFormContext();
 
-  const customerId = watch("customer");
-  const paymentTermId = watch("paymentTerm");
-  const invoiceDate = watch("invoiceDate");
+  const customerId = watch('customer');
+  const paymentTermId = watch('paymentTerm');
+  const invoiceDate = watch('invoiceDate');
 
   const getCustomer = useCallback(
-    (customerId) => {
-      return customers.find((customer) => customer.customerId === customerId);
+    customerId => {
+      return customers.find(customer => customer.customerId === customerId);
     },
     [customers]
   );
@@ -47,7 +47,7 @@ function InvoiceForm(props) {
     if (customerId) {
       const { paymentTerm } = getCustomer(customerId);
       //update payment term field
-      setValue("paymentTerm", paymentTerm.value);
+      setValue('paymentTerm', paymentTerm.value);
     }
   }, [customerId, getCustomer, setValue]);
   /**
@@ -56,15 +56,15 @@ function InvoiceForm(props) {
   useEffect(() => {
     if (paymentTermId) {
       const paymentTerm = paymentTerms.find(
-        (term) => term.value === paymentTermId
+        term => term.value === paymentTermId
       );
       const dueDate = deriveDueDate(paymentTerm, invoiceDate);
-      setValue("dueDate", dueDate);
+      setValue('dueDate', dueDate);
     }
   }, [paymentTermId, invoiceDate, paymentTerms, setValue]);
 
   return (
-    <Box py={4}>
+    <Box mx={-4} pb={4} bg="#f4f6f8">
       <Grid rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
         <GridItem colSpan={[12, 6, 4]}>
           <FormControl
@@ -75,10 +75,11 @@ function InvoiceForm(props) {
             <FormLabel htmlFor="customer">Customer</FormLabel>
             <CustomSelect
               name="customer"
+              size="md"
               placeholder="--select customer--"
               isDisabled={loading}
-              rules={{ required: { value: true, message: "*Required!" } }}
-              options={customers.map((customer) => {
+              rules={{ required: { value: true, message: '*Required!' } }}
+              options={customers.map(customer => {
                 const { customerId, displayName } = customer;
 
                 return { name: displayName, value: customerId };
@@ -91,7 +92,7 @@ function InvoiceForm(props) {
         <GridItem colSpan={[12, 6, 4]}>
           <FormControl isDisabled={loading} isInvalid={errors.orderNumber}>
             <FormLabel htmlFor="orderNumber">Order Number</FormLabel>
-            <Input id="orderNumber" {...register("orderNumber")} />
+            <Input id="orderNumber" {...register('orderNumber')} />
           </FormControl>
         </GridItem>
 
@@ -106,7 +107,7 @@ function InvoiceForm(props) {
             isInvalid={errors.invoiceDate}
           >
             <FormLabel htmlFor="invoiceDate">Invoice Date</FormLabel>
-            <CustomDatePicker name="invoiceDate" required />
+            <CustomDatePicker size="md" name="invoiceDate" required />
             <FormErrorMessage>{errors.invoiceDate?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
@@ -142,7 +143,7 @@ function InvoiceForm(props) {
         <GridItem colSpan={[12, 6, 4]}>
           <FormControl isDisabled={loading} isInvalid={errors.subject}>
             <FormLabel htmlFor="subject">Subject</FormLabel>
-            <Input {...register("subject")} />
+            <Input size="md" {...register('subject')} />
             <FormErrorMessage>{errors.subject?.message}</FormErrorMessage>
             <FormHelperText>
               Let your customer know what this invoice is for
@@ -156,7 +157,7 @@ function InvoiceForm(props) {
             <Textarea
               placeholder="Include a note for the customer."
               id="customerNotes"
-              {...register("customerNotes")}
+              {...register('customerNotes')}
             />
             <FormErrorMessage>{errors.customerNotes?.message}</FormErrorMessage>
           </FormControl>

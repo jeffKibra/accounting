@@ -1,5 +1,5 @@
-import { useMemo, useCallback, useEffect } from "react";
-import { useFormContext, useFieldArray } from "react-hook-form";
+import { useMemo, useCallback, useEffect } from 'react';
+import { useFormContext, useFieldArray } from 'react-hook-form';
 import {
   Box,
   Flex,
@@ -9,25 +9,34 @@ import {
   Grid,
   GridItem,
   Heading,
-} from "@chakra-ui/react";
-import { RiAddLine } from "react-icons/ri";
-import PropTypes from "prop-types";
+} from '@chakra-ui/react';
+import { RiAddLine } from 'react-icons/ri';
+import PropTypes from 'prop-types';
 //contexts
 //hooks
-import { useToasts } from "hooks";
+import { useToasts } from 'hooks';
 //utils
-import { getSalesItemData, getSaleSummary } from "utils/sales";
+import { getSalesItemData, getSaleSummary } from 'utils/sales';
 
 //ui components
-import CustomSelect from "components/ui/CustomSelect";
+import CustomSelect from 'components/ui/CustomSelect';
 //forms
-import SelectItemForm from "components/forms/Sales/SelectItemForm";
+import SelectItemForm from 'components/forms/Sales/SelectItemForm';
 //tables
-import SaleSummaryTable from "components/tables/Sales/SaleSummaryTable";
+import SaleSummaryTable from 'components/tables/Sales/SaleSummaryTable';
 
 export default function EditSale(props) {
-  const { loading, preSelectedItems } = props;
-  //contexts
+  const { loading, preSelectedItems, taxes } = props;
+  //taxes object
+  const taxesObject = useMemo(() => {
+    return taxes.reduce((obj, tax) => {
+      const { name, rate, taxId } = tax;
+      return {
+        ...obj,
+        [taxId]: { name, rate, taxId },
+      };
+    }, {});
+  }, [taxes]);
   //form methhods
   const {
     watch,
@@ -43,33 +52,33 @@ export default function EditSale(props) {
    * initialize field array for selected items
    */
   const { fields, remove, append } = useFieldArray({
-    name: "selectedItems",
+    name: 'selectedItems',
     control,
     shouldUnregister: true,
   });
-  console.log({
-    fields,
-    slItems: watch("selectedItems"),
-    customer: watch("customer"),
-  });
+  // console.log({
+  //   fields,
+  //   slItems: watch('selectedItems'),
+  //   customer: watch('customer'),
+  // });
 
   useEffect(() => {
-    console.log("mounting");
+    console.log('mounting');
 
-    return () => console.log("unmounting");
+    return () => console.log('unmounting');
   }, []);
 
   useEffect(() => {
     /**
      * add default selectedItems
      */
-    console.log("updating default selectedItems");
+    console.log('updating default selectedItems');
     if (
       preSelectedItems &&
       Array.isArray(preSelectedItems) &&
       preSelectedItems.length > 0
     ) {
-      preSelectedItems.forEach((item) => {
+      preSelectedItems.forEach(item => {
         append({ ...item });
       });
     } else {
@@ -88,7 +97,7 @@ export default function EditSale(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const itemsFields = watch("selectedItems");
+  const itemsFields = watch('selectedItems');
 
   /**
    * using watch makes selecetd items(fields) to change on every render.
@@ -116,7 +125,7 @@ export default function EditSale(props) {
       }
     }, {});
 
-    console.log("generating summary");
+    console.log('generating summary');
     const summary = getSaleSummary(selectedItems);
 
     return { selectedItemsObject, summary };
@@ -143,7 +152,7 @@ export default function EditSale(props) {
   }, [props.items]);
 
   const addNewLine = useCallback(() => {
-    console.log("adding new line");
+    console.log('adding new line');
     append({
       item: null,
       rate: 0,
@@ -159,12 +168,12 @@ export default function EditSale(props) {
   // console.log({ fields, errors });
 
   const removeItem = useCallback(
-    (index) => {
+    index => {
       //fetch item from list using the index
       const item = getValues(`selectedItems.${index}`);
-      console.log({ item, index });
+      // console.log({ item, index });
 
-      if (item && typeof item === "object") {
+      if (item && typeof item === 'object') {
         //remove it from form
         remove(index);
       } else {
@@ -175,61 +184,52 @@ export default function EditSale(props) {
     [remove, getValues, toasts]
   );
 
-  const updateItemOnFieldBlur = useCallback(
+  const updateItemFields = useCallback(
     (fieldName, value, index) => {
-      console.log({ fieldName, value });
-      //only call onBlur
       const fieldId = `selectedItems.${index}`;
       const currentValues = getValues(fieldId);
-      console.log({ currentValues });
-
       const {
         item: { itemId },
         quantity,
         rate,
+        salesTax,
       } = currentValues;
 
       const originalItem = itemsObject[itemId];
-      console.log({ originalItem });
+      let selectedItemData = {
+        itemId,
+        quantity,
+        rate,
+        salesTax,
+      };
 
-      const updatedValues = getSalesItemData(
-        {
-          itemId,
-          quantity,
-          rate,
-          /**
-           * field name could be either quantity or rate.
-           * add at bottom to overide current value
-           */
-          [fieldName]: +value,
-        },
-        originalItem
-      );
-      console.log({ updatedValues });
+      /**
+       * field name is either quantity or rate or salesTax.
+       * add at bottom to overide current value
+       */
+      selectedItemData = {
+        ...selectedItemData,
+        [fieldName]: fieldName === 'salesTax' ? taxesObject[value] : +value,
+      };
+
+      const updatedValues = getSalesItemData(selectedItemData, originalItem);
       //update item
       setValue(fieldId, updatedValues);
     },
-    [setValue, getValues, itemsObject]
+    [setValue, getValues, itemsObject, taxesObject]
   );
 
   const handleItemChange = useCallback(
-    (itemId, index, cb) => {
+    (itemId, index) => {
       const selectedItem = itemsObject[itemId];
-      const { sellingPrice } = selectedItem;
-      console.log({ itemId, selectedItem });
+      const { sellingPrice, salesTax } = selectedItem;
 
       const itemData = getSalesItemData(
-        { itemId, quantity: 1, rate: sellingPrice },
+        { itemId, quantity: 1, rate: sellingPrice, salesTax },
         itemsObject[itemId]
       );
-      console.log({ itemData });
 
-      //set form value using a passed callback function
-      if (cb && typeof cb === "function") {
-        cb(itemData.item);
-      }
-
-      //set items rate
+      //update item at index
       setValue(`selectedItems.${index}`, { ...itemData });
     },
     [setValue, itemsObject]
@@ -257,8 +257,8 @@ export default function EditSale(props) {
             colorScheme="cyan"
             name="summary.taxType"
             options={[
-              { name: "Inclusive of Tax", value: "taxInclusive" },
-              { name: "Exclusive of Tax", value: "taxExclusive" },
+              { name: 'Inclusive of Tax', value: 'taxInclusive' },
+              { name: 'Exclusive of Tax', value: 'taxExclusive' },
             ]}
           />
         </Box>
@@ -272,8 +272,9 @@ export default function EditSale(props) {
             selectedItemsObject={selectedItemsObject}
             removeItem={removeItem}
             handleItemChange={handleItemChange}
-            updateItemOnFieldBlur={updateItemOnFieldBlur}
+            updateItemFields={updateItemFields}
             field={field}
+            taxesObject={taxesObject}
           />
         );
       })}
@@ -282,9 +283,9 @@ export default function EditSale(props) {
           onClick={addNewLine}
           size="sm"
           colorScheme="cyan"
-          rightIcon={<RiAddLine />}
+          leftIcon={<RiAddLine />}
         >
-          new line
+          add item
         </Button>
       </Flex>
       );
@@ -311,4 +312,5 @@ EditSale.propTypes = {
   loading: PropTypes.bool.isRequired,
   items: PropTypes.array.isRequired,
   preSelectedItems: PropTypes.array,
+  taxes: PropTypes.array.isRequired,
 };

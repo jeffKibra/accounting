@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { NumberInput, NumberInputField } from "@chakra-ui/react";
-import PropTypes from "prop-types";
+import { useState, useEffect } from 'react';
+import { NumberInput, NumberInputField } from '@chakra-ui/react';
+import PropTypes from 'prop-types';
 
 function ControlledNumInput(props) {
   const {
@@ -11,6 +11,7 @@ function ControlledNumInput(props) {
     defaultValue,
     min,
     max,
+    size,
   } = props;
   const [value, setValue] = useState(defaultValue || 0);
 
@@ -18,7 +19,7 @@ function ControlledNumInput(props) {
     //set local value
     setValue(+inputValue);
     //update parent value if function is provided
-    if (getValueOnChange && typeof getValueOnChange === "function") {
+    if (getValueOnChange && typeof getValueOnChange === 'function') {
       getValueOnChange(+inputValue);
     }
   }
@@ -43,7 +44,7 @@ function ControlledNumInput(props) {
       min={min}
       {...(max ? { max } : {})}
       // defaultValue={defaultValue || 0}
-      size="sm"
+      size={size}
       isReadOnly={isReadOnly}
       isDisabled={isDisabled}
     >
@@ -60,6 +61,7 @@ function ControlledNumInput(props) {
 ControlledNumInput.defaultProps = {
   defaultValue: 0,
   min: 0,
+  size: 'md',
 };
 
 ControlledNumInput.propTypes = {
@@ -70,6 +72,7 @@ ControlledNumInput.propTypes = {
   defaultValue: PropTypes.number.isRequired,
   min: PropTypes.number,
   max: PropTypes.number,
+  size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl']),
 };
 
 export default ControlledNumInput;

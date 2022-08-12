@@ -1,10 +1,11 @@
-import { NumberInput, NumberInputField } from "@chakra-ui/react";
-import { useFormContext } from "react-hook-form";
-import PropTypes from "prop-types";
+import { NumberInput, NumberInputField } from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
+import PropTypes from 'prop-types';
 
 function TableNumInput(props) {
   const {
     name,
+    size,
     min,
     max,
     defaultValue,
@@ -29,7 +30,7 @@ function TableNumInput(props) {
       min={min}
       max={max}
       defaultValue={defaultValue || 0}
-      size="sm"
+      size={size || 'md'}
       isReadOnly={isReadOnly}
       isDisabled={isDisabled}
     >
@@ -49,6 +50,7 @@ function TableNumInput(props) {
 
 TableNumInput.propTypes = {
   name: PropTypes.string.isRequired,
+  size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl']),
   min: PropTypes.number,
   max: PropTypes.number,
   defaultValue: PropTypes.number,

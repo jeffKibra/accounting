@@ -3,14 +3,14 @@ import {
   serverTimestamp,
   increment,
   Transaction,
-} from "firebase/firestore";
+} from 'firebase/firestore';
 
-import { db, dbCollections } from "../../firebase";
-import { getAccountData, getAccountsMapping } from "../../accounts";
-import { createSimilarAccountEntries } from "../../journals";
-import formats from "../../formats";
-import { getDateDetails } from "../../dates";
-import { formatSalesItems } from "../../sales";
+import { db, dbCollections } from '../../firebase';
+import { getAccountData, getAccountsMapping } from '../../accounts';
+import { createSimilarAccountEntries } from '../../journals';
+import formats from '../../formats';
+import { getDateDetails } from '../../dates';
+import { formatSalesItems } from '../../sales';
 
 import {
   Org,
@@ -19,12 +19,12 @@ import {
   InvoiceFormData,
   InvoiceFromDb,
   InvoiceTransactionTypes,
-} from "types";
+} from 'types';
 
 interface TDetails
   extends Omit<
     InvoiceFromDb,
-    "createdAt" | "createdBy" | "modifiedAt" | "modifiedBy"
+    'createdAt' | 'createdBy' | 'modifiedAt' | 'modifiedBy'
   > {}
 
 export default function createInvoice(
@@ -34,9 +34,9 @@ export default function createInvoice(
   accounts: Account[],
   invoiceId: string,
   data: InvoiceFormData,
-  transactionType: keyof InvoiceTransactionTypes = "invoice"
+  transactionType: keyof InvoiceTransactionTypes = 'invoice'
 ) {
-  console.log("creating invoice", transactionType, data);
+  console.log('creating invoice', transactionType, data);
   const { orgId } = org;
   const { email } = userProfile;
   const { customer, summary, selectedItems } = data;
@@ -55,7 +55,7 @@ export default function createInvoice(
     paymentsReceived: {},
     paymentsIds: [],
     paymentsCount: 0,
-    status: "active",
+    status: 'active',
     isSent: false,
     transactionType,
     org: formats.formatOrgData(org),
@@ -65,23 +65,23 @@ export default function createInvoice(
     invoiceId,
   };
   const transactionId = invoiceId;
-  const reference = "";
+  const reference = '';
 
   /**
    * create journal entries for income accounts
    */
   const allItems = [
     ...formatSalesItems(selectedItems),
-    { accountId: "shipping_charge", amount: shipping || 0 },
-    { accountId: "other_charges", amount: adjustment || 0 },
-    { accountId: "tax_payable", amount: totalTax || 0 },
-    { accountId: "accounts_receivable", amount: totalAmount },
+    { accountId: 'shipping_charge', amount: shipping || 0 },
+    { accountId: 'other_charges', amount: adjustment || 0 },
+    { accountId: 'tax_payable', amount: totalTax || 0 },
+    { accountId: 'accounts_receivable', amount: totalAmount },
   ];
   const { newAccounts } = getAccountsMapping([], allItems);
   /**
    * create all accounts
    */
-  newAccounts.forEach((newAccount) => {
+  newAccounts.forEach(newAccount => {
     const { accountId, incoming } = newAccount;
     const salesAccount = getAccountData(accountId, accounts);
 
@@ -102,7 +102,7 @@ export default function createInvoice(
    * -customer summary and
    * -org summary
    */
-  if (transactionType === "invoice") {
+  if (transactionType === 'invoice') {
     /**
      * update customer summaries
      */
@@ -110,17 +110,17 @@ export default function createInvoice(
     const customerRef = doc(customersCollections, customerId);
 
     transaction.update(customerRef, {
-      "summary.invoices": increment(1),
-      "summary.invoicedAmount": increment(totalAmount),
+      'summary.invoices': increment(1),
+      'summary.invoicedAmount': increment(totalAmount),
     });
     /**
      * update org summaries
      */
     const summaryRef = doc(
       db,
-      "organizations",
+      'organizations',
       orgId,
-      "summaries",
+      'summaries',
       yearMonthDay
     );
     transaction.update(summaryRef, {
@@ -133,7 +133,7 @@ export default function createInvoice(
   const invoicesCollection = dbCollections(orgId).invoices;
   const invoiceRef = doc(invoicesCollection, invoiceId);
 
-  // console.log({ tDetails });
+  console.log({ tDetails });
   transaction.set(invoiceRef, {
     ...tDetails,
     createdBy: email,

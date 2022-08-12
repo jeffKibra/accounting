@@ -1,35 +1,35 @@
-import { useMemo, useEffect } from "react";
-import { Box } from "@chakra-ui/react";
-import PropTypes from "prop-types";
-import { useForm, FormProvider } from "react-hook-form";
+import { useMemo, useEffect } from 'react';
+import { Box } from '@chakra-ui/react';
+import PropTypes from 'prop-types';
+import { useForm, FormProvider } from 'react-hook-form';
 
-import formats from "utils/formats";
-import { confirmFutureDate } from "utils/dates";
-import { useToasts, useGetSalesProps } from "hooks";
+import formats from 'utils/formats';
+import { confirmFutureDate } from 'utils/dates';
+import { useToasts, useGetSalesProps } from 'hooks';
 
-import SkeletonLoader from "components/ui/SkeletonLoader";
-import Empty from "components/ui/Empty";
+import SkeletonLoader from 'components/ui/SkeletonLoader';
+import Empty from 'components/ui/Empty';
 
-import InvoiceForm from "../../../components/forms/Invoice/InvoiceForm";
-import EditSale from "../Sales/EditSale";
+import InvoiceForm from '../../../components/forms/Invoice/InvoiceForm';
+import EditSale from '../Sales/EditSale';
 
 function EditInvoice(props) {
   const { invoice, handleFormSubmit, updating } = props;
   // console.log({ props });
 
-  const { loading, items, customers, paymentTerms } = useGetSalesProps();
+  const { loading, items, customers, paymentTerms, taxes } = useGetSalesProps();
 
   const defaultValues = useMemo(() => {
     const today = new Date();
 
     return {
-      customer: invoice?.customer?.customerId || "",
-      orderNumber: invoice?.orderNumber || "",
+      customer: invoice?.customer?.customerId || '',
+      orderNumber: invoice?.orderNumber || '',
       invoiceDate: invoice?.invoiceDate || today,
-      paymentTerm: invoice?.paymentTerm?.value || "on_receipt",
+      paymentTerm: invoice?.paymentTerm?.value || 'on_receipt',
       dueDate: invoice?.dueDate || today,
-      subject: invoice?.subject || "",
-      customerNotes: invoice?.customerNotes || "",
+      subject: invoice?.subject || '',
+      customerNotes: invoice?.customerNotes || '',
       summary: invoice?.summary || {
         adjustment: 0,
         shipping: 0,
@@ -37,13 +37,13 @@ function EditInvoice(props) {
         taxes: [],
         totalAmount: 0,
         totalTax: 0,
-        taxType: "taxExclusive",
+        taxType: 'taxExclusive',
       },
     };
   }, [invoice]);
 
   const formMethods = useForm({
-    mode: "onChange",
+    mode: 'onChange',
     defaultValues,
   });
   const { handleSubmit, reset } = formMethods;
@@ -70,12 +70,11 @@ function EditInvoice(props) {
      */
 
     const fieldsValid =
-      (selectedItems && selectedItems.filter((item) => item).length > 0) ||
-      false;
+      (selectedItems && selectedItems.filter(item => item).length > 0) || false;
     console.log({ selectedItems });
 
     if (!fieldsValid) {
-      return toasts.error("Please add atleast one(1) item to proceed!");
+      return toasts.error('Please add atleast one(1) item to proceed!');
     }
     // if (totalAmount <= 0) {
     //   return toasts.error("Total Sale Amount should be greater than ZERO(0)!");
@@ -86,22 +85,20 @@ function EditInvoice(props) {
      */
     const dueDateIsFuture = confirmFutureDate(invoiceDate, dueDate);
     if (!dueDateIsFuture) {
-      return toasts.error("Due date cannot be less than invoice date");
+      return toasts.error('Due date cannot be less than invoice date');
     }
 
     const customer = customers.find(
-      (customer) => customer.customerId === customerId
+      customer => customer.customerId === customerId
     );
     if (!customer) {
-      return toasts.error("Selected an Invalid customer");
+      return toasts.error('Selected an Invalid customer');
     }
     formValues.customer = formats.formatCustomerData(customer);
 
-    const paymentTerm = paymentTerms.find(
-      (term) => term.value === paymentTermId
-    );
+    const paymentTerm = paymentTerms.find(term => term.value === paymentTermId);
     if (!paymentTerm) {
-      return toasts.error("Selected Payment Term is not a valid Payment Term");
+      return toasts.error('Selected Payment Term is not a valid Payment Term');
     }
     formValues.paymentTerm = paymentTerm;
 
@@ -143,6 +140,7 @@ function EditInvoice(props) {
           loading={updating}
           items={items}
           preSelectedItems={invoice?.selectedItems}
+          taxes={taxes}
         />
         {/* <Container
           mt={2}

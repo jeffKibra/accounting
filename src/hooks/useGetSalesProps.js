@@ -1,9 +1,10 @@
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { GET_ITEMS } from "store/actions/itemsActions";
-import { GET_CUSTOMERS } from "store/actions/customersActions";
-import { GET_PAYMENT_TERMS } from "store/actions/paymentTermsActions";
+import { GET_ITEMS } from 'store/actions/itemsActions';
+import { GET_CUSTOMERS } from 'store/actions/customersActions';
+import { GET_PAYMENT_TERMS } from 'store/actions/paymentTermsActions';
+import { GET_TAXES } from 'store/actions/taxesActions';
 
 export default function useGetSalesProps() {
   const dispatch = useDispatch();
@@ -11,24 +12,32 @@ export default function useGetSalesProps() {
     loading: loadingItems,
     items,
     action: itemsAction,
-  } = useSelector((state) => state.itemsReducer);
+  } = useSelector(state => state.itemsReducer);
   loadingItems = loadingItems && itemsAction === GET_ITEMS;
 
   let {
     loading: loadingCustomers,
     customers,
     action: customersAction,
-  } = useSelector((state) => state.customersReducer);
+  } = useSelector(state => state.customersReducer);
   loadingCustomers = loadingCustomers && customersAction === GET_CUSTOMERS;
 
   let {
     loading: loadingPaymentTerms,
     paymentTerms,
     action: ptAction,
-  } = useSelector((state) => state.paymentTermsReducer);
+  } = useSelector(state => state.paymentTermsReducer);
   loadingPaymentTerms = loadingPaymentTerms && ptAction === GET_PAYMENT_TERMS;
 
-  const loading = loadingItems || loadingCustomers || loadingPaymentTerms;
+  let {
+    loading: loadingTaxes,
+    taxes,
+    action: taxesAction,
+  } = useSelector(state => state.taxesReducer);
+  loadingTaxes = loadingTaxes && taxesAction === GET_TAXES;
+
+  const loading =
+    loadingItems || loadingCustomers || loadingPaymentTerms || loadingTaxes;
 
   useEffect(() => {
     function getItems() {
@@ -40,10 +49,14 @@ export default function useGetSalesProps() {
     function getPaymentTerms() {
       dispatch({ type: GET_PAYMENT_TERMS });
     }
+    function getTaxes() {
+      dispatch({ type: GET_TAXES });
+    }
 
     getItems();
     getCustomers();
     getPaymentTerms();
+    getTaxes();
   }, [dispatch]);
 
   return {
@@ -51,5 +64,6 @@ export default function useGetSalesProps() {
     items,
     customers,
     paymentTerms,
+    taxes,
   };
 }

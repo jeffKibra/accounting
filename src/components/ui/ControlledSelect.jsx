@@ -6,19 +6,19 @@ import {
   MenuItemOption,
   Button,
   Text,
-} from "@chakra-ui/react";
-import PropTypes from "prop-types";
-import { RiArrowUpSLine, RiArrowDownSLine } from "react-icons/ri";
+} from '@chakra-ui/react';
+import PropTypes from 'prop-types';
+import { RiArrowUpSLine, RiArrowDownSLine } from 'react-icons/ri';
 
-import { sortStrings } from "../../utils/functions";
+import { sortStrings } from '../../utils/functions';
 
 function Grouped(props) {
   const { options, onChange, value } = props;
   let groups = [];
 
-  options.forEach((option) => {
+  options.forEach(option => {
     const { groupName } = option;
-    const index = groups.findIndex((group) => group.groupName === groupName);
+    const index = groups.findIndex(group => group.groupName === groupName);
     if (index === -1) {
       //not found
       groups.push({
@@ -34,10 +34,10 @@ function Grouped(props) {
     return sortStrings(groupA, groupB);
   });
 
-  groups = groups.map((group) => {
+  groups = groups.map(group => {
     const { groupName } = group;
     const groupOptions = options.filter(
-      (option) => option.groupName === groupName
+      option => option.groupName === groupName
     );
 
     return {
@@ -159,9 +159,10 @@ function ControlledSelect(props) {
                 as={Button}
                 id={id}
                 isDisabled={isDisabled}
-                size={size || "sm"}
+                size={size || 'md'}
                 {...(colorScheme ? { colorScheme } : {})}
                 isActive={isOpen}
+                w="full"
                 isFullWidth
                 variant="outline"
                 textAlign="left"
@@ -170,7 +171,7 @@ function ControlledSelect(props) {
               >
                 <Text fontSize="sm">
                   {value
-                    ? currentOptions.find((option) => option.value === value)
+                    ? currentOptions.find(option => option.value === value)
                         ?.name
                     : placeholder}
                 </Text>
@@ -207,7 +208,7 @@ function ControlledSelect(props) {
 ControlledSelect.defaultProps = {
   allowClearSelection: true,
   onBlur: () => {},
-  id: "controlled select",
+  id: 'controlled select',
 };
 
 ControlledSelect.propTypes = {
@@ -215,7 +216,7 @@ ControlledSelect.propTypes = {
   groupedOptions: Grouped.propTypes.options,
   id: PropTypes.string,
   placeholder: PropTypes.string,
-  size: PropTypes.oneOf(["xs", "sm", "md", "lg", "xl"]),
+  size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl']),
   colorScheme: PropTypes.string,
   isDisabled: PropTypes.bool,
   renderTrigger: PropTypes.func,

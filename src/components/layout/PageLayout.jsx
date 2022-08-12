@@ -1,5 +1,5 @@
-import { Divider, Heading, VStack, HStack, Flex } from "@chakra-ui/react";
-import PropTypes from "prop-types";
+import { Heading, VStack, HStack, Flex } from '@chakra-ui/react';
+import PropTypes from 'prop-types';
 
 function PageLayout(props) {
   const { pageTitle, actions, children } = props;
@@ -18,9 +18,9 @@ function PageLayout(props) {
         {actions}
       </HStack>
 
-      <Flex px={4} mt="0px!important">
+      {/* <Flex px={4} mt="0px!important">
         <Divider backgroundColor="blackAlpha.600" />
-      </Flex>
+      </Flex> */}
 
       <VStack
         flexGrow={1}
