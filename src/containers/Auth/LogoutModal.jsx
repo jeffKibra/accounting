@@ -8,26 +8,26 @@ import {
   ModalCloseButton,
   useDisclosure,
   Button,
-} from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+} from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 // import { AuthContext } from "../../store/contexts/auth/authContext";
 
 function Logout() {
-  const { loading } = useSelector((store) => store.authReducer);
+  const { loading } = useSelector(store => store.authReducer);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
 
   function logout() {
-    navigate("/logout");
+    navigate('/logout');
     onClose();
   }
 
   return (
     <>
-      <Button colorScheme="cyan" onClick={onOpen} isFullWidth>
+      <Button colorScheme="cyan" onClick={onOpen} w="full">
         sign out
       </Button>
       <Modal

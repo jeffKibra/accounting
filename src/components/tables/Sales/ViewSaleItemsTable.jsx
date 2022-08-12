@@ -6,17 +6,11 @@ import {
   Tbody,
   Tr,
   Td,
-} from "@chakra-ui/react";
-import PropTypes from "prop-types";
+} from '@chakra-ui/react';
+import PropTypes from 'prop-types';
 
 function ViewSaleItemsTable(props) {
   const { items, taxType } = props;
-
-  const discounts = [].concat(items).some((item) => {
-    return item.discount > 0;
-  });
-
-  // console.log({ discounts });
 
   return (
     <>
@@ -56,18 +50,6 @@ function ViewSaleItemsTable(props) {
               >
                 Rate
               </Th>
-              {discounts && (
-                <Th
-                  fontSize="sm"
-                  w="11%"
-                  textTransform="inherit"
-                  color="inherit"
-                  py={2}
-                  isNumeric
-                >
-                  Discount
-                </Th>
-              )}
 
               <Th
                 fontSize="sm"
@@ -82,15 +64,15 @@ function ViewSaleItemsTable(props) {
             </Tr>
           </Thead>
           <Tbody>
-            {items.map((item, i) => {
+            {items.map((itemDetails, i) => {
               const {
-                name,
+                item: { name },
                 quantity,
                 itemRate,
                 itemTax,
                 itemRateTotal,
                 itemTaxTotal,
-              } = item;
+              } = itemDetails;
               return (
                 <Tr key={i}>
                   <Td>{i + 1}</Td>
@@ -98,13 +80,13 @@ function ViewSaleItemsTable(props) {
                   <Td isNumeric>{Number(quantity).toLocaleString()}</Td>
                   <Td isNumeric>
                     {Number(
-                      taxType === "taxInclusive" ? itemRate + itemTax : itemRate
+                      taxType === 'taxInclusive' ? itemRate + itemTax : itemRate
                     ).toLocaleString()}
                   </Td>
 
                   <Td isNumeric>
                     {Number(
-                      taxType === "taxInclusive"
+                      taxType === 'taxInclusive'
                         ? itemRateTotal + itemTaxTotal
                         : itemRateTotal
                     ).toLocaleString()}
@@ -122,11 +104,13 @@ function ViewSaleItemsTable(props) {
 ViewSaleItemsTable.propTypes = {
   items: PropTypes.arrayOf(
     PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      variant: PropTypes.string,
-      itemId: PropTypes.string.isRequired,
+      item: PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        variant: PropTypes.string,
+        itemId: PropTypes.string.isRequired,
+      }),
       rate: PropTypes.number.isRequired,
-      tax: PropTypes.oneOfType([
+      salesTax: PropTypes.oneOfType([
         PropTypes.shape({
           name: PropTypes.string,
           rate: PropTypes.number,
@@ -136,6 +120,8 @@ ViewSaleItemsTable.propTypes = {
       ]),
       itemRateTotal: PropTypes.number.isRequired,
       itemRate: PropTypes.number.isRequired,
+      itemTaxTotal: PropTypes.number.isRequired,
+      itemTax: PropTypes.number.isRequired,
       quantity: PropTypes.number.isRequired,
     })
   ),

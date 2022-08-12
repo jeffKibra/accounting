@@ -26,7 +26,7 @@ import SelectItemForm from 'components/forms/Sales/SelectItemForm';
 import SaleSummaryTable from 'components/tables/Sales/SaleSummaryTable';
 
 export default function EditSale(props) {
-  const { loading, preSelectedItems, taxes } = props;
+  const { loading, taxes } = props;
   //taxes object
   const taxesObject = useMemo(() => {
     return taxes.reduce((obj, tax) => {
@@ -43,7 +43,7 @@ export default function EditSale(props) {
     setValue,
     getValues,
     control,
-    formState: { errors },
+    // formState: { errors },
   } = useFormContext();
   //hooks
   const toasts = useToasts();
@@ -54,7 +54,7 @@ export default function EditSale(props) {
   const { fields, remove, append } = useFieldArray({
     name: 'selectedItems',
     control,
-    shouldUnregister: true,
+    // shouldUnregister: true,
   });
   // console.log({
   //   fields,
@@ -68,34 +68,35 @@ export default function EditSale(props) {
     return () => console.log('unmounting');
   }, []);
 
-  useEffect(() => {
-    /**
-     * add default selectedItems
-     */
-    console.log('updating default selectedItems');
-    if (
-      preSelectedItems &&
-      Array.isArray(preSelectedItems) &&
-      preSelectedItems.length > 0
-    ) {
-      preSelectedItems.forEach(item => {
-        append({ ...item });
-      });
-    } else {
-      append({
-        item: null,
-        rate: 0,
-        quantity: 0,
-        itemRate: 0,
-        itemTax: 0,
-        itemRateTotal: 0,
-        itemTaxTotal: 0,
-        salesTax: null,
-      });
-    }
+  // useEffect(() => {
+  //   /**
+  //    * add default selectedItems
+  //    */
+  //   console.log('updating default selectedItems');
+  //   if (
+  //     preSelectedItems &&
+  //     Array.isArray(preSelectedItems) &&
+  //     preSelectedItems.length > 0
+  //   ) {
+  //     // replace(preSelectedItems);
+  //     // preSelectedItems.forEach(item => {
+  //     //   append({ ...item });
+  //     // });
+  //   } else {
+  //     // append({
+  //     //   item: null,
+  //     //   rate: 0,
+  //     //   quantity: 0,
+  //     //   itemRate: 0,
+  //     //   itemTax: 0,
+  //     //   itemRateTotal: 0,
+  //     //   itemTaxTotal: 0,
+  //     //   salesTax: null,
+  //     // });
+  //   }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   const itemsFields = watch('selectedItems');
 
@@ -235,7 +236,7 @@ export default function EditSale(props) {
     [setValue, itemsObject]
   );
 
-  console.log({ errors });
+  // console.log({ errors });
 
   return (
     <VStack mt={1}>
@@ -275,6 +276,7 @@ export default function EditSale(props) {
             updateItemFields={updateItemFields}
             field={field}
             taxesObject={taxesObject}
+            loading={loading}
           />
         );
       })}
@@ -284,33 +286,25 @@ export default function EditSale(props) {
           size="sm"
           colorScheme="cyan"
           leftIcon={<RiAddLine />}
+          disabled={loading}
         >
           add item
         </Button>
       </Flex>
       );
       <Grid w="full" rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
-        <GridItem colSpan={[1, 4, 6]}></GridItem>
-        <GridItem colSpan={[11, 8, 6]}>
+        <GridItem colSpan={[0, 4, 6]}></GridItem>
+        <GridItem colSpan={[12, 8, 6]}>
           <SaleSummaryTable loading={loading} summary={summary} />
         </GridItem>
       </Grid>
-      <Flex w="full" py={4} justify="space-evenly">
-        <Button type="submit" isLoading={loading} colorScheme="cyan">
-          save
-        </Button>
-      </Flex>
     </VStack>
   );
 }
 
-EditSale.defaultProps = {
-  preSelectedItems: [],
-};
-
 EditSale.propTypes = {
   loading: PropTypes.bool.isRequired,
   items: PropTypes.array.isRequired,
-  preSelectedItems: PropTypes.array,
   taxes: PropTypes.array.isRequired,
+  // preSelectedItems: PropTypes.array,
 };

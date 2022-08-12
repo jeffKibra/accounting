@@ -163,7 +163,6 @@ function ControlledSelect(props) {
                 {...(colorScheme ? { colorScheme } : {})}
                 isActive={isOpen}
                 w="full"
-                isFullWidth
                 variant="outline"
                 textAlign="left"
                 rightIcon={isOpen ? <RiArrowUpSLine /> : <RiArrowDownSLine />}

@@ -1,12 +1,12 @@
-import { useMemo } from "react";
-import { useLocation } from "react-router-dom";
-import { Flex } from "@chakra-ui/react";
+import { useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Flex } from '@chakra-ui/react';
 
-import { DrawerContextProvider } from "../../contexts/DrawerContext";
+import { DrawerContextProvider } from '../../contexts/DrawerContext';
 
-import * as routes from "../../nav/routes";
-import AppBar from "./AppBar";
-import Sidebar from "./Sidebar";
+import * as routes from '../../nav/routes';
+import AppBar from './AppBar';
+import Sidebar from './Sidebar';
 
 function Layout(props) {
   const location = useLocation();
@@ -15,7 +15,7 @@ function Layout(props) {
   const isFreeRoute = useMemo(() => {
     const freeRoutes = [routes.LOGIN_USER, routes.LOGOUT_USER, routes.SIGNUP];
 
-    const route = freeRoutes.find((route) => route === location.pathname);
+    const route = freeRoutes.find(route => route === location.pathname);
     if (!route) {
       return false;
     }
@@ -24,19 +24,19 @@ function Layout(props) {
   }, [location]);
 
   return (
-    <Flex direction="column" h="100vh" minW="full" overflowY="hidden">
+    <Flex h="100vh" minW="full" overflowY="hidden">
       {isFreeRoute ? (
         <Flex flexGrow={1} overflowY="hidden">
           {children}
         </Flex>
       ) : (
         <DrawerContextProvider>
-          <AppBar />
+          <Sidebar />
+
           {/* <Box w="100%" minH="56px" maxH="56px" /> */}
 
-          <Flex flexGrow={1} overflowY="hidden">
-            <Sidebar />
-
+          <Flex direction="column" flexGrow={1} overflowY="hidden">
+            <AppBar />
             <Flex overflowY="hidden" flexGrow={1}>
               {children}
             </Flex>

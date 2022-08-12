@@ -10,7 +10,7 @@ function PageLayout(props) {
       textAlign="left"
       alignItems="stretch"
     >
-      <HStack py={2} px={4}>
+      <HStack py={2} px={[4, 6]}>
         <Heading as="h3" size="md">
           {pageTitle}
         </Heading>
@@ -27,7 +27,7 @@ function PageLayout(props) {
         overflowY="auto"
         w="full"
         alignItems="center"
-        px={4}
+        px={[4, 6]}
         pt={4}
         pb={4}
         mt="0px!important"

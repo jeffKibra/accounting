@@ -1,16 +1,16 @@
-import { useEffect, useCallback } from "react";
-import { TableContainer, Table, Tbody, Td, Th, Tr } from "@chakra-ui/react";
-import PropTypes from "prop-types";
-import { Controller, useFormContext } from "react-hook-form";
+import { useEffect, useCallback } from 'react';
+import { TableContainer, Table, Tbody, Td, Th, Tr } from '@chakra-ui/react';
+import PropTypes from 'prop-types';
+import { Controller, useFormContext } from 'react-hook-form';
 
-import TableNumInput from "../../ui/TableNumInput";
-import RHFPlainNumInput from "components/ui/RHFPlainNumInput";
+import TableNumInput from '../../ui/TableNumInput';
+import RHFPlainNumInput from 'components/ui/RHFPlainNumInput';
 
 function SaleSummaryTable(props) {
   const { loading, summary } = props;
   const { control, getValues, watch, setValue } = useFormContext();
 
-  const taxType = watch("summary.taxType");
+  const taxType = watch('summary.taxType');
 
   const { taxes } = summary;
 
@@ -23,13 +23,13 @@ function SaleSummaryTable(props) {
   const updateSummaryOnFieldBlur = useCallback(
     (fieldName, value, subSummary) => {
       //get current values
-      const currentSummary = getValues("summary");
+      const currentSummary = getValues('summary');
 
       const { shipping, adjustment } = currentSummary;
       let { subTotal, totalTax, taxes } = subSummary;
       const newSubTotal = subTotal + totalTax;
 
-      subTotal = taxType === "taxInclusive" ? newSubTotal : subTotal;
+      subTotal = taxType === 'taxInclusive' ? newSubTotal : subTotal;
 
       const totalAmount = getTotalAmount({
         subTotal: newSubTotal,
@@ -43,7 +43,7 @@ function SaleSummaryTable(props) {
       });
 
       //update whole summary
-      setValue("summary", {
+      setValue('summary', {
         ...currentSummary,
         subTotal,
         totalTax,
@@ -74,10 +74,10 @@ function SaleSummaryTable(props) {
                 min={0}
                 isReadOnly
                 rules={{
-                  required: { value: true, message: "Required" },
+                  required: { value: true, message: 'Required' },
                   min: {
                     value: 0,
-                    message: "Value should be a positive number",
+                    message: 'Value should be a positive number',
                   },
                 }}
               />
@@ -93,12 +93,31 @@ function SaleSummaryTable(props) {
                 updateValueOnBlur={false}
                 min={0}
                 isReadOnly={loading}
-                onBlur={(value) =>
-                  updateSummaryOnFieldBlur("shipping", value, summary)
+                onBlur={value =>
+                  updateSummaryOnFieldBlur('shipping', value, summary)
                 }
                 rules={{
-                  min: { value: 0, message: "Value must be a positive number" },
+                  min: { value: 0, message: 'Value must be a positive number' },
                 }}
+              />
+            </Th>
+          </Tr>
+
+          <Tr>
+            <Td>Adjustments </Td>
+            <Th w="16%" isNumeric>
+              <RHFPlainNumInput
+                name="summary.adjustment"
+                mode="onBlur"
+                updateValueOnBlur={false}
+                rules={{
+                  min: 0,
+                }}
+                min={0}
+                onBlur={value =>
+                  updateSummaryOnFieldBlur('adjustment', value, summary)
+                }
+                isReadOnly={loading}
               />
             </Th>
           </Tr>
@@ -116,32 +135,13 @@ function SaleSummaryTable(props) {
             return (
               <Tr key={i}>
                 <Td>
-                  {" "}
+                  {' '}
                   {name} ({rate}%)
                 </Td>
                 <Td isNumeric>{totalTax}</Td>
               </Tr>
             );
           })}
-
-          <Tr>
-            <Td>Adjustments </Td>
-            <Th w="16%" isNumeric>
-              <RHFPlainNumInput
-                name="summary.adjustment"
-                mode="onBlur"
-                updateValueOnBlur={false}
-                rules={{
-                  min: 0,
-                }}
-                min={0}
-                onBlur={(value) =>
-                  updateSummaryOnFieldBlur("adjustment", value, summary)
-                }
-                isReadOnly={loading}
-              />
-            </Th>
-          </Tr>
 
           {/**
            * add totalTax to form but hide from view-returns nothing
@@ -150,8 +150,8 @@ function SaleSummaryTable(props) {
             name="summary.totalTax"
             control={control}
             rules={{
-              required: { value: true, message: "Required" },
-              min: { value: 0, message: "Value should be a positive number" },
+              required: { value: true, message: 'Required' },
+              min: { value: 0, message: 'Value should be a positive number' },
             }}
             render={() => <></>}
           />
@@ -163,10 +163,10 @@ function SaleSummaryTable(props) {
                 name="summary.totalAmount"
                 isReadOnly
                 rules={{
-                  required: { value: true, message: "Required" },
+                  required: { value: true, message: 'Required' },
                   min: {
                     value: 0,
-                    message: "Value should be a positive number",
+                    message: 'Value should be a positive number',
                   },
                 }}
               />

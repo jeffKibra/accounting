@@ -9,7 +9,6 @@ import {
   Grid,
   GridItem,
   Box,
-  Show,
 } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import PropTypes from 'prop-types';
@@ -64,9 +63,9 @@ function InvoiceForm(props) {
   }, [paymentTermId, invoiceDate, paymentTerms, setValue]);
 
   return (
-    <Box mx={-4} pb={4} bg="#f4f6f8">
-      <Grid rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
-        <GridItem colSpan={[12, 6, 4]}>
+    <Box pb={1}>
+      <Grid mb={2} rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
+        <GridItem colSpan={[12, 6]}>
           <FormControl
             isDisabled={loading}
             isRequired
@@ -88,18 +87,27 @@ function InvoiceForm(props) {
             <FormErrorMessage>{errors.customer?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
-
-        <GridItem colSpan={[12, 6, 4]}>
-          <FormControl isDisabled={loading} isInvalid={errors.orderNumber}>
-            <FormLabel htmlFor="orderNumber">Order Number</FormLabel>
-            <Input id="orderNumber" {...register('orderNumber')} />
+        <GridItem colSpan={[12, 6]}>
+          <FormControl isDisabled={loading} isInvalid={errors.customerNotes}>
+            <FormLabel htmlFor="customerNotes">Customer Notes</FormLabel>
+            <Textarea
+              placeholder="Include a note for the customer."
+              id="customerNotes"
+              {...register('customerNotes')}
+            />
+            <FormErrorMessage>{errors.customerNotes?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
+      </Grid>
 
-        <Show above="md">
-          <GridItem colSpan={4}></GridItem>
-        </Show>
-
+      <Grid
+        rowGap={2}
+        columnGap={4}
+        templateColumns="repeat(12, 1fr)"
+        bg="#f4f6f8"
+        mx={-4}
+        p={4}
+      >
         <GridItem colSpan={[12, 4]}>
           <FormControl
             isDisabled={loading}
@@ -139,6 +147,12 @@ function InvoiceForm(props) {
             <FormErrorMessage>{errors.dueDate?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
+        <GridItem colSpan={[12, 6, 4]}>
+          <FormControl isDisabled={loading} isInvalid={errors.orderNumber}>
+            <FormLabel htmlFor="orderNumber">Order Number</FormLabel>
+            <Input id="orderNumber" {...register('orderNumber')} />
+          </FormControl>
+        </GridItem>
 
         <GridItem colSpan={[12, 6, 4]}>
           <FormControl isDisabled={loading} isInvalid={errors.subject}>
@@ -148,18 +162,6 @@ function InvoiceForm(props) {
             <FormHelperText>
               Let your customer know what this invoice is for
             </FormHelperText>
-          </FormControl>
-        </GridItem>
-
-        <GridItem colSpan={[12, 6, 4]}>
-          <FormControl isDisabled={loading} isInvalid={errors.customerNotes}>
-            <FormLabel htmlFor="customerNotes">Customer Notes</FormLabel>
-            <Textarea
-              placeholder="Include a note for the customer."
-              id="customerNotes"
-              {...register('customerNotes')}
-            />
-            <FormErrorMessage>{errors.customerNotes?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
       </Grid>

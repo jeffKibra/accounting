@@ -193,36 +193,6 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "transactionDetails.customerId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "transactionId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "transactionType",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "journals",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "account.accountId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
-          "order": "ASCENDING"
-        },
-        {
           "fieldPath": "transactionDetails.paymentId",
           "order": "ASCENDING"
         },
@@ -297,7 +267,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "transactionDetails.customerId",
+          "fieldPath": "transactionDetails.customer.customerId",
           "order": "ASCENDING"
         },
         {
@@ -351,7 +321,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "transactionDetails.vendorId",
+          "fieldPath": "transactionDetails.vendor.vendorId",
           "order": "ASCENDING"
         },
         {

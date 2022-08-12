@@ -37,6 +37,7 @@ function SelectItemForm(props) {
     handleItemChange,
     removeItem,
     taxesObject,
+    loading,
   } = props;
 
   const {
@@ -47,7 +48,6 @@ function SelectItemForm(props) {
 
   const taxType = watch('summary.taxType');
   const details = getValues(`selectedItems.${index}`);
-  console.log({ details });
   const { item, salesTax } = details;
 
   const itemErrors = errors?.selectedItems && errors?.selectedItems[index];
@@ -70,6 +70,7 @@ function SelectItemForm(props) {
                   onChange={itemId => handleItemChange(itemId, index)}
                   value={item?.itemId || ''}
                   id={field.id}
+                  isDisabled={loading}
                   placeholder="---select item---"
                   allowClearSelection={false}
                   options={Object.values(itemsObject)
@@ -117,7 +118,7 @@ function SelectItemForm(props) {
                     };
                   })}
                   value={salesTax?.taxId || ''}
-                  isDisabled={!item?.itemId}
+                  isDisabled={!item?.itemId || loading}
                 />
 
                 <FormErrorMessage>
@@ -143,6 +144,7 @@ function SelectItemForm(props) {
                     },
                   }}
                   min={1}
+                  isReadOnly={loading}
                   isDisabled={!item?.itemId}
                 />
 
@@ -159,6 +161,7 @@ function SelectItemForm(props) {
                   updateValueOnBlur={false}
                   onBlur={value => updateItemFields('quantity', value, index)}
                   min={1}
+                  isReadOnly={loading}
                   isDisabled={!item?.itemId}
                   rules={{
                     required: { value: true, message: '*Required' },
@@ -220,6 +223,7 @@ function SelectItemForm(props) {
                 icon={<RiDeleteBinLine />}
                 onClick={() => removeItem(index)}
                 title="remove item"
+                disabled={loading}
               />
             </Flex>
           </Show>
@@ -234,6 +238,7 @@ function SelectItemForm(props) {
                 leftIcon={<RiDeleteBinLine />}
                 variant="ghost"
                 onClick={() => removeItem(index)}
+                disabled={loading}
               >
                 Remove
               </Button>
@@ -260,6 +265,7 @@ SelectItemForm.propTypes = {
   field: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired,
   taxesObject: PropTypes.object.isRequired,
+  loading: PropTypes.bool.isRequired,
 };
 
 export default SelectItemForm;

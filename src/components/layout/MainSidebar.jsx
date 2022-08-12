@@ -1,4 +1,4 @@
-import { Divider, Accordion, VStack } from "@chakra-ui/react";
+import { Divider, Accordion, VStack, Flex } from '@chakra-ui/react';
 import {
   RiDashboardLine,
   RiSettings6Line,
@@ -7,21 +7,29 @@ import {
   RiShoppingCartLine,
   RiCoinsLine,
   RiStore3Line,
-} from "react-icons/ri";
+} from 'react-icons/ri';
 
-import { isAdmin } from "../../utils/roles";
-import useAuth from "../../hooks/useAuth";
+import { isAdmin } from '../../utils/roles';
+import useAuth from '../../hooks/useAuth';
 
-import * as routes from "../../nav/routes";
-import ExpandableDrawerItem from "../ui/ExpandableDrawerItem";
-import DrawerItem from "../ui/DrawerItem";
+import { BAR_HEIGHT } from '../../constants';
+
+import * as routes from '../../nav/routes';
+import ExpandableDrawerItem from '../ui/ExpandableDrawerItem';
+import DrawerItem from '../ui/DrawerItem';
+
+import Title from './Title';
 
 function MainSidebar(props) {
   const userProfile = useAuth();
 
   return userProfile ? (
     <Accordion w="full" allowToggle>
-      <VStack spacing="2px" mt={4} align="flex-start" w="full">
+      <VStack spacing="2px" align="flex-start" w="full">
+        <Flex alignItems="center" px={5} mb={5} w="full" h={`${BAR_HEIGHT}px`}>
+          <Title />
+        </Flex>
+
         {isAdmin(userProfile.role) ? <AdminSidebar /> : <ManagementSidebar />}
       </VStack>
     </Accordion>
@@ -64,9 +72,9 @@ function ManagementSidebar(props) {
         icon={RiShoppingCartLine}
         subRoutes={[
           // { title: "Estimates", route: routes.ESTIMATES },
-          { title: "Invoices", route: routes.INVOICES },
-          { title: "Payments Received", route: routes.PAYMENTS },
-          { title: "Sales Receipts", route: routes.SALES_RECEIPTS },
+          { title: 'Invoices', route: routes.INVOICES },
+          { title: 'Payments Received', route: routes.PAYMENTS },
+          { title: 'Sales Receipts', route: routes.SALES_RECEIPTS },
         ]}
       />
       <Divider />
@@ -74,8 +82,8 @@ function ManagementSidebar(props) {
         title="Purchases"
         icon={RiCoinsLine}
         subRoutes={[
-          { title: "Vendors", route: routes.VENDORS },
-          { title: "Expenses", route: routes.EXPENSES },
+          { title: 'Vendors', route: routes.VENDORS },
+          { title: 'Expenses', route: routes.EXPENSES },
         ]}
       />
       <Divider />
@@ -83,7 +91,7 @@ function ManagementSidebar(props) {
       <ExpandableDrawerItem
         title="Settings"
         icon={RiSettings6Line}
-        subRoutes={[{ title: "Taxes", route: routes.TAXES }]}
+        subRoutes={[{ title: 'Taxes', route: routes.TAXES }]}
       />
     </>
   );

@@ -1,5 +1,4 @@
-import { useMemo, useEffect } from 'react';
-import { Box } from '@chakra-ui/react';
+import { Box, Flex, Button } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { useForm, FormProvider } from 'react-hook-form';
 
@@ -15,14 +14,13 @@ import EditSale from '../Sales/EditSale';
 
 function EditInvoice(props) {
   const { invoice, handleFormSubmit, updating } = props;
-  // console.log({ props });
 
   const { loading, items, customers, paymentTerms, taxes } = useGetSalesProps();
 
-  const defaultValues = useMemo(() => {
-    const today = new Date();
-
-    return {
+  const today = new Date();
+  const formMethods = useForm({
+    mode: 'onChange',
+    defaultValues: {
       customer: invoice?.customer?.customerId || '',
       orderNumber: invoice?.orderNumber || '',
       invoiceDate: invoice?.invoiceDate || today,
@@ -30,6 +28,18 @@ function EditInvoice(props) {
       dueDate: invoice?.dueDate || today,
       subject: invoice?.subject || '',
       customerNotes: invoice?.customerNotes || '',
+      selectedItems: invoice?.selectedItems || [
+        {
+          item: null,
+          rate: 0,
+          quantity: 0,
+          itemRate: 0,
+          itemTax: 0,
+          itemRateTotal: 0,
+          itemTaxTotal: 0,
+          salesTax: null,
+        },
+      ],
       summary: invoice?.summary || {
         adjustment: 0,
         shipping: 0,
@@ -39,18 +49,9 @@ function EditInvoice(props) {
         totalTax: 0,
         taxType: 'taxExclusive',
       },
-    };
-  }, [invoice]);
-
-  const formMethods = useForm({
-    mode: 'onChange',
-    defaultValues,
+    },
   });
-  const { handleSubmit, reset } = formMethods;
-
-  useEffect(() => {
-    reset(defaultValues);
-  }, [defaultValues, reset]);
+  const { handleSubmit } = formMethods;
 
   const toasts = useToasts();
 
@@ -71,7 +72,7 @@ function EditInvoice(props) {
 
     const fieldsValid =
       (selectedItems && selectedItems.filter(item => item).length > 0) || false;
-    console.log({ selectedItems });
+    // console.log({ selectedItems });
 
     if (!fieldsValid) {
       return toasts.error('Please add atleast one(1) item to proceed!');
@@ -106,7 +107,7 @@ function EditInvoice(props) {
     //   //invoice is being updated-submit only the changed values
     //   formValues = getDirtyFields(dirtyFields, formValues);
     // }
-    console.log({ formValues });
+    // console.log({ formValues });
 
     //submit the data
     handleFormSubmit(formValues);
@@ -118,38 +119,36 @@ function EditInvoice(props) {
     <SkeletonLoader />
   ) : customers?.length > 0 && items?.length > 0 && paymentTerms?.length > 0 ? (
     <FormProvider {...formMethods}>
-      <Box
-        as="form"
-        role="form"
-        onSubmit={handleSubmit(onSubmit)}
-        w="full"
-        // h="full"
-        mt={2}
-        p={4}
-        bg="white"
-        borderRadius="md"
-        shadow="md"
-        // maxW="container.sm"
-      >
-        <InvoiceForm
-          customers={customers}
-          paymentTerms={paymentTerms}
-          loading={updating}
-        />
-        <EditSale
-          loading={updating}
-          items={items}
-          preSelectedItems={invoice?.selectedItems}
-          taxes={taxes}
-        />
-        {/* <Container
+      <Box as="form" role="form" onSubmit={handleSubmit(onSubmit)} w="full">
+        <Box
+          // h="full"
           mt={2}
           p={4}
+          pb={6}
           bg="white"
-          borderRadius="md"
-          shadow="md"
-          maxW="container.sm"
-        ></Container> */}
+          borderRadius="lg"
+          shadow="lg"
+          border="1px solid"
+          borderColor="gray.200"
+          // maxW="container.sm"
+        >
+          <InvoiceForm
+            customers={customers}
+            paymentTerms={paymentTerms}
+            loading={updating}
+          />
+          <EditSale loading={updating} items={items} taxes={taxes} />
+        </Box>
+        <Flex w="full" py={6} justify="flex-end">
+          <Button
+            size="lg"
+            type="submit"
+            isLoading={updating}
+            colorScheme="cyan"
+          >
+            save
+          </Button>
+        </Flex>
       </Box>
     </FormProvider>
   ) : items?.length === 0 ? (
