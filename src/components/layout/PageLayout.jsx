@@ -1,8 +1,19 @@
-import { Heading, VStack, HStack, Flex } from '@chakra-ui/react';
+import {
+  Heading,
+  VStack,
+  HStack,
+  Flex,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+} from '@chakra-ui/react';
+import { Link, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 function PageLayout(props) {
-  const { pageTitle, actions, children } = props;
+  const { pageTitle, actions, children, breadcrumbLinks } = props;
+  const location = useLocation();
+
   return (
     <VStack
       flexGrow={1}
@@ -11,9 +22,26 @@ function PageLayout(props) {
       alignItems="stretch"
     >
       <HStack py={2} px={[4, 6]}>
-        <Heading as="h3" size="md">
-          {pageTitle}
-        </Heading>
+        <VStack alignItems="flex-start">
+          <Heading as="h3" size="md">
+            {pageTitle}
+          </Heading>
+          {breadcrumbLinks && typeof breadcrumbLinks === 'object' && (
+            <Breadcrumb fontSize="sm">
+              {Object.keys(breadcrumbLinks).map(key => {
+                const link = breadcrumbLinks[key];
+                return (
+                  <BreadcrumbItem isCurrentPage={link === location.pathname}>
+                    <BreadcrumbLink as={Link} to={link}>
+                      {key}
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                );
+              })}
+            </Breadcrumb>
+          )}
+        </VStack>
+
         <Flex flexGrow={1}></Flex>
         {actions}
       </HStack>
@@ -43,6 +71,7 @@ PageLayout.propTypes = {
   pageTitle: PropTypes.string.isRequired,
   actions: PropTypes.node,
   children: PropTypes.any,
+  breadcrumbLinks: PropTypes.object,
 };
 
 export default PageLayout;

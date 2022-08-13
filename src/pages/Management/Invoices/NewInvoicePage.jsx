@@ -1,23 +1,22 @@
-import { useEffect } from "react";
-import { connect } from "react-redux";
-import { useNavigate, Link } from "react-router-dom";
-import { IconButton } from "@chakra-ui/react";
-import { RiCloseLine } from "react-icons/ri";
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-import { INVOICES } from "../../../nav/routes";
+import { INVOICES } from '../../../nav/routes';
 
-import { CREATE_INVOICE } from "../../../store/actions/invoicesActions";
-import { reset } from "../../../store/slices/invoicesSlice";
+import { CREATE_INVOICE } from '../../../store/actions/invoicesActions';
+import { reset } from '../../../store/slices/invoicesSlice';
 
-import useSavedLocation from "../../../hooks/useSavedLocation";
+import useSavedLocation from '../../../hooks/useSavedLocation';
 
-import PageLayout from "../../../components/layout/PageLayout";
-import EditInvoice from "../../../containers/Management/Invoices/EditInvoice";
+import PageLayout from '../../../components/layout/PageLayout';
+import EditInvoice from '../../../containers/Management/Invoices/EditInvoice';
 
 function NewInvoicePage(props) {
   const { loading, action, isModified, createInvoice, resetInvoice } = props;
   useSavedLocation().setLocation();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (isModified) {
@@ -29,17 +28,11 @@ function NewInvoicePage(props) {
   return (
     <PageLayout
       pageTitle="New Invoice"
-      actions={
-        <Link to={INVOICES}>
-          <IconButton
-            colorScheme="red"
-            variant="outline"
-            size="sm"
-            title="cancel"
-            icon={<RiCloseLine />}
-          />
-        </Link>
-      }
+      breadcrumbLinks={{
+        Dashboard: '/',
+        Invoices: INVOICES,
+        'New Invoice': location.pathname,
+      }}
     >
       <EditInvoice
         updating={loading && action === CREATE_INVOICE}
@@ -57,7 +50,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createInvoice: (payload) => dispatch({ type: CREATE_INVOICE, payload }),
+    createInvoice: payload => dispatch({ type: CREATE_INVOICE, payload }),
     resetInvoice: () => dispatch(reset()),
   };
 }

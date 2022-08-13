@@ -1,5 +1,5 @@
 import { Button } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { RiAddLine } from 'react-icons/ri';
 
 import { NEW_INVOICE } from '../../../nav/routes';
@@ -11,6 +11,7 @@ import Invoices from '../../../containers/Management/Invoices/Invoices';
 
 function InvoicesPage() {
   useSavedLocation().setLocation();
+  const location = useLocation();
 
   return (
     <PageLayout
@@ -22,6 +23,10 @@ function InvoicesPage() {
           </Button>
         </Link>
       }
+      breadcrumbLinks={{
+        Dashboard: '/',
+        Invoices: location.pathname,
+      }}
     >
       <Invoices />
     </PageLayout>

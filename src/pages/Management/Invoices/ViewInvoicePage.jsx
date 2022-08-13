@@ -1,27 +1,28 @@
-import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { connect } from "react-redux";
+import { useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { connect } from 'react-redux';
 
-import InvoiceOptions from "../../../containers/Management/Invoices/InvoiceOptions";
+import InvoiceOptions from '../../../containers/Management/Invoices/InvoiceOptions';
 
-import { GET_INVOICE } from "../../../store/actions/invoicesActions";
-import { reset } from "../../../store/slices/invoicesSlice";
+import { GET_INVOICE } from '../../../store/actions/invoicesActions';
+import { reset } from '../../../store/slices/invoicesSlice';
 
-import { INVOICES } from "../../../nav/routes";
+import { INVOICES } from '../../../nav/routes';
 
-import useSavedLocation from "../../../hooks/useSavedLocation";
+import useSavedLocation from '../../../hooks/useSavedLocation';
 
-import PageLayout from "../../../components/layout/PageLayout";
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
+import PageLayout from '../../../components/layout/PageLayout';
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
 
-import ViewInvoice from "../../../containers/Management/Invoices/ViewInvoice";
+import ViewInvoice from '../../../containers/Management/Invoices/ViewInvoice';
 
 function ViewInvoicePage(props) {
   const { loading, isModified, invoice, action, resetInvoice, getInvoice } =
     props;
   const { invoiceId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   useSavedLocation().setLocation();
 
   useEffect(() => {
@@ -37,8 +38,13 @@ function ViewInvoicePage(props) {
 
   return (
     <PageLayout
-      pageTitle={invoice?.invoiceId || "View Invoice"}
+      pageTitle={invoice?.invoiceId || 'View Invoice'}
       actions={invoice && <InvoiceOptions invoice={invoice} edit deletion />}
+      breadcrumbLinks={{
+        Dashboard: '/',
+        Invoices: INVOICES,
+        [invoiceId]: location.pathname,
+      }}
     >
       {loading && action === GET_INVOICE ? (
         <SkeletonLoader />
@@ -60,7 +66,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     resetInvoice: () => dispatch(reset()),
-    getInvoice: (invoiceId) =>
+    getInvoice: invoiceId =>
       dispatch({ type: GET_INVOICE, payload: invoiceId }),
   };
 }

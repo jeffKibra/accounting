@@ -1,27 +1,27 @@
-import { useState } from "react";
-import PropTypes from "prop-types";
+import { useState } from 'react';
+import PropTypes from 'prop-types';
 import {
   InputGroup,
   Input,
   InputRightElement,
   IconButton,
-} from "@chakra-ui/react";
-import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
+} from '@chakra-ui/react';
+import { RiEyeLine, RiEyeOffLine } from 'react-icons/ri';
 
 function PasswordInput(props) {
   const [visible, setVisibility] = useState(false);
-  const { register } = props;
+  const { register, size } = props;
 
   function changeVisibility() {
-    setVisibility((prev) => !prev);
+    setVisibility(prev => !prev);
   }
 
   return (
-    <InputGroup>
-      <Input {...register()} type={visible ? "text" : "password"} pr="40px" />
+    <InputGroup size={size}>
+      <Input {...register()} type={visible ? 'text' : 'password'} pr="40px" />
       <InputRightElement>
         <IconButton
-          size="sm"
+          size={size}
           onClick={changeVisibility}
           icon={visible ? <RiEyeOffLine /> : <RiEyeLine />}
         />
@@ -31,7 +31,12 @@ function PasswordInput(props) {
 }
 
 PasswordInput.propTypes = {
+  size: 'lg',
+};
+
+PasswordInput.propTypes = {
   register: PropTypes.func.isRequired,
+  size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl']),
 };
 
 export default PasswordInput;
