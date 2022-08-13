@@ -1,21 +1,21 @@
-import { useEffect } from "react";
-import { connect } from "react-redux";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
-import useSavedLocation from "../../../hooks/useSavedLocation";
-import { CUSTOMERS } from "../../../nav/routes";
+import useSavedLocation from '../../../hooks/useSavedLocation';
+import { CUSTOMERS } from '../../../nav/routes';
 import {
   GET_CUSTOMER,
   UPDATE_CUSTOMER,
   DELETE_CUSTOMER,
-} from "../../../store/actions/customersActions";
-import { reset } from "../../../store/slices/customersSlice";
+} from '../../../store/actions/customersActions';
+import { reset } from '../../../store/slices/customersSlice';
 
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
-import PageLayout from "../../../components/layout/PageLayout";
-import ViewCustomer from "../../../containers/Management/Customers/ViewCustomer";
-import CustomerOptions from "../../../containers/Management/Customers/CustomerOptions";
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
+import PageLayout from '../../../components/layout/PageLayout';
+import ViewCustomer from '../../../containers/Management/Customers/ViewCustomer';
+import CustomerOptions from '../../../containers/Management/Customers/CustomerOptions';
 
 function ViewCustomerPage(props) {
   const {
@@ -29,6 +29,7 @@ function ViewCustomerPage(props) {
   } = props;
   const navigate = useNavigate();
   const { customerId } = useParams();
+  const location = useLocation();
 
   useSavedLocation().setLocation();
 
@@ -53,10 +54,15 @@ function ViewCustomerPage(props) {
 
   return (
     <PageLayout
-      pageTitle={customer?.displayName || "Customer Details"}
+      pageTitle={customer?.displayName || 'Customer Details'}
       actions={
         customer && <CustomerOptions edit customer={customer} deletion />
       }
+      breadcrumbLinks={{
+        Dashboard: '/',
+        Customers: CUSTOMERS,
+        [customerId]: location.pathname,
+      }}
     >
       {loading && action === GET_CUSTOMER ? (
         <SkeletonLoader />
@@ -87,9 +93,9 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getCustomer: (customerId) =>
+    getCustomer: customerId =>
       dispatch({ type: GET_CUSTOMER, payload: customerId }),
-    updateCustomer: (payload) => dispatch({ type: UPDATE_CUSTOMER, payload }),
+    updateCustomer: payload => dispatch({ type: UPDATE_CUSTOMER, payload }),
     resetCustomer: () => dispatch(reset()),
   };
 }

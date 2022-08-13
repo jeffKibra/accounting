@@ -1,28 +1,27 @@
-import { useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { connect } from "react-redux";
-import { RiCloseLine } from "react-icons/ri";
-import { IconButton } from "@chakra-ui/react";
+import { useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { connect } from 'react-redux';
 
-import { ITEMS } from "../../../nav/routes";
+import { ITEMS } from '../../../nav/routes';
 
-import useSavedLocation from "../../../hooks/useSavedLocation";
+import useSavedLocation from '../../../hooks/useSavedLocation';
 
-import PageLayout from "../../../components/layout/PageLayout";
+import PageLayout from '../../../components/layout/PageLayout';
 
-import EditItem from "../../../containers/Management/Items/EditItem";
+import EditItem from '../../../containers/Management/Items/EditItem';
 
-import { GET_ITEM, UPDATE_ITEM } from "../../../store/actions/itemsActions";
-import { reset } from "../../../store/slices/itemsSlice";
+import { GET_ITEM, UPDATE_ITEM } from '../../../store/actions/itemsActions';
+import { reset } from '../../../store/slices/itemsSlice';
 
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
 
 function EditItemPage(props) {
   const { getItem, updateItem, resetItem, loading, isModified, action, item } =
     props;
   useSavedLocation().setLocation();
 
+  const location = useLocation();
   const { itemId } = useParams();
   const navigate = useNavigate();
 
@@ -52,17 +51,11 @@ function EditItemPage(props) {
   return (
     <PageLayout
       pageTitle="Edit Item"
-      actions={
-        <Link to={ITEMS}>
-          <IconButton
-            colorScheme="red"
-            variant="outline"
-            size="sm"
-            title="cancel"
-            icon={<RiCloseLine />}
-          />
-        </Link>
-      }
+      breadcrumbLinks={{
+        Dashboard: '/',
+        Items: ITEMS,
+        [itemId]: location.pathname,
+      }}
     >
       {loading && action === GET_ITEM ? (
         <SkeletonLoader />
@@ -93,8 +86,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    updateItem: (payload) => dispatch({ type: UPDATE_ITEM, payload }),
-    getItem: (itemId) => dispatch({ type: GET_ITEM, payload: itemId }),
+    updateItem: payload => dispatch({ type: UPDATE_ITEM, payload }),
+    getItem: itemId => dispatch({ type: GET_ITEM, payload: itemId }),
     resetItem: () => dispatch(reset()),
   };
 }

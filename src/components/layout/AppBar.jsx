@@ -13,7 +13,7 @@ export default function AppBar() {
       minH={`${BAR_HEIGHT}px`}
       maxH={`${BAR_HEIGHT}px`}
       align="center"
-      px={6}
+      px={[4, null, 6]}
       top={0}
       right={0}
       w="full"

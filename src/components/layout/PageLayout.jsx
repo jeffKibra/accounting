@@ -28,10 +28,13 @@ function PageLayout(props) {
           </Heading>
           {breadcrumbLinks && typeof breadcrumbLinks === 'object' && (
             <Breadcrumb fontSize="sm">
-              {Object.keys(breadcrumbLinks).map(key => {
+              {Object.keys(breadcrumbLinks).map((key, i) => {
                 const link = breadcrumbLinks[key];
                 return (
-                  <BreadcrumbItem isCurrentPage={link === location.pathname}>
+                  <BreadcrumbItem
+                    key={i}
+                    isCurrentPage={link === location.pathname}
+                  >
                     <BreadcrumbLink as={Link} to={link}>
                       {key}
                     </BreadcrumbLink>

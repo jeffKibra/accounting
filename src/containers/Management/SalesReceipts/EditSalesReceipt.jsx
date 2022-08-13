@@ -149,7 +149,7 @@ function EditSalesReceipt(props) {
             >
               <GridItem colSpan={[12, 4]}>
                 <FormControl
-                  isDisabled={loading}
+                  isDisabled={updating}
                   isRequired
                   isInvalid={errors.receiptDate}
                 >
@@ -162,12 +162,15 @@ function EditSalesReceipt(props) {
               </GridItem>
 
               <GridItem colSpan={[12, 4]}>
-                <FormControl isDisabled={loading} isInvalid={errors.customerId}>
+                <FormControl
+                  isDisabled={updating}
+                  isInvalid={errors.customerId}
+                >
                   <FormLabel htmlFor="customerId">Customer</FormLabel>
                   <CustomSelect
                     name="customerId"
                     placeholder="--select customer--"
-                    isDisabled={loading}
+                    isDisabled={updating}
                     options={customers.map(customer => {
                       const { customerId, displayName } = customer;
 
@@ -184,7 +187,7 @@ function EditSalesReceipt(props) {
               </GridItem>
               <GridItem colSpan={[12, 4]}>
                 <FormControl
-                  isDisabled={loading}
+                  isDisabled={updating}
                   isInvalid={errors.customerNotes}
                 >
                   <FormLabel htmlFor="customerNotes">Customer Notes</FormLabel>
@@ -214,7 +217,7 @@ function EditSalesReceipt(props) {
             >
               <GridItem colSpan={[12, 4]}>
                 <FormControl
-                  isDisabled={loading}
+                  isDisabled={updating}
                   required
                   isInvalid={errors.accountId}
                 >
@@ -222,7 +225,7 @@ function EditSalesReceipt(props) {
                   <CustomSelect
                     name="accountId"
                     placeholder="---select account---"
-                    isDisabled={loading}
+                    isDisabled={updating}
                     rules={{
                       required: { value: true, message: '*Required!' },
                     }}
@@ -243,7 +246,7 @@ function EditSalesReceipt(props) {
 
               <GridItem colSpan={[12, 4]}>
                 <FormControl
-                  isDisabled={loading}
+                  isDisabled={updating}
                   required
                   isInvalid={errors.paymentModeId}
                 >
@@ -251,7 +254,7 @@ function EditSalesReceipt(props) {
                   <CustomSelect
                     name="paymentModeId"
                     options={paymentModes}
-                    isDisabled={loading}
+                    isDisabled={updating}
                     placeholder="select payment mode"
                     rules={{
                       required: { value: true, message: '*Required!' },
@@ -264,7 +267,7 @@ function EditSalesReceipt(props) {
               </GridItem>
 
               <GridItem colSpan={[12, 4]}>
-                <FormControl isDisabled={loading} isInvalid={errors.reference}>
+                <FormControl isDisabled={updating} isInvalid={errors.reference}>
                   <FormLabel htmlFor="reference">Reference#</FormLabel>
                   <Input id="reference" {...register('reference')} />
                   <FormErrorMessage>
@@ -277,7 +280,7 @@ function EditSalesReceipt(props) {
           <Flex justify="flex-end" mt={6}>
             <Button
               size="lg"
-              isLoading={loading}
+              isLoading={updating}
               colorScheme="cyan"
               type="submit"
             >

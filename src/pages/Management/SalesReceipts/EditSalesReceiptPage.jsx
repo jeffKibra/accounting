@@ -1,22 +1,23 @@
-import { useEffect } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import { connect } from "react-redux";
-import { IconButton } from "@chakra-ui/react";
-import { RiCloseFill } from "react-icons/ri";
+import { useEffect } from 'react';
+import { useNavigate, useParams, Link, useLocation } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { IconButton } from '@chakra-ui/react';
+import { RiCloseFill } from 'react-icons/ri';
 
+import { SALES_RECEIPTS } from '../../../nav/routes';
 import {
   UPDATE_SALES_RECEIPT,
   GET_SALES_RECEIPT,
-} from "../../../store/actions/salesReceiptsActions";
-import { reset } from "../../../store/slices/salesReceiptsSlice";
+} from '../../../store/actions/salesReceiptsActions';
+import { reset } from '../../../store/slices/salesReceiptsSlice';
 
-import useSavedLocation from "../../../hooks/useSavedLocation";
-import PageLayout from "../../../components/layout/PageLayout";
+import useSavedLocation from '../../../hooks/useSavedLocation';
+import PageLayout from '../../../components/layout/PageLayout';
 
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
 
-import EditSalesReceipt from "../../../containers/Management/SalesReceipts/EditSalesReceipt";
+import EditSalesReceipt from '../../../containers/Management/SalesReceipts/EditSalesReceipt';
 
 function getFormValuesOnly(salesReceipt = {}) {
   const {
@@ -56,6 +57,7 @@ function EditSalesReceiptPage(props) {
   } = props;
   const { salesReceiptId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   useSavedLocation().setLocation();
   const viewRoute = `/sales-receipts/${salesReceiptId}/view`;
 
@@ -79,18 +81,12 @@ function EditSalesReceiptPage(props) {
 
   return (
     <PageLayout
-      pageTitle={`Edit ${salesReceiptId || "Sales Receipt"}`}
-      actions={
-        <Link to={viewRoute}>
-          <IconButton
-            colorScheme="red"
-            variant="outline"
-            size="sm"
-            title="cancel"
-            icon={<RiCloseFill />}
-          />
-        </Link>
-      }
+      pageTitle={`Edit ${salesReceiptId || 'Sales Receipt'}`}
+      breadcrumbLinks={{
+        Dashboard: '/',
+        'Sales Receipts': SALES_RECEIPTS,
+        [salesReceiptId]: location.pathname,
+      }}
     >
       {loading && action === GET_SALES_RECEIPT ? (
         <SkeletonLoader />
@@ -116,10 +112,10 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    updateSalesReceipt: (payload) =>
+    updateSalesReceipt: payload =>
       dispatch({ type: UPDATE_SALES_RECEIPT, payload }),
     resetSalesReceipt: () => dispatch(reset()),
-    getSalesReceipt: (salesReceiptId) =>
+    getSalesReceipt: salesReceiptId =>
       dispatch({ type: GET_SALES_RECEIPT, payload: salesReceiptId }),
   };
 }

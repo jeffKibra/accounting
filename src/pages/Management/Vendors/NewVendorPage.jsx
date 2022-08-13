@@ -1,23 +1,22 @@
-import { useEffect } from "react";
-import { connect } from "react-redux";
-import { useNavigate, Link } from "react-router-dom";
-import { IconButton } from "@chakra-ui/react";
-import { RiCloseLine } from "react-icons/ri";
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-import { VENDORS } from "../../../nav/routes";
+import { VENDORS } from '../../../nav/routes';
 
-import { CREATE_VENDOR } from "../../../store/actions/vendorsActions";
-import { reset } from "../../../store/slices/vendorsSlice";
+import { CREATE_VENDOR } from '../../../store/actions/vendorsActions';
+import { reset } from '../../../store/slices/vendorsSlice';
 
-import PageLayout from "../../../components/layout/PageLayout";
+import PageLayout from '../../../components/layout/PageLayout';
 
-import useSavedLocation from "../../../hooks/useSavedLocation";
+import useSavedLocation from '../../../hooks/useSavedLocation';
 
-import EditVendor from "../../../containers/Management/Vendors/EditVendor";
+import EditVendor from '../../../containers/Management/Vendors/EditVendor';
 
 function NewVendorPage(props) {
   const { loading, action, isModified, createVendor, resetVendor } = props;
   const navigate = useNavigate();
+  const location = useLocation();
 
   useSavedLocation().setLocation();
 
@@ -31,17 +30,11 @@ function NewVendorPage(props) {
   return (
     <PageLayout
       pageTitle="New Vendor"
-      actions={
-        <Link to={VENDORS}>
-          <IconButton
-            colorScheme="red"
-            variant="outline"
-            size="sm"
-            title="cancel"
-            icon={<RiCloseLine />}
-          />
-        </Link>
-      }
+      breadcrumbLinks={{
+        Dashboard: '/',
+        Vendors: VENDORS,
+        'New Vendor': location.pathname,
+      }}
     >
       <EditVendor
         loading={loading && action === CREATE_VENDOR}
@@ -60,7 +53,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createVendor: (payload) => dispatch({ type: CREATE_VENDOR, payload }),
+    createVendor: payload => dispatch({ type: CREATE_VENDOR, payload }),
     resetVendor: () => dispatch(reset()),
   };
 }

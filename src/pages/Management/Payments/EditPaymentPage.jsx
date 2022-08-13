@@ -1,22 +1,24 @@
-import { useEffect } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import { connect } from "react-redux";
-import { RiCloseLine } from "react-icons/ri";
-import { IconButton } from "@chakra-ui/react";
+import { useEffect } from 'react';
+import { useNavigate, useParams, Link, useLocation } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { RiCloseLine } from 'react-icons/ri';
+import { IconButton } from '@chakra-ui/react';
 
 import {
   UPDATE_PAYMENT,
   GET_PAYMENT,
-} from "../../../store/actions/paymentsActions";
-import { reset } from "../../../store/slices/paymentsSlice";
+} from '../../../store/actions/paymentsActions';
+import { reset } from '../../../store/slices/paymentsSlice';
 
-import useSavedLocation from "../../../hooks/useSavedLocation";
-import PageLayout from "../../../components/layout/PageLayout";
+import { PAYMENTS } from '../../../nav/routes';
 
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
+import useSavedLocation from '../../../hooks/useSavedLocation';
+import PageLayout from '../../../components/layout/PageLayout';
 
-import EditPayment from "../../../containers/Management/Payments/EditPayment";
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
+
+import EditPayment from '../../../containers/Management/Payments/EditPayment';
 
 function trimPayment(payment) {
   const {
@@ -52,6 +54,7 @@ function EditPaymentPage(props) {
   } = props;
   const { paymentId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   useSavedLocation().setLocation();
   const viewRoute = `/payments/${paymentId}/view`;
 
@@ -76,7 +79,7 @@ function EditPaymentPage(props) {
 
   return (
     <PageLayout
-      pageTitle={`Edit ${paymentId || "Payment"}`}
+      pageTitle={`Edit ${paymentId || 'Payment'}`}
       actions={
         <Link to={viewRoute}>
           <IconButton
@@ -88,6 +91,11 @@ function EditPaymentPage(props) {
           />
         </Link>
       }
+      breadcrumbLinks={{
+        Dashboard: '/',
+        Payments: PAYMENTS,
+        [paymentId]: location.pathname,
+      }}
     >
       {loading && action === GET_PAYMENT ? (
         <SkeletonLoader />
@@ -113,9 +121,9 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    updatePayment: (payload) => dispatch({ type: UPDATE_PAYMENT, payload }),
+    updatePayment: payload => dispatch({ type: UPDATE_PAYMENT, payload }),
     resetPayment: () => dispatch(reset()),
-    getPayment: (paymentId) =>
+    getPayment: paymentId =>
       dispatch({ type: GET_PAYMENT, payload: paymentId }),
   };
 }

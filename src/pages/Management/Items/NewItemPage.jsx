@@ -1,23 +1,22 @@
-import { useEffect } from "react";
-import { connect } from "react-redux";
-import { useNavigate, Link } from "react-router-dom";
-import { RiCloseLine } from "react-icons/ri";
-import { IconButton } from "@chakra-ui/react";
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-import { CREATE_ITEM } from "../../../store/actions/itemsActions";
-import { reset } from "../../../store/slices/itemsSlice";
+import { CREATE_ITEM } from '../../../store/actions/itemsActions';
+import { reset } from '../../../store/slices/itemsSlice';
 
-import { ITEMS } from "../../../nav/routes";
+import { ITEMS } from '../../../nav/routes';
 
-import PageLayout from "../../../components/layout/PageLayout";
-import EditItem from "../../../containers/Management/Items/EditItem";
+import PageLayout from '../../../components/layout/PageLayout';
+import EditItem from '../../../containers/Management/Items/EditItem';
 
-import useSavedLocation from "../../../hooks/useSavedLocation";
+import useSavedLocation from '../../../hooks/useSavedLocation';
 
 function NewItemPage(props) {
   const { isModified, loading, action, createItem, resetItem } = props;
 
   const navigate = useNavigate();
+  const location = useLocation();
   useSavedLocation().setLocation();
 
   useEffect(() => {
@@ -30,17 +29,11 @@ function NewItemPage(props) {
   return (
     <PageLayout
       pageTitle="Add New Item"
-      actions={
-        <Link to={ITEMS}>
-          <IconButton
-            colorScheme="red"
-            variant="outline"
-            size="sm"
-            title="cancel"
-            icon={<RiCloseLine />}
-          />
-        </Link>
-      }
+      breadcrumbLinks={{
+        Dashboard: '/',
+        Items: ITEMS,
+        'New Item': location.pathname,
+      }}
     >
       <EditItem
         updating={loading && action === CREATE_ITEM}
@@ -58,7 +51,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createItem: (payload) => dispatch({ type: CREATE_ITEM, payload }),
+    createItem: payload => dispatch({ type: CREATE_ITEM, payload }),
     resetItem: () => dispatch(reset()),
   };
 }

@@ -1,28 +1,29 @@
-import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { connect } from "react-redux";
+import { useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { connect } from 'react-redux';
 
-import { GET_PAYMENT } from "../../../store/actions/paymentsActions";
-import { GET_PAYMENT_INVOICES } from "../../../store/actions/invoicesActions";
-import { reset } from "../../../store/slices/paymentsSlice";
+import { GET_PAYMENT } from '../../../store/actions/paymentsActions';
+import { GET_PAYMENT_INVOICES } from '../../../store/actions/invoicesActions';
+import { reset } from '../../../store/slices/paymentsSlice';
 
-import { PAYMENTS } from "../../../nav/routes";
+import { PAYMENTS } from '../../../nav/routes';
 
-import PaymentOptions from "../../../containers/Management/Payments/PaymentOptions";
+import PaymentOptions from '../../../containers/Management/Payments/PaymentOptions';
 
-import useSavedLocation from "../../../hooks/useSavedLocation";
-import PageLayout from "../../../components/layout/PageLayout";
+import useSavedLocation from '../../../hooks/useSavedLocation';
+import PageLayout from '../../../components/layout/PageLayout';
 
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
 
-import ViewPayment from "../../../containers/Management/Payments/ViewPayment";
+import ViewPayment from '../../../containers/Management/Payments/ViewPayment';
 
 function ViewPaymentPage(props) {
   const { loading, isModified, payment, invoices, resetPayment, getPayment } =
     props;
   const { paymentId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   useSavedLocation().setLocation();
 
   useEffect(() => {
@@ -38,8 +39,13 @@ function ViewPaymentPage(props) {
 
   return (
     <PageLayout
-      pageTitle={payment?.paymentId || "View Payment"}
+      pageTitle={payment?.paymentId || 'View Payment'}
       actions={payment && <PaymentOptions payment={payment} edit deletion />}
+      breadcrumbLinks={{
+        Dashboard: '/',
+        Payments: PAYMENTS,
+        [paymentId]: location.pathname,
+      }}
     >
       {loading ? (
         <SkeletonLoader />
@@ -71,7 +77,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     resetPayment: () => dispatch(reset()),
-    getPayment: (paymentId) => {
+    getPayment: paymentId => {
       dispatch({ type: GET_PAYMENT, payload: paymentId });
       dispatch({ type: GET_PAYMENT_INVOICES, payload: paymentId });
     },

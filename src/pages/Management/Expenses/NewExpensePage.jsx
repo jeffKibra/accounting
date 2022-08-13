@@ -1,20 +1,19 @@
-import { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { IconButton } from "@chakra-ui/react";
-import { RiCloseLine } from "react-icons/ri";
-import { connect } from "react-redux";
+import { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { connect } from 'react-redux';
 
-import { EXPENSES } from "../../../nav/routes";
+import { EXPENSES } from '../../../nav/routes';
 
-import { CREATE_EXPENSE } from "../../../store/actions/expensesActions";
-import { reset } from "../../../store/slices/expenseSlice";
+import { CREATE_EXPENSE } from '../../../store/actions/expensesActions';
+import { reset } from '../../../store/slices/expenseSlice';
 
-import PageLayout from "../../../components/layout/PageLayout";
-import EditExpense from "../../../containers/Management/Expenses/EditExpense";
+import PageLayout from '../../../components/layout/PageLayout';
+import EditExpense from '../../../containers/Management/Expenses/EditExpense';
 
 function NewExpensePage(props) {
   const { createExpense, loading, isModified, resetExpense } = props;
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (isModified) {
@@ -26,17 +25,11 @@ function NewExpensePage(props) {
   return (
     <PageLayout
       pageTitle="New Expense"
-      actions={
-        <Link to={-1}>
-          <IconButton
-            colorScheme="red"
-            variant="outline"
-            size="sm"
-            title="cancel"
-            icon={<RiCloseLine />}
-          />
-        </Link>
-      }
+      breadcrumbLinks={{
+        Dashboard: '/',
+        Expenses: EXPENSES,
+        'New Expense': location.pathname,
+      }}
     >
       <EditExpense updating={loading} handleFormSubmit={createExpense} />
     </PageLayout>
@@ -55,7 +48,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createExpense: (payload) => dispatch({ type: CREATE_EXPENSE, payload }),
+    createExpense: payload => dispatch({ type: CREATE_EXPENSE, payload }),
     resetExpense: () => dispatch(reset()),
   };
 }
