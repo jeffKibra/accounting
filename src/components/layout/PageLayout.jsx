@@ -23,7 +23,7 @@ function PageLayout(props) {
     >
       <HStack py={2} px={[4, 6]}>
         <VStack alignItems="flex-start">
-          <Heading as="h3" size="md">
+          <Heading as="h3" fontSize={['20px', null, '24px']}>
             {pageTitle}
           </Heading>
           {breadcrumbLinks && typeof breadcrumbLinks === 'object' && (

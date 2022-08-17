@@ -15,7 +15,7 @@ function InvoicesPage() {
 
   return (
     <PageLayout
-      pageTitle="Invoices"
+      pageTitle="Invoice List"
       actions={
         <Link to={NEW_INVOICE}>
           <Button leftIcon={<RiAddLine />} colorScheme="cyan" size="sm">
@@ -25,7 +25,7 @@ function InvoicesPage() {
       }
       breadcrumbLinks={{
         Dashboard: '/',
-        Invoices: location.pathname,
+        'Invoice List': location.pathname,
       }}
     >
       <Invoices />

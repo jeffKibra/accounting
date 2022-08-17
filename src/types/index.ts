@@ -1,12 +1,12 @@
-export type { OrgSummary, Org, OrgFormData, OrgFromDb } from "./org";
-export type { UserProfile, LoginForm, SignupForm } from "./auth";
+export type { OrgSummary, Org, OrgFormData, OrgFromDb } from './org';
+export type { UserProfile, LoginForm, SignupForm } from './auth';
 export type {
   Customer,
   CustomerSummary,
   CustomerFromDb,
   CustomerFormData,
   OpeningBalanceFormData,
-} from "./customer";
+} from './customer';
 export type {
   Entry,
   EntryWithStatus,
@@ -19,39 +19,41 @@ export type {
   EntryFromDb,
   MappedEntry,
   InvoicePaymentEntry,
-} from "./entries";
+} from './entries';
 export type {
   Account,
   AccountMapping,
   AccountsMapping,
   AccountType,
-} from "./accounts";
-export type { Tax, TaxForm, TaxFromDb } from "./tax";
+} from './accounts';
+export type { Tax, TaxForm, TaxFromDb } from './tax';
 export type {
   SalesItem,
+  SaleItem,
+  SaleSummary,
   SelectedItem,
   SalesSummary,
   SalesTax,
   GroupedItems,
   SalesAccountSummary,
-} from "./sales";
-export type { ExpenseItem } from "./expenseItem";
-export type { PaymentMode } from "./paymentMode";
-export type { PaymentTerm } from "./paymentTerm";
-export type { Item, ItemFormData, ItemFromDb } from "./item";
+} from './sales';
+export type { ExpenseItem } from './expenseItem';
+export type { PaymentMode } from './paymentMode';
+export type { PaymentTerm } from './paymentTerm';
+export type { Item, ItemFormData, ItemFromDb } from './item';
 export type {
   Invoice,
   InvoiceSummary,
   InvoiceFormData,
   InvoicePayments,
   InvoiceFromDb,
-} from "./invoice";
+} from './invoice';
 export type {
   Vendor,
   VendorFromDb,
   VendorFormData,
   VendorSummary,
-} from "./vendor";
+} from './vendor';
 export type {
   PaymentReceived,
   PaymentReceivedFromDb,
@@ -59,27 +61,27 @@ export type {
   InvoicesPayments,
   InvoicePaymentMapping,
   PaymentWithInvoices,
-} from "./paymentReceived";
-export type { DailySummary } from "./dailySummary";
+} from './paymentReceived';
+export type { DailySummary } from './dailySummary';
 export type {
   Expense,
   ExpenseFormData,
   ExpenseFromDb,
   ExpenseSummary,
   ExpenseUpdateData,
-} from "./expense";
+} from './expense';
 export type {
   SalesReceipt,
   SalesReceiptForm,
   SalesReceiptFromDb,
-} from "./salesReceipt";
+} from './salesReceipt';
 export type {
   TransactionTypes,
   InvoiceTransactionTypes,
-} from "./transactionTypes";
-export type { DateDetails } from "./others";
+} from './transactionTypes';
+export type { DateDetails } from './others';
 
-export type { OneOfType } from "./oneOfType";
+export type { OneOfType } from './oneOfType';
 
 export type MakeAllFieldsOptional<T> = {
   [Property in keyof T]?: T[Property] extends Object
@@ -92,4 +94,4 @@ export type MakeAllFieldsRequired<T> = {
 };
 
 //export redux rootState
-export type { RootState } from "../store/index";
+export type { RootState } from '../store/index';
