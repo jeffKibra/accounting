@@ -1,12 +1,12 @@
-import { getAccountsEntriesForTransaction } from "../../journals";
+import { getAccountsEntriesForTransaction } from '../../journals';
 import {
   getInvoiceData,
   getInvoicePaymentsTotal,
   mapInvoiceAccounts,
-} from "..";
+} from '..';
 
-import { Transaction } from "firebase/firestore";
-import { InvoiceFormData } from "../../../types";
+import { Transaction } from 'firebase/firestore';
+import { InvoiceFormData } from '../../../types';
 
 export default async function getInvoiceUpdateData(
   transaction: Transaction,

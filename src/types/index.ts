@@ -78,6 +78,7 @@ export type {
 export type {
   TransactionTypes,
   InvoiceTransactionTypes,
+  SaleTransactionTypes,
 } from './transactionTypes';
 export type { DateDetails } from './others';
 

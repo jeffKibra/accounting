@@ -1,7 +1,7 @@
-import { getAccountsMapping } from "../../accounts";
+import { getAccountsMapping } from '../../accounts';
 
-import { formatSalesItems } from "../../sales";
-import { SalesSummary, SalesItem, CustomerSummary } from "types";
+import { formatSalesItems } from '../../sales';
+import { SalesSummary, SalesItem, CustomerSummary } from 'types';
 
 interface PartialInvoice {
   summary: SalesSummary;
@@ -14,7 +14,7 @@ export default function mapInvoiceAccounts(
   incomingInvoice: PartialInvoice
 ) {
   const { summary, selectedItems, customer } = incomingInvoice;
-  const customerId = customer?.customerId ?? "";
+  const customerId = customer?.customerId ?? '';
   const { totalTax, shipping, adjustment, totalAmount } = summary;
 
   const {
@@ -29,19 +29,19 @@ export default function mapInvoiceAccounts(
   const currentItems = [
     ...formatSalesItems(currentInvoice.selectedItems),
     {
-      accountId: "shipping_charge",
+      accountId: 'shipping_charge',
       amount: currentSummary.shipping,
     },
     {
-      accountId: "other_charges",
+      accountId: 'other_charges',
       amount: currentSummary.adjustment,
     },
     {
-      accountId: "tax_payable",
+      accountId: 'tax_payable',
       amount: currentSummary.totalTax,
     },
     {
-      accountId: "accounts_receivable",
+      accountId: 'accounts_receivable',
       amount: currentSummary.totalAmount,
     },
   ];
@@ -49,19 +49,19 @@ export default function mapInvoiceAccounts(
   const incomingItems = [
     ...formatSalesItems(selectedItems),
     {
-      accountId: "shipping_charge",
+      accountId: 'shipping_charge',
       amount: shipping,
     },
     {
-      accountId: "other_charges",
+      accountId: 'other_charges',
       amount: adjustment,
     },
     {
-      accountId: "tax_payable",
+      accountId: 'tax_payable',
       amount: totalTax,
     },
     {
-      accountId: "accounts_receivable",
+      accountId: 'accounts_receivable',
       amount: totalAmount,
     },
   ];
