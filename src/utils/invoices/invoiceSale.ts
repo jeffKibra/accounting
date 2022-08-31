@@ -7,17 +7,11 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 
-import { db, dbCollections } from '../firebase';
-import Sale from '../sales/sale';
-import {
-  createEntry,
-  updateEntry,
-  deleteEntry,
-  getAccountEntryForTransaction,
-} from '../journals';
+import { dbCollections } from '../firebase';
 import formats from '../formats';
 import { getInvoiceData, getInvoicePaymentsTotal } from './utils';
-import { getDateDetails } from '../dates';
+//Sale class
+import Sale from '../sales/sale';
 
 import {
   UserProfile,
@@ -27,13 +21,12 @@ import {
   InvoiceFromDb,
   InvoiceTransactionTypes,
   Invoice,
-  Entry,
 } from '../../types';
 import { getAccountData } from 'utils/accounts';
 
 interface InvoiceDetails {
   invoiceId: string;
-  invoiceData: InvoiceFormData;
+  incomingData: InvoiceFormData | null;
   userProfile: UserProfile;
   org: Org;
   accounts: Account[];
@@ -41,11 +34,9 @@ interface InvoiceDetails {
 }
 
 export default class InvoiceSale extends Sale {
-  account: Account;
   invoiceRef: DocumentReference<InvoiceFromDb>;
   incomingInvoice: InvoiceFormData | null;
   currentInvoice: Invoice | null;
-  AREntry: Entry | null;
 
   errors: {
     [key: string]: string;
@@ -54,46 +45,64 @@ export default class InvoiceSale extends Sale {
   };
 
   constructor(transaction: Transaction, invoiceDetails: InvoiceDetails) {
+    console.log({ invoiceDetails });
     const {
       accounts,
       transactionType,
-      invoiceData,
+      incomingData,
       invoiceId,
       org,
       userProfile,
     } = invoiceDetails;
+
+    const ARAccount = getAccountData('accounts_receivable', accounts);
+    if (!ARAccount) {
+      throw new Error('Accounts receivable account not found!');
+    }
+
     super(transaction, {
       accounts,
       org,
-      saleData: invoiceData,
+      incomingSaleData: incomingData,
       transactionId: invoiceId,
       transactionType,
       userProfile,
+      incomingSaleAccount: ARAccount,
     });
 
-    this.incomingInvoice = invoiceData;
-    this.AREntry = null;
+    this.currentSaleAccount = ARAccount;
+
+    this.incomingInvoice = incomingData;
     this.currentInvoice = null;
     const invoicesCollection = dbCollections(org.orgId).invoices;
     this.invoiceRef = doc(invoicesCollection, invoiceId);
-
-    const accountId = 'accounts_receivable';
-    const account = getAccountData(accountId, accounts);
-    if (account) {
-      this.account = account;
-    } else {
-      throw new Error('Accounts receivable not found!');
-    }
   }
 
-  initCreate() {
+  async getCurrentInvoice() {
+    const {
+      transaction,
+      org: { orgId },
+      transactionId,
+    } = this;
+    const invoice = await getInvoiceData(transaction, orgId, transactionId);
+
+    this.currentInvoice = invoice;
+    this.currentSale = invoice;
+  }
+
+  private initCreate() {
     /**
      * initialize sale creation
      */
-    this.initCreate();
+    this.initCreateSale();
+    if (this.transactionType === 'invoice') {
+      this.summaryInstance.appendObject({ invoices: increment(1) });
+    }
   }
 
   create() {
+    //initialize creation
+    this.initCreate();
     /**
      * create sale
      */
@@ -104,11 +113,7 @@ export default class InvoiceSale extends Sale {
     const {
       transaction,
       userProfile,
-      org: { orgId },
       org,
-      account,
-      incomingSale,
-      transactionId,
       transactionType,
       invoiceRef,
       incomingInvoice,
@@ -118,16 +123,25 @@ export default class InvoiceSale extends Sale {
       throw new Error('Please provide incoming invoice data');
     }
 
-    //create accounts_receivable entry
-    createEntry(transaction, userProfile, orgId, {
-      account: account,
-      amount: incomingInvoice.summary.totalAmount,
-      reference: '',
-      transactionDetails: { ...incomingSale },
-      transactionId: transactionId,
-      transactionType: transactionType,
-    });
+    const {
+      customer: { customerId },
+      summary: { totalAmount },
+    } = incomingInvoice;
+    if (transactionType === 'invoice') {
+      /**
+       * update customer summaries
+       */
+      const customersCollections = dbCollections(org.orgId).customers;
+      const customerRef = doc(customersCollections, customerId);
+
+      transaction.update(customerRef, {
+        'summary.invoices': increment(1),
+        'summary.invoicedAmount': increment(totalAmount),
+      });
+    }
     //create invoice
+
+    console.log({ summary: this.dailySummary });
 
     const { email } = userProfile;
 
@@ -149,37 +163,50 @@ export default class InvoiceSale extends Sale {
     });
   }
 
-  async initUpdate() {
-    const {
-      incomingInvoice,
-      transactionId,
-      transaction,
-      org: { orgId },
-    } = this;
+  private async initUpdate() {
+    const { incomingInvoice } = this;
 
     if (!incomingInvoice) {
       throw new Error(this.errors['incomingInvoice']);
     }
 
     console.log({ incomingInvoice });
-    const { summary, customer } = incomingInvoice;
-    const { customerId } = customer;
-    // console.log({ data });
-    const { totalAmount } = summary;
 
-    const [currentInvoice] = await Promise.all([
-      getInvoiceData(transaction, orgId, transactionId),
-    ]);
+    await this.getCurrentInvoice();
     /**
-     * initialize sale update
+     * initialize sale update-happens after fetching current invoice
      */
-    this.currentSale = currentInvoice;
     await this.initUpdateSale();
+  }
+
+  async update() {
+    //initialize update first
+    await this.initUpdate();
+    //update invoice
+    const {
+      transaction,
+      currentInvoice,
+      incomingInvoice,
+      org: { orgId },
+      userProfile,
+      transactionType,
+    } = this;
+
+    if (!currentInvoice || !incomingInvoice) {
+      throw new Error(
+        'No invoice to update. Please initialize an update before updating'
+      );
+    }
 
     const {
+      summary: { totalAmount },
+      customer: { customerId },
+    } = incomingInvoice;
+
+    const {
+      summary: { totalAmount: currentTotal },
       customer: { customerId: currentCustomerId },
       paymentsReceived,
-      transactionType,
     } = currentInvoice;
     /**
      * check to ensure the new total balance is not less than payments made.
@@ -207,73 +234,13 @@ export default class InvoiceSale extends Sale {
       );
     }
     /**
-     * get entries data for deletedAccounts and accountsToUpdate
-     */
-    const AREntry = await getAccountEntryForTransaction(
-      orgId,
-      'accounts_receivable',
-      transactionId,
-      transactionType
-    );
-
-    this.currentInvoice = currentInvoice;
-    this.AREntry = AREntry;
-  }
-
-  update() {
-    /**
      * update sale
      */
     this.updateSale();
     /**
-     * update invoice
-     */
-    const {
-      transaction,
-      currentInvoice,
-      incomingInvoice,
-      AREntry,
-      org: { orgId },
-      userProfile,
-      transactionId,
-    } = this;
-
-    if (!currentInvoice || !incomingInvoice || !AREntry) {
-      throw new Error(
-        'No invoice to update. Please initialize an update before updating'
-      );
-    }
-
-    const { email } = userProfile;
-
-    const {
-      summary: { totalAmount },
-      customer,
-    } = incomingInvoice;
-    const { customerId } = customer;
-    const {
-      summary: { totalAmount: currentTotal },
-      customer: { customerId: currentCustomerId },
-      transactionType,
-    } = currentInvoice;
-
-    /**
-     * update entries
-     */
-    updateEntry(transaction, userProfile, orgId, {
-      ...AREntry,
-      amount: totalAmount,
-      reference: '',
-      transactionDetails: { ...incomingInvoice },
-      transactionId,
-      transactionType,
-    });
-
-    /**
      * update customer summaries
      * only allowed where transactionType is invoice
      */
-
     if (transactionType === 'invoice') {
       const customersCollection = dbCollections(orgId).customers;
       const newCustomerRef = doc(customersCollection, customerId);
@@ -314,7 +281,7 @@ export default class InvoiceSale extends Sale {
     const invoice: Partial<InvoiceFromDb> = {
       ...incomingInvoice,
       balance: increment(balanceAdjustment) as unknown as number,
-      modifiedBy: email,
+      modifiedBy: userProfile.email,
       modifiedAt: serverTimestamp() as Timestamp,
     };
 
@@ -323,46 +290,42 @@ export default class InvoiceSale extends Sale {
     });
   }
 
-  async initDelete() {
-    const {
-      transaction,
-      org: { orgId },
-      transactionId,
-      account,
-    } = this;
-    /**
-     * also init sale delete
-     */
-    const [invoice] = await Promise.all([
-      getInvoiceData(transaction, orgId, transactionId),
-      this.initDeleteSale(),
-    ]);
+  private async initDelete() {
+    await this.getCurrentInvoice();
 
+    await this.initDeleteSale();
+
+    if (this.transactionType === 'invoice') {
+      this.summaryInstance.appendObject({ deleteInvoices: increment(1) });
+    }
     /**
      * check if the invoice has payments
      */
-    const paymentsTotal = getInvoicePaymentsTotal(invoice.paymentsReceived);
+    const { currentInvoice, transactionType } = this;
+    if (!currentInvoice) {
+      throw new Error('Invoice data not found!');
+    }
+    const paymentsTotal = getInvoicePaymentsTotal(
+      currentInvoice.paymentsReceived
+    );
     if (paymentsTotal > 0) {
       //deletion not allowed
       throw new Error(
         `Invoice Deletion Failed! You cannot delete an invoice that has payments! If you are sure you want to delete it, Please DELETE all the associated PAYMENTS first!`
       );
     }
-    /**
-     * fetch AREntry to delete
-     */
-    const AREntry = await getAccountEntryForTransaction(
-      orgId,
-      account.accountId,
-      transactionId,
-      invoice.transactionType
-    );
 
-    this.currentInvoice = invoice;
-    this.AREntry = AREntry;
+    if (transactionType === 'invoice') {
+      /**
+       * update org counters summaries
+       */
+      this.summaryInstance.append('deletedInvoices', 1, 0);
+    }
   }
 
-  deleteInvoice(deletionType: string = 'mark') {
+  async deleteInvoice(deletionType: 'mark' | 'delete' = 'mark') {
+    //init delete
+    await this.initDelete();
     /**
      * delete sale
      */
@@ -375,22 +338,19 @@ export default class InvoiceSale extends Sale {
       currentInvoice,
       userProfile,
       org: { orgId },
-      AREntry,
     } = this;
-    if (!currentInvoice || !AREntry) {
+
+    if (!currentInvoice) {
       throw new Error(
         'No invoice to delete. Please initialize a delete before deleting the invoice'
       );
     }
+
     const {
       customer: { customerId },
       summary: { totalAmount },
       transactionType,
     } = currentInvoice;
-    /**
-     * delete entries and update groupedEntries summaries
-     */
-    deleteEntry(transaction, userProfile, orgId, AREntry.entryId);
 
     if (transactionType === 'invoice') {
       /**
@@ -401,21 +361,6 @@ export default class InvoiceSale extends Sale {
       transaction.update(customerRef, {
         'summary.deletedInvoices': increment(1),
         'summary.invoicedAmount': increment(0 - totalAmount),
-      });
-
-      /**
-       * update org counters summaries
-       */
-      const { yearMonthDay } = getDateDetails();
-      const summaryRef = doc(
-        db,
-        'organizations',
-        orgId,
-        'summaries',
-        yearMonthDay
-      );
-      transaction.update(summaryRef, {
-        deletedInvoices: increment(1),
       });
     }
     /**

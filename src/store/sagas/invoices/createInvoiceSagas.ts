@@ -1,17 +1,21 @@
-import { put, call, select, takeLatest } from "redux-saga/effects";
-import { runTransaction } from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+import { put, call, select, takeLatest } from 'redux-saga/effects';
+import { runTransaction } from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from "../../../utils/firebase";
-import { createInvoice, createInvoiceId } from "../../../utils/invoices";
-import { createDailySummary } from "../../../utils/summaries";
+import { db } from '../../../utils/firebase';
+import {
+  createInvoice,
+  createInvoiceId,
+  InvoiceSale,
+} from '../../../utils/invoices';
+import { createDailySummary } from '../../../utils/summaries';
 
-import { CREATE_INVOICE } from "../../actions/invoicesActions";
-import { start, success, fail } from "../../slices/invoicesSlice";
+import { CREATE_INVOICE } from '../../actions/invoicesActions';
+import { start, success, fail } from '../../slices/invoicesSlice';
 import {
   error as toastError,
   success as toastSuccess,
-} from "../../slices/toastSlice";
+} from '../../slices/toastSlice';
 
 import {
   RootState,
@@ -19,7 +23,7 @@ import {
   UserProfile,
   Account,
   InvoiceFormData,
-} from "../../../types";
+} from '../../../types';
 
 function* createInvoiceSaga(action: PayloadAction<InvoiceFormData>) {
   yield put(start(CREATE_INVOICE));
@@ -41,7 +45,7 @@ function* createInvoiceSaga(action: PayloadAction<InvoiceFormData>) {
     /**
      * create invoice using a firestore transaction
      */
-    await runTransaction(db, async (transaction) => {
+    await runTransaction(db, async transaction => {
       /**
        * generate the invoice slug
        */
@@ -49,15 +53,15 @@ function* createInvoiceSaga(action: PayloadAction<InvoiceFormData>) {
       /**
        * create invoice
        */
-
-      await createInvoice(
-        transaction,
-        org,
-        userProfile,
+      const invoiceInstance = new InvoiceSale(transaction, {
         accounts,
         invoiceId,
-        action.payload
-      );
+        incomingData: action.payload,
+        org,
+        transactionType: 'invoice',
+        userProfile,
+      });
+      invoiceInstance.create();
     });
   }
 
@@ -65,7 +69,7 @@ function* createInvoiceSaga(action: PayloadAction<InvoiceFormData>) {
     yield call(create);
 
     yield put(success());
-    yield put(toastSuccess("Invoice created Sucessfully!"));
+    yield put(toastSuccess('Invoice created Sucessfully!'));
   } catch (err) {
     console.log(err);
     const error = err as Error;

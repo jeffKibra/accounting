@@ -1,24 +1,29 @@
-import { put, call, select, takeLatest } from "redux-saga/effects";
-import { runTransaction } from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+import { put, call, select, takeLatest } from 'redux-saga/effects';
+import { runTransaction } from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from "../../../utils/firebase";
-import { fetchInvoiceUpdateData, updateInvoice } from "../../../utils/invoices";
-import { createDailySummary } from "../../../utils/summaries";
+import { db } from '../../../utils/firebase';
+import {
+  fetchInvoiceUpdateData,
+  updateInvoice,
+  InvoiceSale,
+} from '../../../utils/invoices';
+import { createDailySummary } from '../../../utils/summaries';
 
-import { UPDATE_INVOICE } from "../../actions/invoicesActions";
-import { start, success, fail } from "../../slices/invoicesSlice";
+import { UPDATE_INVOICE } from '../../actions/invoicesActions';
+import { start, success, fail } from '../../slices/invoicesSlice';
 import {
   error as toastError,
   success as toastSuccess,
-} from "../../slices/toastSlice";
+} from '../../slices/toastSlice';
 
 import {
   RootState,
   InvoiceFormData,
   UserProfile,
   Account,
-} from "../../../types";
+  Org,
+} from '../../../types';
 
 interface UpdateData extends InvoiceFormData {
   invoiceId: string;
@@ -26,9 +31,7 @@ interface UpdateData extends InvoiceFormData {
 
 function* updateInvoiceSaga(action: PayloadAction<UpdateData>) {
   yield put(start(UPDATE_INVOICE));
-  const orgId: string = yield select(
-    (state: RootState) => state.orgsReducer.org?.orgId
-  );
+  const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const userProfile: UserProfile = yield select(
     (state: RootState) => state.authReducer.userProfile
   );
@@ -40,33 +43,42 @@ function* updateInvoiceSaga(action: PayloadAction<UpdateData>) {
     /**
      * itialize by creating the daily summary if none is available
      */
-    await createDailySummary(orgId);
+    await createDailySummary(org.orgId);
     /**
      * update invoice using a transaction
      */
-    await runTransaction(db, async (transaction) => {
+    await runTransaction(db, async transaction => {
       /**
        * first part of update, fetch all relevant data
        * data reading
        */
       const { invoiceId, ...formData } = action.payload;
-      const { currentInvoice, entriesToDelete, entriesToUpdate, newAccounts } =
-        await fetchInvoiceUpdateData(transaction, orgId, invoiceId, formData);
-      /**
-       * last part of update function
-       * data writing
-       */
-      updateInvoice(
-        transaction,
-        orgId,
-        userProfile,
+      const invoiceInstance = new InvoiceSale(transaction, {
+        invoiceId,
         accounts,
-        entriesToUpdate,
-        entriesToDelete,
-        newAccounts,
-        currentInvoice,
-        { ...currentInvoice, ...formData }
-      );
+        incomingData: formData,
+        org,
+        userProfile,
+        transactionType: 'invoice',
+      });
+      await invoiceInstance.update();
+      // const { currentInvoice, entriesToDelete, entriesToUpdate, newAccounts } =
+      //   await fetchInvoiceUpdateData(transaction, orgId, invoiceId, formData);
+      // /**
+      //  * last part of update function
+      //  * data writing
+      //  */
+      // updateInvoice(
+      //   transaction,
+      //   orgId,
+      //   userProfile,
+      //   accounts,
+      //   entriesToUpdate,
+      //   entriesToDelete,
+      //   newAccounts,
+      //   currentInvoice,
+      //   { ...currentInvoice, ...formData }
+      // );
     });
   }
 
@@ -74,7 +86,7 @@ function* updateInvoiceSaga(action: PayloadAction<UpdateData>) {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess("Invoice updated Sucessfully!"));
+    yield put(toastSuccess('Invoice updated Sucessfully!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);

@@ -1,29 +1,31 @@
-import { put, call, select, takeLatest } from "redux-saga/effects";
-import { runTransaction } from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+import { put, call, select, takeLatest } from 'redux-saga/effects';
+import { runTransaction } from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from "../../../utils/firebase";
-import {
-  fetchInvoiceDeletionData,
-  deleteInvoice,
-} from "../../../utils/invoices";
-import { createDailySummary } from "../../../utils/summaries";
+import { db } from '../../../utils/firebase';
+import { createDailySummary } from '../../../utils/summaries';
 
-import { DELETE_INVOICE } from "../../actions/invoicesActions";
-import { start, success, fail } from "../../slices/invoicesSlice";
+import { DELETE_INVOICE } from '../../actions/invoicesActions';
+import { start, success, fail } from '../../slices/invoicesSlice';
 import {
   error as toastError,
   success as toastSuccess,
-} from "../../slices/toastSlice";
+} from '../../slices/toastSlice';
 
-import { UserProfile, RootState } from "../../../types";
+import InvoiceSale from '../../../utils/invoices/invoiceSale';
+
+import { UserProfile, RootState, Org, Account } from '../../../types';
 
 function* deleteInvoiceSaga(action: PayloadAction<string>) {
   yield put(start(DELETE_INVOICE));
   const invoiceId = action.payload;
-  const orgId: string = yield select(
-    (state: RootState) => state.orgsReducer.org?.orgId
+  const org: Org = yield select((state: RootState) => state.orgsReducer.org);
+  const { orgId } = org;
+
+  const accounts: Account[] = yield select(
+    (state: RootState) => state.accountsReducer.accounts
   );
+
   const userProfile: UserProfile = yield select(
     (state: RootState) => state.authReducer.userProfile
   );
@@ -36,21 +38,21 @@ function* deleteInvoiceSaga(action: PayloadAction<string>) {
     /**
      * delete invoice using a firestore transaction
      */
-    await runTransaction(db, async (transaction) => {
+    await runTransaction(db, async transaction => {
       /**
        * first part of deleting
        * fetch relevant deletion data
        */
-      const { groupedEntries, invoice } = await fetchInvoiceDeletionData(
-        transaction,
-        orgId,
-        invoiceId
-      );
-      /**
-       * last part of deleting
-       * delete relevant data
-       */
-      deleteInvoice(transaction, orgId, userProfile, invoice, groupedEntries);
+      const invoiceSale = new InvoiceSale(transaction, {
+        accounts,
+        incomingData: null,
+        invoiceId,
+        org,
+        userProfile,
+        transactionType: 'invoice',
+      });
+
+      await invoiceSale.deleteInvoice();
     });
   }
 
@@ -58,7 +60,7 @@ function* deleteInvoiceSaga(action: PayloadAction<string>) {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess("Invoice Sucessfully Deleted!"));
+    yield put(toastSuccess('Invoice Sucessfully Deleted!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);

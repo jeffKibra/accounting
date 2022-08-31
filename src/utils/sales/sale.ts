@@ -15,6 +15,7 @@ import {
 } from '../journals';
 import { getDateDetails } from '../dates';
 import { db } from '../firebase';
+import Summary from '../summaries/summary';
 import { getItemsAccounts } from '.';
 
 import {
@@ -35,23 +36,27 @@ interface SaleDetails {
   transactionId: string;
   userProfile: UserProfile;
   org: Org;
-  saleData: SaleData;
+  incomingSaleData: SaleData | null;
   accounts: Account[];
   transactionType: TransactionType;
+  incomingSaleAccount: Account;
 }
+
+interface SummaryInstance extends Summary {}
 
 export default class Sale {
   protected transaction: Transaction;
 
   transactionId: string;
   incomingSale: SaleData | null;
+  incomingSaleAccount: Account | null;
   currentSale: SaleData | null;
+  currentSaleAccount: Account | null;
   org: Org;
   userProfile: UserProfile;
   accounts: Account[];
   saleAccountsMapping: AccountsMapping | null;
   transactionType: TransactionType;
-
   customerHasChanged: boolean;
 
   //entries
@@ -61,15 +66,19 @@ export default class Sale {
   saleAccountsToUpdate: { [key: string]: number } | null;
   //firestore refs
   summaryRef: DocumentReference<DocumentData>;
+  //summary
+  dailySummary: { [key: string]: number | FieldValue } | null;
+  summaryInstance: SummaryInstance;
 
   constructor(transaction: Transaction, saleDetails: SaleDetails) {
     const {
       accounts,
       org,
-      saleData,
       transactionId,
       transactionType,
       userProfile,
+      incomingSaleData,
+      incomingSaleAccount,
     } = saleDetails;
 
     this.transaction = transaction;
@@ -77,15 +86,21 @@ export default class Sale {
     this.userProfile = userProfile;
     this.org = org;
     this.accounts = accounts;
-    this.incomingSale = saleData;
+    this.incomingSale = incomingSaleData;
+    this.incomingSaleAccount = incomingSaleAccount;
     this.transactionType = transactionType;
 
+    this.summaryInstance = new Summary(transaction, null, org);
+
     this.currentSale = null;
+    this.currentSaleAccount = null;
     this.saleAccountsMapping = null;
     this.customerHasChanged = false;
     this.entriesToUpdate = null;
     this.entriesToDelete = null;
     this.saleAccountsToUpdate = null;
+
+    this.dailySummary = null;
     const { yearMonthDay } = getDateDetails();
     this.summaryRef = doc(
       db,
@@ -97,7 +112,13 @@ export default class Sale {
   }
 
   generateIncomeAccounts() {
-    const { incomingSale, currentSale } = this;
+    console.log({ this: this });
+    const {
+      incomingSale,
+      currentSale,
+      incomingSaleAccount,
+      currentSaleAccount,
+    } = this;
 
     if (!incomingSale && !currentSale) {
       throw new Error(
@@ -106,36 +127,49 @@ export default class Sale {
     }
 
     const currentSummary = currentSale?.summary;
-    const currentAccounts = currentSale
-      ? [
-          ...getItemsAccounts(currentSale.selectedItems),
-          {
-            accountId: 'shipping_charge',
-            amount: currentSummary?.shipping || 0,
-          },
-          {
-            accountId: 'other_charges',
-            amount: currentSummary?.adjustment || 0,
-          },
-          { accountId: 'tax_payable', amount: currentSummary?.totalTax || 0 },
-        ]
-      : [];
+    const currentAccounts =
+      currentSale && currentSaleAccount && currentSummary
+        ? [
+            ...getItemsAccounts(currentSale.selectedItems),
+            {
+              accountId: 'shipping_charge',
+              amount: currentSummary.shipping || 0,
+            },
+            {
+              accountId: 'other_charges',
+              amount: currentSummary.adjustment || 0,
+            },
+            { accountId: 'tax_payable', amount: currentSummary.totalTax || 0 },
+            {
+              accountId: currentSaleAccount.accountId,
+              amount: currentSummary.totalAmount || 0,
+            },
+          ]
+        : [];
 
     const incomingSummary = incomingSale?.summary;
-    const incomingAccounts = incomingSale
-      ? [
-          ...getItemsAccounts(incomingSale.selectedItems),
-          {
-            accountId: 'shipping_charge',
-            amount: incomingSummary?.shipping || 0,
-          },
-          {
-            accountId: 'other_charges',
-            amount: incomingSummary?.adjustment || 0,
-          },
-          { accountId: 'tax_payable', amount: incomingSummary?.totalTax || 0 },
-        ]
-      : [];
+    const incomingAccounts =
+      incomingSale && incomingSaleAccount && incomingSummary
+        ? [
+            ...getItemsAccounts(incomingSale.selectedItems),
+            {
+              accountId: 'shipping_charge',
+              amount: incomingSummary.shipping || 0,
+            },
+            {
+              accountId: 'other_charges',
+              amount: incomingSummary.adjustment || 0,
+            },
+            {
+              accountId: 'tax_payable',
+              amount: incomingSummary.totalTax || 0,
+            },
+            {
+              accountId: incomingSaleAccount.accountId,
+              amount: incomingSummary.totalAmount || 0,
+            },
+          ]
+        : [];
 
     const accountsMapping = getAccountsMapping(
       currentAccounts,
@@ -144,7 +178,7 @@ export default class Sale {
     this.saleAccountsMapping = accountsMapping;
   }
 
-  fetchEntriesToUpdate() {
+  async fetchEntriesToUpdate() {
     const {
       org: { orgId },
       transactionId,
@@ -158,18 +192,20 @@ export default class Sale {
         ? [...updatedAccounts, ...similarAccounts]
         : [...updatedAccounts];
 
-      return getAccountsEntriesForTransaction(
+      const entries = await getAccountsEntriesForTransaction(
         orgId,
         transactionId,
         transactionType,
         accountsToUpdate
       );
+
+      this.entriesToUpdate = entries;
     } else {
       console.log('Income accounts to update not found!');
     }
   }
 
-  fetchEntriesToDelete() {
+  async fetchEntriesToDelete() {
     const {
       org: { orgId },
       transactionId,
@@ -179,20 +215,21 @@ export default class Sale {
     if (saleAccountsMapping) {
       const { deletedAccounts } = saleAccountsMapping;
 
-      return getAccountsEntriesForTransaction(
+      const entries = await getAccountsEntriesForTransaction(
         orgId,
         transactionId,
         transactionType,
         deletedAccounts
       );
+
+      this.entriesToDelete = entries;
     } else {
       console.log('Income accounts to delete not found!');
     }
   }
 
-  //writing methods
-  updateAccountsInSummary() {
-    const { saleAccountsMapping, transaction, summaryRef } = this;
+  generateAccountsSummary() {
+    const { saleAccountsMapping } = this;
     if (saleAccountsMapping) {
       const { uniqueAccounts } = saleAccountsMapping;
       const accountsAdjustments = uniqueAccounts.reduce<{
@@ -207,13 +244,15 @@ export default class Sale {
         };
       }, {});
 
-      transaction.update(summaryRef, { ...accountsAdjustments });
+      this.summaryInstance.appendObject(accountsAdjustments);
     } else {
       console.log(
         'Updating income accounts in summary not possible: No accounts to update'
       );
     }
   }
+
+  //writing methods
 
   createJournalEntries() {
     const {
@@ -224,10 +263,12 @@ export default class Sale {
       accounts,
       transactionId,
       incomingSale,
+      transactionType,
     } = this;
 
     if (saleAccountsMapping) {
       const { newAccounts } = saleAccountsMapping;
+      console.log('creating entries', newAccounts, { transactionId });
 
       newAccounts.forEach(mappedAccount => {
         const { accountId, incoming } = mappedAccount;
@@ -239,12 +280,12 @@ export default class Sale {
           amount: incoming,
           reference: '',
           transactionId,
-          transactionType: 'sales_receipt',
+          transactionType,
           transactionDetails: { ...incomingSale },
         });
       });
     } else {
-      console.log('There are no Sale entries to create');
+      console.warn('There are no Sale entries to create');
     }
   }
 
@@ -275,7 +316,7 @@ export default class Sale {
         });
       });
     } else {
-      console.log('There are no Sale entries to update');
+      console.warn('There are no Sale entries to update');
     }
   }
 
@@ -293,7 +334,7 @@ export default class Sale {
         deleteEntry(transaction, userProfile, orgId, entryId);
       });
     } else {
-      console.log('There are no Sale entries to delete');
+      console.warn('There are no Sale entries to delete');
     }
   }
 
@@ -302,14 +343,16 @@ export default class Sale {
       throw new Error('Incoming sale data not found');
     }
     this.generateIncomeAccounts();
+    this.generateAccountsSummary();
   }
 
-  createSale() {
+  protected createSale() {
     if (!this.saleAccountsMapping) {
       throw new Error('Initialize sale creation before creating new Sale');
     }
     this.createJournalEntries();
-    this.updateAccountsInSummary();
+    //update summary
+    this.summaryInstance.updateSummary();
   }
 
   protected async initUpdateSale() {
@@ -317,32 +360,26 @@ export default class Sale {
       throw new Error('Incoming or Current sale data not found');
     }
 
-    const {
-      generateIncomeAccounts,
-      fetchEntriesToDelete,
-      fetchEntriesToUpdate,
-    } = this;
-    generateIncomeAccounts();
-    await Promise.all([fetchEntriesToUpdate(), fetchEntriesToDelete()]);
+    this.generateIncomeAccounts();
+    this.generateAccountsSummary();
+    await Promise.all([
+      this.fetchEntriesToUpdate(),
+      this.fetchEntriesToDelete(),
+    ]);
   }
 
-  updateSale() {
-    const {
-      createJournalEntries,
-      updateJournalEntries,
-      deleteJournalEntries,
-      updateAccountsInSummary,
-      saleAccountsMapping,
-    } = this;
+  protected updateSale() {
+    const { saleAccountsMapping } = this;
 
     if (!saleAccountsMapping) {
       throw new Error('Please initialize an update before updating');
     }
 
-    createJournalEntries();
-    updateJournalEntries();
-    deleteJournalEntries();
-    updateAccountsInSummary();
+    this.createJournalEntries();
+    this.updateJournalEntries();
+    this.deleteJournalEntries();
+    //update summary
+    this.summaryInstance.updateSummary();
   }
 
   protected async initDeleteSale() {
@@ -350,14 +387,18 @@ export default class Sale {
       throw new Error('Current sale data not found');
     }
     this.generateIncomeAccounts();
+    this.generateAccountsSummary();
     await this.fetchEntriesToDelete();
   }
 
-  deleteSale() {
+  protected deleteSale() {
     if (!this.entriesToDelete) {
-      throw new Error('Initialize sale deletion before deleting');
+      throw new Error(
+        'Initialize sale deletion before deleting-no entries to delete'
+      );
     }
     this.deleteJournalEntries();
-    this.updateAccountsInSummary();
+    //update summary
+    this.summaryInstance.updateSummary();
   }
 }

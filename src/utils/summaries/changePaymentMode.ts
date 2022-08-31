@@ -1,7 +1,7 @@
-import { doc, increment, Transaction } from "firebase/firestore";
+import { doc, increment, Transaction } from 'firebase/firestore';
 
-import { db } from "../firebase";
-import { getDateDetails } from "../dates";
+import { db } from '../firebase';
+import { getDateDetails } from '../dates';
 
 type Payment = {
   amount: number;
@@ -15,7 +15,7 @@ export default function changePaymentMode(
   incomingPayment: Payment
 ) {
   const { yearMonthDay } = getDateDetails();
-  const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
+  const summaryRef = doc(db, 'organizations', orgId, 'summaries', yearMonthDay);
 
   const { amount, paymentModeId } = currentPayment;
   const { amount: incomingAmount, paymentModeId: incomingModeId } =
