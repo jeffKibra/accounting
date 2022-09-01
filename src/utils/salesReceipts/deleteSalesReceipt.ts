@@ -3,18 +3,18 @@ import {
   serverTimestamp,
   increment,
   Transaction,
-} from "firebase/firestore";
+} from 'firebase/firestore';
 
-import { db, dbCollections } from "../firebase";
+import { db, dbCollections } from '../firebase';
 import {
   deleteSimilarAccountEntries,
   groupEntriesIntoAccounts,
   getTransactionEntries,
-} from "../journals";
-import { getSalesReceiptData } from ".";
-import { getDateDetails } from "../dates";
+} from '../journals';
+import { getSalesReceiptData } from '.';
+import { getDateDetails } from '../dates';
 
-import { UserProfile } from "../../types";
+import { UserProfile } from '../../types';
 
 export default async function deleteSalesReceipt(
   transaction: Transaction,
@@ -26,7 +26,7 @@ export default async function deleteSalesReceipt(
   //   console.log({ salesReceiptId, orgId, userProfile });
 
   const { yearMonthDay } = getDateDetails();
-  const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
+  const summaryRef = doc(db, 'organizations', orgId, 'summaries', yearMonthDay);
   /**
    * fetch sales receipt data
    * fetch journal entries related to this sales receipt
@@ -57,7 +57,7 @@ export default async function deleteSalesReceipt(
   /**
    * delete entries and update accounts summaries
    */
-  Object.values(groupedEntries).forEach((entries) => {
+  Object.values(groupedEntries).forEach(entries => {
     deleteSimilarAccountEntries(
       transaction,
       userProfile,
@@ -72,14 +72,14 @@ export default async function deleteSalesReceipt(
   if (customerId) {
     const customerRef = doc(
       db,
-      "organizations",
+      'organizations',
       orgId,
-      "customers",
+      'customers',
       customerId
     );
     transaction.update(customerRef, {
-      "summary.deletedSalesReceipts": increment(1),
-      "summary.salesReceiptsAmount": increment(0 - totalAmount),
+      'summary.deletedSalesReceipts': increment(1),
+      'summary.salesReceiptsAmount': increment(0 - totalAmount),
     });
   }
   /**
@@ -89,7 +89,7 @@ export default async function deleteSalesReceipt(
   transaction.update(summaryRef, {
     deletedsalesReceipts: increment(1),
     [`paymentModes.${paymentModeId}`]: increment(adjustment),
-    "cashFlow.incoming": increment(adjustment),
+    'cashFlow.incoming': increment(adjustment),
   });
   /**
    * mark salesReceipt as deleted
@@ -97,7 +97,7 @@ export default async function deleteSalesReceipt(
   const salesReceiptsCollection = dbCollections(orgId).salesReceipts;
   const salesReceiptRef = doc(salesReceiptsCollection, salesReceiptId);
   transaction.update(salesReceiptRef, {
-    status: "deleted",
+    status: 'deleted',
     modifiedBy: email,
     modifiedAt: serverTimestamp(),
   });

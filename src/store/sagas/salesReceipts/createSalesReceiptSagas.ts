@@ -1,20 +1,21 @@
-import { put, call, select, takeLatest } from "redux-saga/effects";
-import { runTransaction } from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+import { put, call, select, takeLatest } from 'redux-saga/effects';
+import { runTransaction } from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from "../../../utils/firebase";
+import { db } from '../../../utils/firebase';
 import {
-  createSalesReceipt,
+  // createSalesReceipt,
   createReceiptId,
-} from "../../../utils/salesReceipts";
-import { createDailySummary } from "../../../utils/summaries";
+} from '../../../utils/salesReceipts';
+import { createDailySummary } from '../../../utils/summaries';
 
-import { CREATE_SALES_RECEIPT } from "../../actions/salesReceiptsActions";
-import { start, success, fail } from "../../slices/salesReceiptsSlice";
+import { CREATE_SALES_RECEIPT } from '../../actions/salesReceiptsActions';
+import { start, success, fail } from '../../slices/salesReceiptsSlice';
 import {
   error as toastError,
   success as toastSuccess,
-} from "../../slices/toastSlice";
+} from '../../slices/toastSlice';
+import ReceiptSale from 'utils/salesReceipts/receiptSale';
 
 import {
   SalesReceiptForm,
@@ -22,7 +23,7 @@ import {
   UserProfile,
   Account,
   Org,
-} from "../../../types";
+} from '../../../types';
 
 function* createSalesReceiptSaga(action: PayloadAction<SalesReceiptForm>) {
   yield put(start(CREATE_SALES_RECEIPT));
@@ -44,22 +45,23 @@ function* createSalesReceiptSaga(action: PayloadAction<SalesReceiptForm>) {
     /**
      * create salesReceipt using a firestore transaction
      */
-    await runTransaction(db, async (transaction) => {
+    await runTransaction(db, async transaction => {
       /**
        * generate the salesReceipt slug
        */
       const salesReceiptId = await createReceiptId(transaction, orgId);
+
       /**
        * create salesReceipt
        */
-      await createSalesReceipt(
-        transaction,
-        org,
-        userProfile,
+      const receiptInstance = new ReceiptSale(transaction, {
         accounts,
+        org,
+        receiptData: action.payload,
         salesReceiptId,
-        action.payload
-      );
+        userProfile,
+      });
+      receiptInstance.create();
     });
   }
 
@@ -67,7 +69,7 @@ function* createSalesReceiptSaga(action: PayloadAction<SalesReceiptForm>) {
     yield call(create);
 
     yield put(success());
-    yield put(toastSuccess("Sales Receipt created Sucessfully!"));
+    yield put(toastSuccess('Sales Receipt created Sucessfully!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);

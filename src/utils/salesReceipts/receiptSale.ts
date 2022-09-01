@@ -23,7 +23,7 @@ interface ReceiptDetails {
   org: Org;
   salesReceiptId: string;
   userProfile: UserProfile;
-  receiptData: SalesReceiptForm;
+  receiptData: SalesReceiptForm | null;
 }
 
 export default class ReceiptSale extends Sale {
@@ -36,7 +36,7 @@ export default class ReceiptSale extends Sale {
 
     super(transaction, {
       accounts,
-      incomingSaleAccount: receiptData.account,
+      incomingSaleAccount: receiptData?.account || null,
       incomingSaleData: receiptData,
       org,
       transactionId: salesReceiptId,
@@ -45,18 +45,22 @@ export default class ReceiptSale extends Sale {
     });
 
     this.incomingReceipt = receiptData;
+    this.currentSaleAccount = null;
     this.currentReceipt = null;
   }
 
-  initCreateReceipt() {
+  initCreate() {
     /**
      * init sale creation
      */
     this.initCreateSale();
+    if (this.transactionType === 'sales_receipt') {
+      this.summaryInstance.appendObject({ salesReceipts: increment(1) });
+    }
   }
 
-  createSalesReceipt() {
-    this.initCreateReceipt();
+  create() {
+    this.initCreate();
     /**
      * create sales
      */
@@ -131,7 +135,7 @@ export default class ReceiptSale extends Sale {
     });
   }
 
-  async fetchCurrentReceipt() {
+  async setCurrentReceipt() {
     const {
       transaction,
       org: { orgId },
@@ -145,23 +149,35 @@ export default class ReceiptSale extends Sale {
     );
 
     this.currentReceipt = currentSalesReceipt;
+    this.currentSaleAccount = currentSalesReceipt.account;
+    this.currentSale = currentSalesReceipt;
   }
 
-  async initUpdateReceipt() {
-    /**
-     * init update sale
-     */
-    await this.initUpdateSale();
+  async initUpdate() {
     /**
      * init update receipt
      */
-    await this.fetchCurrentReceipt();
+    await this.setCurrentReceipt();
 
-    const { incomingReceipt, currentReceipt } = this;
+    const {
+      incomingReceipt,
+      currentReceipt,
+      currentSaleAccount,
+      incomingSaleAccount,
+    } = this;
 
-    if (!incomingReceipt || !currentReceipt) {
+    if (
+      !incomingReceipt ||
+      !incomingSaleAccount ||
+      !currentReceipt ||
+      !currentSaleAccount
+    ) {
       throw new Error('Incoming and current receipt required in an update');
     }
+    /**
+     * init update sale after fetching current receipt data
+     */
+    await this.initUpdateSale();
 
     const { summary, paymentMode } = incomingReceipt;
     const { value: paymentModeId } = paymentMode;
@@ -201,8 +217,8 @@ export default class ReceiptSale extends Sale {
     );
   }
 
-  async updateSalesReceipt() {
-    await this.initUpdateReceipt();
+  async update() {
+    await this.initUpdate();
     /**
      * update sale
      */
@@ -223,21 +239,15 @@ export default class ReceiptSale extends Sale {
       throw new Error('Incoming and current receipt required in an update');
     }
 
-    const { email } = userProfile;
-    const { summary, customer } = incomingReceipt;
-    const { customerId } = customer;
-    // console.log({ data });
-    const { totalAmount } = summary;
+    const {
+      summary: { totalAmount },
+      customer: { customerId },
+    } = incomingReceipt;
 
     const {
       customer: { customerId: currentCustomerId },
       summary: currentSummary,
     } = currentReceipt;
-
-    /**
-     * start writing
-     */
-
     /**
      * update customer summaries
      */
@@ -292,10 +302,88 @@ export default class ReceiptSale extends Sale {
     transaction.update(salesReceiptRef, {
       ...incomingReceipt,
       // classical: "plus",
-      modifiedBy: email,
+      modifiedBy: userProfile.uid,
       modifiedAt: serverTimestamp(),
     });
   }
+
+  async initDelete() {
+    await this.setCurrentReceipt();
+    const { currentReceipt, currentSaleAccount } = this;
+    if (!currentReceipt || !currentSaleAccount) {
+      throw new Error('Current receipt and account not found!');
+    }
+    /**
+     *init delete sale after setting current receipt
+     */
+    await this.initDeleteSale();
+    /**
+     * update org counters summaries
+     */
+    const {
+      paymentMode: { value: paymentModeId },
+      summary: { totalAmount },
+    } = currentReceipt;
+    this.summaryInstance.append('deletedsalesReceipts', 1, 0);
+    this.summaryInstance.appendPaymentMode(paymentModeId, 0, totalAmount);
+    this.summaryInstance.append('cashFlow.incoming', 0, totalAmount);
+  }
+
+  async deleteReceipt() {
+    await this.initDelete();
+    /**
+     * delete sale
+     */
+    this.deleteSale();
+    /**
+     * delete sale receipt
+     */
+    const {
+      transaction,
+      transactionId,
+      org: { orgId },
+      userProfile,
+      currentReceipt,
+    } = this;
+
+    if (!currentReceipt) {
+      throw new Error('Receipt data not found!');
+    }
+
+    const {
+      customer: { customerId },
+      summary: { totalAmount },
+    } = currentReceipt;
+
+    /**
+     * update customer summaries
+     */
+    if (customerId) {
+      const customerRef = doc(
+        db,
+        'organizations',
+        orgId,
+        'customers',
+        customerId
+      );
+      transaction.update(customerRef, {
+        'summary.deletedSalesReceipts': increment(1),
+        'summary.salesReceiptsAmount': increment(0 - totalAmount),
+      });
+    }
+
+    /**
+     * mark salesReceipt as deleted
+     */
+    const salesReceiptsCollection = dbCollections(orgId).salesReceipts;
+    const salesReceiptRef = doc(salesReceiptsCollection, transactionId);
+    transaction.update(salesReceiptRef, {
+      status: 'deleted',
+      modifiedBy: userProfile.uid,
+      modifiedAt: serverTimestamp(),
+    });
+  }
+
   //----------------------------------------------------------------------
   //static functions
   //----------------------------------------------------------------------

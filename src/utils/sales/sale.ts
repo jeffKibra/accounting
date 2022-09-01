@@ -36,10 +36,10 @@ interface SaleDetails {
   transactionId: string;
   userProfile: UserProfile;
   org: Org;
-  incomingSaleData: SaleData | null;
   accounts: Account[];
   transactionType: TransactionType;
-  incomingSaleAccount: Account;
+  incomingSaleData: SaleData | null;
+  incomingSaleAccount: Account | null;
 }
 
 interface SummaryInstance extends Summary {}
@@ -112,7 +112,6 @@ export default class Sale {
   }
 
   generateIncomeAccounts() {
-    console.log({ this: this });
     const {
       incomingSale,
       currentSale,

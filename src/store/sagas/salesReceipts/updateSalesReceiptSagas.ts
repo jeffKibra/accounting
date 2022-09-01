@@ -1,24 +1,26 @@
-import { put, call, select, takeLatest } from "redux-saga/effects";
-import { runTransaction } from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+import { put, call, select, takeLatest } from 'redux-saga/effects';
+import { runTransaction } from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from "../../../utils/firebase";
-import { updateSalesReceipt } from "../../../utils/salesReceipts";
-import { createDailySummary } from "../../../utils/summaries";
+import { db } from '../../../utils/firebase';
+import { updateSalesReceipt } from '../../../utils/salesReceipts';
+import { createDailySummary } from '../../../utils/summaries';
+import ReceiptSale from 'utils/salesReceipts/receiptSale';
 
-import { UPDATE_SALES_RECEIPT } from "../../actions/salesReceiptsActions";
-import { start, success, fail } from "../../slices/salesReceiptsSlice";
+import { UPDATE_SALES_RECEIPT } from '../../actions/salesReceiptsActions';
+import { start, success, fail } from '../../slices/salesReceiptsSlice';
 import {
   error as toastError,
   success as toastSuccess,
-} from "../../slices/toastSlice";
+} from '../../slices/toastSlice';
 
 import {
   RootState,
   UserProfile,
   Account,
   SalesReceiptForm,
-} from "../../../types";
+  Org,
+} from '../../../types';
 
 interface UpdateData extends SalesReceiptForm {
   salesReceiptId: string;
@@ -26,9 +28,8 @@ interface UpdateData extends SalesReceiptForm {
 
 function* updateSalesReceiptSaga(action: PayloadAction<UpdateData>) {
   yield put(start(UPDATE_SALES_RECEIPT));
-  const orgId: string = yield select(
-    (state: RootState) => state.orgsReducer.org?.orgId
-  );
+  const org: Org = yield select((state: RootState) => state.orgsReducer.org);
+  const { orgId } = org;
   const userProfile: UserProfile = yield select(
     (state: RootState) => state.authReducer.userProfile
   );
@@ -45,15 +46,16 @@ function* updateSalesReceiptSaga(action: PayloadAction<UpdateData>) {
      * update SalesReceipt using a transaction
      */
     const { salesReceiptId, ...formData } = action.payload;
-    await runTransaction(db, async (transaction) => {
-      await updateSalesReceipt(
-        transaction,
-        orgId,
-        userProfile,
+    await runTransaction(db, async transaction => {
+      const receiptInstance = new ReceiptSale(transaction, {
         accounts,
+        org,
         salesReceiptId,
-        formData
-      );
+        receiptData: formData,
+        userProfile,
+      });
+
+      await receiptInstance.update();
     });
   }
 
@@ -61,7 +63,7 @@ function* updateSalesReceiptSaga(action: PayloadAction<UpdateData>) {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess("Sales Receipt Sucessfully Updated!"));
+    yield put(toastSuccess('Sales Receipt Sucessfully Updated!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);
