@@ -1,120 +1,77 @@
 import {
   Transaction,
-  serverTimestamp,
-  doc,
   increment,
+  serverTimestamp,
+  Timestamp,
+  doc,
 } from 'firebase/firestore';
 
-import { db, dbCollections } from '../firebase';
-import { getDateDetails } from '../dates';
+import { dbCollections } from '../firebase';
 import formats from '../formats';
-import Sale from '../sales/sale';
+import Sale, { SaleDataAndAccount } from '../sales/sale';
+import MonthlySummary from '../summaries/monthlySummary';
 
-import {
-  Org,
-  UserProfile,
-  Account,
-  SalesReceiptForm,
-  SalesReceipt,
-} from 'types';
+import { Org, Account, SalesReceiptForm, SalesReceipt } from 'types';
 
 interface ReceiptDetails {
   accounts: Account[];
   org: Org;
   salesReceiptId: string;
-  userProfile: UserProfile;
-  receiptData: SalesReceiptForm | null;
+  userId: string;
 }
 
 export default class ReceiptSale extends Sale {
-  incomingReceipt: SalesReceiptForm | null;
-  currentReceipt: SalesReceipt | null;
-
   constructor(transaction: Transaction, receiptDetails: ReceiptDetails) {
-    const { accounts, org, salesReceiptId, userProfile, receiptData } =
-      receiptDetails;
+    const { accounts, org, salesReceiptId, userId } = receiptDetails;
 
     super(transaction, {
       accounts,
-      incomingSaleAccount: receiptData?.account || null,
-      incomingSaleData: receiptData,
       org,
       transactionId: salesReceiptId,
       transactionType: 'sales_receipt',
-      userProfile,
+      userId,
     });
-
-    this.incomingReceipt = receiptData;
-    this.currentSaleAccount = null;
-    this.currentReceipt = null;
   }
 
-  initCreate() {
-    /**
-     * init sale creation
-     */
-    this.initCreateSale();
-    if (this.transactionType === 'sales_receipt') {
-      this.summaryInstance.appendObject({ salesReceipts: increment(1) });
-    }
-  }
+  async create(incomingReceipt: SalesReceiptForm) {
+    const {
+      account,
+      customer: { customerId },
+      paymentMode: { value: paymentModeId },
+      summary: saleSummary,
+    } = incomingReceipt;
+    const { totalAmount } = saleSummary;
+    const { accountsSummary, accountsMapping } = this.initCreateSale(
+      incomingReceipt,
+      account
+    );
+    const {
+      transaction,
+      org: { orgId },
+      org,
+      userId,
+      transactionId,
+    } = this;
 
-  create() {
-    this.initCreate();
+    const summary = new MonthlySummary(transaction, orgId);
+
+    summary.appendObject({ ...accountsSummary, salesReceipts: increment(1) });
+    summary.appendPaymentMode(paymentModeId, totalAmount, 0);
+    summary.append('cashFlow.incoming', totalAmount, 0);
+
+    summary.updateOrgSummary();
+    summary.updateCustomerSummary(customerId);
     /**
      * create sales
      */
-    this.createSale();
+    this.createSale(incomingReceipt, accountsMapping);
     /**
      * create sales receipt
      */
-    const { transaction, org, userProfile, transactionId, incomingReceipt } =
-      this;
 
     if (!incomingReceipt) {
       throw new Error('Incoming Sales receipt required!');
     }
-
-    const { orgId } = org;
-    const { email } = userProfile;
-    const { customer, summary, paymentMode } = incomingReceipt;
-    const { customerId } = customer;
-    const { value: paymentModeId } = paymentMode;
-    const { totalAmount } = summary;
-
-    /**
-     * update customer summaries if a customer was selected
-     */
-    if (customerId) {
-      const customerRef = doc(
-        db,
-        'organizations',
-        orgId,
-        'customers',
-        customerId
-      );
-
-      transaction.update(customerRef, {
-        'summary.salesReceipts': increment(1),
-        'summary.salesReceiptsAmount': increment(summary.totalAmount),
-      });
-    }
-    /**
-     * update org summaries
-     */
-    const { yearMonthDay } = getDateDetails();
-    const summaryRef = doc(
-      db,
-      'organizations',
-      orgId,
-      'summaries',
-      yearMonthDay
-    );
-    transaction.update(summaryRef, {
-      salesReceipts: increment(1),
-      [`paymentModes.${paymentModeId}`]: increment(totalAmount),
-      'cashFlow.incoming': increment(totalAmount),
-    });
 
     /**
      * create salesReceipt
@@ -128,172 +85,144 @@ export default class ReceiptSale extends Sale {
       isSent: false,
       transactionType: 'sales_receipt',
       org: formats.formatOrgData(org),
-      createdBy: email,
-      createdAt: serverTimestamp(),
-      modifiedBy: email,
-      modifiedAt: serverTimestamp(),
+      createdBy: userId,
+      createdAt: serverTimestamp() as Timestamp,
+      modifiedBy: userId,
+      modifiedAt: serverTimestamp() as Timestamp,
     });
   }
 
-  async setCurrentReceipt() {
+  getCurrentReceipt() {
     const {
       transaction,
       org: { orgId },
       transactionId,
     } = this;
 
-    const currentSalesReceipt = await ReceiptSale.getSalesReceiptData(
-      transaction,
-      orgId,
-      transactionId
-    );
-
-    this.currentReceipt = currentSalesReceipt;
-    this.currentSaleAccount = currentSalesReceipt.account;
-    this.currentSale = currentSalesReceipt;
+    return ReceiptSale.getSalesReceiptData(transaction, orgId, transactionId);
   }
 
-  async initUpdate() {
-    /**
-     * init update receipt
-     */
-    await this.setCurrentReceipt();
+  async update(incomingReceipt: SalesReceiptForm) {
+    const currentReceipt = await this.getCurrentReceipt();
 
-    const {
-      incomingReceipt,
-      currentReceipt,
-      currentSaleAccount,
-      incomingSaleAccount,
-    } = this;
-
-    if (
-      !incomingReceipt ||
-      !incomingSaleAccount ||
-      !currentReceipt ||
-      !currentSaleAccount
-    ) {
-      throw new Error('Incoming and current receipt required in an update');
-    }
-    /**
-     * init update sale after fetching current receipt data
-     */
-    await this.initUpdateSale();
-
-    const { summary, paymentMode } = incomingReceipt;
-    const { value: paymentModeId } = paymentMode;
-    const { totalAmount } = summary;
-
-    const {
-      paymentMode: { value: currentPaymentModeId },
-      summary: currentSummary,
-    } = currentReceipt;
-
-    /**
-     * update summary payment modes
-     */
-    if (currentPaymentModeId === paymentModeId) {
-      if (currentSummary.totalAmount !== totalAmount) {
-        this.summaryInstance.appendPaymentMode(
-          paymentModeId,
-          totalAmount,
-          currentSummary.totalAmount
-        );
-      }
-    } else {
-      this.summaryInstance.appendPaymentMode(paymentModeId, totalAmount, 0);
-      this.summaryInstance.appendPaymentMode(
-        currentPaymentModeId,
-        0,
-        currentSummary.totalAmount
-      );
-    }
-    /**
-     * update cashflow
-     */
-    this.summaryInstance.append(
-      'cashFlow.incoming',
-      totalAmount,
-      currentSummary.totalAmount
-    );
-  }
-
-  async update() {
-    await this.initUpdate();
-    /**
-     * update sale
-     */
-    this.updateSale();
-    /**
-     * update receipt
-     */
     const {
       transaction,
       org: { orgId },
-      userProfile,
-      incomingReceipt,
-      currentReceipt,
+      userId,
       transactionId,
     } = this;
 
-    if (!incomingReceipt || !currentReceipt) {
-      throw new Error('Incoming and current receipt required in an update');
-    }
+    const incomingReceiptAndAccount: SaleDataAndAccount = {
+      saleDetails: incomingReceipt,
+      saleAccount: incomingReceipt.account,
+    };
+    const currentReceiptAndAccount: SaleDataAndAccount = {
+      saleDetails: currentReceipt,
+      saleAccount: currentReceipt.account,
+    };
 
     const {
-      summary: { totalAmount },
-      customer: { customerId },
+      accountsMapping,
+      accountsSummary,
+      entriesToDelete,
+      entriesToUpdate,
+    } = await this.initUpdateSale(
+      incomingReceiptAndAccount,
+      currentReceiptAndAccount
+    );
+
+    const {
+      summary: { totalAmount: incomingTotal },
+      customer: { customerId: incomingCustomerId },
+      paymentMode: { value: incomingPaymentModeId },
     } = incomingReceipt;
 
     const {
       customer: { customerId: currentCustomerId },
-      summary: currentSummary,
+      summary: { totalAmount: currentTotal },
+      paymentMode: { value: currentPaymentModeId },
     } = currentReceipt;
+
     /**
-     * update customer summaries
+     * update sale
      */
-    const newCustomerRef = customerId
-      ? doc(db, 'organizations', orgId, 'customers', customerId)
-      : null;
-    const currentCustomerRef = currentCustomerId
-      ? doc(db, 'organizations', orgId, 'customers', currentCustomerId)
-      : null;
-    /**
-     * opening balance is strictly tied to a customer.
-     * cant change hence no need to change anything
-     */
-    /**
-     * check if customer has been changed
-     */
-    const customerHasChanged = currentCustomerId !== customerId;
-    if (customerHasChanged) {
-      //delete values from previous customer
-      if (currentCustomerRef) {
-        transaction.update(currentCustomerRef, {
-          'summary.salesReceiptsAmount': increment(
-            0 - currentSummary.totalAmount
-          ),
-          'summary.deletedSalesReceipts': increment(1),
-        });
-      }
-      if (newCustomerRef) {
-        //add new values to the incoming customer
-        transaction.update(newCustomerRef, {
-          'summary.salesReceiptsAmount': increment(totalAmount),
-          'summary.salesReceipts': increment(1),
-        });
-      }
+    this.updateSale(
+      incomingReceipt,
+      accountsMapping,
+      entriesToUpdate,
+      entriesToDelete
+    );
+
+    //update org summary
+    const orgSummary = new MonthlySummary(transaction, orgId);
+    orgSummary.appendObject(accountsSummary);
+    orgSummary.append('cashFlow.incoming', incomingTotal, currentTotal);
+
+    if (incomingPaymentModeId === currentPaymentModeId) {
+      orgSummary.appendPaymentMode(
+        incomingPaymentModeId,
+        incomingTotal,
+        currentTotal
+      );
     } else {
-      if (currentCustomerRef) {
-        if (currentSummary.totalAmount !== totalAmount) {
-          const adjustment = totalAmount - currentSummary.totalAmount;
-          //update customer summaries
-          transaction.update(currentCustomerRef, {
-            'summary.salesReceiptsAmount': increment(adjustment),
-          });
-        }
-      }
+      orgSummary.appendPaymentMode(incomingPaymentModeId, incomingTotal, 0);
+      orgSummary.appendPaymentMode(currentPaymentModeId, 0, currentTotal);
     }
 
+    orgSummary.updateOrgSummary();
+    /**
+     * update customers summaries
+     */
+    const customerHasChanged = currentCustomerId !== incomingCustomerId;
+    if (customerHasChanged) {
+      const {
+        incomingCustomerAccountsSummary,
+        currentCustomerAccountsSummary,
+      } = await this.getChangedCustomersAccountsSummaries(
+        incomingReceiptAndAccount,
+        currentReceiptAndAccount
+      );
+
+      const incomingCustomerSummary = new MonthlySummary(transaction, '');
+      incomingCustomerSummary.appendObject(incomingCustomerAccountsSummary);
+      incomingCustomerSummary.append('salesReceipts', 1, 0);
+      incomingCustomerSummary.append('cashFlow.incoming', incomingTotal, 0);
+      incomingCustomerSummary.appendPaymentMode(
+        incomingPaymentModeId,
+        incomingTotal,
+        0
+      );
+      //
+      const currentCustomerSummary = new MonthlySummary(transaction, '');
+      currentCustomerSummary.appendObject(currentCustomerAccountsSummary);
+      currentCustomerSummary.append('deletedSalesReceipts', 1, 0);
+      currentCustomerSummary.append('cashFlow.incoming', 0, currentTotal);
+      currentCustomerSummary.appendPaymentMode(
+        currentPaymentModeId,
+        0,
+        currentTotal
+      );
+
+      this.changeCustomers({
+        incomingCustomer: {
+          id: incomingCustomerId,
+          summary: {
+            ...incomingCustomerSummary.data,
+          },
+        },
+        currentCustomer: {
+          id: currentCustomerId,
+          summary: {
+            ...currentCustomerSummary.data,
+          },
+        },
+      });
+    } else {
+      const customerSummary = new MonthlySummary(transaction, orgId);
+      customerSummary.appendObject(orgSummary.data);
+
+      customerSummary.updateCustomerSummary(incomingCustomerId);
+    }
     /**
      * update sales receipt
      */
@@ -302,75 +231,49 @@ export default class ReceiptSale extends Sale {
     transaction.update(salesReceiptRef, {
       ...incomingReceipt,
       // classical: "plus",
-      modifiedBy: userProfile.uid,
+      modifiedBy: userId,
       modifiedAt: serverTimestamp(),
     });
   }
 
-  async initDelete() {
-    await this.setCurrentReceipt();
-    const { currentReceipt, currentSaleAccount } = this;
-    if (!currentReceipt || !currentSaleAccount) {
-      throw new Error('Current receipt and account not found!');
-    }
-    /**
-     *init delete sale after setting current receipt
-     */
-    await this.initDeleteSale();
-    /**
-     * update org counters summaries
-     */
-    const {
-      paymentMode: { value: paymentModeId },
-      summary: { totalAmount },
-    } = currentReceipt;
-    this.summaryInstance.append('deletedsalesReceipts', 1, 0);
-    this.summaryInstance.appendPaymentMode(paymentModeId, 0, totalAmount);
-    this.summaryInstance.append('cashFlow.incoming', 0, totalAmount);
-  }
-
   async deleteReceipt() {
-    await this.initDelete();
-    /**
-     * delete sale
-     */
-    this.deleteSale();
-    /**
-     * delete sale receipt
-     */
+    const receiptData = await this.getCurrentReceipt();
     const {
       transaction,
       transactionId,
       org: { orgId },
-      userProfile,
-      currentReceipt,
+      userId,
     } = this;
-
-    if (!currentReceipt) {
-      throw new Error('Receipt data not found!');
-    }
 
     const {
       customer: { customerId },
       summary: { totalAmount },
-    } = currentReceipt;
+      paymentMode: { value: paymentModeId },
+    } = receiptData;
 
     /**
-     * update customer summaries
+     *init delete sale after setting current receipt
      */
-    if (customerId) {
-      const customerRef = doc(
-        db,
-        'organizations',
-        orgId,
-        'customers',
-        customerId
-      );
-      transaction.update(customerRef, {
-        'summary.deletedSalesReceipts': increment(1),
-        'summary.salesReceiptsAmount': increment(0 - totalAmount),
-      });
-    }
+    const { accountsSummary, entriesToDelete } = await this.initDeleteSale({
+      saleAccount: receiptData.account,
+      saleDetails: receiptData,
+    });
+
+    /**
+     * delete sale
+     */
+    this.deleteSale(entriesToDelete);
+    /**
+     * delete sale receipt
+     */
+    const summary = new MonthlySummary(transaction, orgId);
+    summary.appendObject(accountsSummary);
+    summary.appendPaymentMode(paymentModeId, 0, totalAmount);
+    summary.append('cashFlow.incoming', 0, totalAmount);
+    summary.append('deletedSalesReceipts', 0, 1);
+
+    summary.updateOrgSummary();
+    summary.updateCustomerSummary(customerId);
 
     /**
      * mark salesReceipt as deleted
@@ -379,7 +282,7 @@ export default class ReceiptSale extends Sale {
     const salesReceiptRef = doc(salesReceiptsCollection, transactionId);
     transaction.update(salesReceiptRef, {
       status: 'deleted',
-      modifiedBy: userProfile.uid,
+      modifiedBy: userId,
       modifiedAt: serverTimestamp(),
     });
   }

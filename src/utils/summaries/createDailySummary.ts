@@ -7,20 +7,20 @@ import {
   setDoc,
   doc,
   serverTimestamp,
-} from "firebase/firestore";
+} from 'firebase/firestore';
 
-import { db } from "../firebase";
-import { confirmFutureDate, getDateDetails, isSameDay } from "../dates";
+import { db } from '../firebase';
+import { confirmFutureDate, getDateDetails, isSameDay } from '../dates';
 
 export default async function createDailySummary(orgId: string) {
   const q = query(
-    collection(db, "organizations", orgId, "summaries"),
-    orderBy("createdAt", "desc"),
+    collection(db, 'organizations', orgId, 'summaries'),
+    orderBy('createdAt', 'desc'),
     limit(1)
   );
   const snap = await getDocs(q);
   if (snap.empty) {
-    throw new Error("Something went wrong! Summary not found!");
+    throw new Error('Something went wrong! Summary not found!');
   }
   const summaryDoc = snap.docs[0];
   const summaryData = summaryDoc.data();
@@ -33,7 +33,7 @@ export default async function createDailySummary(orgId: string) {
 
   if (!isFutureDate) {
     throw new Error(
-      "Cannot update past summaries. Please check that your Devices calender is in sync. "
+      'Cannot update past summaries. Please check that your Devices calender is in sync. '
     );
   }
 
@@ -51,7 +51,7 @@ export default async function createDailySummary(orgId: string) {
   /**
    * create new summary for the day using previous day data
    */
-  await setDoc(doc(db, "organizations", orgId, "summaries", yearMonthDay), {
+  await setDoc(doc(db, 'organizations', orgId, 'summaries', yearMonthDay), {
     ...summaryData,
     createdAt: serverTimestamp(),
     modifiedAt: serverTimestamp(),

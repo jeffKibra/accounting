@@ -8,39 +8,39 @@ import {
   getDoc,
   doc,
   writeBatch,
-} from "firebase/firestore";
-import { put, call, takeLatest, select } from "redux-saga/effects";
-import { PayloadAction } from "@reduxjs/toolkit";
+} from 'firebase/firestore';
+import { put, call, takeLatest, select } from 'redux-saga/effects';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from "../../../utils/firebase";
-import { getDateDetails } from "../../../utils/dates";
+import { db } from '../../../utils/firebase';
+import { getDateDetails } from '../../../utils/dates';
 import {
   accounts,
   accountTypes,
   paymentTerms,
   paymentModes,
-} from "../../../constants";
+} from '../../../constants';
 
-import { start, success, fail } from "../../slices/orgsSlice";
-import { CREATE_ORG } from "../../actions/orgsActions";
+import { start, success, fail } from '../../slices/orgsSlice';
+import { CREATE_ORG } from '../../actions/orgsActions';
 import {
   success as toastSuccess,
   error as toastError,
-} from "../../slices/toastSlice";
+} from '../../slices/toastSlice';
 
-import { OrgFormData, Org, UserProfile } from "../../../types";
+import { OrgFormData, Org, UserProfile } from '../../../types';
 
 export function getOrg(userId: string) {
   // console.log("getting org", userId);
 
   const q = query(
-    collection(db, "organizations"),
-    where("owner", "==", userId),
-    where("status", "in", ["onboarding", "active", "suspended"]),
+    collection(db, 'organizations'),
+    where('owner', '==', userId),
+    where('status', 'in', ['onboarding', 'active', 'suspended']),
     limit(1)
   );
 
-  return getDocs(q).then((snap) => {
+  return getDocs(q).then(snap => {
     if (snap.empty) {
       return null;
     }
@@ -59,23 +59,18 @@ function* createOrg(action: PayloadAction<OrgFormData>) {
   console.log({ payload: action.payload });
 
   const userProfile: UserProfile = yield select(
-    (state) => state.authReducer.userProfile
+    state => state.authReducer.userProfile
   );
   const { email, uid } = userProfile;
   const dateDetails = getDateDetails();
 
   async function saveData() {
-    const orgRef = doc(collection(db, "organizations"));
-    const accountsRef = doc(db, orgRef.path, "orgDetails", "accounts");
-    const accountTypesRef = doc(db, orgRef.path, "orgDetails", "accountTypes");
-    const paymentModesRef = doc(db, orgRef.path, "orgDetails", "paymentModes");
-    const paymentTermsRef = doc(db, orgRef.path, "orgDetails", "paymentTerms");
-    const summaryRef = doc(
-      db,
-      orgRef.path,
-      "summaries",
-      dateDetails.yearMonthDay
-    );
+    const orgRef = doc(collection(db, 'organizations'));
+    const accountsRef = doc(db, orgRef.path, 'orgDetails', 'accounts');
+    const accountTypesRef = doc(db, orgRef.path, 'orgDetails', 'accountTypes');
+    const paymentModesRef = doc(db, orgRef.path, 'orgDetails', 'paymentModes');
+    const paymentTermsRef = doc(db, orgRef.path, 'orgDetails', 'paymentTerms');
+    const summaryRef = doc(db, orgRef.path, 'summaries', dateDetails.yearMonth);
 
     const batch = writeBatch(db);
 
@@ -98,9 +93,9 @@ function* createOrg(action: PayloadAction<OrgFormData>) {
         };
       }, {}),
       createdAt: serverTimestamp(),
-      createdBy: email,
+      createdBy: uid,
       modifiedAt: serverTimestamp(),
-      modifiedBy: email,
+      modifiedBy: uid,
     };
 
     batch.set(summaryRef, summary);
@@ -123,7 +118,7 @@ function* createOrg(action: PayloadAction<OrgFormData>) {
 
     batch.set(orgRef, {
       ...action.payload,
-      status: "active",
+      status: 'active',
       createdBy: email,
       modifiedBy: email,
       owner: uid,
@@ -146,10 +141,10 @@ function* createOrg(action: PayloadAction<OrgFormData>) {
     if (uid) {
       const org = await getOrg(uid);
       if (org) {
-        throw new Error("This User already has a Company account!");
+        throw new Error('This User already has a Company account!');
       }
     } else {
-      throw new Error("Unknow error");
+      throw new Error('Unknow error');
     }
   }
 
@@ -160,7 +155,7 @@ function* createOrg(action: PayloadAction<OrgFormData>) {
     // console.log({ org });
 
     yield put(success(org));
-    yield put(toastSuccess("Campany successfully created!"));
+    yield put(toastSuccess('Campany successfully created!'));
   } catch (error) {
     const err = error as Error;
     console.log(err);

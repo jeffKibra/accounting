@@ -1,26 +1,5 @@
 {
   "projects": {
-    "default": "lehi-76a0d",
-    "prod": "bracketaccounts"
-  },
-  "targets": {
-    "lehi-76a0d": {
-      "hosting": {
-        "default": [
-          "lehi-76a0d"
-        ],
-        "lehi": [
-          "lehi-springs"
-        ]
-      }
-    },
-    "bracketaccounts": {
-      "hosting": {
-        "default": [
-          "bracketaccounts"
-        ]
-      }
-    }
-  },
-  "etags": {}
+    "default": "bracketaccounts"
+  }
 }

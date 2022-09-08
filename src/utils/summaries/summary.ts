@@ -135,7 +135,7 @@ export default class Aggregation {
   //----------------------------------------------------------------\
   //static methods
   //----------------------------------------------------------------
-  static async createDailySummary(orgId: string) {
+  static async createMonthlySummary(orgId: string) {
     const q = query(
       collection(db, 'organizations', orgId, 'summaries'),
       orderBy('createdAt', 'desc'),
@@ -171,11 +171,11 @@ export default class Aggregation {
     /**
      * generate new summary id
      */
-    const { yearMonthDay } = getDateDetails();
+    const { yearMonth } = getDateDetails();
     /**
-     * create new summary for the day using previous day data
+     * create new summary for the month using previous month data
      */
-    await setDoc(doc(db, 'organizations', orgId, 'summaries', yearMonthDay), {
+    await setDoc(doc(db, 'organizations', orgId, 'summaries', yearMonth), {
       ...summaryData,
       createdAt: serverTimestamp(),
       modifiedAt: serverTimestamp(),
