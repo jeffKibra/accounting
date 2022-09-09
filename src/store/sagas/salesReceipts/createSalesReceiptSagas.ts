@@ -57,11 +57,11 @@ function* createSalesReceiptSaga(action: PayloadAction<SalesReceiptForm>) {
       const receiptInstance = new ReceiptSale(transaction, {
         accounts,
         org,
-        receiptData: action.payload,
         salesReceiptId,
-        userProfile,
+        userId: userProfile.uid,
       });
-      receiptInstance.create();
+
+      await receiptInstance.create(action.payload);
     });
   }
 

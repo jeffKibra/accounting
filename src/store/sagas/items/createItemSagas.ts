@@ -1,4 +1,4 @@
-import { put, call, takeLatest, select } from "redux-saga/effects";
+import { put, call, takeLatest, select } from 'redux-saga/effects';
 import {
   doc,
   serverTimestamp,
@@ -10,28 +10,28 @@ import {
   getDocs,
   writeBatch,
   increment,
-} from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+} from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from "../../../utils/firebase";
-import { createDailySummary } from "../../../utils/summaries";
-import { getDateDetails } from "../../../utils/dates";
+import { db } from '../../../utils/firebase';
+import { createDailySummary } from '../../../utils/summaries';
+import Summary from 'utils/summaries/summary';
 
-import { CREATE_ITEM } from "../../actions/itemsActions";
-import { start, success, fail } from "../../slices/itemsSlice";
+import { CREATE_ITEM } from '../../actions/itemsActions';
+import { start, success, fail } from '../../slices/itemsSlice';
 import {
   success as toastSuccess,
   error as toastError,
-} from "../../slices/toastSlice";
+} from '../../slices/toastSlice';
 
-import { RootState, ItemFormData, Org, UserProfile } from "../../../types";
+import { RootState, ItemFormData, Org, UserProfile } from '../../../types';
 
 export async function getSimilarItem(orgId: string, sku: string) {
   const q = query(
-    collection(db, "organizations", orgId, "items"),
-    orderBy("createdAt", "desc"),
-    where("sku", "==", sku),
-    where("status", "==", "active"),
+    collection(db, 'organizations', orgId, 'items'),
+    orderBy('createdAt', 'desc'),
+    where('sku', '==', sku),
+    where('status', '==', 'active'),
     limit(1)
   );
 
@@ -69,20 +69,13 @@ function* createItem(action: PayloadAction<ItemFormData>) {
     ]);
 
     if (similarItem) {
-      throw new Error("There is another item with similar details!");
+      throw new Error('There is another item with similar details!');
     }
     /**
      * todays date
      */
-    const { yearMonthDay } = getDateDetails();
-    const newDocRef = doc(collection(db, "organizations", orgId, "items"));
-    const summaryRef = doc(
-      db,
-      "organizations",
-      orgId,
-      "summaries",
-      yearMonthDay
-    );
+    const newDocRef = doc(collection(db, 'organizations', orgId, 'items'));
+    const summaryRef = Summary.createOrgRef(orgId);
 
     const batch = writeBatch(db);
 
@@ -92,7 +85,7 @@ function* createItem(action: PayloadAction<ItemFormData>) {
 
     batch.set(newDocRef, {
       ...data,
-      status: "active",
+      status: 'active',
       createdBy: uid,
       modifiedBy: uid,
       createdAt: serverTimestamp(),
@@ -106,7 +99,7 @@ function* createItem(action: PayloadAction<ItemFormData>) {
     yield call(create);
 
     yield put(success());
-    yield put(toastSuccess("Successfully created Item!"));
+    yield put(toastSuccess('Successfully created Item!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);

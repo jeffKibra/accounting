@@ -73,7 +73,7 @@ service cloud.firestore {
         return request.auth.uid == getOrgData().owner
       }
 
-      match /summaries/{summaryId} {
+      match /summaries/aggregate {
         function verifyCountersData(){
           let req1=["invoices", "deletedInvoices", "payments","deletedPayments", "items", "customers"];
           let req2=['invoicesTotal', 'paymentsTotal', 'paymentModes', 'accounts'];

@@ -9,7 +9,7 @@ import {
 import { dbCollections } from '../firebase';
 import formats from '../formats';
 import Sale, { SaleDataAndAccount } from '../sales/sale';
-import MonthlySummary from '../summaries/monthlySummary';
+import Summary from '../summaries/summary';
 
 import { Org, Account, SalesReceiptForm, SalesReceipt } from 'types';
 
@@ -53,7 +53,7 @@ export default class ReceiptSale extends Sale {
       transactionId,
     } = this;
 
-    const summary = new MonthlySummary(transaction, orgId);
+    const summary = new Summary(transaction, orgId);
 
     summary.appendObject({ ...accountsSummary, salesReceipts: increment(1) });
     summary.appendPaymentMode(paymentModeId, totalAmount, 0);
@@ -154,7 +154,7 @@ export default class ReceiptSale extends Sale {
     );
 
     //update org summary
-    const orgSummary = new MonthlySummary(transaction, orgId);
+    const orgSummary = new Summary(transaction, orgId);
     orgSummary.appendObject(accountsSummary);
     orgSummary.append('cashFlow.incoming', incomingTotal, currentTotal);
 
@@ -183,7 +183,7 @@ export default class ReceiptSale extends Sale {
         currentReceiptAndAccount
       );
 
-      const incomingCustomerSummary = new MonthlySummary(transaction, '');
+      const incomingCustomerSummary = new Summary(transaction, '');
       incomingCustomerSummary.appendObject(incomingCustomerAccountsSummary);
       incomingCustomerSummary.append('salesReceipts', 1, 0);
       incomingCustomerSummary.append('cashFlow.incoming', incomingTotal, 0);
@@ -193,7 +193,7 @@ export default class ReceiptSale extends Sale {
         0
       );
       //
-      const currentCustomerSummary = new MonthlySummary(transaction, '');
+      const currentCustomerSummary = new Summary(transaction, '');
       currentCustomerSummary.appendObject(currentCustomerAccountsSummary);
       currentCustomerSummary.append('deletedSalesReceipts', 1, 0);
       currentCustomerSummary.append('cashFlow.incoming', 0, currentTotal);
@@ -218,7 +218,7 @@ export default class ReceiptSale extends Sale {
         },
       });
     } else {
-      const customerSummary = new MonthlySummary(transaction, orgId);
+      const customerSummary = new Summary(transaction, orgId);
       customerSummary.appendObject(orgSummary.data);
 
       customerSummary.updateCustomerSummary(incomingCustomerId);
@@ -266,7 +266,7 @@ export default class ReceiptSale extends Sale {
     /**
      * delete sale receipt
      */
-    const summary = new MonthlySummary(transaction, orgId);
+    const summary = new Summary(transaction, orgId);
     summary.appendObject(accountsSummary);
     summary.appendPaymentMode(paymentModeId, 0, totalAmount);
     summary.append('cashFlow.incoming', 0, totalAmount);

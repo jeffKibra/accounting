@@ -3,11 +3,7 @@ import { runTransaction } from 'firebase/firestore';
 import { PayloadAction } from '@reduxjs/toolkit';
 
 import { db } from '../../../utils/firebase';
-import {
-  createInvoice,
-  createInvoiceId,
-  InvoiceSale,
-} from '../../../utils/invoices';
+import { createInvoiceId, InvoiceSale } from '../../../utils/invoices';
 import { createDailySummary } from '../../../utils/summaries';
 
 import { CREATE_INVOICE } from '../../actions/invoicesActions';
@@ -56,12 +52,11 @@ function* createInvoiceSaga(action: PayloadAction<InvoiceFormData>) {
       const invoiceInstance = new InvoiceSale(transaction, {
         accounts,
         invoiceId,
-        incomingData: action.payload,
         org,
         transactionType: 'invoice',
-        userProfile,
+        userId: userProfile.uid,
       });
-      invoiceInstance.create();
+      await invoiceInstance.create(action.payload);
     });
   }
 

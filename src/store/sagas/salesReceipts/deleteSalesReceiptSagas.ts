@@ -3,7 +3,6 @@ import { runTransaction } from 'firebase/firestore';
 import { PayloadAction } from '@reduxjs/toolkit';
 
 import { db } from '../../../utils/firebase';
-import { deleteSalesReceipt } from '../../../utils/salesReceipts';
 import { createDailySummary } from '../../../utils/summaries';
 
 import { DELETE_SALES_RECEIPT } from '../../actions/salesReceiptsActions';
@@ -41,9 +40,8 @@ function* deleteSalesReceiptSaga(action: PayloadAction<string>) {
       const receiptInstance = new ReceiptSale(transaction, {
         accounts,
         org,
-        receiptData: null,
         salesReceiptId,
-        userProfile,
+        userId: userProfile.uid,
       });
 
       await receiptInstance.deleteReceipt();

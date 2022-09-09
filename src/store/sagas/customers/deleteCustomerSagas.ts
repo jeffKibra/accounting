@@ -1,4 +1,4 @@
-import { put, call, select, takeLatest } from "redux-saga/effects";
+import { put, call, select, takeLatest } from 'redux-saga/effects';
 import {
   doc,
   getDocs,
@@ -10,20 +10,20 @@ import {
   where,
   limit,
   orderBy,
-} from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+} from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from "../../../utils/firebase";
-import { getDateDetails } from "../../../utils/dates";
+import { db } from '../../../utils/firebase';
+import Summary from 'utils/summaries/summary';
 
-import { DELETE_CUSTOMER } from "../../actions/customersActions";
-import { start, success, fail } from "../../slices/customersSlice";
+import { DELETE_CUSTOMER } from '../../actions/customersActions';
+import { start, success, fail } from '../../slices/customersSlice';
 import {
   success as toastSuccess,
   error as toastError,
-} from "../../slices/toastSlice";
+} from '../../slices/toastSlice';
 
-import { RootState, UserProfile } from "../../../types";
+import { RootState, UserProfile } from '../../../types';
 
 function* deleteCustomer(action: PayloadAction<string>) {
   yield put(start(DELETE_CUSTOMER));
@@ -40,26 +40,19 @@ function* deleteCustomer(action: PayloadAction<string>) {
   async function update() {
     const customerRef = doc(
       db,
-      "organizations",
+      'organizations',
       orgId,
-      "customers",
+      'customers',
       customerId
     );
-    const { yearMonthDay } = getDateDetails();
-    const summaryRef = doc(
-      db,
-      "organizations",
-      orgId,
-      "summaries",
-      yearMonthDay
-    );
+    const summaryRef = Summary.createOrgRef(orgId);
 
     async function allowDeletion() {
       const q = query(
-        collection(db, "organizations", orgId, "journals"),
-        orderBy("createdAt", "desc"),
-        where("transactionDetails.customer.customerId", "==", customerId),
-        where("status", "==", "active"),
+        collection(db, 'organizations', orgId, 'journals'),
+        orderBy('createdAt', 'desc'),
+        where('transactionDetails.customer.customerId', '==', customerId),
+        where('status', '==', 'active'),
         limit(1)
       );
 
@@ -79,11 +72,11 @@ function* deleteCustomer(action: PayloadAction<string>) {
 
     if (!deleteAllowed) {
       throw new Error(
-        "This customer has transactions associated with them and thus cannot be deleted! Try making them inactive!"
+        'This customer has transactions associated with them and thus cannot be deleted! Try making them inactive!'
       );
     }
 
-    await runTransaction(db, async (transaction) => {
+    await runTransaction(db, async transaction => {
       /**
        * update counters for one deleted customer
        */
@@ -94,7 +87,7 @@ function* deleteCustomer(action: PayloadAction<string>) {
        * mark customer as deleted
        */
       transaction.update(customerRef, {
-        status: "deleted",
+        status: 'deleted',
         modifiedBy: email,
         modifiedAt: serverTimestamp(),
       });
@@ -105,7 +98,7 @@ function* deleteCustomer(action: PayloadAction<string>) {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess("Customer Deleted successfully!"));
+    yield put(toastSuccess('Customer Deleted successfully!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);

@@ -4,11 +4,13 @@ import {
   increment,
   Transaction,
   Timestamp,
-} from "firebase/firestore";
+} from 'firebase/firestore';
 
-import { db, dbCollections } from "../firebase";
-import { getDateDetails } from "../dates";
-import { createOB } from ".";
+import Summary from 'utils/summaries/summary';
+import { dbCollections } from '../firebase';
+import { createOB } from '.';
+
+import { paymentModes } from '../../constants';
 
 import {
   Org,
@@ -16,7 +18,7 @@ import {
   Account,
   CustomerFormData,
   Customer,
-} from "../../types";
+} from '../../types';
 
 export default async function createCustomer(
   transaction: Transaction,
@@ -27,7 +29,7 @@ export default async function createCustomer(
   customerData: CustomerFormData
 ) {
   const { orgId } = org;
-  const { email } = userProfile;
+  const { uid: userId } = userProfile;
 
   const { openingBalance } = customerData;
 
@@ -38,40 +40,48 @@ export default async function createCustomer(
 
   const customer: Customer = {
     ...customerWithId,
-    status: "active",
-    summary: {
-      invoices: 0,
-      deletedInvoices: 0,
-      payments: 0,
-      deletedPayments: 0,
-      unusedCredits: 0,
-      invoicedAmount: openingBalance,
-      invoicePayments: 0,
-    },
-    createdBy: email,
+    status: 'active',
+    createdBy: userId,
     createdAt: serverTimestamp() as Timestamp,
-    modifiedBy: email,
+    modifiedBy: userId,
     modifiedAt: serverTimestamp() as Timestamp,
   };
 
-  /**
-   * if opening balance is greater than zero
-   * create journal entries and an equivalent invoice
-   */
-  if (openingBalance > 0) {
-    /**
-     * create opening balance
-     */
-    createOB(transaction, org, userProfile, accounts, customer, openingBalance);
-  }
+  const summaryData = {
+    invoices: 0,
+    deletedInvoices: 0,
+    payments: 0,
+    deletedPayments: 0,
+    salesReceipts: 0,
+    deletedSalesReceipts: 0,
+    invoicesTotal: 0,
+    paymentsTotal: 0,
+    salesreceiptsTotal: 0,
+    paymentModes: Object.keys(paymentModes).reduce((modes, key) => {
+      return { ...modes, [key]: 0 };
+    }, {}),
+    accounts: Object.keys(accounts).reduce((accountsSummary, key) => {
+      return {
+        ...accountsSummary,
+        [key]: 0,
+      };
+    }, {}),
+    createdAt: serverTimestamp(),
+    createdBy: userId,
+    modifiedAt: serverTimestamp(),
+    modifiedBy: userId,
+  };
+
   /**
    * update org summary
    */
-  const { yearMonthDay } = getDateDetails();
-  const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
+  const summaryRef = Summary.createOrgRef(orgId);
   transaction.update(summaryRef, {
     customers: increment(1),
   });
+  //create customer summary
+  const customerSummaryRef = Summary.createCustomerRef(orgId, customerId);
+  transaction.set(customerSummaryRef, summaryData, { merge: true });
   /**
    * create customer
    */

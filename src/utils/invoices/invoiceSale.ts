@@ -12,7 +12,7 @@ import formats from '../formats';
 import { getInvoiceData, getInvoicePaymentsTotal } from './utils';
 //Sale class
 import Sale, { SaleDataAndAccount } from '../sales/sale';
-import MonthlySummary from '../summaries/monthlySummary';
+import Summary from '../summaries/summary';
 
 import {
   Org,
@@ -98,7 +98,7 @@ export default class InvoiceSale extends Sale {
     );
 
     //initialize summaries
-    const summary = new MonthlySummary(transaction, orgId);
+    const summary = new Summary(transaction, orgId);
 
     if (transactionType === 'invoice') {
       summary.appendObject({ ...accountsSummary, invoices: increment(1) });
@@ -242,13 +242,13 @@ export default class InvoiceSale extends Sale {
           },
         });
       } else {
-        const customerSummary = new MonthlySummary(transaction, orgId);
+        const customerSummary = new Summary(transaction, orgId);
         //initialize summaries
         customerSummary.appendObject(accountsSummary);
         customerSummary.updateCustomerSummary(customerId);
       }
     }
-    const orgSummary = new MonthlySummary(transaction, orgId);
+    const orgSummary = new Summary(transaction, orgId);
     //initialize summary
     orgSummary.appendObject(accountsSummary);
     orgSummary.updateOrgSummary();
@@ -305,7 +305,7 @@ export default class InvoiceSale extends Sale {
       currentInvoiceAndAccount
     );
 
-    const summary = new MonthlySummary(transaction, orgId);
+    const summary = new Summary(transaction, orgId);
     summary.appendObject(accountsSummary);
     /**
      * delete sale

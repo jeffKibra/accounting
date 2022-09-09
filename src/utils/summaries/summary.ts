@@ -1,109 +1,40 @@
-import {
-  Transaction,
-  FieldValue,
-  DocumentReference,
-  DocumentData,
-  increment,
-  doc,
-  serverTimestamp,
-  getDocs,
-  query,
-  collection,
-  orderBy,
-  limit,
-  setDoc,
-} from 'firebase/firestore';
+import { Transaction, FieldValue, doc, WriteBatch } from 'firebase/firestore';
 
 import { db } from '../firebase';
-import { getDateDetails, isSameDay, confirmFutureDate } from '../dates';
 
-import { Org } from 'types';
+import SummaryData from './summaryData';
 
 interface AggregationData {
   [key: string]: number | FieldValue;
 }
 
-export default class Aggregation {
-  data: AggregationData;
+export default class Summary extends SummaryData {
   transaction: Transaction;
-  org: Org;
+  orgId: string;
 
-  summaryRef: DocumentReference<DocumentData>;
+  constructor(transaction: Transaction, orgId: string) {
+    super();
 
-  constructor(
-    transaction: Transaction,
-    initialData: AggregationData | null,
-    org: Org
-  ) {
-    this.data = initialData || {};
     this.transaction = transaction;
-    this.org = org;
-
-    const { yearMonthDay } = getDateDetails();
-    this.summaryRef = doc(
-      db,
-      'organizations',
-      org.orgId,
-      'summaries',
-      yearMonthDay
-    );
+    this.orgId = orgId;
   }
 
-  append(fieldName: string, incomingValue: number, currentValue?: number) {
-    const prevValue = currentValue || 0;
-    const adjustment = incomingValue - prevValue;
+  fetchCustomerSummary(orgId: string, customerId: string, yearMonth: string) {
+    const docPath = `organizations/${orgId}/customers/${customerId}/summaries/${yearMonth}`;
 
-    this.data = {
-      ...this.data,
-      [fieldName]: increment(adjustment),
-    };
+    return this.fetchSummaryData(docPath);
   }
 
-  appendObject(obj: { [key: string]: number | FieldValue }) {
-    const { data } = this;
-    if (data && typeof data === 'object') {
-      this.data = { ...data, ...obj };
-    } else {
-      this.data = obj;
-    }
+  fetchOrgSummary(orgId: string, yearMonth: string) {
+    const docPath = `organizations/${orgId}/summaries/${yearMonth}`;
+
+    return this.fetchSummaryData(docPath);
   }
 
-  appendPaymentMode(
-    modeId: string,
-    incomingValue: number,
-    currentValue?: number
-  ) {
-    this.append(`paymentModes.${modeId}`, incomingValue, currentValue);
-  }
+  async fetchSummaryData(docPath: string) {
+    const { transaction } = this;
 
-  appendAccount(
-    accountId: string,
-    incomingValue: number,
-    currentValue?: number
-  ) {
-    this.append(`accounts.${accountId}`, incomingValue, currentValue);
-  }
-
-  updateSummary() {
-    const { data, summaryRef } = this;
-    const dataIsEmpty = !data || Object.keys(data).length === 0;
-    if (dataIsEmpty) {
-      throw new Error('cannot update summary without data');
-    }
-
-    this.transaction.update(summaryRef, {
-      ...data,
-    });
-  }
-
-  async fetchSummaryData(date: Date = new Date()) {
-    const {
-      transaction,
-      org: { orgId },
-    } = this;
-
-    const { yearMonthDay } = getDateDetails(date);
-    const docRef = doc(db, 'organizations', orgId, 'summaries', yearMonthDay);
+    const docRef = doc(db, docPath);
 
     const summaryDoc = await transaction.get(docRef);
 
@@ -132,53 +63,85 @@ export default class Aggregation {
     return summaryData;
   }
 
-  //----------------------------------------------------------------\
-  //static methods
-  //----------------------------------------------------------------
-  static async createMonthlySummary(orgId: string) {
-    const q = query(
-      collection(db, 'organizations', orgId, 'summaries'),
-      orderBy('createdAt', 'desc'),
-      limit(1)
+  static createOrgRef(orgId: string) {
+    return doc(db, 'organizations', orgId, 'summaries', 'aggregate');
+  }
+
+  createOrgSummary(batch: WriteBatch) {
+    const { data, orgId } = this;
+    const summaryRef = Summary.createOrgRef(orgId);
+
+    const dataIsEmpty = !data || Object.keys(data).length === 0;
+    if (dataIsEmpty) {
+      throw new Error('cannot create summary without data');
+    }
+
+    batch.set(
+      summaryRef,
+      {
+        ...data,
+      },
+      { merge: true }
     );
-    const snap = await getDocs(q);
-    if (snap.empty) {
-      throw new Error('Something went wrong! Summary not found!');
+  }
+
+  updateOrgSummary() {
+    const { data, orgId } = this;
+    const summaryRef = Summary.createOrgRef(orgId);
+
+    const dataIsEmpty = !data || Object.keys(data).length === 0;
+    if (dataIsEmpty) {
+      throw new Error('cannot update summary without data');
     }
 
-    const summaryDoc = snap.docs[0];
-    const summaryData = summaryDoc.data();
-    const summaryId = summaryDoc.id;
-    const docDate = new Date(summaryId);
-    const today = new Date();
+    this.transaction.update(summaryRef, {
+      ...data,
+    });
+  }
 
-    const isFutureDate = confirmFutureDate(docDate);
-    console.log({ isFutureDate });
+  static createCustomerRef(orgId: string, customerId: string) {
+    return doc(
+      db,
+      'organizations',
+      orgId,
+      'customers',
+      customerId,
+      'summaries',
+      'aggregate'
+    );
+  }
 
-    if (!isFutureDate) {
-      throw new Error(
-        'Cannot update past summaries. Please check that your Devices calender is in sync. '
-      );
+  createCustomerSummary(batch: WriteBatch, customerId: string) {
+    const { data, orgId } = this;
+
+    const summaryRef = Summary.createCustomerRef(orgId, customerId);
+
+    const dataIsEmpty = !data || Object.keys(data).length === 0;
+    if (dataIsEmpty) {
+      throw new Error('cannot create summary without data');
     }
 
-    if (isSameDay(docDate, today)) {
-      /**
-       * this is todays summary.
-       * do nothing
-       */
-      return;
+    batch.set(
+      summaryRef,
+      {
+        ...data,
+      },
+      { merge: true }
+    );
+  }
+
+  updateCustomerSummary(customerId: string) {
+    const { data, orgId } = this;
+
+    const summaryRef = Summary.createCustomerRef(orgId, customerId);
+
+    const dataIsEmpty = !data || Object.keys(data).length === 0;
+    if (dataIsEmpty) {
+      throw new Error('cannot update summary without data');
     }
-    /**
-     * generate new summary id
-     */
-    const { yearMonth } = getDateDetails();
-    /**
-     * create new summary for the month using previous month data
-     */
-    await setDoc(doc(db, 'organizations', orgId, 'summaries', yearMonth), {
-      ...summaryData,
-      createdAt: serverTimestamp(),
-      modifiedAt: serverTimestamp(),
+
+    this.transaction.update(summaryRef, {
+      ...data,
     });
   }
 }

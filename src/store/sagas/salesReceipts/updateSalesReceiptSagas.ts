@@ -3,7 +3,6 @@ import { runTransaction } from 'firebase/firestore';
 import { PayloadAction } from '@reduxjs/toolkit';
 
 import { db } from '../../../utils/firebase';
-import { updateSalesReceipt } from '../../../utils/salesReceipts';
 import { createDailySummary } from '../../../utils/summaries';
 import ReceiptSale from 'utils/salesReceipts/receiptSale';
 
@@ -51,11 +50,10 @@ function* updateSalesReceiptSaga(action: PayloadAction<UpdateData>) {
         accounts,
         org,
         salesReceiptId,
-        receiptData: formData,
-        userProfile,
+        userId: userProfile.uid,
       });
 
-      await receiptInstance.update();
+      await receiptInstance.update(formData);
     });
   }
 

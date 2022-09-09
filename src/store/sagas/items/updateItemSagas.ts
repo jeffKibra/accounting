@@ -1,27 +1,27 @@
-import { put, call, takeLatest, select } from "redux-saga/effects";
+import { put, call, takeLatest, select } from 'redux-saga/effects';
 import {
   doc,
   updateDoc,
   serverTimestamp,
   writeBatch,
   increment,
-} from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+} from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from "../../../utils/firebase";
-import { createDailySummary } from "../../../utils/summaries";
-import { getDateDetails } from "../../../utils/dates";
+import { db } from '../../../utils/firebase';
+import { createDailySummary } from '../../../utils/summaries';
+import Summary from 'utils/summaries/summary';
 
-import { UPDATE_ITEM, DELETE_ITEM } from "../../actions/itemsActions";
-import { start, success, fail } from "../../slices/itemsSlice";
+import { UPDATE_ITEM, DELETE_ITEM } from '../../actions/itemsActions';
+import { start, success, fail } from '../../slices/itemsSlice';
 import {
   success as toastSuccess,
   error as toastError,
-} from "../../slices/toastSlice";
+} from '../../slices/toastSlice';
 
-import { getSimilarItem } from "./createItemSagas";
+import { getSimilarItem } from './createItemSagas';
 
-import { ItemFormData, UserProfile, RootState } from "../../../types";
+import { ItemFormData, UserProfile, RootState } from '../../../types';
 
 interface UpdateData extends Partial<ItemFormData> {
   itemId: string;
@@ -45,11 +45,11 @@ function* updateItem(action: PayloadAction<UpdateData>) {
       similarItem = await getSimilarItem(orgId, sku);
       //check its not the same document being updated
       if (similarItem && similarItem.itemId !== itemId) {
-        throw new Error("There is another item with similar details!");
+        throw new Error('There is another item with similar details!');
       }
     }
 
-    return updateDoc(doc(db, "organizations", orgId, "items", itemId), {
+    return updateDoc(doc(db, 'organizations', orgId, 'items', itemId), {
       ...rest,
       modifiedBy: uid,
       modifiedAt: serverTimestamp(),
@@ -60,7 +60,7 @@ function* updateItem(action: PayloadAction<UpdateData>) {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess("Item successfully updated!"));
+    yield put(toastSuccess('Item successfully updated!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);
@@ -87,15 +87,8 @@ function* deleteItem(action: PayloadAction<string>) {
   async function update() {
     await createDailySummary(orgId);
 
-    const { yearMonthDay } = getDateDetails();
-    const itemRef = doc(db, "organizations", orgId, "items", itemId);
-    const summaryRef = doc(
-      db,
-      "organizations",
-      orgId,
-      "summaries",
-      yearMonthDay
-    );
+    const itemRef = doc(db, 'organizations', orgId, 'items', itemId);
+    const summaryRef = Summary.createOrgRef(orgId);
 
     const batch = writeBatch(db);
 
@@ -104,7 +97,7 @@ function* deleteItem(action: PayloadAction<string>) {
     });
 
     batch.update(itemRef, {
-      status: "deleted",
+      status: 'deleted',
       modifiedBy: uid,
       modifiedAt: serverTimestamp(),
     });
@@ -116,7 +109,7 @@ function* deleteItem(action: PayloadAction<string>) {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess("Item successfully deleted!"));
+    yield put(toastSuccess('Item successfully deleted!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);

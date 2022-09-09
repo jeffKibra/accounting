@@ -3,7 +3,7 @@ import { getAccountsMapping, getAccountData } from '../accounts';
 import { JournalEntry } from '../journals';
 
 import { getItemsAccounts } from '.';
-import MonthlySummary from '../summaries/monthlySummary';
+import Summary from '../summaries/summary';
 
 import {
   AccountsMapping,
@@ -279,8 +279,8 @@ export default class Sale {
     } = this;
     const { incomingCustomer, currentCustomer } = data;
 
-    const incomingCustomerSummary = new MonthlySummary(transaction, orgId);
-    const currentCustomerSummary = new MonthlySummary(transaction, orgId);
+    const incomingCustomerSummary = new Summary(transaction, orgId);
+    const currentCustomerSummary = new Summary(transaction, orgId);
 
     incomingCustomerSummary.appendObject({
       ...incomingCustomer.summary,

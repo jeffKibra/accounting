@@ -13,7 +13,7 @@ import { put, call, takeLatest, select } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 
 import { db } from '../../../utils/firebase';
-import { getDateDetails } from '../../../utils/dates';
+import Summary from 'utils/summaries/summary';
 import {
   accounts,
   accountTypes,
@@ -62,7 +62,6 @@ function* createOrg(action: PayloadAction<OrgFormData>) {
     state => state.authReducer.userProfile
   );
   const { email, uid } = userProfile;
-  const dateDetails = getDateDetails();
 
   async function saveData() {
     const orgRef = doc(collection(db, 'organizations'));
@@ -70,7 +69,6 @@ function* createOrg(action: PayloadAction<OrgFormData>) {
     const accountTypesRef = doc(db, orgRef.path, 'orgDetails', 'accountTypes');
     const paymentModesRef = doc(db, orgRef.path, 'orgDetails', 'paymentModes');
     const paymentTermsRef = doc(db, orgRef.path, 'orgDetails', 'paymentTerms');
-    const summaryRef = doc(db, orgRef.path, 'summaries', dateDetails.yearMonth);
 
     const batch = writeBatch(db);
 
@@ -98,6 +96,7 @@ function* createOrg(action: PayloadAction<OrgFormData>) {
       modifiedBy: uid,
     };
 
+    const summaryRef = Summary.createOrgRef(orgRef.id);
     batch.set(summaryRef, summary);
 
     batch.set(accountsRef, {

@@ -1,5 +1,5 @@
-import { Timestamp } from "firebase/firestore";
-import { PaymentTerm } from ".";
+import { Timestamp } from 'firebase/firestore';
+import { PaymentTerm } from '.';
 
 export interface CustomerSummary {
   companyName: string;
@@ -37,15 +37,6 @@ export interface CustomerFormData {
 
 interface Meta {
   status: string;
-  summary: {
-    deletedInvoices: number;
-    deletedPayments: number;
-    invoicePayments: number;
-    invoicedAmount: number;
-    invoices: number;
-    payments: number;
-    unusedCredits: number;
-  };
   createdAt: Date | Timestamp;
   createdBy: string;
   modifiedAt: Date | Timestamp;

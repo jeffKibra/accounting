@@ -45,10 +45,9 @@ function* deleteInvoiceSaga(action: PayloadAction<string>) {
        */
       const invoiceSale = new InvoiceSale(transaction, {
         accounts,
-        incomingData: null,
         invoiceId,
         org,
-        userProfile,
+        userId: userProfile.uid,
         transactionType: 'invoice',
       });
 

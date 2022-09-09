@@ -3,11 +3,7 @@ import { runTransaction } from 'firebase/firestore';
 import { PayloadAction } from '@reduxjs/toolkit';
 
 import { db } from '../../../utils/firebase';
-import {
-  fetchInvoiceUpdateData,
-  updateInvoice,
-  InvoiceSale,
-} from '../../../utils/invoices';
+import { InvoiceSale } from '../../../utils/invoices';
 import { createDailySummary } from '../../../utils/summaries';
 
 import { UPDATE_INVOICE } from '../../actions/invoicesActions';
@@ -56,12 +52,11 @@ function* updateInvoiceSaga(action: PayloadAction<UpdateData>) {
       const invoiceInstance = new InvoiceSale(transaction, {
         invoiceId,
         accounts,
-        incomingData: formData,
         org,
-        userProfile,
+        userId: userProfile.uid,
         transactionType: 'invoice',
       });
-      await invoiceInstance.update();
+      await invoiceInstance.update(formData);
       // const { currentInvoice, entriesToDelete, entriesToUpdate, newAccounts } =
       //   await fetchInvoiceUpdateData(transaction, orgId, invoiceId, formData);
       // /**
