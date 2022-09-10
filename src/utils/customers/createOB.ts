@@ -1,8 +1,9 @@
 import { Transaction } from 'firebase/firestore';
 
-import { createSimilarAccountEntries, JournalEntry } from '../journals';
+import { JournalEntry } from '../journals';
 import { getAccountData } from '../accounts';
-import { createInvoice } from '../invoices';
+import Summary from 'utils/summaries/summary';
+import InvoiceSale from '../invoices/invoiceSale';
 
 import { Org, Account, CustomerFormData, InvoiceFormData } from '../../types';
 
@@ -25,6 +26,8 @@ export default function createOB(
     customerId,
     status: 'active',
   };
+
+  const summary = new Summary(transaction, orgId);
   /**
    * create 2 journal entries
    * 1. debit sales accountType= opening balance
@@ -34,31 +37,32 @@ export default function createOB(
    * 1. debit sales
    * to debit income, amount must be negative
    */
+  const journalEntry = new JournalEntry(transaction, userId, orgId);
   const sales = getAccountData('sales', accounts);
-  createSimilarAccountEntries(transaction, userProfile, orgId, sales, [
-    {
-      amount: 0 - openingBalance,
-      account: sales,
-      reference: '',
-      transactionDetails,
-      transactionId: customerId,
-      transactionType: 'opening_balance',
-    },
-  ]);
+  journalEntry.createEntry({
+    amount: 0 - openingBalance,
+    account: sales,
+    reference: '',
+    transactionDetails,
+    transactionId: customerId,
+    transactionType: 'opening_balance',
+  });
+  summary.appendAccount(sales.accountId, 0, openingBalance);
+
   /**
    * 2. credit opening_balance_adjustments entry for customer opening balance
    */
   const obAdjustments = getAccountData('opening_balance_adjustments', accounts);
-  createSimilarAccountEntries(transaction, userProfile, orgId, obAdjustments, [
-    {
-      amount: +openingBalance,
-      account: obAdjustments,
-      reference: '',
-      transactionDetails,
-      transactionId: customerId,
-      transactionType: 'opening_balance',
-    },
-  ]);
+  journalEntry.createEntry({
+    amount: +openingBalance,
+    account: obAdjustments,
+    reference: '',
+    transactionDetails,
+    transactionId: customerId,
+    transactionType: 'opening_balance',
+  });
+  summary.appendAccount(obAdjustments.accountId, openingBalance, 0);
+
   /**
    * create an invoice equivalent for for customer opening balance
    */
@@ -103,13 +107,28 @@ export default function createOB(
     orderNumber: '',
   };
 
-  createInvoice(
-    transaction,
-    org,
-    userProfile,
+  const invoiceInstance = new InvoiceSale(transaction, {
     accounts,
     invoiceId,
-    invoiceData,
-    'customer_opening_balance'
-  );
+    org,
+    userId,
+    transactionType: 'customer_opening_balance',
+  });
+  const ARAccount = invoiceInstance.ARAccount;
+
+  const accountsMapping = invoiceInstance.generateIncomeAccounts({
+    saleDetails: invoiceData,
+    saleAccount: ARAccount,
+  });
+  const accountsSummary =
+    invoiceInstance.generateAccountsSummary(accountsMapping);
+
+  summary.appendObject(accountsSummary);
+  console.log({ summary });
+  //update orgSummary
+  summary.updateOrgSummary();
+  //update customer summary
+  summary.updateCustomerSummary(customerId);
+
+  invoiceInstance.createInvoice(invoiceData, accountsMapping);
 }

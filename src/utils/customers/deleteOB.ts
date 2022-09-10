@@ -1,41 +1,35 @@
 import {
   deleteSimilarAccountEntries,
   getAccountEntryForTransaction,
-} from "../journals";
-import { fetchInvoiceDeletionData, deleteInvoice } from "../invoices";
-import { getAccountData } from "../accounts";
+} from '../journals';
+import { fetchInvoiceDeletionData, deleteInvoice } from '../invoices';
+import { getAccountData } from '../accounts';
 
-import { Transaction } from "firebase/firestore";
-import { UserProfile, Account } from "../../types";
+import Summary from 'utils/summaries/summary';
+import InvoiceSale from '../invoices/invoiceSale';
+import JournalEntry from '../journals/journalEntry';
+
+import { Transaction } from 'firebase/firestore';
+import { UserProfile, Account } from '../../types';
 
 export default async function deleteOB(
   transaction: Transaction,
   orgId: string,
-  userProfile: UserProfile,
+  userId: string,
   accounts: Account[],
   customerId: string
 ) {
-  const invoiceId = customerId;
-  const salesAccount = getAccountData("sales", accounts);
-  const OBAAccount = getAccountData("opening_balance_adjustments", accounts);
+  const summary = new Summary(transaction, orgId);
 
-  const [updateData, salesEntry, OBAEntry] = await Promise.all([
+  const invoiceId = customerId;
+  const salesAccount = getAccountData('sales', accounts);
+  const OBAAccount = getAccountData('opening_balance_adjustments', accounts);
+
+  const [updateData, entries] = await Promise.all([
     fetchInvoiceDeletionData(transaction, orgId, invoiceId),
-    getAccountEntryForTransaction(
-      orgId,
-      salesAccount.accountId,
-      customerId,
-      "opening_balance"
-    ),
-    getAccountEntryForTransaction(
-      orgId,
-      OBAAccount.accountId,
-      customerId,
-      "opening_balance"
-    ),
+    JournalEntry.getTransactionEntries(orgId, customerId, 'opening_balance'),
   ]);
   console.log({ updateData });
-  console.log({ salesEntry, OBAEntry });
   console.log({ salesAccount, OBAAccount });
   /**
    * delete 2 journal entries
@@ -44,6 +38,12 @@ export default async function deleteOB(
    * 1. debit sales
    * to debit income, amount must be negative
    */
+  const journalEntry = new JournalEntry(transaction, userId, orgId);
+
+  entries.forEach(entry => {
+    journalEntry.deleteEntry(entry.entryId);
+  });
+
   deleteSimilarAccountEntries(transaction, userProfile, orgId, salesAccount, [
     {
       account: salesEntry.account,
@@ -73,6 +73,6 @@ export default async function deleteOB(
     userProfile,
     invoice,
     groupedEntries,
-    "delete"
+    'delete'
   );
 }

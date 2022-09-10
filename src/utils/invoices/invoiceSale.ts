@@ -21,6 +21,7 @@ import {
   InvoiceFromDb,
   InvoiceTransactionTypes,
   Invoice,
+  AccountsMapping,
 } from 'types';
 import { getAccountData } from '../accounts';
 
@@ -87,10 +88,7 @@ export default class InvoiceSale extends Sale {
     const {
       org: { orgId },
       transaction,
-      userId,
-      org,
       transactionType,
-      invoiceRef,
     } = this;
     const { accountsMapping, accountsSummary } = this.initCreateSale(
       incomingInvoice,
@@ -107,6 +105,15 @@ export default class InvoiceSale extends Sale {
     summary.updateOrgSummary();
     summary.updateCustomerSummary(customerId);
 
+    //create invoice
+    this.createInvoice(incomingInvoice, accountsMapping);
+  }
+
+  createInvoice(
+    incomingInvoice: InvoiceFormData,
+    accountsMapping: AccountsMapping
+  ) {
+    const { transaction, userId, org, transactionType, invoiceRef } = this;
     /**
      * create sale
      */
@@ -114,6 +121,7 @@ export default class InvoiceSale extends Sale {
 
     //create invoice
     console.log({ incomingInvoice });
+
     transaction.set(invoiceRef, {
       ...incomingInvoice,
       balance: incomingInvoice.summary.totalAmount,

@@ -264,14 +264,6 @@ export default class JournalEntry {
     return main === LIABILITY || main === EQUITY || main === INCOME;
   }
 
-  static verifyAccountId(accountId: string, entryAccountId: string) {
-    if (accountId !== entryAccountId) {
-      throw new Error(
-        `All entries to for changing journal account must be of one account. Received entry accountId ${entryAccountId} instead of ${accountId}!`
-      );
-    }
-  }
-
   static createDebitAndCredit(accountType: AccountType, amount: number) {
     const { main } = accountType;
     const { isCreditOnIncrease, isDebitOnIncrease } = JournalEntry;
@@ -368,7 +360,10 @@ export default class JournalEntry {
     return amount === 0 ? 'zero' : amount > 0 ? 'positive' : 'negative';
   }
 
-  static getRawAmount(accountType: AccountType, data: Entry) {
+  static getRawAmount(
+    accountType: AccountType,
+    data: { credit: number; debit: number }
+  ) {
     const { main } = accountType;
     const { credit, debit } = data;
     const { isCreditOnIncrease, isDebitOnIncrease } = JournalEntry;

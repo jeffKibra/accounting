@@ -1,9 +1,15 @@
 import { put, call, select, takeLatest } from 'redux-saga/effects';
-import { doc, collection, runTransaction } from 'firebase/firestore';
+import {
+  doc,
+  collection,
+  runTransaction,
+  serverTimestamp,
+  setDoc,
+} from 'firebase/firestore';
 import { PayloadAction } from '@reduxjs/toolkit';
 
 import { db } from '../../../utils/firebase';
-import { createCustomer, createOB } from '../../../utils/customers';
+import { createCustomer } from '../../../utils/customers';
 
 import { CREATE_CUSTOMER } from '../../actions/customersActions';
 import { start, success, fail } from '../../slices/customersSlice';
@@ -11,6 +17,9 @@ import {
   success as toastSuccess,
   error as toastError,
 } from '../../slices/toastSlice';
+
+import Summary from 'utils/summaries/summary';
+import { paymentModes } from '../../../constants';
 
 import {
   CustomerFormData,
@@ -30,18 +39,44 @@ function* createCustomerSaga(action: PayloadAction<CustomerFormData>) {
   const accounts: Account[] = yield select(
     (state: RootState) => state.accountsReducer.accounts
   );
+  const userId = userProfile.uid;
 
   // console.log({ data });
+
+  const summaryData = {
+    invoices: 0,
+    deletedInvoices: 0,
+    payments: 0,
+    deletedPayments: 0,
+    salesReceipts: 0,
+    deletedSalesReceipts: 0,
+    invoicesTotal: 0,
+    paymentsTotal: 0,
+    salesreceiptsTotal: 0,
+    paymentModes: Object.keys(paymentModes).reduce((modes, key) => {
+      return { ...modes, [key]: 0 };
+    }, {}),
+    accounts: Object.keys(accounts).reduce((accountsSummary, key) => {
+      return {
+        ...accountsSummary,
+        [key]: 0,
+      };
+    }, {}),
+    createdAt: serverTimestamp(),
+    createdBy: userId,
+    modifiedAt: serverTimestamp(),
+    modifiedBy: userId,
+  };
 
   async function create() {
     const newDocRef = doc(collection(db, 'organizations', orgId, 'customers'));
     const customerId = newDocRef.id;
-    /**
-     * create daily summary data
-     */
+
+    //create customer summary first
+    const customerSummaryRef = Summary.createCustomerRef(orgId, customerId);
+    await setDoc(customerSummaryRef, summaryData, { merge: true });
+
     const customerData = { ...action.payload };
-    //set opening balance to zero-update later
-    customerData.openingBalance = 0;
 
     await runTransaction(db, async transaction => {
       await createCustomer(
@@ -53,28 +88,6 @@ function* createCustomerSaga(action: PayloadAction<CustomerFormData>) {
         customerData
       );
     });
-
-    /**
-     * if opening balance is greater than zero
-     * create journal entries and an equivalent invoice
-     */
-    const { openingBalance } = action.payload;
-
-    if (openingBalance > 0) {
-      /**
-       * create opening balance
-       */
-      await runTransaction(db, async transaction => {
-        createOB(
-          transaction,
-          org,
-          userProfile,
-          accounts,
-          customerData,
-          openingBalance
-        );
-      });
-    }
   }
 
   try {
