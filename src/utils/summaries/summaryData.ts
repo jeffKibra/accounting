@@ -2,7 +2,7 @@ import { increment, FieldValue } from 'firebase/firestore';
 
 import JournalEntry from '../journals/journalEntry';
 
-import { Account } from 'types';
+import { Account, AccountType } from 'types';
 interface AggregationData {
   [key: string]: number | FieldValue;
 }
@@ -45,30 +45,72 @@ export default class SummaryData {
 
   getAccountData(accountId: string) {
     const { accounts } = this;
-    return accounts.find(account => account.accountId === accountId);
+    const account = accounts.find(account => account.accountId === accountId);
+
+    if (!account) {
+      throw new Error(`Account ${accountId} does not exist`);
+    }
+
+    return account;
   }
 
   appendAccount(
     accountId: string,
     incomingValue: number,
-    currentValue?: number
+    currentValue: number = 0
   ) {
-    const account = this.getAccountData(accountId);
-    if (!account) {
-      throw new Error(`Account data for ${accountId} does not exist`);
-    }
-    const current = JournalEntry.getRawAmount(account.accountType, {
-      ...JournalEntry.createDebitAndCredit(account.accountType, current),
-    });
     this.append(`accounts.${accountId}`, incomingValue, currentValue);
   }
 
-  appendAccountsObject(accounts: { [key: string]: FieldValue }) {
+  appendAccountsObject(accounts: { [key: string]: number }) {
     Object.keys(accounts).forEach(accountId => {
-      this.data = {
-        ...this.data,
-        [`accounts.${accountId}`]: accounts[accountId],
-      };
+      const amount = accounts[accountId];
+
+      this.appendAccount(accountId, amount);
     });
+  }
+
+  creditAccount(accountId: string, amount: number) {
+    const account = this.getAccountData(accountId);
+    if (!account) {
+      throw new Error(`Account ${accountId} does not exist`);
+    }
+    const creditAmount = SummaryData.createCreditAmount(
+      account.accountType,
+      amount
+    );
+    this.appendAccount(accountId, creditAmount);
+  }
+
+  debitAccount(accountId: string, amount: number) {
+    const account = this.getAccountData(accountId);
+    if (!account) {
+      throw new Error(`Account ${accountId} does not exist`);
+    }
+    const debitAmount = SummaryData.createDebitAmount(
+      account.accountType,
+      amount
+    );
+    this.appendAccount(accountId, debitAmount);
+  }
+
+  static createCreditAmount(accountType: AccountType, amount: number) {
+    if (amount < 0) {
+      throw new Error(`Invalid amount: ${amount}- must be a positive number`);
+    }
+
+    const { isCreditOnIncrease } = JournalEntry;
+
+    return isCreditOnIncrease(accountType.main) ? amount : 0 - amount;
+  }
+
+  static createDebitAmount(accountType: AccountType, amount: number) {
+    if (amount < 0) {
+      throw new Error(`Invalid amount: ${amount}- must be a positive number`);
+    }
+
+    const { isDebitOnIncrease } = JournalEntry;
+
+    return isDebitOnIncrease(accountType.main) ? amount : 0 - amount;
   }
 }

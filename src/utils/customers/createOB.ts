@@ -38,16 +38,16 @@ export default function createOB(
    * to debit income, amount must be negative
    */
   const journalEntry = new JournalEntry(transaction, userId, orgId);
-  const sales = getAccountData('sales', accounts);
+  const salesAccount = getAccountData('sales', accounts);
   journalEntry.createEntry({
     amount: 0 - openingBalance,
-    account: sales,
+    account: salesAccount,
     reference: '',
     transactionDetails,
     transactionId: customerId,
     transactionType: 'opening_balance',
   });
-  summary.appendAccount(sales.accountId, 0, openingBalance);
+  summary.debitAccount(salesAccount.accountId, openingBalance);
 
   /**
    * 2. credit opening_balance_adjustments entry for customer opening balance
@@ -61,13 +61,12 @@ export default function createOB(
     transactionId: customerId,
     transactionType: 'opening_balance',
   });
-  summary.appendAccount(obAdjustments.accountId, openingBalance, 0);
+  summary.creditAccount(obAdjustments.accountId, openingBalance);
 
   /**
    * create an invoice equivalent for for customer opening balance
    */
   const invoiceId = customerId;
-  const salesAccount = getAccountData('sales', accounts);
   const invoiceData: InvoiceFormData = {
     customer: transactionDetails,
     invoiceDate: new Date(),
@@ -83,24 +82,24 @@ export default function createOB(
       totalTax: 0,
     },
     selectedItems: [
-      {
-        item: {
-          salesAccount,
-          itemId: customerId,
-          name: customer.displayName,
-          sellingPrice: openingBalance,
-          sku: '',
-          skuOption: '',
-          type: '',
-          unit: '',
-        },
-        rate: openingBalance,
-        itemRate: openingBalance,
-        itemTax: 0,
-        quantity: 1,
-        itemTaxTotal: 0,
-        itemRateTotal: openingBalance,
-      },
+      // {
+      //   item: {
+      //     salesAccount,
+      //     itemId: customerId,
+      //     name: customer.displayName,
+      //     sellingPrice: openingBalance,
+      //     sku: '',
+      //     skuOption: '',
+      //     type: '',
+      //     unit: '',
+      //   },
+      //   rate: openingBalance,
+      //   itemRate: openingBalance,
+      //   itemTax: 0,
+      //   quantity: 1,
+      //   itemTaxTotal: 0,
+      //   itemRateTotal: openingBalance,
+      // },
     ],
     customerNotes: '',
     subject: '',

@@ -1,4 +1,4 @@
-import { increment, Transaction, FieldValue } from 'firebase/firestore';
+import { Transaction, FieldValue } from 'firebase/firestore';
 import { getAccountsMapping, getAccountData } from '../accounts';
 import { JournalEntry } from '../journals';
 
@@ -182,14 +182,14 @@ export default class Sale {
     const { uniqueAccounts } = accountsMapping;
 
     const accountsAdjustments = uniqueAccounts.reduce<{
-      [key: string]: FieldValue;
+      [key: string]: number;
     }>((accounts, accountMapping) => {
       const { accountId, current, incoming } = accountMapping;
       const adjustment = incoming - current;
 
       return {
         ...accounts,
-        [`accounts.${accountId}`]: increment(adjustment),
+        [`accounts.${accountId}`]: adjustment,
       };
     }, {});
 
