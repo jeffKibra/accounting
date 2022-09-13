@@ -5,8 +5,8 @@ import {
   SalesItem,
   SalesSummary,
   InvoiceTransactionTypes,
-} from ".";
-import { Timestamp } from "firebase/firestore";
+} from '.';
+import { Timestamp } from 'firebase/firestore';
 
 // export interface InvoicePayment {
 //   account: Account;
@@ -34,7 +34,7 @@ interface Meta {
   paymentsCount: number;
   paymentsIds: string[];
   paymentsReceived: InvoicePayments;
-  status: string;
+  status: number;
   org: OrgSummary;
   createdAt: Date | Timestamp;
   createdBy: string;

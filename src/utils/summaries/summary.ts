@@ -4,6 +4,8 @@ import { db } from '../firebase';
 
 import SummaryData from './summaryData';
 
+import { Account } from 'types';
+
 interface AggregationData {
   [key: string]: number | FieldValue;
 }
@@ -12,8 +14,8 @@ export default class Summary extends SummaryData {
   transaction: Transaction;
   orgId: string;
 
-  constructor(transaction: Transaction, orgId: string) {
-    super();
+  constructor(transaction: Transaction, orgId: string, accounts: Account[]) {
+    super(accounts);
 
     this.transaction = transaction;
     this.orgId = orgId;

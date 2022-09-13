@@ -1,10 +1,10 @@
 import {
   groupEntriesIntoAccounts,
   getTransactionEntries,
-} from "../../journals";
-import { getInvoiceData, getInvoicePaymentsTotal } from "..";
+} from '../../journals';
+import { getInvoiceData, getInvoicePaymentsTotal } from '..';
 
-import { Transaction } from "firebase/firestore";
+import { Transaction } from 'firebase/firestore';
 
 export default async function fetchInvoiceDeletionData(
   transaction: Transaction,
@@ -14,13 +14,13 @@ export default async function fetchInvoiceDeletionData(
   const [invoice] = await Promise.all([
     getInvoiceData(transaction, orgId, invoiceId),
   ]);
-  const allEntries = await getTransactionEntries(
+  const entries = await getTransactionEntries(
     orgId,
     invoiceId,
     invoice.transactionType
   );
 
-  console.log({ allEntries });
+  console.log({ entries });
   /**
    * check if the invoice has payments
    */
@@ -34,10 +34,11 @@ export default async function fetchInvoiceDeletionData(
   /**
    * group entries into accounts
    */
-  const groupedEntries = groupEntriesIntoAccounts(allEntries);
+  const groupedEntries = groupEntriesIntoAccounts(entries);
 
   return {
     groupedEntries,
     invoice,
+    entries,
   };
 }

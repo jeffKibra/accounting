@@ -27,7 +27,7 @@ export default function createOB(
     status: 'active',
   };
 
-  const summary = new Summary(transaction, orgId);
+  const summary = new Summary(transaction, orgId, accounts);
   /**
    * create 2 journal entries
    * 1. debit sales accountType= opening balance
@@ -82,24 +82,24 @@ export default function createOB(
       totalTax: 0,
     },
     selectedItems: [
-      // {
-      //   item: {
-      //     salesAccount,
-      //     itemId: customerId,
-      //     name: customer.displayName,
-      //     sellingPrice: openingBalance,
-      //     sku: '',
-      //     skuOption: '',
-      //     type: '',
-      //     unit: '',
-      //   },
-      //   rate: openingBalance,
-      //   itemRate: openingBalance,
-      //   itemTax: 0,
-      //   quantity: 1,
-      //   itemTaxTotal: 0,
-      //   itemRateTotal: openingBalance,
-      // },
+      {
+        item: {
+          salesAccount,
+          itemId: customerId,
+          name: customer.displayName,
+          sellingPrice: openingBalance,
+          sku: '',
+          skuOption: '',
+          type: '',
+          unit: '',
+        },
+        rate: openingBalance,
+        itemRate: openingBalance,
+        itemTax: 0,
+        quantity: 1,
+        itemTaxTotal: 0,
+        itemRateTotal: openingBalance,
+      },
     ],
     customerNotes: '',
     subject: '',

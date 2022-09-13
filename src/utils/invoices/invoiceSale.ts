@@ -22,6 +22,7 @@ import {
   InvoiceTransactionTypes,
   Invoice,
   AccountsMapping,
+  Entry,
 } from 'types';
 import { getAccountData } from '../accounts';
 
@@ -96,7 +97,7 @@ export default class InvoiceSale extends Sale {
     );
 
     //initialize summaries
-    const summary = new Summary(transaction, orgId);
+    const summary = new Summary(transaction, orgId, this.accounts);
 
     if (transactionType === 'invoice') {
       summary.appendObject({ ...accountsSummary, invoices: increment(1) });
@@ -128,7 +129,7 @@ export default class InvoiceSale extends Sale {
       paymentsReceived: {},
       paymentsIds: [],
       paymentsCount: 0,
-      status: 'active',
+      status: 0,
       isSent: false,
       transactionType: transactionType as keyof InvoiceTransactionTypes,
       org: formats.formatOrgData(org),
@@ -250,13 +251,13 @@ export default class InvoiceSale extends Sale {
           },
         });
       } else {
-        const customerSummary = new Summary(transaction, orgId);
+        const customerSummary = new Summary(transaction, orgId, this.accounts);
         //initialize summaries
         customerSummary.appendObject(accountsSummary);
         customerSummary.updateCustomerSummary(customerId);
       }
     }
-    const orgSummary = new Summary(transaction, orgId);
+    const orgSummary = new Summary(transaction, orgId, this.accounts);
     //initialize summary
     orgSummary.appendObject(accountsSummary);
     orgSummary.updateOrgSummary();
@@ -279,14 +280,14 @@ export default class InvoiceSale extends Sale {
     });
   }
 
-  async deleteInvoice(deletionType: 'mark' | 'delete' = 'mark') {
+  async delete() {
     const {
       ARAccount,
       transaction,
       org: { orgId },
       transactionType,
-      userId,
     } = this;
+
     const currentInvoice = await this.getCurrentInvoice();
     const currentInvoiceAndAccount: SaleDataAndAccount = {
       saleDetails: currentInvoice,
@@ -296,29 +297,12 @@ export default class InvoiceSale extends Sale {
       customer: { customerId },
     } = currentInvoice;
 
-    /**
-     * check if the invoice has payments
-     */
-    const paymentsTotal = getInvoicePaymentsTotal(
-      currentInvoice.paymentsReceived
-    );
-    if (paymentsTotal > 0) {
-      //deletion not allowed
-      throw new Error(
-        `Invoice Deletion Failed! You cannot delete an invoice that has payments! If you are sure you want to delete it, Please DELETE all the associated PAYMENTS first!`
-      );
-    }
-
     const { accountsSummary, entriesToDelete } = await this.initDeleteSale(
       currentInvoiceAndAccount
     );
 
-    const summary = new Summary(transaction, orgId);
+    const summary = new Summary(transaction, orgId, this.accounts);
     summary.appendObject(accountsSummary);
-    /**
-     * delete sale
-     */
-    this.deleteSale(entriesToDelete);
 
     if (transactionType === 'invoice') {
       summary.append('deletedInvoices', 0, 1);
@@ -326,22 +310,37 @@ export default class InvoiceSale extends Sale {
     summary.updateOrgSummary();
     summary.updateCustomerSummary(customerId);
     /**
-     * check if invoice should be deleted
+     * delete invoice
      */
-    if (deletionType === 'mark') {
-      /**
-       * mark invoice as deleted
-       */
-      console.log('marking');
-      transaction.update(this.invoiceRef, {
-        status: 'deleted',
-        // opius: "none",
-        modifiedBy: userId,
-        modifiedAt: serverTimestamp(),
-      });
-    } else {
-      console.log('deleting invoice');
-      transaction.delete(this.invoiceRef);
+
+    this.deleteInvoice(currentInvoice, entriesToDelete);
+  }
+
+  deleteInvoice(invoice: Invoice, entries: Entry[]) {
+    const { transaction, userId, invoiceRef } = this;
+    /**
+     * check if the invoice has payments
+     */
+    const paymentsTotal = getInvoicePaymentsTotal(invoice.paymentsReceived);
+    if (paymentsTotal > 0) {
+      //deletion not allowed
+      throw new Error(
+        `Invoice Deletion Failed! You cannot delete an invoice that has payments! If you are sure you want to delete it, Please DELETE all the associated PAYMENTS first!`
+      );
     }
+    /**
+     * delete sale
+     */
+    this.deleteSale(entries);
+    /**
+     * mark invoice as deleted
+     */
+    console.log('deleting invoice');
+    transaction.update(invoiceRef, {
+      status: -1,
+      // opius: "none",
+      modifiedBy: userId,
+      modifiedAt: serverTimestamp(),
+    });
   }
 }

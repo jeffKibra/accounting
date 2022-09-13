@@ -13,6 +13,7 @@ import {
   Org,
   MappedEntry,
   SaleTransactionTypes,
+  Entry,
 } from 'types';
 
 type SaleData = InvoiceFormData | SalesReceiptForm;
@@ -258,7 +259,7 @@ export default class Sale {
     });
   }
 
-  deleteJournalEntries(entries: MappedEntry[]) {
+  deleteJournalEntries(entries: Entry[]) {
     const {
       transaction,
       userId,
@@ -279,8 +280,16 @@ export default class Sale {
     } = this;
     const { incomingCustomer, currentCustomer } = data;
 
-    const incomingCustomerSummary = new Summary(transaction, orgId);
-    const currentCustomerSummary = new Summary(transaction, orgId);
+    const incomingCustomerSummary = new Summary(
+      transaction,
+      orgId,
+      this.accounts
+    );
+    const currentCustomerSummary = new Summary(
+      transaction,
+      orgId,
+      this.accounts
+    );
 
     incomingCustomerSummary.appendObject({
       ...incomingCustomer.summary,
@@ -393,7 +402,7 @@ export default class Sale {
     };
   }
 
-  protected deleteSale(entries: MappedEntry[]) {
+  protected deleteSale(entries: Entry[]) {
     this.deleteJournalEntries(entries);
   }
 }

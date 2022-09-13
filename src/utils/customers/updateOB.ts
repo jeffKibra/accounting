@@ -1,18 +1,18 @@
 import {
   updateSimilarAccountEntries,
   getAccountEntryForTransaction,
-} from "../journals";
-import { getAccountData } from "../accounts";
-import { fetchInvoiceUpdateData, updateInvoice } from "../invoices";
+} from '../journals';
+import { getAccountData } from '../accounts';
+import { fetchInvoiceUpdateData, updateInvoice } from '../invoices';
 
-import { Transaction } from "firebase/firestore";
+import { Transaction } from 'firebase/firestore';
 import {
   Account,
   UserProfile,
   Customer,
   InvoiceFormData,
   Invoice,
-} from "../../types";
+} from '../../types';
 
 export default async function updateOB(
   transaction: Transaction,
@@ -22,8 +22,8 @@ export default async function updateOB(
   customer: Customer,
   openingBalance: number
 ) {
-  const salesAccount = getAccountData("sales", accounts);
-  const OBAAccount = getAccountData("opening_balance_adjustments", accounts);
+  const salesAccount = getAccountData('sales', accounts);
+  const OBAAccount = getAccountData('opening_balance_adjustments', accounts);
 
   const { customerId, paymentTerm } = customer;
   const invoiceId = customerId;
@@ -37,7 +37,7 @@ export default async function updateOB(
       adjustment: 0,
       shipping: 0,
       subTotal: openingBalance,
-      taxType: "",
+      taxType: '',
       taxes: [],
       totalTax: 0,
     },
@@ -49,10 +49,10 @@ export default async function updateOB(
           itemId: customerId,
           name: customer.displayName,
           sellingPrice: openingBalance,
-          sku: "",
-          skuOption: "",
-          type: "",
-          unit: "",
+          sku: '',
+          skuOption: '',
+          type: '',
+          unit: '',
         },
         rate: openingBalance,
         itemRate: openingBalance,
@@ -62,12 +62,12 @@ export default async function updateOB(
         itemRateTotal: openingBalance,
       },
     ],
-    customerNotes: "",
+    customerNotes: '',
     dueDate: new Date(),
     invoiceDate: new Date(),
-    orderNumber: "",
+    orderNumber: '',
     paymentTerm,
-    subject: "",
+    subject: '',
   };
   /**
    * fetch data
@@ -78,13 +78,13 @@ export default async function updateOB(
       orgId,
       salesAccount.accountId,
       customerId,
-      "opening_balance"
+      'opening_balance'
     ),
     getAccountEntryForTransaction(
       orgId,
       OBAAccount.accountId,
       customerId,
-      "opening_balance"
+      'opening_balance'
     ),
   ]);
   const { currentInvoice, entriesToDelete, entriesToUpdate, newAccounts } =
