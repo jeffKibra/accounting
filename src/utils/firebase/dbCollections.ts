@@ -1,4 +1,4 @@
-import { createCollection } from ".";
+import { createCollection } from '.';
 
 import {
   CustomerFromDb,
@@ -10,7 +10,7 @@ import {
   PaymentReceivedFromDb,
   SalesReceiptFromDb,
   TaxFromDb,
-} from "../../types";
+} from '../../types';
 
 export default function dbCollections(orgId: string) {
   const org = `organizations/${orgId}`;

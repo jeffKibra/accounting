@@ -94,9 +94,17 @@ export default class SummaryData {
     this.appendAccount(accountId, debitAmount);
   }
 
+  //----------------------------------------------------------------
+  //static methods
+  //----------------------------------------------------------------
+
   static createCreditAmount(accountType: AccountType, amount: number) {
     if (amount < 0) {
-      throw new Error(`Invalid amount: ${amount}- must be a positive number`);
+      /**
+       * debit account instead-assuption -user is updating an account
+       * subtract amount from zero(0) to make positive
+       */
+      SummaryData.createDebitAmount(accountType, 0 - amount);
     }
 
     const { isCreditOnIncrease } = JournalEntry;
@@ -106,7 +114,11 @@ export default class SummaryData {
 
   static createDebitAmount(accountType: AccountType, amount: number) {
     if (amount < 0) {
-      throw new Error(`Invalid amount: ${amount}- must be a positive number`);
+      /**
+       * credit account instead-assuption -user is updating an account
+       * subtract amount from zero(0) to make positive
+       */
+      SummaryData.createCreditAmount(accountType, 0 - amount);
     }
 
     const { isDebitOnIncrease } = JournalEntry;

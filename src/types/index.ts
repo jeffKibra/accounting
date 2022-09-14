@@ -5,7 +5,6 @@ export type {
   CustomerSummary,
   CustomerFromDb,
   CustomerFormData,
-  OpeningBalanceFormData,
 } from './customer';
 export type {
   Entry,
@@ -79,7 +78,13 @@ export type {
   TransactionTypes,
   InvoiceTransactionTypes,
   SaleTransactionTypes,
+  CustomerOpeningBalanceTransactionType,
 } from './transactionTypes';
+export type {
+  CustomerOpeningBalanceForm,
+  CustomerOpeningBalance,
+  CustomerOpeningBalanceFromDb,
+} from './customerOpeningBalance';
 export type { DateDetails } from './others';
 
 export type { OneOfType } from './oneOfType';

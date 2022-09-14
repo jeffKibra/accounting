@@ -1,17 +1,21 @@
 // import { OneOfType } from ".";
 
-export interface InvoiceTransactionTypes {
-  invoice: {
-    name: 'Invoice';
-    value: 'invoice';
-  };
+export interface CustomerOpeningBalanceTransactionType {
   customer_opening_balance: {
     name: 'Customer Opening Balance';
     value: 'customer_opening_balance';
   };
 }
+export interface InvoiceTransactionTypes {
+  invoice: {
+    name: 'Invoice';
+    value: 'invoice';
+  };
+}
 
-export interface SaleTransactionTypes extends InvoiceTransactionTypes {
+export interface SaleTransactionTypes
+  extends InvoiceTransactionTypes,
+    CustomerOpeningBalanceTransactionType {
   sales_receipt: {
     name: 'Sales Receipt';
     value: 'sales_receipt';

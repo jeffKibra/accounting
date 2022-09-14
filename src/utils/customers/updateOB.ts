@@ -4,6 +4,10 @@ import {
 } from '../journals';
 import { getAccountData } from '../accounts';
 import { fetchInvoiceUpdateData, updateInvoice } from '../invoices';
+import InvoiceSale from '../invoices/invoiceSale';
+import JournalEntry from '../journals/journalEntry';
+import { SaleDataAndAccount } from '../sales/sale';
+import Summary from '../summaries/summary';
 
 import { Transaction } from 'firebase/firestore';
 import {
@@ -12,21 +16,33 @@ import {
   Customer,
   InvoiceFormData,
   Invoice,
+  Org,
 } from '../../types';
 
 export default async function updateOB(
   transaction: Transaction,
-  orgId: string,
-  userProfile: UserProfile,
+  org: Org,
+  userId: string,
   accounts: Account[],
   customer: Customer,
   openingBalance: number
 ) {
+  const { orgId } = org;
   const salesAccount = getAccountData('sales', accounts);
   const OBAAccount = getAccountData('opening_balance_adjustments', accounts);
 
   const { customerId, paymentTerm } = customer;
   const invoiceId = customerId;
+
+  const invoiceSale = new InvoiceSale(transaction, {
+    accounts,
+    invoiceId,
+    org,
+    userId,
+    transactionType: 'customer_opening_balance',
+  });
+
+  const journalEntry = new JournalEntry(transaction, userId, orgId);
 
   /**
    * create an invoice equivalent for for customer opening balance
@@ -72,29 +88,45 @@ export default async function updateOB(
   /**
    * fetch data
    */
-  const [updateData, salesEntry, OBAEntry] = await Promise.all([
-    fetchInvoiceUpdateData(transaction, orgId, invoiceId, invoiceData),
-    getAccountEntryForTransaction(
-      orgId,
-      salesAccount.accountId,
-      customerId,
-      'opening_balance'
-    ),
-    getAccountEntryForTransaction(
-      orgId,
-      OBAAccount.accountId,
-      customerId,
-      'opening_balance'
-    ),
-  ]);
-  const { currentInvoice, entriesToDelete, entriesToUpdate, newAccounts } =
-    updateData;
-  console.log({
-    currentInvoice,
-    entriesToDelete,
-    entriesToUpdate,
-    newAccounts,
-  });
+  const [currentInvoice, invoiceEntries, salesEntry, OBAEntry] =
+    await Promise.all([
+      invoiceSale.getCurrentInvoice(),
+      JournalEntry.getTransactionEntries(
+        orgId,
+        invoiceId,
+        'customer_opening_balance'
+      ),
+      getAccountEntryForTransaction(
+        orgId,
+        salesAccount.accountId,
+        customerId,
+        'opening_balance'
+      ),
+      getAccountEntryForTransaction(
+        orgId,
+        OBAAccount.accountId,
+        customerId,
+        'opening_balance'
+      ),
+    ]);
+  const {
+    summary: { totalAmount: currentOpeningBalance },
+  } = currentInvoice;
+
+  const summary = new Summary(transaction, orgId, accounts);
+
+  const incomingBalanceAndAccount: SaleDataAndAccount = {
+    saleAccount,
+  };
+  const {} = invoiceSale.generateIncomeAccounts();
+  // const { currentInvoice, entriesToDelete, entriesToUpdate, newAccounts } =
+  //   updateData;
+  // console.log({
+  //   currentInvoice,
+  //   entriesToDelete,
+  //   entriesToUpdate,
+  //   newAccounts,
+  // });
 
   const incomingInvoice: Invoice = {
     ...currentInvoice,

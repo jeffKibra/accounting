@@ -48,8 +48,3 @@ export interface CustomerFromDb extends CustomerFormData, Meta {}
 export interface Customer extends CustomerFromDb {
   customerId: string;
 }
-
-export interface OpeningBalanceFormData {
-  openingBalance: number;
-  customerId: string;
-}
