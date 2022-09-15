@@ -8,7 +8,8 @@ import {
 
 import Summary from 'utils/summaries/summary';
 import { dbCollections } from '../firebase';
-import { createOB } from '.';
+import OpeningBalance from './openingBalance';
+import formats from 'utils/formats';
 
 import {
   Org,
@@ -45,20 +46,17 @@ export default async function createCustomer(
     modifiedAt: serverTimestamp() as Timestamp,
   };
 
-  if (openingBalance > 0) {
-    /**
-     * create opening balance
-     */
-    createOB(
-      transaction,
-      org,
-      userId,
-      accounts,
-      customerId,
-      customerData,
-      openingBalance
-    );
-  }
+  const ob = new OpeningBalance(transaction, {
+    accounts,
+    customerId,
+    org,
+    userId,
+  });
+
+  ob.create({
+    amount: openingBalance,
+    customer: formats.formatCustomerData(customer),
+  });
 
   /**
    * update org summary

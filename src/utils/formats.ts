@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from 'firebase/firestore';
 import {
   Customer,
   CustomerSummary,
@@ -7,7 +7,7 @@ import {
   PaymentReceived,
   Org,
   VendorSummary,
-} from "../types";
+} from '../types';
 
 function formatCustomerData(customer: Customer): CustomerSummary {
   const { displayName, type, companyName, email, customerId } = customer;
@@ -22,7 +22,7 @@ function formatVendorData(vendor: Vendor): VendorSummary {
 }
 
 function formatInvoices(invoices: Invoice[]) {
-  return invoices.map((invoice) => {
+  return invoices.map(invoice => {
     const {
       invoiceDate,
       dueDate,

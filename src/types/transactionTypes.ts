@@ -6,16 +6,15 @@ export interface CustomerOpeningBalanceTransactionType {
     value: 'customer_opening_balance';
   };
 }
-export interface InvoiceTransactionTypes {
+export interface InvoiceTransactionTypes
+  extends CustomerOpeningBalanceTransactionType {
   invoice: {
     name: 'Invoice';
     value: 'invoice';
   };
 }
 
-export interface SaleTransactionTypes
-  extends InvoiceTransactionTypes,
-    CustomerOpeningBalanceTransactionType {
+export interface SaleTransactionTypes extends InvoiceTransactionTypes {
   sales_receipt: {
     name: 'Sales Receipt';
     value: 'sales_receipt';

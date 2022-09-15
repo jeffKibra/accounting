@@ -1,138 +1,122 @@
-import {
-  Transaction,
-  DocumentReference,
-  DocumentData,
-  doc,
-  collection,
-  serverTimestamp,
-  Timestamp,
-} from 'firebase/firestore';
+import { Transaction, serverTimestamp, Timestamp } from 'firebase/firestore';
 
 import { getAccountData } from '../accounts';
-import { db } from '../firebase';
 import Summary from 'utils/summaries/summary';
 import { JournalEntry } from 'utils/journals';
 import formats from 'utils/formats';
+import InvoiceSale from 'utils/invoices/invoiceSale';
 
-import {
-  Org,
-  Account,
-  CustomerOpeningBalanceTransactionType,
-  CustomerOpeningBalance,
-  CustomerOpeningBalanceForm,
-} from 'types';
+import { Org, Account, InvoiceFormData, Customer } from 'types';
 
 interface OpeningBalanceData {
   accounts: Account[];
   org: Org;
-  openingBalanceId?: string;
-  transactionType: keyof CustomerOpeningBalanceTransactionType;
   userId: string;
-  customerId: string;
+  customer: Customer;
 }
 
 //------------------------------------------------------------------------------
 
-export default class OpeningBalance {
-  transaction: Transaction;
-  docRef: DocumentReference<DocumentData>;
-  customerId: string;
-  userId: string;
-  openingBalanceId: string;
-  transactionType: keyof CustomerOpeningBalanceTransactionType;
-  accounts: Account[];
-  org: Org;
-  /**
-   * accounts_receivable account
-   */
-  ARAccount: Account;
+export default class OpeningBalance extends InvoiceSale {
+  customer: Customer;
+
   /**
    * opening_balance_adjustments account
    */
   OBAAccount: Account;
+  salesAccount: Account;
 
   constructor(transaction: Transaction, data: OpeningBalanceData) {
-    const {
+    const { accounts, org, userId, customer } = data;
+
+    super(transaction, {
       accounts,
+      invoiceId: customer.customerId,
       org,
-      openingBalanceId,
-      transactionType,
       userId,
-      customerId,
-    } = data;
-    const { orgId } = org;
+      transactionType: 'customer_opening_balance',
+    });
 
-    const OBCollection = collection(
-      db,
-      'organizations',
-      orgId,
-      'openingBalances'
-    );
-
-    const ref = openingBalanceId
-      ? doc(OBCollection, openingBalanceId)
-      : doc(OBCollection);
-
-    this.transaction = transaction;
-    this.accounts = accounts;
-    this.org = org;
-    this.openingBalanceId = ref.id;
-    this.transactionType = transactionType;
-    this.userId = userId;
-
-    const ARAccount = getAccountData('accounts_receivable', accounts);
+    const salesAccount = getAccountData('sales', accounts);
     const OBAAccount = getAccountData('opening_balance_adjustments', accounts);
 
-    if (!ARAccount) {
-      throw new Error('Accounts receivable account not found!');
+    if (!salesAccount) {
+      throw new Error('Sales account not found!');
     }
     if (!OBAAccount) {
       throw new Error('Opening balance adjustments account not found!');
     }
 
-    this.ARAccount = ARAccount;
+    this.salesAccount = salesAccount;
     this.OBAAccount = OBAAccount;
 
-    this.customerId = customerId;
-    this.docRef = ref;
+    this.customer = customer;
   }
 
-  async fetchCurrentOB() {
-    const { transaction, docRef } = this;
-    const snap = await transaction.get(docRef);
-    const exists = snap.exists();
-    if (!exists) {
-      throw new Error('Could not find current customer opening balance');
-    }
+  generateInvoice(openingBalance: number) {
+    const { customer, salesAccount } = this;
+    const invoiceForm: InvoiceFormData = {
+      customer: formats.formatCustomerData(customer),
+      invoiceDate: new Date(),
+      dueDate: new Date(),
+      orderNumber: '',
+      subject: '',
+      customerNotes: '',
+      paymentTerm: { days: 0, name: 'Due on Receipt', value: 'on_receipt' },
+      selectedItems: [
+        {
+          item: {
+            itemId: 'customer_opening_balance',
+            name: 'customer opening balance',
+            salesAccount,
+            sellingPrice: openingBalance,
+            unit: '',
+            sku: 'customer_opening_balance',
+            skuOption: '',
+            type: '',
+          },
+          quantity: 1,
+          itemRate: openingBalance,
+          rate: openingBalance,
+          itemRateTotal: openingBalance,
+          itemTax: 0,
+          itemTaxTotal: 0,
+        },
+      ],
+      summary: {
+        shipping: 0,
+        adjustment: 0,
+        subTotal: openingBalance,
+        taxType: '',
+        taxes: [],
+        totalTax: 0,
+        totalAmount: openingBalance,
+      },
+    };
 
-    const data = snap.data() as CustomerOpeningBalance;
-    data.openingBalanceId = snap.id;
-
-    return data;
+    return invoiceForm;
   }
 
-  create(data: CustomerOpeningBalanceForm) {
+  create(amount: number) {
     const {
       transaction,
       org,
-      customerId,
-      ARAccount,
+      customer: { customerId },
+      salesAccount,
       OBAAccount,
       accounts,
-      transactionType,
-      docRef,
+      invoiceRef,
       userId,
     } = this;
     const { orgId } = org;
     /**
      * create transaction details for journal entries
      */
+    const obInvoice = this.generateInvoice(amount);
     const transactionDetails = {
-      ...data,
-      transactionId: docRef.id,
+      ...obInvoice,
+      transactionId: invoiceRef.id,
     };
-
-    const { amount } = data;
 
     const summary = new Summary(transaction, orgId, accounts);
     /**
@@ -147,13 +131,13 @@ export default class OpeningBalance {
     const journalEntry = new JournalEntry(transaction, userId, orgId);
     journalEntry.createEntry({
       amount: 0 - amount,
-      account: ARAccount,
+      account: salesAccount,
       reference: '',
       transactionDetails,
       transactionId: customerId,
       transactionType: 'opening_balance',
     });
-    summary.debitAccount(ARAccount.accountId, amount);
+    summary.debitAccount(salesAccount.accountId, amount);
     /**
      * 2. credit opening_balance_adjustments entry for customer opening balance
      */
@@ -173,15 +157,15 @@ export default class OpeningBalance {
     //update customer summary
     summary.updateCustomerSummary(customerId);
 
-    transaction.set(this.docRef, {
-      ...data,
-      balance: data.amount,
+    transaction.set(this.invoiceRef, {
+      ...obInvoice,
+      balance: amount,
       paymentsReceived: {},
       paymentsIds: [],
       paymentsCount: 0,
       status: 0,
       isSent: false,
-      transactionType: transactionType,
+      transactionType: 'customer_opening_balance',
       org: formats.formatOrgData(org),
       createdBy: userId,
       createdAt: serverTimestamp() as Timestamp,
@@ -193,25 +177,32 @@ export default class OpeningBalance {
   async update(amount: number) {
     const {
       transaction,
-      ARAccount,
+      salesAccount,
       OBAAccount,
-      customerId,
+      customer: { customerId },
       org,
       userId,
       accounts,
+      transactionId,
     } = this;
     const { orgId } = org;
 
     const journalEntry = new JournalEntry(transaction, userId, orgId);
+    const incomingOBInvoice = this.generateInvoice(amount);
+
+    const transactionDetails = {
+      ...incomingOBInvoice,
+      transactionId: transactionId,
+    };
 
     /**
      * fetch data
      */
-    const [currentOB, AREntry, OBAEntry] = await Promise.all([
-      this.fetchCurrentOB(),
+    const [currentOBInvoice, salesEntry, OBAEntry] = await Promise.all([
+      this.getCurrentInvoice(),
       JournalEntry.getAccountEntryForTransaction(
         orgId,
-        ARAccount.accountId,
+        salesAccount.accountId,
         customerId,
         'opening_balance'
       ),
@@ -222,7 +213,9 @@ export default class OpeningBalance {
         'opening_balance'
       ),
     ]);
-    const { amount: currentAmount } = currentOB;
+    const {
+      summary: { totalAmount: currentAmount },
+    } = currentOBInvoice;
 
     const summary = new Summary(transaction, orgId, accounts);
     /**
@@ -239,14 +232,15 @@ export default class OpeningBalance {
      * 1. debit sales
      * to debit income, amount must be negative
      */
-    journalEntry.updateEntry(AREntry.entryId, {
+    journalEntry.updateEntry(salesEntry.entryId, {
       amount: 0 - amount,
-      account: AREntry.account,
-      credit: AREntry.credit,
-      debit: AREntry.debit,
-      entryId: AREntry.entryId,
+      account: salesEntry.account,
+      credit: salesEntry.credit,
+      debit: salesEntry.debit,
+      entryId: salesEntry.entryId,
+      transactionDetails,
     });
-    summary.debitAccount(ARAccount.accountId, adjustment);
+    summary.debitAccount(salesAccount.accountId, adjustment);
     /**
      * 2. credit opening_balance_adjustments entry for customer opening balance
      */
@@ -256,6 +250,7 @@ export default class OpeningBalance {
       credit: OBAEntry.credit,
       debit: OBAEntry.debit,
       entryId: OBAEntry.entryId,
+      transactionDetails,
     });
     summary.creditAccount(OBAAccount.accountId, adjustment);
 
@@ -265,10 +260,64 @@ export default class OpeningBalance {
     /**
      * update invoice
      */
-    transaction.update(this.docRef, {
-      amount,
-      updatedAt: serverTimestamp(),
-      updatedBy: userId,
+    transaction.update(this.invoiceRef, {
+      ...incomingOBInvoice,
+      modifiedAt: serverTimestamp() as Timestamp,
+      modifiedBy: userId,
+    });
+  }
+
+  async delete(customerId: string) {
+    const { transaction, org, accounts, salesAccount, OBAAccount, userId } =
+      this;
+    const { orgId } = org;
+    const summary = new Summary(transaction, orgId, accounts);
+
+    const [currentOBInvoice, salesEntry, OBAEntry] = await Promise.all([
+      this.getCurrentInvoice(),
+      JournalEntry.getAccountEntryForTransaction(
+        orgId,
+        salesAccount.accountId,
+        customerId,
+        'opening_balance'
+      ),
+      JournalEntry.getAccountEntryForTransaction(
+        orgId,
+        OBAAccount.accountId,
+        customerId,
+        'opening_balance'
+      ),
+    ]);
+
+    const {
+      summary: { totalAmount: amount },
+    } = currentOBInvoice;
+    /**
+     * delete 2 journal entries
+     */
+    /**
+     * 1. delete accounts_receivable entry for opening_balance
+     */
+    const journalEntry = new JournalEntry(transaction, userId, orgId);
+    journalEntry.deleteEntry(salesEntry.entryId);
+
+    summary.creditAccount(salesAccount.accountId, amount);
+    /**
+     * 2. delete opening_balance_adjustments entry
+     */
+    journalEntry.deleteEntry(OBAEntry.entryId);
+    summary.debitAccount(OBAAccount.accountId, amount);
+
+    summary.updateOrgSummary();
+    summary.updateCustomerSummary(customerId);
+
+    /**
+     * delete invoice
+     */
+    transaction.update(this.invoiceRef, {
+      status: -1,
+      modifiedAt: serverTimestamp(),
+      modifiedBy: userId,
     });
   }
 }

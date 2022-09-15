@@ -11,8 +11,7 @@ import { dbCollections } from '../firebase';
 import formats from '../formats';
 import { getInvoiceData, getInvoicePaymentsTotal } from './utils';
 //Sale class
-import Sale, { SaleDataAndAccount } from '../sales/sale';
-import Summary from '../summaries/summary';
+import Sale from '../sales/sale';
 
 import {
   Org,
@@ -23,12 +22,13 @@ import {
   Invoice,
   AccountsMapping,
   Entry,
+  MappedEntry,
 } from 'types';
 import { getAccountData } from '../accounts';
 
 //----------------------------------------------------------------
 
-interface InvoiceDetails {
+export interface InvoiceDetails {
   invoiceId: string;
   userId: string;
   org: Org;
@@ -82,34 +82,6 @@ export default class InvoiceSale extends Sale {
     return invoice;
   }
 
-  async create(incomingInvoice: InvoiceFormData) {
-    const {
-      customer: { customerId },
-    } = incomingInvoice;
-    const {
-      org: { orgId },
-      transaction,
-      transactionType,
-    } = this;
-    const { accountsMapping, accountsSummary } = this.initCreateSale(
-      incomingInvoice,
-      this.ARAccount
-    );
-
-    //initialize summaries
-    const summary = new Summary(transaction, orgId, this.accounts);
-
-    if (transactionType === 'invoice') {
-      summary.appendObject({ ...accountsSummary, invoices: increment(1) });
-    }
-    //update summaries on given collections
-    summary.updateOrgSummary();
-    summary.updateCustomerSummary(customerId);
-
-    //create invoice
-    this.createInvoice(incomingInvoice, accountsMapping);
-  }
-
   createInvoice(
     incomingInvoice: InvoiceFormData,
     accountsMapping: AccountsMapping
@@ -140,45 +112,14 @@ export default class InvoiceSale extends Sale {
     });
   }
 
-  async update(incomingInvoice: InvoiceFormData) {
-    const currentInvoice = await this.getCurrentInvoice();
-    /**
-     * initialize sale update-happens after fetching current invoice
-     */
-    const incomingInvoiceAndAccount: SaleDataAndAccount = {
-      saleDetails: incomingInvoice,
-      saleAccount: this.ARAccount,
-    };
-    const currentInvoiceAndAccount: SaleDataAndAccount = {
-      saleDetails: currentInvoice,
-      saleAccount: this.ARAccount,
-    };
-    const {
-      accountsSummary,
-      entriesToDelete,
-      entriesToUpdate,
-      accountsMapping,
-    } = await this.initUpdateSale(
-      incomingInvoiceAndAccount,
-      currentInvoiceAndAccount
-    );
-    //update invoice
-    const {
-      transaction,
-      org: { orgId },
-      userId,
-      transactionType,
-    } = this;
-
+  validateUpdate(incomingInvoice: InvoiceFormData, currentInvoice: Invoice) {
     const {
       summary: { totalAmount },
       customer: { customerId },
     } = incomingInvoice;
-
     const {
-      summary: { totalAmount: currentTotal },
-      customer: { customerId: currentCustomerId },
       paymentsReceived,
+      customer: { customerId: currentCustomerId },
     } = currentInvoice;
     /**
      * check to ensure the new total balance is not less than payments made.
@@ -205,6 +146,22 @@ export default class InvoiceSale extends Sale {
         `CUSTOMER cannot be changed in an invoice that has payments! This is because all the payments are from the PREVIOUS customer. If you are sure you want to change the customer, DELETE the associated payments first!`
       );
     }
+  }
+
+  updateInvoice(
+    incomingInvoice: InvoiceFormData,
+    accountsMapping: AccountsMapping,
+    currentTotal: number,
+    entriesToUpdate: MappedEntry[],
+    entriesToDelete: MappedEntry[]
+  ) {
+    //update invoice
+    const { transaction, userId } = this;
+
+    const {
+      summary: { totalAmount },
+    } = incomingInvoice;
+
     /**
      * update sale
      */
@@ -214,53 +171,6 @@ export default class InvoiceSale extends Sale {
       entriesToUpdate,
       entriesToDelete
     );
-
-    /**
-     * update customer summaries
-     * only allowed where transactionType is invoice
-     */
-    if (transactionType === 'invoice') {
-      /**
-       * check if customer has been changed
-       */
-      const customerHasChanged = currentCustomerId !== customerId;
-
-      if (customerHasChanged) {
-        const {
-          incomingCustomerAccountsSummary,
-          currentCustomerAccountsSummary,
-        } = await this.getChangedCustomersAccountsSummaries(
-          incomingInvoiceAndAccount,
-          currentInvoiceAndAccount
-        );
-
-        await this.changeCustomers({
-          incomingCustomer: {
-            id: customerId,
-            summary: {
-              ...incomingCustomerAccountsSummary,
-              deletedInvoices: increment(1),
-            },
-          },
-          currentCustomer: {
-            id: currentCustomerId,
-            summary: {
-              ...currentCustomerAccountsSummary,
-              invoices: increment(1),
-            },
-          },
-        });
-      } else {
-        const customerSummary = new Summary(transaction, orgId, this.accounts);
-        //initialize summaries
-        customerSummary.appendObject(accountsSummary);
-        customerSummary.updateCustomerSummary(customerId);
-      }
-    }
-    const orgSummary = new Summary(transaction, orgId, this.accounts);
-    //initialize summary
-    orgSummary.appendObject(accountsSummary);
-    orgSummary.updateOrgSummary();
 
     /**
      * calculate balance adjustment
@@ -275,45 +185,10 @@ export default class InvoiceSale extends Sale {
       modifiedBy: userId,
       modifiedAt: serverTimestamp() as Timestamp,
     };
+
     transaction.update(this.invoiceRef, {
       ...invoice,
     });
-  }
-
-  async delete() {
-    const {
-      ARAccount,
-      transaction,
-      org: { orgId },
-      transactionType,
-    } = this;
-
-    const currentInvoice = await this.getCurrentInvoice();
-    const currentInvoiceAndAccount: SaleDataAndAccount = {
-      saleDetails: currentInvoice,
-      saleAccount: ARAccount,
-    };
-    const {
-      customer: { customerId },
-    } = currentInvoice;
-
-    const { accountsSummary, entriesToDelete } = await this.initDeleteSale(
-      currentInvoiceAndAccount
-    );
-
-    const summary = new Summary(transaction, orgId, this.accounts);
-    summary.appendObject(accountsSummary);
-
-    if (transactionType === 'invoice') {
-      summary.append('deletedInvoices', 0, 1);
-    }
-    summary.updateOrgSummary();
-    summary.updateCustomerSummary(customerId);
-    /**
-     * delete invoice
-     */
-
-    this.deleteInvoice(currentInvoice, entriesToDelete);
   }
 
   deleteInvoice(invoice: Invoice, entries: Entry[]) {
