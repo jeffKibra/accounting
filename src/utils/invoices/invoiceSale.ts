@@ -12,6 +12,7 @@ import formats from '../formats';
 import { getInvoiceData, getInvoicePaymentsTotal } from './utils';
 //Sale class
 import Sale from '../sales/sale';
+import Summary from 'utils/summaries/summary';
 
 import {
   Org,
@@ -217,5 +218,27 @@ export default class InvoiceSale extends Sale {
       modifiedBy: userId,
       modifiedAt: serverTimestamp(),
     });
+  }
+
+  //----------------------------------------------------------------
+  //static methods
+  //----------------------------------------------------------------
+
+  static async createInvoiceId(
+    transaction: Transaction,
+    orgId: string,
+    accounts: Account[]
+  ) {
+    const summary = new Summary(transaction, orgId, accounts);
+
+    const orgSummaryRef = Summary.createOrgRef(orgId);
+
+    const summaryData = await summary.fetchSummaryData(orgSummaryRef.path);
+    console.log({ summaryData });
+    const currentInvoices = summaryData?.invoices as number;
+    const invoiceNumber = (currentInvoices || 0) + 1;
+    const invoiceId = `INV-${String(invoiceNumber).padStart(6, '0')}`;
+
+    return invoiceId;
   }
 }

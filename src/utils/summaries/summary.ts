@@ -4,7 +4,9 @@ import { db } from '../firebase';
 
 import SummaryData from './summaryData';
 
-import { Account } from 'types';
+import { Account, DailySummary } from 'types';
+
+import { getDateDetails } from '../dates';
 
 interface AggregationData {
   [key: string]: number | FieldValue;

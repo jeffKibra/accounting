@@ -1,37 +1,31 @@
-import { Transaction, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { Transaction } from 'firebase/firestore';
 
 import { getAccountData } from '../accounts';
 import Summary from 'utils/summaries/summary';
 import { JournalEntry } from 'utils/journals';
-import formats from 'utils/formats';
 import InvoiceSale from 'utils/invoices/invoiceSale';
 
-import { Org, Account, InvoiceFormData, Customer } from 'types';
+import { Org, Account, InvoiceFormData, CustomerSummary } from 'types';
 
 interface OpeningBalanceData {
   accounts: Account[];
   org: Org;
   userId: string;
-  customer: Customer;
+  invoiceId: string;
 }
 
 //------------------------------------------------------------------------------
 
 export default class OpeningBalance extends InvoiceSale {
-  customer: Customer;
-
-  /**
-   * opening_balance_adjustments account
-   */
   OBAAccount: Account;
   salesAccount: Account;
 
   constructor(transaction: Transaction, data: OpeningBalanceData) {
-    const { accounts, org, userId, customer } = data;
+    const { accounts, org, userId, invoiceId } = data;
 
     super(transaction, {
       accounts,
-      invoiceId: customer.customerId,
+      invoiceId,
       org,
       userId,
       transactionType: 'customer_opening_balance',
@@ -49,14 +43,12 @@ export default class OpeningBalance extends InvoiceSale {
 
     this.salesAccount = salesAccount;
     this.OBAAccount = OBAAccount;
-
-    this.customer = customer;
   }
 
-  generateInvoice(openingBalance: number) {
-    const { customer, salesAccount } = this;
+  generateInvoice(openingBalance: number, customer: CustomerSummary) {
+    const { salesAccount } = this;
     const invoiceForm: InvoiceFormData = {
-      customer: formats.formatCustomerData(customer),
+      customer,
       invoiceDate: new Date(),
       dueDate: new Date(),
       orderNumber: '',
@@ -97,28 +89,62 @@ export default class OpeningBalance extends InvoiceSale {
     return invoiceForm;
   }
 
-  create(amount: number) {
-    const {
-      transaction,
-      org,
-      customer: { customerId },
-      salesAccount,
-      OBAAccount,
-      accounts,
-      invoiceRef,
-      userId,
-    } = this;
+  create(obInvoice: InvoiceFormData) {
+    const { transaction, org, salesAccount, OBAAccount, accounts } = this;
     const { orgId } = org;
+
+    const {
+      summary: { totalAmount },
+      customer: { customerId },
+    } = obInvoice;
     /**
      * create transaction details for journal entries
      */
-    const obInvoice = this.generateInvoice(amount);
+    const summary = new Summary(transaction, orgId, accounts);
+    /**
+     * 1. debit sales account accountType= opening balance
+     * 2. credit opening_balance_adjustments accountType= opening balance
+     */
+    summary.debitAccount(salesAccount.accountId, totalAmount);
+    summary.creditAccount(OBAAccount.accountId, totalAmount);
+
+    console.log({ summary });
+    //update orgSummary
+    summary.updateOrgSummary();
+    //update customer summary
+    summary.updateCustomerSummary(customerId);
+
+    this.createWithoutSummary(obInvoice);
+  }
+
+  createWithoutSummary(obInvoice: InvoiceFormData) {
+    const {
+      transaction,
+      org,
+      salesAccount,
+      OBAAccount,
+      invoiceRef,
+      userId,
+      transactionId,
+    } = this;
+    const { orgId } = org;
+
+    const {
+      summary: { totalAmount },
+    } = obInvoice;
+    /**
+     * create transaction details for journal entries
+     */
     const transactionDetails = {
       ...obInvoice,
       transactionId: invoiceRef.id,
     };
 
-    const summary = new Summary(transaction, orgId, accounts);
+    const accountsMapping = this.generateIncomeAccounts({
+      saleDetails: obInvoice,
+      saleAccount: salesAccount,
+    });
+
     /**
      * create 2 journal entries
      * 1. debit accounts_receivable accountType= opening balance
@@ -130,56 +156,33 @@ export default class OpeningBalance extends InvoiceSale {
      */
     const journalEntry = new JournalEntry(transaction, userId, orgId);
     journalEntry.createEntry({
-      amount: 0 - amount,
+      amount: 0 - totalAmount,
       account: salesAccount,
       reference: '',
       transactionDetails,
-      transactionId: customerId,
+      transactionId,
       transactionType: 'opening_balance',
     });
-    summary.debitAccount(salesAccount.accountId, amount);
     /**
      * 2. credit opening_balance_adjustments entry for customer opening balance
      */
     journalEntry.createEntry({
-      amount: +amount,
+      amount: +totalAmount,
       account: OBAAccount,
       reference: '',
       transactionDetails,
-      transactionId: customerId,
+      transactionId,
       transactionType: 'opening_balance',
     });
-    summary.creditAccount(OBAAccount.accountId, amount);
 
-    console.log({ summary });
-    //update orgSummary
-    summary.updateOrgSummary();
-    //update customer summary
-    summary.updateCustomerSummary(customerId);
-
-    transaction.set(this.invoiceRef, {
-      ...obInvoice,
-      balance: amount,
-      paymentsReceived: {},
-      paymentsIds: [],
-      paymentsCount: 0,
-      status: 0,
-      isSent: false,
-      transactionType: 'customer_opening_balance',
-      org: formats.formatOrgData(org),
-      createdBy: userId,
-      createdAt: serverTimestamp() as Timestamp,
-      modifiedBy: userId,
-      modifiedAt: serverTimestamp() as Timestamp,
-    });
+    this.createInvoice(obInvoice, accountsMapping);
   }
 
-  async update(amount: number) {
+  async update(incomingOBInvoice: InvoiceFormData) {
     const {
       transaction,
       salesAccount,
       OBAAccount,
-      customer: { customerId },
       org,
       userId,
       accounts,
@@ -188,7 +191,6 @@ export default class OpeningBalance extends InvoiceSale {
     const { orgId } = org;
 
     const journalEntry = new JournalEntry(transaction, userId, orgId);
-    const incomingOBInvoice = this.generateInvoice(amount);
 
     const transactionDetails = {
       ...incomingOBInvoice,
@@ -203,25 +205,42 @@ export default class OpeningBalance extends InvoiceSale {
       JournalEntry.getAccountEntryForTransaction(
         orgId,
         salesAccount.accountId,
-        customerId,
+        transactionId,
         'opening_balance'
       ),
       JournalEntry.getAccountEntryForTransaction(
         orgId,
         OBAAccount.accountId,
-        customerId,
+        transactionId,
         'opening_balance'
       ),
     ]);
+
+    const {
+      summary: { totalAmount: incomingAmount },
+    } = incomingOBInvoice;
     const {
       summary: { totalAmount: currentAmount },
+      customer: { customerId },
     } = currentOBInvoice;
+
+    const { accountsMapping, entriesToDelete, entriesToUpdate } =
+      await this.initUpdateSale(
+        {
+          saleDetails: incomingOBInvoice,
+          saleAccount: salesAccount,
+        },
+        {
+          saleDetails: currentOBInvoice,
+          saleAccount: salesAccount,
+        }
+      );
 
     const summary = new Summary(transaction, orgId, accounts);
     /**
      * compute adjustment
      */
-    const adjustment = amount - currentAmount;
+    const adjustment = incomingAmount - currentAmount;
     console.log({ adjustment });
     /**
      * update 2 journal entries
@@ -233,7 +252,7 @@ export default class OpeningBalance extends InvoiceSale {
      * to debit income, amount must be negative
      */
     journalEntry.updateEntry(salesEntry.entryId, {
-      amount: 0 - amount,
+      amount: 0 - incomingAmount,
       account: salesEntry.account,
       credit: salesEntry.credit,
       debit: salesEntry.debit,
@@ -245,7 +264,7 @@ export default class OpeningBalance extends InvoiceSale {
      * 2. credit opening_balance_adjustments entry for customer opening balance
      */
     journalEntry.updateEntry(OBAEntry.entryId, {
-      amount,
+      amount: incomingAmount,
       account: OBAEntry.account,
       credit: OBAEntry.credit,
       debit: OBAEntry.debit,
@@ -260,16 +279,25 @@ export default class OpeningBalance extends InvoiceSale {
     /**
      * update invoice
      */
-    transaction.update(this.invoiceRef, {
-      ...incomingOBInvoice,
-      modifiedAt: serverTimestamp() as Timestamp,
-      modifiedBy: userId,
-    });
+    this.updateInvoice(
+      incomingOBInvoice,
+      accountsMapping,
+      incomingAmount,
+      entriesToUpdate,
+      entriesToDelete
+    );
   }
 
-  async delete(customerId: string) {
-    const { transaction, org, accounts, salesAccount, OBAAccount, userId } =
-      this;
+  async delete() {
+    const {
+      transaction,
+      transactionId,
+      org,
+      accounts,
+      salesAccount,
+      OBAAccount,
+      userId,
+    } = this;
     const { orgId } = org;
     const summary = new Summary(transaction, orgId, accounts);
 
@@ -278,19 +306,25 @@ export default class OpeningBalance extends InvoiceSale {
       JournalEntry.getAccountEntryForTransaction(
         orgId,
         salesAccount.accountId,
-        customerId,
+        transactionId,
         'opening_balance'
       ),
       JournalEntry.getAccountEntryForTransaction(
         orgId,
         OBAAccount.accountId,
-        customerId,
+        transactionId,
         'opening_balance'
       ),
     ]);
 
+    const { entriesToDelete } = await this.initDeleteSale({
+      saleDetails: currentOBInvoice,
+      saleAccount: salesAccount,
+    });
+
     const {
       summary: { totalAmount: amount },
+      customer: { customerId },
     } = currentOBInvoice;
     /**
      * delete 2 journal entries
@@ -307,17 +341,13 @@ export default class OpeningBalance extends InvoiceSale {
      */
     journalEntry.deleteEntry(OBAEntry.entryId);
     summary.debitAccount(OBAAccount.accountId, amount);
-
+    //update summaries
     summary.updateOrgSummary();
     summary.updateCustomerSummary(customerId);
 
     /**
      * delete invoice
      */
-    transaction.update(this.invoiceRef, {
-      status: -1,
-      modifiedAt: serverTimestamp(),
-      modifiedBy: userId,
-    });
+    this.deleteInvoice(currentOBInvoice, entriesToDelete);
   }
 }
