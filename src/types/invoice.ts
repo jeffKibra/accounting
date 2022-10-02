@@ -65,7 +65,7 @@ export interface InvoiceSummary {
   dueDate: Date;
   invoiceDate: Date;
   invoiceId: string;
-  status: string;
+  status: number;
   transactionType: string;
   summary: SalesSummary;
 }

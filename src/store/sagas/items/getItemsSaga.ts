@@ -1,4 +1,4 @@
-import { put, call, takeLatest, select } from "redux-saga/effects";
+import { put, call, takeLatest, select } from 'redux-saga/effects';
 import {
   getDocs,
   query,
@@ -6,21 +6,21 @@ import {
   orderBy,
   doc,
   getDoc,
-} from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+} from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db, dbCollections } from "../../../utils/firebase";
+import { db, dbCollections } from '../../../utils/firebase';
 
-import { GET_ITEMS, GET_ITEM } from "../../actions/itemsActions";
+import { GET_ITEMS, GET_ITEM } from '../../actions/itemsActions';
 import {
   start,
   itemSuccess,
   itemsSuccess,
   fail,
-} from "../../slices/itemsSlice";
-import { error as toastError } from "../../slices/toastSlice";
+} from '../../slices/itemsSlice';
+import { error as toastError } from '../../slices/toastSlice';
 
-import { RootState, Item } from "../../../types";
+import { RootState, Item } from '../../../types';
 
 function* getItems() {
   yield put(start(GET_ITEMS));
@@ -34,11 +34,11 @@ function* getItems() {
     const itemsCollection = dbCollections(orgId).items;
     const q = query(
       itemsCollection,
-      orderBy("createdAt", "desc"),
-      where("status", "==", "active")
+      orderBy('createdAt', 'desc'),
+      where('status', '==', 0)
     );
     const snap = await getDocs(q);
-    const items = snap.docs.map((itemDoc) => {
+    const items = snap.docs.map(itemDoc => {
       return {
         ...itemDoc.data(),
         itemId: itemDoc.id,
@@ -74,11 +74,11 @@ function* getItem(action: PayloadAction<string>) {
 
   async function get() {
     const itemDoc = await getDoc(
-      doc(db, "organizations", orgId, "items", itemId)
+      doc(db, 'organizations', orgId, 'items', itemId)
     );
 
     if (!itemDoc.exists) {
-      throw new Error("item not found!");
+      throw new Error('item not found!');
     }
 
     return {

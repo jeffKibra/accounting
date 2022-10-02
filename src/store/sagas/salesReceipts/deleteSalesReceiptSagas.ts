@@ -12,8 +12,6 @@ import {
   success as toastSuccess,
 } from '../../slices/toastSlice';
 
-import ReceiptSale from 'utils/salesReceipts/receiptSale';
-
 import { RootState, UserProfile, Org, Account } from '../../../types';
 
 function* deleteSalesReceiptSaga(action: PayloadAction<string>) {
@@ -32,20 +30,6 @@ function* deleteSalesReceiptSaga(action: PayloadAction<string>) {
     /**
      * initialize by creating daily summary if none is available
      */
-    await createDailySummary(orgId);
-    /**
-     * delete salesReceipt using a firestore transaction
-     */
-    await runTransaction(db, async transaction => {
-      const receiptInstance = new ReceiptSale(transaction, {
-        accounts,
-        org,
-        salesReceiptId,
-        userId: userProfile.uid,
-      });
-
-      await receiptInstance.deleteReceipt();
-    });
   }
 
   try {

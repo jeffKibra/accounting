@@ -15,7 +15,6 @@ import {
   error as toastError,
   success as toastSuccess,
 } from '../../slices/toastSlice';
-import ReceiptSale from 'utils/salesReceipts/receiptSale';
 
 import {
   SalesReceiptForm,
@@ -41,28 +40,6 @@ function* createSalesReceiptSaga(action: PayloadAction<SalesReceiptForm>) {
     /**
      * create daily summary before proceeding
      */
-    await createDailySummary(orgId);
-    /**
-     * create salesReceipt using a firestore transaction
-     */
-    await runTransaction(db, async transaction => {
-      /**
-       * generate the salesReceipt slug
-       */
-      const salesReceiptId = await createReceiptId(transaction, orgId);
-
-      /**
-       * create salesReceipt
-       */
-      const receiptInstance = new ReceiptSale(transaction, {
-        accounts,
-        org,
-        salesReceiptId,
-        userId: userProfile.uid,
-      });
-
-      await receiptInstance.create(action.payload);
-    });
   }
 
   try {

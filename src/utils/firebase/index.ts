@@ -7,7 +7,7 @@ import {
   connectFirestoreEmulator,
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { getFunctions } from 'firebase/functions';
+import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 
 import firebaseConfig from '../../config/firebaseConfig';
 
@@ -19,6 +19,7 @@ export const analytics = getAnalytics(app);
 export const functions = getFunctions(app);
 
 connectFirestoreEmulator(db, 'localhost', 8080);
+connectFunctionsEmulator(functions, 'localhost', 5001);
 
 export { default as dbCollections } from './dbCollections';
 

@@ -19,8 +19,6 @@ import {
   error as toastError,
 } from '../../slices/toastSlice';
 
-import { getSimilarItem } from './createItemSagas';
-
 import { ItemFormData, UserProfile, RootState } from '../../../types';
 
 interface UpdateData extends Partial<ItemFormData> {
@@ -41,13 +39,6 @@ function* updateItem(action: PayloadAction<UpdateData>) {
     const { itemId, ...rest } = action.payload;
     const { sku } = rest;
     let similarItem: { itemId: string } | null = null;
-    if (sku) {
-      similarItem = await getSimilarItem(orgId, sku);
-      //check its not the same document being updated
-      if (similarItem && similarItem.itemId !== itemId) {
-        throw new Error('There is another item with similar details!');
-      }
-    }
 
     return updateDoc(doc(db, 'organizations', orgId, 'items', itemId), {
       ...rest,

@@ -34,25 +34,7 @@ function* deleteInvoiceSaga(action: PayloadAction<string>) {
     /**
      * initialize by creating daily summary if none is available
      */
-    await createDailySummary(orgId);
-    /**
-     * delete invoice using a firestore transaction
-     */
-    await runTransaction(db, async transaction => {
-      /**
-       * first part of deleting
-       * fetch relevant deletion data
-       */
-      const invoiceSale = new InvoiceSale(transaction, {
-        accounts,
-        invoiceId,
-        org,
-        userId: userProfile.uid,
-        transactionType: 'invoice',
-      });
-
-      await invoiceSale.deleteInvoice();
-    });
+    
   }
 
   try {

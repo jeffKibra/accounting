@@ -46,18 +46,6 @@ export default async function createCustomer(
     modifiedAt: serverTimestamp() as Timestamp,
   };
 
-  const ob = new OpeningBalance(transaction, {
-    accounts,
-    customerId,
-    org,
-    userId,
-  });
-
-  ob.create({
-    amount: openingBalance,
-    customer: formats.formatCustomerData(customer),
-  });
-
   /**
    * update org summary
    */

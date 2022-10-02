@@ -1,7 +1,7 @@
-import { doc, Transaction } from "firebase/firestore";
-import { dbCollections } from "../../firebase";
+import { doc, Transaction } from 'firebase/firestore';
+import { dbCollections } from '../../firebase';
 
-import { Invoice } from "../../../types";
+import { Invoice } from '../../../types';
 
 export default async function getInvoiceData(
   transaction: Transaction,
@@ -16,7 +16,7 @@ export default async function getInvoiceData(
 
   if (
     !invoiceDoc.exists ||
-    invoiceDoc.data()?.status === "deleted" ||
+    invoiceDoc.data()?.status === -1 ||
     invoiceData === undefined
   ) {
     throw new Error(`Invoice with id ${invoiceId} not found!`);

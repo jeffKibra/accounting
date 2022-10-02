@@ -39,42 +39,6 @@ function* updateInvoiceSaga(action: PayloadAction<UpdateData>) {
     /**
      * itialize by creating the daily summary if none is available
      */
-    await createDailySummary(org.orgId);
-    /**
-     * update invoice using a transaction
-     */
-    await runTransaction(db, async transaction => {
-      /**
-       * first part of update, fetch all relevant data
-       * data reading
-       */
-      const { invoiceId, ...formData } = action.payload;
-      const invoiceInstance = new InvoiceSale(transaction, {
-        invoiceId,
-        accounts,
-        org,
-        userId: userProfile.uid,
-        transactionType: 'invoice',
-      });
-      await invoiceInstance.update(formData);
-      // const { currentInvoice, entriesToDelete, entriesToUpdate, newAccounts } =
-      //   await fetchInvoiceUpdateData(transaction, orgId, invoiceId, formData);
-      // /**
-      //  * last part of update function
-      //  * data writing
-      //  */
-      // updateInvoice(
-      //   transaction,
-      //   orgId,
-      //   userProfile,
-      //   accounts,
-      //   entriesToUpdate,
-      //   entriesToDelete,
-      //   newAccounts,
-      //   currentInvoice,
-      //   { ...currentInvoice, ...formData }
-      // );
-    });
   }
 
   try {

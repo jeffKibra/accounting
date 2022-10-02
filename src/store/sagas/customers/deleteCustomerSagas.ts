@@ -52,7 +52,7 @@ function* deleteCustomer(action: PayloadAction<string>) {
         collection(db, 'organizations', orgId, 'journals'),
         orderBy('createdAt', 'desc'),
         where('transactionDetails.customer.customerId', '==', customerId),
-        where('status', '==', 'active'),
+        where('status', '==', '0'),
         limit(1)
       );
 

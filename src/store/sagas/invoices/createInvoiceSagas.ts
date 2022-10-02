@@ -35,29 +35,8 @@ function* createInvoiceSaga(action: PayloadAction<InvoiceFormData>) {
 
   async function create() {
     /**
-     * create daily summary before proceeding
-     */
-    await createDailySummary(orgId);
-    /**
      * create invoice using a firestore transaction
      */
-    await runTransaction(db, async transaction => {
-      /**
-       * generate the invoice slug
-       */
-      const invoiceId = await createInvoiceId(transaction, orgId);
-      /**
-       * create invoice
-       */
-      const invoiceInstance = new InvoiceSale(transaction, {
-        accounts,
-        invoiceId,
-        org,
-        transactionType: 'invoice',
-        userId: userProfile.uid,
-      });
-      await invoiceInstance.create(action.payload);
-    });
   }
 
   try {

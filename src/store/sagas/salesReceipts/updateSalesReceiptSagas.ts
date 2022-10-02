@@ -4,7 +4,6 @@ import { PayloadAction } from '@reduxjs/toolkit';
 
 import { db } from '../../../utils/firebase';
 import { createDailySummary } from '../../../utils/summaries';
-import ReceiptSale from 'utils/salesReceipts/receiptSale';
 
 import { UPDATE_SALES_RECEIPT } from '../../actions/salesReceiptsActions';
 import { start, success, fail } from '../../slices/salesReceiptsSlice';
@@ -40,21 +39,7 @@ function* updateSalesReceiptSaga(action: PayloadAction<UpdateData>) {
     /**
      * itialize by creating the daily summary if none is available
      */
-    await createDailySummary(orgId);
-    /**
-     * update SalesReceipt using a transaction
-     */
-    const { salesReceiptId, ...formData } = action.payload;
-    await runTransaction(db, async transaction => {
-      const receiptInstance = new ReceiptSale(transaction, {
-        accounts,
-        org,
-        salesReceiptId,
-        userId: userProfile.uid,
-      });
-
-      await receiptInstance.update(formData);
-    });
+    
   }
 
   try {
