@@ -1,16 +1,8 @@
 import { put, call, takeLatest, select } from 'redux-saga/effects';
-import {
-  doc,
-  updateDoc,
-  serverTimestamp,
-  writeBatch,
-  increment,
-} from 'firebase/firestore';
 import { PayloadAction } from '@reduxjs/toolkit';
+import { httpsCallable } from 'firebase/functions';
 
-import { db } from '../../../utils/firebase';
-import { createDailySummary } from '../../../utils/summaries';
-import Summary from 'utils/summaries/summary';
+import { functions } from '../../../utils/firebase';
 
 import { UPDATE_ITEM, DELETE_ITEM } from '../../actions/itemsActions';
 import { start, success, fail } from '../../slices/itemsSlice';
@@ -19,7 +11,7 @@ import {
   error as toastError,
 } from '../../slices/toastSlice';
 
-import { ItemFormData, UserProfile, RootState } from '../../../types';
+import { ItemFormData, RootState } from '../../../types';
 
 interface UpdateData extends Partial<ItemFormData> {
   itemId: string;
@@ -27,24 +19,17 @@ interface UpdateData extends Partial<ItemFormData> {
 
 function* updateItem(action: PayloadAction<UpdateData>) {
   yield put(start(UPDATE_ITEM));
-  const userProfile: UserProfile = yield select(
-    (state: RootState) => state.authReducer.userProfile
-  );
-  const { uid } = userProfile;
+
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
 
   async function update() {
-    const { itemId, ...rest } = action.payload;
-    const { sku } = rest;
-    let similarItem: { itemId: string } | null = null;
-
-    return updateDoc(doc(db, 'organizations', orgId, 'items', itemId), {
-      ...rest,
-      modifiedBy: uid,
-      modifiedAt: serverTimestamp(),
-    });
+    const { itemId, ...formData } = action.payload;
+    return httpsCallable(
+      functions,
+      'item-update'
+    )({ orgId, itemId, data: formData });
   }
 
   try {
@@ -67,33 +52,13 @@ export function* watchUpdateItem() {
 function* deleteItem(action: PayloadAction<string>) {
   yield put(start(DELETE_ITEM));
   const itemId = action.payload;
-  const userProfile: UserProfile = yield select(
-    (state: RootState) => state.authReducer.userProfile
-  );
-  const { uid } = userProfile;
+
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
 
   async function update() {
-    await createDailySummary(orgId);
-
-    const itemRef = doc(db, 'organizations', orgId, 'items', itemId);
-    const summaryRef = Summary.createOrgRef(orgId);
-
-    const batch = writeBatch(db);
-
-    batch.update(summaryRef, {
-      items: increment(-1),
-    });
-
-    batch.update(itemRef, {
-      status: 'deleted',
-      modifiedBy: uid,
-      modifiedAt: serverTimestamp(),
-    });
-
-    await batch.commit();
+    return httpsCallable(functions, 'item-delete')({ orgId, itemId });
   }
 
   try {

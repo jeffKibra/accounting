@@ -1,4 +1,4 @@
-import { put, call, select, takeLatest } from "redux-saga/effects";
+import { put, call, select, takeLatest } from 'redux-saga/effects';
 import {
   getDocs,
   getDoc,
@@ -6,21 +6,21 @@ import {
   query,
   where,
   orderBy,
-} from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+} from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { dbCollections } from "../../../utils/firebase";
+import { dbCollections } from '../../../utils/firebase';
 
-import { GET_CUSTOMERS, GET_CUSTOMER } from "../../actions/customersActions";
+import { GET_CUSTOMERS, GET_CUSTOMER } from '../../actions/customersActions';
 import {
   start,
   customerSuccess,
   customersSuccess,
   fail,
-} from "../../slices/customersSlice";
-import { error as toastError } from "../../slices/toastSlice";
+} from '../../slices/customersSlice';
+import { error as toastError } from '../../slices/toastSlice';
 
-import { RootState, Customer } from "../../../types";
+import { RootState, Customer } from '../../../types';
 
 function* getCustomers() {
   yield put(start(GET_CUSTOMERS));
@@ -33,11 +33,11 @@ function* getCustomers() {
     const customersCollection = dbCollections(orgId).customers;
     const q = query(
       customersCollection,
-      orderBy("createdAt", "desc"),
-      where("status", "==", "active")
+      orderBy('createdAt', 'desc'),
+      where('status', '==', 0)
     );
     const snap = await getDocs(q);
-    const customers: Customer[] = snap.docs.map((customerDoc) => {
+    const customers: Customer[] = snap.docs.map(customerDoc => {
       return {
         ...customerDoc.data(),
         customerId: customerDoc.id,
@@ -76,7 +76,7 @@ function* getCustomer(action: PayloadAction<string>) {
     const customerData = customerDoc.data();
 
     if (!customerDoc.exists || !customerData) {
-      throw new Error("Customer not found!");
+      throw new Error('Customer not found!');
     }
 
     return {

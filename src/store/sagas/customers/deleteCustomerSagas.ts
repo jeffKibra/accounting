@@ -1,20 +1,8 @@
 import { put, call, select, takeLatest } from 'redux-saga/effects';
-import {
-  doc,
-  getDocs,
-  serverTimestamp,
-  increment,
-  runTransaction,
-  collection,
-  query,
-  where,
-  limit,
-  orderBy,
-} from 'firebase/firestore';
 import { PayloadAction } from '@reduxjs/toolkit';
+import { httpsCallable } from 'firebase/functions';
 
-import { db } from '../../../utils/firebase';
-import Summary from 'utils/summaries/summary';
+import { functions } from '../../../utils/firebase';
 
 import { DELETE_CUSTOMER } from '../../actions/customersActions';
 import { start, success, fail } from '../../slices/customersSlice';
@@ -23,7 +11,7 @@ import {
   error as toastError,
 } from '../../slices/toastSlice';
 
-import { RootState, UserProfile } from '../../../types';
+import { RootState } from '../../../types';
 
 function* deleteCustomer(action: PayloadAction<string>) {
   yield put(start(DELETE_CUSTOMER));
@@ -32,66 +20,12 @@ function* deleteCustomer(action: PayloadAction<string>) {
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
-  const userProfile: UserProfile = yield select(
-    (state: RootState) => state.authReducer.userProfile
-  );
-  const { email } = userProfile;
 
   async function update() {
-    const customerRef = doc(
-      db,
-      'organizations',
-      orgId,
-      'customers',
-      customerId
-    );
-    const summaryRef = Summary.createOrgRef(orgId);
-
-    async function allowDeletion() {
-      const q = query(
-        collection(db, 'organizations', orgId, 'journals'),
-        orderBy('createdAt', 'desc'),
-        where('transactionDetails.customer.customerId', '==', customerId),
-        where('status', '==', '0'),
-        limit(1)
-      );
-
-      const snap = await getDocs(q);
-      const { size } = snap;
-      console.log({ size });
-
-      if (size > 0) {
-        //deletion not allowed
-        return false;
-      } else {
-        return true;
-      }
-    }
-
-    const deleteAllowed = await allowDeletion();
-
-    if (!deleteAllowed) {
-      throw new Error(
-        'This customer has transactions associated with them and thus cannot be deleted! Try making them inactive!'
-      );
-    }
-
-    await runTransaction(db, async transaction => {
-      /**
-       * update counters for one deleted customer
-       */
-      transaction.update(summaryRef, {
-        customers: increment(-1),
-      });
-      /**
-       * mark customer as deleted
-       */
-      transaction.update(customerRef, {
-        status: 'deleted',
-        modifiedBy: email,
-        modifiedAt: serverTimestamp(),
-      });
-    });
+    return httpsCallable(
+      functions,
+      'sales-customer-delete'
+    )({ orgId, customerId });
   }
 
   try {

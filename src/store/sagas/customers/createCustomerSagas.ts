@@ -1,15 +1,8 @@
 import { put, call, select, takeLatest } from 'redux-saga/effects';
-import {
-  doc,
-  collection,
-  runTransaction,
-  serverTimestamp,
-  setDoc,
-} from 'firebase/firestore';
 import { PayloadAction } from '@reduxjs/toolkit';
+import { httpsCallable } from 'firebase/functions';
 
-import { db } from '../../../utils/firebase';
-import { createCustomer } from '../../../utils/customers';
+import { functions } from '../../../utils/firebase';
 
 import { CREATE_CUSTOMER } from '../../actions/customersActions';
 import { start, success, fail } from '../../slices/customersSlice';
@@ -18,76 +11,20 @@ import {
   error as toastError,
 } from '../../slices/toastSlice';
 
-import Summary from 'utils/summaries/summary';
-import { paymentModes } from '../../../constants';
-
-import {
-  CustomerFormData,
-  RootState,
-  Org,
-  Account,
-  UserProfile,
-} from '../../../types';
+import { CustomerFormData, RootState, Org } from '../../../types';
 
 function* createCustomerSaga(action: PayloadAction<CustomerFormData>) {
   yield put(start(CREATE_CUSTOMER));
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;
-  const userProfile: UserProfile = yield select(
-    (state: RootState) => state.authReducer.userProfile
-  );
-  const accounts: Account[] = yield select(
-    (state: RootState) => state.accountsReducer.accounts
-  );
-  const userId = userProfile.uid;
 
   // console.log({ data });
 
-  const summaryData = {
-    invoices: 0,
-    deletedInvoices: 0,
-    payments: 0,
-    deletedPayments: 0,
-    salesReceipts: 0,
-    deletedSalesReceipts: 0,
-    invoicesTotal: 0,
-    paymentsTotal: 0,
-    salesreceiptsTotal: 0,
-    paymentModes: Object.keys(paymentModes).reduce((modes, key) => {
-      return { ...modes, [key]: 0 };
-    }, {}),
-    accounts: Object.keys(accounts).reduce((accountsSummary, key) => {
-      return {
-        ...accountsSummary,
-        [key]: 0,
-      };
-    }, {}),
-    createdAt: serverTimestamp(),
-    createdBy: userId,
-    modifiedAt: serverTimestamp(),
-    modifiedBy: userId,
-  };
-
   async function create() {
-    const newDocRef = doc(collection(db, 'organizations', orgId, 'customers'));
-    const customerId = newDocRef.id;
-
-    //create customer summary first
-    const customerSummaryRef = Summary.createCustomerRef(orgId, customerId);
-    await setDoc(customerSummaryRef, summaryData, { merge: true });
-
-    const customerData = { ...action.payload };
-
-    await runTransaction(db, async transaction => {
-      await createCustomer(
-        transaction,
-        org,
-        userProfile,
-        accounts,
-        customerId,
-        customerData
-      );
-    });
+    return httpsCallable(
+      functions,
+      'sales-customer-create'
+    )({ orgId, formData: action.payload });
   }
 
   try {

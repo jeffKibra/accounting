@@ -1,19 +1,17 @@
-import { put, call, select, takeLatest } from "redux-saga/effects";
-import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+import { put, call, select, takeLatest } from 'redux-saga/effects';
+import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from "../../../utils/firebase";
+import { db } from '../../../utils/firebase';
 
-import { createDailySummary } from "../../../utils/summaries";
-
-import { UPDATE_CUSTOMER } from "../../actions/customersActions";
-import { start, success, fail } from "../../slices/customersSlice";
+import { UPDATE_CUSTOMER } from '../../actions/customersActions';
+import { start, success, fail } from '../../slices/customersSlice';
 import {
   success as toastSuccess,
   error as toastError,
-} from "../../slices/toastSlice";
+} from '../../slices/toastSlice';
 
-import { CustomerFormData, RootState, UserProfile } from "../../../types";
+import { CustomerFormData, RootState, UserProfile } from '../../../types';
 
 interface updateData extends CustomerFormData {
   customerId: string;
@@ -34,13 +32,9 @@ function* updateCustomer(action: PayloadAction<updateData>) {
 
   async function update() {
     /**
-     * initialize by creating daily summary if not available
-     */
-    await createDailySummary(orgId);
-    /**
      * update customer data
      */
-    await updateDoc(doc(db, "organizations", orgId, "customers", customerId), {
+    await updateDoc(doc(db, 'organizations', orgId, 'customers', customerId), {
       ...rest,
       modifiedBy: email,
       modifiedAt: serverTimestamp(),
@@ -51,7 +45,7 @@ function* updateCustomer(action: PayloadAction<updateData>) {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess("Customer UPDATED successfully!"));
+    yield put(toastSuccess('Customer UPDATED successfully!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);
