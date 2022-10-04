@@ -1,4 +1,4 @@
-import { put, call, select, takeLatest } from "redux-saga/effects";
+import { put, call, select, takeLatest } from 'redux-saga/effects';
 import {
   getDoc,
   getDocs,
@@ -7,10 +7,10 @@ import {
   where,
   orderBy,
   Timestamp,
-} from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+} from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { dbCollections } from "../../../utils/firebase";
+import { dbCollections } from '../../../utils/firebase';
 import {
   GET_INVOICE,
   GET_INVOICES,
@@ -18,18 +18,18 @@ import {
   GET_UNPAID_CUSTOMER_INVOICES,
   GET_PAYMENT_INVOICES_TO_EDIT,
   GET_PAYMENT_INVOICES,
-} from "../../actions/invoicesActions";
+} from '../../actions/invoicesActions';
 import {
   start,
   invoiceSuccess,
   invoicesSuccess,
   fail,
-} from "../../slices/invoicesSlice";
-import { error as toastError } from "../../slices/toastSlice";
+} from '../../slices/invoicesSlice';
+import { error as toastError } from '../../slices/toastSlice';
 
-import { dateFromTimestamp } from "../../../utils/dates";
+import { dateFromTimestamp } from '../../../utils/dates';
 
-import { Invoice, RootState } from "../../../types";
+import { Invoice, RootState } from '../../../types';
 
 function formatInvoiceDates(invoice: Invoice) {
   const { invoiceDate, dueDate, createdAt, modifiedAt } = invoice;
@@ -84,7 +84,7 @@ function* getInvoice(action: PayloadAction<string>) {
     const invoiceDoc = await getDoc(doc(invoicesCollection, invoiceId));
     const invoice = invoiceDoc.data();
     if (!invoiceDoc.exists || !invoice) {
-      throw new Error("Invoice not found!");
+      throw new Error('Invoice not found!');
     }
 
     return {
@@ -118,12 +118,12 @@ function* getInvoices() {
     const invoicesCollection = dbCollections(orgId).invoices;
     const q = query(
       invoicesCollection,
-      orderBy("createdAt", "desc"),
-      where("status", "==", "active"),
-      where("transactionType", "==", "invoice")
+      orderBy('createdAt', 'desc'),
+      where('status', '==', 0),
+      where('transactionType', '==', 'invoice')
     );
     const snap = await getDocs(q);
-    const invoices = snap.docs.map((invoiceDoc) => {
+    const invoices = snap.docs.map(invoiceDoc => {
       return {
         ...formatInvoiceDates({
           ...invoiceDoc.data(),
@@ -137,6 +137,7 @@ function* getInvoices() {
 
   try {
     const invoices: Invoice[] = yield call(get);
+    console.log({ invoices });
 
     yield put(invoicesSuccess(invoices));
   } catch (err) {
@@ -162,14 +163,14 @@ function* getCustomerInvoices(action: PayloadAction<string>) {
     const invoicesCollection = dbCollections(orgId).invoices;
     const q = query(
       invoicesCollection,
-      orderBy("createdAt", "desc"),
-      where("customer.customerId", "==", customerId),
-      where("status", "==", "active"),
-      where("transactionType", "==", "invoice")
+      orderBy('createdAt', 'desc'),
+      where('customer.customerId', '==', customerId),
+      where('status', '==', 0),
+      where('transactionType', '==', 'invoice')
     );
     const snap = await getDocs(q);
 
-    const invoices = snap.docs.map((invoiceDoc) => {
+    const invoices = snap.docs.map(invoiceDoc => {
       return {
         ...formatInvoiceDates({
           ...invoiceDoc.data(),
@@ -211,13 +212,13 @@ function* getUnpaidCustomerInvoices(action: PayloadAction<string>) {
     const q = query(
       invoicesCollection,
       // orderBy("createdAt", "asc"),
-      where("customer.customerId", "==", customerId),
-      where("status", "==", "active"),
-      where("balance", ">", 0)
+      where('customer.customerId', '==', customerId),
+      where('status', '==', 0),
+      where('balance', '>', 0)
     );
 
     const snap = await getDocs(q);
-    const invoices = snap.docs.map((invoiceDoc) => {
+    const invoices = snap.docs.map(invoiceDoc => {
       return {
         ...formatInvoiceDates({
           ...invoiceDoc.data(),
@@ -261,7 +262,7 @@ function* getPaymentInvoicesToEdit(action: PayloadAction<Details>) {
     payload: { paymentId, customerId },
   } = action;
   yield put(start(type));
-  console.log("fetching invoices to edit");
+  console.log('fetching invoices to edit');
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
@@ -271,24 +272,24 @@ function* getPaymentInvoicesToEdit(action: PayloadAction<Details>) {
     //paid invoices to edit
     const q1 = query(
       invoicesCollection,
-      orderBy("createdAt", "asc"),
-      where("customer.customerId", "==", customerId),
-      where("paymentsIds", "array-contains", paymentId),
-      where("status", "==", "active"),
-      where("balance", "==", 0)
+      orderBy('createdAt', 'asc'),
+      where('customer.customerId', '==', customerId),
+      where('paymentsIds', 'array-contains', paymentId),
+      where('status', '==', 0),
+      where('balance', '==', 0)
     );
     //unpaid customer invoices
     const q2 = query(
       invoicesCollection,
       // orderBy("createdAt", "asc"),
-      where("customer.customerId", "==", customerId),
-      where("status", "==", "active"),
-      where("balance", ">", 0)
+      where('customer.customerId', '==', customerId),
+      where('status', '==', 0),
+      where('balance', '>', 0)
     );
 
     const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
 
-    const invoices1 = snap1.docs.map((invoiceDoc) => {
+    const invoices1 = snap1.docs.map(invoiceDoc => {
       return {
         ...formatInvoiceDates({
           ...invoiceDoc.data(),
@@ -296,7 +297,7 @@ function* getPaymentInvoicesToEdit(action: PayloadAction<Details>) {
         }),
       };
     });
-    const invoices2 = snap2.docs.map((invoiceDoc) => {
+    const invoices2 = snap2.docs.map(invoiceDoc => {
       return {
         ...formatInvoiceDates({
           ...invoiceDoc.data(),
@@ -334,7 +335,7 @@ export function* watchGetPaymentInvoicesToEdit() {
 function* getPaymentInvoices(action: PayloadAction<Details>) {
   const { type, payload: paymentId } = action;
   yield put(start(type));
-  console.log("fetching payment invoices");
+  console.log('fetching payment invoices');
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
@@ -344,14 +345,14 @@ function* getPaymentInvoices(action: PayloadAction<Details>) {
     //paid invoices to edit
     const q1 = query(
       invoicesCollection,
-      orderBy("createdAt", "asc"),
-      where("paymentsIds", "array-contains", paymentId),
-      where("status", "==", "active")
+      orderBy('createdAt', 'asc'),
+      where('paymentsIds', 'array-contains', paymentId),
+      where('status', '==', 0)
     );
 
     const [snap] = await Promise.all([getDocs(q1)]);
 
-    const invoices1 = snap.docs.map((invoiceDoc) => {
+    const invoices1 = snap.docs.map(invoiceDoc => {
       return {
         ...formatInvoiceDates({
           ...invoiceDoc.data(),

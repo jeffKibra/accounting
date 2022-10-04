@@ -1,10 +1,8 @@
 import { put, call, select, takeLatest } from 'redux-saga/effects';
-import { runTransaction } from 'firebase/firestore';
 import { PayloadAction } from '@reduxjs/toolkit';
+import { httpsCallable } from 'firebase/functions';
 
-import { db } from '../../../utils/firebase';
-import { createInvoiceId, InvoiceSale } from '../../../utils/invoices';
-import { createDailySummary } from '../../../utils/summaries';
+import { functions } from '../../../utils/firebase';
 
 import { CREATE_INVOICE } from '../../actions/invoicesActions';
 import { start, success, fail } from '../../slices/invoicesSlice';
@@ -13,30 +11,22 @@ import {
   success as toastSuccess,
 } from '../../slices/toastSlice';
 
-import {
-  RootState,
-  Org,
-  UserProfile,
-  Account,
-  InvoiceFormData,
-} from '../../../types';
+import { RootState, Org, InvoiceFormData } from '../../../types';
 
 function* createInvoiceSaga(action: PayloadAction<InvoiceFormData>) {
   yield put(start(CREATE_INVOICE));
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;
-  const userProfile: UserProfile = yield select(
-    (state: RootState) => state.authReducer.userProfile
-  );
-  const accounts: Account[] = yield select(
-    (state: RootState) => state.accountsReducer.accounts
-  );
-  // console.log({ data });
+
+  console.log({ action });
+
+  const invoice = action.payload;
 
   async function create() {
-    /**
-     * create invoice using a firestore transaction
-     */
+    return httpsCallable(
+      functions,
+      'sales-invoice-create'
+    )({ orgId, formData: invoice });
   }
 
   try {
