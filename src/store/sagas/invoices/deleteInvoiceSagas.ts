@@ -1,9 +1,8 @@
 import { put, call, select, takeLatest } from 'redux-saga/effects';
-import { runTransaction } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from '../../../utils/firebase';
-import { createDailySummary } from '../../../utils/summaries';
+import { functions } from '../../../utils/firebase';
 
 import { DELETE_INVOICE } from '../../actions/invoicesActions';
 import { start, success, fail } from '../../slices/invoicesSlice';
@@ -12,9 +11,7 @@ import {
   success as toastSuccess,
 } from '../../slices/toastSlice';
 
-import InvoiceSale from '../../../utils/invoices/invoiceSale';
-
-import { UserProfile, RootState, Org, Account } from '../../../types';
+import { RootState, Org } from '../../../types';
 
 function* deleteInvoiceSaga(action: PayloadAction<string>) {
   yield put(start(DELETE_INVOICE));
@@ -22,19 +19,11 @@ function* deleteInvoiceSaga(action: PayloadAction<string>) {
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;
 
-  const accounts: Account[] = yield select(
-    (state: RootState) => state.accountsReducer.accounts
-  );
-
-  const userProfile: UserProfile = yield select(
-    (state: RootState) => state.authReducer.userProfile
-  );
-
   async function update() {
-    /**
-     * initialize by creating daily summary if none is available
-     */
-    
+    return httpsCallable(
+      functions,
+      'sales-invoice-delete'
+    )({ orgId, invoiceId });
   }
 
   try {
