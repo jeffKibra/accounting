@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
 import {
   FormControl,
   FormLabel,
@@ -6,19 +6,19 @@ import {
   Flex,
   Button,
   Box,
-} from "@chakra-ui/react";
-import PropTypes from "prop-types";
-import { useForm, FormProvider } from "react-hook-form";
+} from '@chakra-ui/react';
+import PropTypes from 'prop-types';
+import { useForm, FormProvider } from 'react-hook-form';
 
-import NumInput from "../../ui/NumInput";
+import NumInput from '../../ui/NumInput';
 
 function OpeningBalanceForm(props) {
   const { handleFormSubmit, openingBalance, loading, onClose, isModified } =
     props;
 
   const formMethods = useForm({
-    mode: "onChange",
-    defaultValues: { openingBalance: openingBalance || 0 },
+    mode: 'onChange',
+    defaultValues: { amount: openingBalance || 0 },
   });
 
   const {
@@ -40,19 +40,19 @@ function OpeningBalanceForm(props) {
         role="form"
         onSubmit={handleSubmit(handleFormSubmit)}
       >
-        <FormControl isDisabled={loading} isInvalid={!!errors.openingBalance}>
-          <FormLabel htmlFor="openingBalance">Opening Balance</FormLabel>
+        <FormControl isDisabled={loading} isInvalid={!!errors.amount}>
+          <FormLabel htmlFor="amount">Opening Balance</FormLabel>
           <NumInput
-            name="openingBalance"
+            name="amount"
             min={0}
             rules={{
               min: {
                 value: 0,
-                message: "Value cannot be less than zero(0)!",
+                message: 'Value cannot be less than zero(0)!',
               },
             }}
           />
-          <FormErrorMessage>{errors.openingBalance?.message}</FormErrorMessage>
+          <FormErrorMessage>{errors.amount?.message}</FormErrorMessage>
         </FormControl>
 
         <Flex justifyContent="flex-end" mt={4}>

@@ -1,12 +1,12 @@
-import { Button } from "@chakra-ui/react";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
+import { Button } from '@chakra-ui/react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
-import CustomModal from "../../ui/CustomModal";
+import CustomModal from '../../ui/CustomModal';
 
-import { reset } from "../../../store/slices/customersSlice";
-import { UPDATE_OPENING_BALANCE } from "../../../store/actions/customersActions";
-import OpeningBalanceForm from "../../forms/Customers/OpeningBalanceForm";
+import { reset } from '../../../store/slices/customersSlice';
+import { UPDATE_OPENING_BALANCE } from '../../../store/actions/customersActions';
+import OpeningBalanceForm from '../../forms/Customers/OpeningBalanceForm';
 
 function EditOpeningBalance(props) {
   const {
@@ -37,7 +37,7 @@ function EditOpeningBalance(props) {
           );
         }
       }
-      renderContent={(onClose) => {
+      renderContent={onClose => {
         return (
           <OpeningBalanceForm
             {...rest}
@@ -69,7 +69,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    updateOpeningBalance: (payload) =>
+    updateOpeningBalance: payload =>
       dispatch({ type: UPDATE_OPENING_BALANCE, payload }),
     resetCustomer: () => dispatch(reset()),
   };

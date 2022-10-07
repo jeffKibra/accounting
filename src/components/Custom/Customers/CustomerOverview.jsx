@@ -1,4 +1,4 @@
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 import {
   VStack,
   Flex,
@@ -20,12 +20,12 @@ import {
   AccordionButton,
   AccordionIcon,
   AccordionItem,
-} from "@chakra-ui/react";
-import { RiPhoneLine, RiGlobalLine } from "react-icons/ri";
+} from '@chakra-ui/react';
+import { RiPhoneLine, RiGlobalLine } from 'react-icons/ri';
 
-import formats from "../../../utils/formats";
+import formats from '../../../utils/formats';
 
-import EditOpeningBalance from "./EditOpeningBalance";
+import EditOpeningBalance from './EditOpeningBalance';
 
 function CustomerOverview(props) {
   const { customer } = props;
@@ -36,16 +36,16 @@ function CustomerOverview(props) {
     email,
     phone,
     salutation,
-    openingBalance,
-    summary,
+    openingBalance: ob,
     companyName,
     website,
     type,
     paymentTerm,
     customerId,
   } = customer;
-  const { unusedCredits, invoicedAmount, invoicePayments } = summary;
-  const pending = invoicedAmount - invoicePayments;
+  const openingBalance = ob?.amount || 0;
+  // const { unusedCredits, invoicedAmount, invoicePayments } = summary;
+  // const pending = invoicedAmount - invoicePayments;
 
   return (
     <Grid w="full" columnGap={3} rowGap={2} templateColumns="repeat(12, 1fr)">
@@ -82,13 +82,13 @@ function CustomerOverview(props) {
       <GridItem colSpan={[12, 4]} whiteSpace="normal" wordBreak="break-word">
         <VStack align="flex-start">
           <Text fontSize="sm" color="gray.500">
-            Customer Type:{" "}
+            Customer Type:{' '}
             <Text color="black" as="span">
               {type}
             </Text>
           </Text>
           <Text fontSize="sm" color="gray.500">
-            Payment Terms:{" "}
+            Payment Terms:{' '}
             <Text color="black" as="span">
               {paymentTerm?.name}
             </Text>
@@ -106,7 +106,9 @@ function CustomerOverview(props) {
           mb={1}
         >
           <StatLabel fontWeight="normal">Unpaid Invoices</StatLabel>
-          <StatNumber fontSize="xl">{formats.formatCash(pending)}</StatNumber>
+          <StatNumber fontSize="xl">
+            {/* {formats.formatCash(pending)} */}0
+          </StatNumber>
         </Stat>
         <Stat
           p={2}
@@ -117,7 +119,7 @@ function CustomerOverview(props) {
         >
           <StatLabel fontWeight="normal">Unused Credits</StatLabel>
           <StatNumber fontSize="xl">
-            {formats.formatCash(unusedCredits)}
+            {/* {formats.formatCash(unusedCredits)} */}0
           </StatNumber>
         </Stat>
         <Flex p={2} borderRadius="md" border="1px solid" borderColor="gray.300">
@@ -139,7 +141,7 @@ function CustomerOverview(props) {
 
 CustomerOverview.propTypes = {
   customer: PropTypes.shape({
-    status: PropTypes.string,
+    status: PropTypes.number,
     type: PropTypes.string,
     firstName: PropTypes.string,
     lastName: PropTypes.string,
@@ -245,7 +247,7 @@ function CustomListItem(props) {
   const { title, value } = props;
   return (
     <ListItem color="gray.500">
-      {title}:{" "}
+      {title}:{' '}
       <Text color="black" as="span">
         {value}
       </Text>

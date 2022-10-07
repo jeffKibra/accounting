@@ -1,11 +1,11 @@
-import PropTypes from "prop-types";
-import { Tabs, Tab, TabList, TabPanels, TabPanel } from "@chakra-ui/react";
+import PropTypes from 'prop-types';
+import { Tabs, Tab, TabList, TabPanels, TabPanel } from '@chakra-ui/react';
 
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
 
-import CustomerOverview from "../../../components/Custom/Customers/CustomerOverview";
-import CustomerTransactions from "../../../components/Custom/Customers/CustomerTransactions";
+import CustomerOverview from '../../../components/Custom/Customers/CustomerOverview';
+import CustomerTransactions from '../../../components/Custom/Customers/CustomerTransactions';
 
 function ViewCustomer(props) {
   const { customer, loading } = props;
@@ -36,7 +36,7 @@ function ViewCustomer(props) {
 ViewCustomer.propTypes = {
   loading: PropTypes.bool.isRequired,
   customer: PropTypes.shape({
-    status: PropTypes.string,
+    status: PropTypes.number,
     type: PropTypes.string,
     firstName: PropTypes.string,
     lastName: PropTypes.string,

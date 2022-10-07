@@ -1,9 +1,8 @@
 import { put, call, select, takeLatest } from 'redux-saga/effects';
-import { runTransaction } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from '../../../utils/firebase';
-import { createDailySummary } from '../../../utils/summaries';
+import { functions } from '../../../utils/firebase';
 
 import { UPDATE_OPENING_BALANCE } from '../../actions/customersActions';
 import { start, success, fail } from '../../slices/customersSlice';
@@ -12,26 +11,28 @@ import {
   error as toastError,
 } from '../../slices/toastSlice';
 
-import { RootState, Account, UserProfile, Org } from '../../../types';
+import { RootState, Org } from '../../../types';
 
-function* updateOpeningBalanceSaga(action: PayloadAction) {
+function* updateOpeningBalanceSaga(
+  action: PayloadAction<{ customerId: string; amount: number }>
+) {
   console.log({ action });
   yield put(start(UPDATE_OPENING_BALANCE));
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;
-  const userProfile: UserProfile = yield select(
-    (state: RootState) => state.authReducer.userProfile
-  );
-  const accounts: Account[] = yield select(
-    (state: RootState) => state.accountsReducer.accounts
-  );
 
-  // console.log({ data });
+  const { amount, customerId } = action.payload;
+  console.log('sagas', { amount, customerId });
 
   async function update() {
-    /**
-     * create daily summary data
-     */
+    return httpsCallable(
+      functions,
+      'sales-customer-openingBalance-update'
+    )({
+      orgId,
+      customerId,
+      amount,
+    });
   }
 
   try {
