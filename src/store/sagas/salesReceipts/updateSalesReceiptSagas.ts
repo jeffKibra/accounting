@@ -1,9 +1,8 @@
 import { put, call, select, takeLatest } from 'redux-saga/effects';
-import { runTransaction } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from '../../../utils/firebase';
-import { createDailySummary } from '../../../utils/summaries';
+import { functions } from '../../../utils/firebase';
 
 import { UPDATE_SALES_RECEIPT } from '../../actions/salesReceiptsActions';
 import { start, success, fail } from '../../slices/salesReceiptsSlice';
@@ -14,8 +13,6 @@ import {
 
 import {
   RootState,
-  UserProfile,
-  Account,
   SalesReceiptForm,
   Org,
 } from '../../../types';
@@ -28,18 +25,13 @@ function* updateSalesReceiptSaga(action: PayloadAction<UpdateData>) {
   yield put(start(UPDATE_SALES_RECEIPT));
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;
-  const userProfile: UserProfile = yield select(
-    (state: RootState) => state.authReducer.userProfile
-  );
-  const accounts: Account[] = yield select(
-    (state: RootState) => state.accountsReducer.accounts
-  );
+  const { salesReceiptId, ...formData } = action.payload;
 
   async function update() {
-    /**
-     * itialize by creating the daily summary if none is available
-     */
-    
+    return httpsCallable(
+      functions,
+      'sales-salesReceipt-update'
+    )({ orgId, salesReceiptId, formData });
   }
 
   try {

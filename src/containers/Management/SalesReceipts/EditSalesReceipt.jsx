@@ -97,13 +97,7 @@ function EditSalesReceipt(props) {
 
   function onSubmit(data) {
     let { customerId, paymentModeId, accountId, ...rest } = data;
-    let customer = {
-      displayName: 'Walk-in customer',
-      email: '',
-      type: 'individual',
-      companyName: '',
-      customerId,
-    };
+    let customer = null;
     if (customerId) {
       customer = customers.find(customer => customer.customerId === customerId);
     }

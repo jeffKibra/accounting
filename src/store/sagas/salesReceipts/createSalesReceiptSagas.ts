@@ -1,13 +1,8 @@
 import { put, call, select, takeLatest } from 'redux-saga/effects';
-import { runTransaction } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from '../../../utils/firebase';
-import {
-  // createSalesReceipt,
-  createReceiptId,
-} from '../../../utils/salesReceipts';
-import { createDailySummary } from '../../../utils/summaries';
+import { functions } from '../../../utils/firebase';
 
 import { CREATE_SALES_RECEIPT } from '../../actions/salesReceiptsActions';
 import { start, success, fail } from '../../slices/salesReceiptsSlice';
@@ -16,30 +11,20 @@ import {
   success as toastSuccess,
 } from '../../slices/toastSlice';
 
-import {
-  SalesReceiptForm,
-  RootState,
-  UserProfile,
-  Account,
-  Org,
-} from '../../../types';
+import { SalesReceiptForm, RootState, Org } from '../../../types';
 
 function* createSalesReceiptSaga(action: PayloadAction<SalesReceiptForm>) {
   yield put(start(CREATE_SALES_RECEIPT));
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;
-  const userProfile: UserProfile = yield select(
-    (state: RootState) => state.authReducer.userProfile
-  );
-  const accounts: Account[] = yield select(
-    (state: RootState) => state.accountsReducer.accounts
-  );
+
   // console.log({ data });
 
   async function create() {
-    /**
-     * create daily summary before proceeding
-     */
+    return httpsCallable(
+      functions,
+      'sales-salesReceipt-create'
+    )({ orgId, formData: action.payload });
   }
 
   try {
