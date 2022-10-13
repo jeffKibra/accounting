@@ -1,4 +1,4 @@
-import { put, call, select, takeLatest } from "redux-saga/effects";
+import { put, call, select, takeLatest } from 'redux-saga/effects';
 import {
   getDoc,
   getDocs,
@@ -6,26 +6,26 @@ import {
   query,
   where,
   orderBy,
-} from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+} from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { dbCollections } from "../../../utils/firebase";
+import { dbCollections } from '../../../utils/firebase';
 import {
   GET_PAYMENT,
   GET_PAYMENTS,
   GET_CUSTOMER_PAYMENTS,
-} from "../../actions/paymentsActions";
+} from '../../actions/paymentsActions';
 import {
   start,
   paymentSuccess,
   paymentsSuccess,
   fail,
-} from "../../slices/paymentsSlice";
-import { error as toastError } from "../../slices/toastSlice";
+} from '../../slices/paymentsSlice';
+import { error as toastError } from '../../slices/toastSlice';
 
-import { dateFromTimestamp } from "../../../utils/dates";
+import { dateFromTimestamp } from '../../../utils/dates';
 
-import { RootState, PaymentReceived } from "../../../types";
+import { RootState, PaymentReceived } from '../../../types';
 
 function formatPaymentDates(payment: PaymentReceived) {
   const { paymentDate, createdAt, modifiedAt } = payment;
@@ -53,7 +53,7 @@ function* getPayment(action: PayloadAction<string>) {
     ]);
     const paymentReceived = paymentDoc.data();
     if (!paymentDoc.exists || !paymentReceived) {
-      throw new Error("payment not found!");
+      throw new Error('payment not found!');
     }
 
     return {
@@ -90,11 +90,11 @@ function* getPayments() {
     const paymentsCollection = dbCollections(orgId).paymentsReceived;
     const q = query(
       paymentsCollection,
-      orderBy("createdAt", "desc"),
-      where("status", "==", "active")
+      orderBy('createdAt', 'desc'),
+      where('status', '==', 0)
     );
     const snap = await getDocs(q);
-    const payments = snap.docs.map((paymentDoc) => {
+    const payments = snap.docs.map(paymentDoc => {
       return {
         ...formatPaymentDates({
           ...paymentDoc.data(),
@@ -133,13 +133,13 @@ function* getCustomerPayments(action: PayloadAction<string>) {
     const paymentsCollection = dbCollections(orgId).paymentsReceived;
     const q = query(
       paymentsCollection,
-      orderBy("createdAt", "asc"),
-      where("customer.customerId", "==", customerId),
-      where("status", "==", "active")
+      orderBy('createdAt', 'asc'),
+      where('customer.customerId', '==', customerId),
+      where('status', '==', 'active')
     );
     const snap = await getDocs(q);
 
-    const payments = snap.docs.map((paymentDoc) => {
+    const payments = snap.docs.map(paymentDoc => {
       return {
         ...formatPaymentDates({
           ...paymentDoc.data(),

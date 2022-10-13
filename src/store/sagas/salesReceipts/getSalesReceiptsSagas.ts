@@ -103,7 +103,7 @@ function* getSalesReceipts() {
     const q = query(
       salesCollection,
       orderBy("createdAt", "desc"),
-      where("status", "==", "active")
+      where("status", "==", 0)
     );
     const snap = await getDocs(q);
 
