@@ -27,7 +27,7 @@ function* updateOpeningBalanceSaga(
   async function update() {
     return httpsCallable(
       functions,
-      'sales-customer-openingBalance-update'
+      'sale-customer-openingBalance-update'
     )({
       orgId,
       customerId,

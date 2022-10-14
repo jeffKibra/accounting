@@ -23,7 +23,7 @@ function* createCustomerSaga(action: PayloadAction<CustomerFormData>) {
   async function create() {
     return httpsCallable(
       functions,
-      'sales-customer-create'
+      'sale-customer-create'
     )({ orgId, formData: action.payload });
   }
 

@@ -29,7 +29,7 @@ function* updateInvoiceSaga(action: PayloadAction<UpdateData>) {
   async function update() {
     return httpsCallable(
       functions,
-      'sales-invoice-update'
+      'sale-invoice-update'
     )({
       orgId,
       invoiceId,

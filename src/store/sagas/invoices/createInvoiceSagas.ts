@@ -25,7 +25,7 @@ function* createInvoiceSaga(action: PayloadAction<InvoiceFormData>) {
   async function create() {
     return httpsCallable(
       functions,
-      'sales-invoice-create'
+      'sale-invoice-create'
     )({ orgId, formData: invoice });
   }
 

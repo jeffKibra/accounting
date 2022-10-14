@@ -22,7 +22,7 @@ function* deleteInvoiceSaga(action: PayloadAction<string>) {
   async function update() {
     return httpsCallable(
       functions,
-      'sales-invoice-delete'
+      'sale-invoice-delete'
     )({ orgId, invoiceId });
   }
 

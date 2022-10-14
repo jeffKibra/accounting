@@ -11,11 +11,7 @@ import {
   success as toastSuccess,
 } from '../../slices/toastSlice';
 
-import {
-  RootState,
-  SalesReceiptForm,
-  Org,
-} from '../../../types';
+import { RootState, SalesReceiptForm, Org } from '../../../types';
 
 interface UpdateData extends SalesReceiptForm {
   salesReceiptId: string;
@@ -30,7 +26,7 @@ function* updateSalesReceiptSaga(action: PayloadAction<UpdateData>) {
   async function update() {
     return httpsCallable(
       functions,
-      'sales-salesReceipt-update'
+      'sale-salesReceipt-update'
     )({ orgId, salesReceiptId, formData });
   }
 

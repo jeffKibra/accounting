@@ -21,7 +21,7 @@ function* createPaymentSaga(action: PayloadAction<PaymentReceivedForm>) {
   async function create() {
     return httpsCallable(
       functions,
-      'sales-paymentReceived-create'
+      'sale-paymentReceived-create'
     )({ orgId, formData: action.payload });
   }
 
