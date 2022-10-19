@@ -1,4 +1,4 @@
-import { put, call, select, takeLatest } from "redux-saga/effects";
+import { put, call, select, takeLatest } from 'redux-saga/effects';
 import {
   getDoc,
   getDocs,
@@ -6,26 +6,26 @@ import {
   query,
   where,
   orderBy,
-} from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+} from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db, dbCollections } from "../../../utils/firebase";
+import { db, dbCollections } from '../../../utils/firebase';
 import {
   GET_EXPENSE,
   GET_EXPENSES,
   GET_VENDOR_EXPENSES,
-} from "../../actions/expensesActions";
+} from '../../actions/expensesActions';
 import {
   start,
   expenseSuccess,
   expensesSuccess,
   fail,
-} from "../../slices/expenseSlice";
-import { error as toastError } from "../../slices/toastSlice";
+} from '../../slices/expenseSlice';
+import { error as toastError } from '../../slices/toastSlice';
 
-import { dateFromTimestamp } from "../../../utils/dates";
+import { dateFromTimestamp } from '../../../utils/dates';
 
-import { RootState, Expense } from "../../../types";
+import { RootState, Expense } from '../../../types';
 
 function formatExpenseDates(expense: Expense) {
   const { expenseDate, createdAt, modifiedAt } = expense;
@@ -60,10 +60,10 @@ function* getExpense(action: PayloadAction<string>) {
 
   async function get() {
     const expenseDoc = await getDoc(
-      doc(db, "organizations", orgId, "expenses", expenseId)
+      doc(db, 'organizations', orgId, 'expenses', expenseId)
     );
     if (!expenseDoc.exists) {
-      throw new Error("Expense not found!");
+      throw new Error('Expense not found!');
     }
 
     const expense = expenseDoc.data() as Expense;
@@ -101,11 +101,11 @@ function* getExpenses() {
     const expensesCollection = dbCollections(orgId).expenses;
     const q = query(
       expensesCollection,
-      orderBy("createdAt", "desc"),
-      where("status", "==", "active")
+      orderBy('createdAt', 'desc'),
+      where('status', '==', 0)
     );
     const snap = await getDocs(q);
-    const expenses = snap.docs.map((expenseDoc) => {
+    const expenses = snap.docs.map(expenseDoc => {
       const expenseData = expenseDoc.data();
       return {
         ...formatExpenseDates({
@@ -145,12 +145,12 @@ function* getVendorExpenses(action: PayloadAction<string>) {
     const expensesCollection = dbCollections(orgId).expenses;
     const q = query(
       expensesCollection,
-      orderBy("createdAt", "desc"),
-      where("vendor.vendorId", "==", vendorId),
-      where("status", "==", "active")
+      orderBy('createdAt', 'desc'),
+      where('vendor.vendorId', '==', vendorId),
+      where('status', '==', 'active')
     );
     const snap = await getDocs(q);
-    const expenses = snap.docs.map((expenseDoc) => {
+    const expenses = snap.docs.map(expenseDoc => {
       return {
         ...formatExpenseDates({
           ...expenseDoc.data(),

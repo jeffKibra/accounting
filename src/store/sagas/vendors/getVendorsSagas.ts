@@ -34,7 +34,7 @@ function* getVendors() {
     const q = query(
       vendorsCollection,
       orderBy("createdAt", "desc"),
-      where("status", "==", "active")
+      where("status", "==", 0)
     );
     const snap = await getDocs(q);
 
