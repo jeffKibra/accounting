@@ -22,7 +22,7 @@ service cloud.firestore {
 
     match /organizations/{orgId} {
       function isOrgOwner(){
-         return resource.data.owner == request.auth.uid;
+         return resource.data.createdBy == request.auth.uid;
       }
 
       function verifyOrgData(){
@@ -70,10 +70,10 @@ service cloud.firestore {
       }
 
       function isOwner(){
-        return request.auth.uid == getOrgData().owner
+        return request.auth.uid == getOrgData().createdBy
       }
 
-      match /summaries/aggregate {
+      match /summaries/{summaryId} {
         function verifyCountersData(){
           let req1=["invoices", "deletedInvoices", "payments","deletedPayments", "items", "customers"];
           let req2=['invoicesTotal', 'paymentsTotal', 'paymentModes', 'accounts'];
