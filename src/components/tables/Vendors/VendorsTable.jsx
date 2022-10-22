@@ -1,9 +1,9 @@
-import { useMemo } from "react";
-import PropTypes from "prop-types";
+import { useMemo } from 'react';
+import PropTypes from 'prop-types';
 
-import VendorOptions from "../../../containers/Management/Vendors/VendorOptions";
+import VendorOptions from '../../../containers/Management/Vendors/VendorOptions';
 
-import CustomTable from "../CustomTable";
+import CustomTable from '../CustomTable';
 
 function VendorsTable(props) {
   const { vendors } = props;
@@ -11,33 +11,29 @@ function VendorsTable(props) {
 
   const columns = useMemo(() => {
     return [
-      { Header: "", accessor: "actions" },
-      { Header: "Name", accessor: "displayName" },
-      { Header: "Company Name", accessor: "companyName" },
-      { Header: "Email", accessor: "email" },
-      { Header: "Phone", accessor: "phone" },
+      { Header: '', accessor: 'actions' },
+      { Header: 'Name', accessor: 'displayName' },
+      { Header: 'Company Name', accessor: 'companyName' },
+      { Header: 'Email', accessor: 'email' },
+      { Header: 'Phone', accessor: 'phone' },
       {
-        Header: "Payables",
-        accessor: "payables",
+        Header: 'Payables',
+        accessor: 'payables',
         isNumeric: true,
       },
       {
-        Header: "Unused Credits",
-        accessor: "summary.unusedCredits",
+        Header: 'Unused Credits',
+        accessor: 'summary.unusedCredits',
         isNumeric: true,
       },
     ];
   }, []);
 
   const data = useMemo(() => {
-    return vendors.map((vendor) => {
-      const {
-        summary: { totalBills, totalPayments },
-      } = vendor;
-
+    return vendors.map(vendor => {
       return {
         ...vendor,
-        payables: totalBills - totalPayments,
+        payables: 0,
         actions: <VendorOptions vendor={vendor} edit deletion />,
       };
     });
@@ -52,7 +48,7 @@ VendorsTable.propTypes = {
       displayName: PropTypes.string.isRequired,
       companyName: PropTypes.string,
       vendorId: PropTypes.string.isRequired,
-      phone: PropTypes.string.isRequired,
+      phone: PropTypes.string,
       email: PropTypes.string,
       openingBalance: PropTypes.number,
     })

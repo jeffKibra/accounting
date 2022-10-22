@@ -1,4 +1,4 @@
-import { put, call, select, takeLatest } from "redux-saga/effects";
+import { put, call, select, takeLatest } from 'redux-saga/effects';
 import {
   getDocs,
   query,
@@ -6,17 +6,17 @@ import {
   where,
   getDoc,
   doc,
-} from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+} from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { dbCollections } from "../../../utils/firebase";
+import { dbCollections } from '../../../utils/firebase';
 
-import { start, taxSuccess, taxesSuccess, fail } from "../../slices/taxesSlice";
-import { error as toastError } from "../../slices/toastSlice";
+import { start, taxSuccess, taxesSuccess, fail } from '../../slices/taxesSlice';
+import { error as toastError } from '../../slices/toastSlice';
 
-import { GET_TAXES, GET_TAX } from "../../actions/taxesActions";
+import { GET_TAXES, GET_TAX } from '../../actions/taxesActions';
 
-import { RootState, Tax } from "../../../types";
+import { RootState, Tax } from '../../../types';
 
 function* getTaxes() {
   yield put(start(GET_TAXES));
@@ -28,12 +28,12 @@ function* getTaxes() {
     const taxesCollection = dbCollections(orgId).taxes;
     const q = query(
       taxesCollection,
-      orderBy("createdAt", "desc"),
-      where("status", "==", "active")
+      orderBy('createdAt', 'desc'),
+      where('status', '==', 0)
     );
     const snap = await getDocs(q);
 
-    const taxes = snap.docs.map((taxDoc) => {
+    const taxes = snap.docs.map(taxDoc => {
       return {
         taxId: taxDoc.id,
         ...taxDoc.data(),
@@ -71,7 +71,7 @@ function* getTax(action: PayloadAction<string>) {
     const taxDoc = await getDoc(doc(taxesCollection, taxId));
 
     if (!taxDoc.exists) {
-      throw new Error("Tax details not found!");
+      throw new Error('Tax details not found!');
     }
 
     return {

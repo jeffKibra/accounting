@@ -1,17 +1,17 @@
-import { put, takeLatest, select, call } from "redux-saga/effects";
-import { updateDoc, doc, serverTimestamp } from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+import { put, takeLatest, select, call } from 'redux-saga/effects';
+import { updateDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from "../../../utils/firebase";
+import { db } from '../../../utils/firebase';
 
-import { start, success, fail } from "../../slices/taxesSlice";
+import { start, success, fail } from '../../slices/taxesSlice';
 import {
   success as toastSuccess,
   error as toastError,
-} from "../../slices/toastSlice";
-import { UPDATE_TAX, DELETE_TAX } from "../../actions/taxesActions";
+} from '../../slices/toastSlice';
+import { UPDATE_TAX, DELETE_TAX } from '../../actions/taxesActions';
 
-import { RootState, UserProfile, TaxForm } from "../../../types";
+import { RootState, UserProfile, TaxForm } from '../../../types';
 
 interface UpdateData extends TaxForm {
   taxId: string;
@@ -29,7 +29,7 @@ function* updateTax(action: PayloadAction<UpdateData>) {
   const { taxId, ...rest } = action.payload;
 
   async function update() {
-    await updateDoc(doc(db, "organizations", orgId, "taxes", taxId), {
+    await updateDoc(doc(db, 'organizations', orgId, 'taxes', taxId), {
       ...rest,
       modifiedBy: email,
       modifiedAt: serverTimestamp(),
@@ -40,7 +40,7 @@ function* updateTax(action: PayloadAction<UpdateData>) {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess("Tax successfully updated!"));
+    yield put(toastSuccess('Tax successfully updated!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);
@@ -65,8 +65,8 @@ function* deleteTax(action: PayloadAction<string>) {
   const { email } = userProfile;
 
   async function update() {
-    await updateDoc(doc(db, "organizations", orgId, "taxes", taxId), {
-      status: "deleted",
+    await updateDoc(doc(db, 'organizations', orgId, 'taxes', taxId), {
+      status: -1,
       modifiedBy: email,
       modifiedAt: serverTimestamp(),
     });
@@ -76,7 +76,7 @@ function* deleteTax(action: PayloadAction<string>) {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess("Tax successfully Deleted!"));
+    yield put(toastSuccess('Tax successfully Deleted!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);

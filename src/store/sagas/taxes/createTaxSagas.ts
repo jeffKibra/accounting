@@ -1,17 +1,17 @@
-import { put, takeLatest, select, call } from "redux-saga/effects";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+import { put, takeLatest, select, call } from 'redux-saga/effects';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from "../../../utils/firebase";
+import { db } from '../../../utils/firebase';
 
-import { start, success, fail } from "../../slices/taxesSlice";
+import { start, success, fail } from '../../slices/taxesSlice';
 import {
   success as toastSuccess,
   error as toastError,
-} from "../../slices/toastSlice";
-import { CREATE_TAX } from "../../actions/taxesActions";
+} from '../../slices/toastSlice';
+import { CREATE_TAX } from '../../actions/taxesActions';
 
-import { RootState, UserProfile, TaxForm } from "../../../types";
+import { RootState, UserProfile, TaxForm } from '../../../types';
 
 function* createTax(action: PayloadAction<TaxForm>) {
   yield put(start(CREATE_TAX));
@@ -24,9 +24,9 @@ function* createTax(action: PayloadAction<TaxForm>) {
   const { email } = userProfile;
 
   async function create() {
-    await addDoc(collection(db, "organizations", orgId, "taxes"), {
+    await addDoc(collection(db, 'organizations', orgId, 'taxes'), {
       ...action.payload,
-      status: "active",
+      status: 0,
       createdBy: email,
       modifiedBy: email,
       createdAt: serverTimestamp(),
@@ -38,7 +38,7 @@ function* createTax(action: PayloadAction<TaxForm>) {
     yield call(create);
 
     yield put(success());
-    yield put(toastSuccess("Tax successfully created!"));
+    yield put(toastSuccess('Tax successfully created!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);
