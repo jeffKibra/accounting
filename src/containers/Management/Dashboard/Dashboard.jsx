@@ -1,13 +1,14 @@
-import { useEffect, useMemo, useCallback } from "react";
-import { connect } from "react-redux";
-import { Grid, GridItem } from "@chakra-ui/react";
+import { useEffect, useMemo, useCallback } from 'react';
+import { connect } from 'react-redux';
+import { Grid, GridItem } from '@chakra-ui/react';
 
-import { GET_LATEST_SUMMARY } from "../../../store/actions/summariesActions";
+import { GET_SUMMARY } from '../../../store/actions/summariesActions';
 
-import SquareCard from "../../../components/Custom/Dashboard/SquareCard";
+import SquareCard from '../../../components/Custom/Dashboard/SquareCard';
 
 function Dashboard(props) {
   const { getSummary, summary, accounts } = props;
+  console.log({ summary });
 
   useEffect(() => {
     getSummary();
@@ -26,10 +27,10 @@ function Dashboard(props) {
 
   const { incomeTotal, expenseTotal } = useMemo(() => {
     const incomeAccounts = accounts.filter(
-      (account) => account.accountType.main === "income"
+      account => account.accountType.main === 'income'
     );
     const expenseAccounts = accounts.filter(
-      (account) => account.accountType.main === "expense"
+      account => account.accountType.main === 'expense'
     );
 
     const incomeTotal = getAccountsTotal(incomeAccounts, summary);
@@ -43,11 +44,11 @@ function Dashboard(props) {
       <GridItem colSpan={[12, 6, 4]}>
         <SquareCard
           data1={{
-            label: "Income",
+            label: 'Income',
             amount: incomeTotal || 0,
           }}
           data2={{
-            label: "Expenses",
+            label: 'Expenses',
             amount: expenseTotal || 0,
           }}
           cardLabel="PROFIT AND LOSS"
@@ -58,11 +59,11 @@ function Dashboard(props) {
       <GridItem colSpan={[12, 6, 4]}>
         <SquareCard
           data1={{
-            label: "Incoming",
+            label: 'Incoming',
             amount: summary?.cashFlow?.incoming || 0,
           }}
           data2={{
-            label: "Outgoing",
+            label: 'Outgoing',
             amount: summary?.cashFlow?.outgoing || 0,
           }}
           cardLabel="CASH FLOW"
@@ -73,11 +74,11 @@ function Dashboard(props) {
       <GridItem colSpan={[12, 6, 4]}>
         <SquareCard
           data1={{
-            label: "Unpaid Invoices",
+            label: 'Unpaid Invoices',
             amount: summary?.accounts?.accounts_receivable || 0,
           }}
           data2={{
-            label: "Unpaid Bills",
+            label: 'Unpaid Bills',
             amount: summary?.accounts?.accounts_payable || 0,
           }}
           cardLabel="OUTSTANDINGS"
@@ -97,7 +98,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getSummary: () => dispatch({ type: GET_LATEST_SUMMARY }),
+    getSummary: () => dispatch({ type: GET_SUMMARY, payload: 'main' }),
   };
 }
 

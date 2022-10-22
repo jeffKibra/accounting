@@ -1,9 +1,9 @@
-import { Component } from "react";
-import { connect } from "react-redux";
+import { Component } from 'react';
+import { connect } from 'react-redux';
 
-import { CHECK_ORG } from "../../../store/actions/orgsActions";
+import { CHECK_ORG } from '../../../store/actions/orgsActions';
 
-import FullPageSpinner from "../../../components/ui/FullPageSpinner";
+import FullPageSpinner from '../../../components/ui/FullPageSpinner';
 
 class CheckOrg extends Component {
   componentDidMount() {

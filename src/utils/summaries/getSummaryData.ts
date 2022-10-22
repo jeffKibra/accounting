@@ -1,9 +1,9 @@
-import { doc, Transaction } from "firebase/firestore";
+import { doc, Transaction } from 'firebase/firestore';
 
-import { db } from "../firebase";
-import { getDateDetails } from "../dates";
+import { db } from '../firebase';
+import { getDateDetails } from '../dates';
 
-import { DailySummary } from "../../types";
+import { DailySummary } from '../../types';
 
 export default async function getSummaryData(
   transaction: Transaction,
@@ -11,18 +11,17 @@ export default async function getSummaryData(
   date: Date = new Date()
 ) {
   const { yearMonthDay } = getDateDetails(date);
-  const docRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
+  const docRef = doc(db, 'organizations', orgId, 'summaries', yearMonthDay);
 
   const summaryDoc = await transaction.get(docRef);
 
-  if (!summaryDoc.exists) throw new Error("Summary data not found!");
+  if (!summaryDoc.exists) throw new Error('Summary data not found!');
 
   const data = summaryDoc.data();
 
   let summaryData: DailySummary;
   summaryData = {
     accounts: data?.accounts || {},
-    cashFlow: data?.cashFlow || {},
     customers: data?.customers || 0,
     deletedInvoices: data?.deletedInvoices || 0,
     deletedPayments: data?.deletedPayments || 0,

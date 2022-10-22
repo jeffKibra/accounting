@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { Account } from "../../types";
+import { Account } from '../../types';
 
 type State = {
   loading: boolean;
@@ -16,7 +16,7 @@ const initialState: State = {
   isModified: false,
   account: null,
   accounts: null,
-  action: "",
+  action: '',
   error: null,
 };
 
@@ -50,7 +50,7 @@ const accountSuccessR: (state: State, action: PayloadAction<Account>) => State =
 
 const accountsSuccessR: (
   state: State,
-  action: PayloadAction<Account[]>
+  action: PayloadAction<Account[] | null>
 ) => State = (state, { payload }) => {
   return {
     ...state,
@@ -70,17 +70,17 @@ const failR: (state: State, action: PayloadAction<{}>) => State = (
   };
 };
 
-const resetR: (state: State) => State = (state) => {
+const resetR: (state: State) => State = state => {
   return {
     ...state,
     isModified: false,
     error: null,
-    action: "",
+    action: '',
   };
 };
 
 const accountsSlice = createSlice({
-  name: "accounts_slice",
+  name: 'accounts_slice',
   initialState,
   reducers: {
     start: startR,

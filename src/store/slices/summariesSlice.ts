@@ -1,12 +1,14 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { DailySummary } from "../../types";
+import { DailySummary } from '../../types';
 
 type State = {
   loading: boolean;
   isModified: boolean;
-  summary: DailySummary | null;
-  summaries: DailySummary[] | null;
+  summary: {
+    [key: string]: DailySummary | null;
+    main: DailySummary | null;
+  };
   action: string | null;
   error: { code?: string; message?: string } | null;
 };
@@ -14,14 +16,13 @@ type State = {
 const initialState: State = {
   loading: false,
   isModified: false,
-  summary: null,
-  summaries: null,
+  summary: { main: null },
   action: null,
   error: null,
 };
 
 const summariesSlice = createSlice({
-  name: "summaries_slice",
+  name: 'summaries_slice',
   initialState: {
     ...initialState,
   },
@@ -41,18 +42,23 @@ const summariesSlice = createSlice({
         isModified: true,
       };
     },
-    summarySuccess: (state: State, action: PayloadAction<DailySummary>) => {
+
+    summarySuccess: (
+      state: State,
+      action: PayloadAction<{
+        summaryId: string;
+        summaryData: DailySummary | null;
+      }>
+    ) => {
+      const { summaryId, summaryData } = action.payload;
+
       return {
         ...state,
         loading: false,
-        summary: action.payload,
-      };
-    },
-    summariesSuccess: (state: State, action: PayloadAction<DailySummary[]>) => {
-      return {
-        ...state,
-        loading: false,
-        summaries: action.payload,
+        summary: {
+          ...state.summary,
+          [summaryId]: summaryData,
+        },
       };
     },
     fail: (state: State, action: PayloadAction<{}>) => {
@@ -73,7 +79,7 @@ const summariesSlice = createSlice({
   },
 });
 
-export const { start, success, summarySuccess, summariesSuccess, fail, reset } =
+export const { start, success, summarySuccess, fail, reset } =
   summariesSlice.actions;
 export const summariesReducer = summariesSlice.reducer;
 

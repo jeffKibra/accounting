@@ -1,37 +1,14 @@
-import { put, call, takeLatest, select } from "redux-saga/effects";
+import { put, call, takeLatest, select } from 'redux-saga/effects';
 
-import { CHECK_ORG } from "../../actions/orgsActions";
-import { start, orgSuccess, fail } from "../../slices/orgsSlice";
-import { error as toastError } from "../../slices/toastSlice";
+import { CHECK_ORG } from '../../actions/orgsActions';
+import { start, orgSuccess, fail } from '../../slices/orgsSlice';
+import { error as toastError } from '../../slices/toastSlice';
 
-import { getOrg } from "./createOrgSagas";
+import { getOrg } from './createOrgSagas';
 
-import { RootState, UserProfile, Org } from "../../../types";
+import { RootState, UserProfile, Org } from '../../../types';
 
 function* checkOrg() {
-  function fromStorage() {
-    let org: Org | null = null;
-    //check for a org in localstorage
-    const orgJson = localStorage.getItem("org");
-    if (orgJson) {
-      org = JSON.parse(orgJson);
-    }
-    return org;
-  }
-
-  async function fromDb(userId: string) {
-    const org = await getOrg(userId);
-    if (org) {
-      localStorage.setItem("org", JSON.stringify(org));
-    }
-
-    return org;
-  }
-
-  async function getOrgData(userId: string) {
-    return fromStorage() || (await fromDb(userId));
-  }
-
   try {
     yield put(start(CHECK_ORG));
     const userProfile: UserProfile = yield select(
@@ -41,7 +18,7 @@ function* checkOrg() {
     console.log({ userProfile });
     const { uid } = userProfile;
 
-    let org: Org | null = uid ? yield call(getOrgData, uid) : null;
+    const org: Org | null = uid ? yield call(getOrg, uid) : null;
     console.log({ org });
     yield put(orgSuccess(org));
   } catch (err) {

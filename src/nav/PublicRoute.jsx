@@ -1,14 +1,11 @@
-import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
-import PropTypes from "prop-types";
-
-import useSavedLocation from "../hooks/useSavedLocation";
+import { useSelector } from 'react-redux';
+import { Navigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 function PublicRoute({ children }) {
-  const userProfile = useSelector((state) => state.authReducer.userProfile);
-  const prevLocation = useSavedLocation().getLocation() || "/";
+  const userProfile = useSelector(state => state.authReducer.userProfile);
 
-  return userProfile ? <Navigate to={prevLocation} replace /> : children;
+  return userProfile ? <Navigate to="/" replace /> : children;
 }
 
 PublicRoute.propTypes = {
