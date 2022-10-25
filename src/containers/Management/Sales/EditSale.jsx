@@ -240,7 +240,7 @@ export default function EditSale(props) {
 
   return (
     <VStack mt={1}>
-      <Flex w="full" justify="flex-end" align="center">
+      <Flex w="full" justify="flex-end" align="center" flexWrap="wrap">
         <Flex grow={1} h="32px" alignItems="center">
           <Heading size="md" as="h3">
             Items

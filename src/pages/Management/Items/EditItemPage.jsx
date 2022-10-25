@@ -8,7 +8,7 @@ import useSavedLocation from '../../../hooks/useSavedLocation';
 
 import PageLayout from '../../../components/layout/PageLayout';
 
-import EditItem from '../../../containers/Management/Items/EditItem';
+import ItemForm from 'components/forms/ItemForm';
 
 import { GET_ITEM, UPDATE_ITEM } from '../../../store/actions/itemsActions';
 import { reset } from '../../../store/slices/itemsSlice';
@@ -64,10 +64,10 @@ function EditItemPage(props) {
           const { createdAt, modifiedAt, createdBy, modifiedBy, ...rest } =
             item;
           return (
-            <EditItem
+            <ItemForm
               updating={loading && action === UPDATE_ITEM}
               item={rest}
-              saveData={handleSubmit}
+              handleFormSubmit={handleSubmit}
             />
           );
         })()

@@ -1,10 +1,10 @@
-import { useMemo } from "react";
-import PropTypes from "prop-types";
+import { useMemo } from 'react';
+import PropTypes from 'prop-types';
 
 // import useDeletesalesReceipt from "../../../hooks/useDeletesalesReceipt";
-import SalesReceiptOptions from "../../../containers/Management/SalesReceipts/SalesReceiptOptions";
+import SalesReceiptOptions from '../../../containers/Management/SalesReceipts/SalesReceiptOptions';
 
-import CustomRawTable from "../CustomRawTable";
+import CustomRawTable from '../CustomRawTable';
 // import TableActions from "../TableActions";
 
 function SalesReceiptsTable(props) {
@@ -13,20 +13,20 @@ function SalesReceiptsTable(props) {
 
   const columns = useMemo(() => {
     return [
-      { Header: "", accessor: "actions" },
-      { Header: "DATE", accessor: "date" },
-      { Header: "SALES RECEIPT#", accessor: "salesReceiptId" },
+      { Header: '', accessor: 'actions' },
+      { Header: 'DATE', accessor: 'date' },
+      { Header: 'SALES RECEIPT#', accessor: 'salesReceiptId' },
       ...(showCustomer
-        ? [{ Header: "CUSTOMER", accessor: "customer.displayName" }]
+        ? [{ Header: 'CUSTOMER', accessor: 'customer.displayName' }]
         : []),
-      { Header: "PAYMENT MODE", accessor: "paymentMode.name" },
-      { Header: "REFERENCE", accessor: "reference" },
-      { Header: "AMOUNT", accessor: "summary.totalAmount" },
+      { Header: 'PAYMENT MODE', accessor: 'paymentMode.name' },
+      { Header: 'REFERENCE', accessor: 'reference' },
+      { Header: 'AMOUNT', accessor: 'summary.totalAmount' },
     ];
   }, [showCustomer]);
 
   const data = useMemo(() => {
-    return salesReceipts.map((salesReceipt) => {
+    return salesReceipts.map(salesReceipt => {
       const { receiptDate } = salesReceipt;
 
       return {
@@ -53,7 +53,7 @@ SalesReceiptsTable.propTypes = {
         totalAmount: PropTypes.number.isRequired,
       }),
       receiptDate: PropTypes.instanceOf(Date).isRequired,
-      status: PropTypes.string.isRequired,
+      status: PropTypes.number.isRequired,
       salesReceiptId: PropTypes.string.isRequired,
     })
   ),

@@ -8,7 +8,7 @@ import { reset } from '../../../store/slices/itemsSlice';
 import { ITEMS } from '../../../nav/routes';
 
 import PageLayout from '../../../components/layout/PageLayout';
-import EditItem from '../../../containers/Management/Items/EditItem';
+import ItemForm from 'components/forms/ItemForm';
 
 import useSavedLocation from '../../../hooks/useSavedLocation';
 
@@ -35,9 +35,9 @@ function NewItemPage(props) {
         'New Item': location.pathname,
       }}
     >
-      <EditItem
+      <ItemForm
         updating={loading && action === CREATE_ITEM}
-        saveData={createItem}
+        handleFormSubmit={createItem}
       />
     </PageLayout>
   );

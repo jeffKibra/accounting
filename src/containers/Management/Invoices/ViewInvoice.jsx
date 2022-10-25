@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Container,
   VStack,
@@ -11,11 +11,11 @@ import {
   Tbody,
   Td,
   Tr,
-} from "@chakra-ui/react";
-import PropTypes from "prop-types";
+} from '@chakra-ui/react';
+import PropTypes from 'prop-types';
 
-import ViewSaleItemsTable from "../../../components/tables/Sales/ViewSaleItemsTable";
-import ViewSaleSummaryTable from "../../../components/tables/Sales/ViewSaleSummaryTable";
+import ViewSaleItemsTable from '../../../components/tables/Sales/ViewSaleItemsTable';
+import ViewSaleSummaryTable from '../../../components/tables/Sales/ViewSaleSummaryTable';
 
 function ViewInvoice(props) {
   const { invoice } = props;
@@ -39,7 +39,7 @@ function ViewInvoice(props) {
       maxW="container.md"
       //   minH="1123px"
       bg="white"
-      px={["20px", "50px"]}
+      px={['20px', '50px']}
       py="70px"
     >
       <VStack color="#333" w="full" h="full">
@@ -146,7 +146,7 @@ ViewInvoice.propTypes = {
     invoiceDate: PropTypes.instanceOf(Date).isRequired,
     dueDate: PropTypes.instanceOf(Date).isRequired,
     invoiceId: PropTypes.string.isRequired,
-    status: PropTypes.string.isRequired,
+    status: PropTypes.number.isRequired,
     selectedItems: PropTypes.array.isRequired,
     balance: PropTypes.number.isRequired,
   }),

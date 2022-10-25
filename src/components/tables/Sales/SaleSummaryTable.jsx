@@ -3,7 +3,6 @@ import { TableContainer, Table, Tbody, Td, Th, Tr } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { Controller, useFormContext } from 'react-hook-form';
 
-import TableNumInput from '../../ui/TableNumInput';
 import RHFPlainNumInput from 'components/ui/RHFPlainNumInput';
 
 function SaleSummaryTable(props) {
@@ -68,20 +67,17 @@ function SaleSummaryTable(props) {
         <Tbody>
           <Tr>
             <Td>Sub Total</Td>
-            <Th w="16%" isNumeric>
-              <TableNumInput
-                name="summary.subTotal"
-                min={0}
-                isReadOnly
-                rules={{
-                  required: { value: true, message: 'Required' },
-                  min: {
-                    value: 0,
-                    message: 'Value should be a positive number',
-                  },
-                }}
-              />
-            </Th>
+            <Controller
+              name="summary.subTotal"
+              control={control}
+              render={({ field: { value } }) => {
+                return (
+                  <Td w="16%" isNumeric>
+                    {value}
+                  </Td>
+                );
+              }}
+            />
           </Tr>
 
           <Tr>
@@ -158,19 +154,24 @@ function SaleSummaryTable(props) {
 
           <Tr>
             <Th>Total (KES)</Th>
-            <Th w="16%" isNumeric>
-              <TableNumInput
-                name="summary.totalAmount"
-                isReadOnly
-                rules={{
-                  required: { value: true, message: 'Required' },
-                  min: {
-                    value: 0,
-                    message: 'Value should be a positive number',
-                  },
-                }}
-              />
-            </Th>
+            <Controller
+              name="summary.totalAmount"
+              rules={{
+                required: { value: true, message: 'Required' },
+                min: {
+                  value: 0,
+                  message: 'Value should be a positive number',
+                },
+              }}
+              render={({ field: { value } }) => {
+                return (
+                  <Th fontSize="16px" w="16%" py={3} isNumeric>
+                    {value}
+                  </Th>
+                );
+              }}
+            />
+
             {/* <Th isNumeric>{totalAmount}</Th> */}
           </Tr>
         </Tbody>

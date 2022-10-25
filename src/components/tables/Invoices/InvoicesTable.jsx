@@ -1,36 +1,36 @@
-import { useMemo } from "react";
-import PropTypes from "prop-types";
-import { Text } from "@chakra-ui/react";
+import { useMemo } from 'react';
+import PropTypes from 'prop-types';
+import { Text } from '@chakra-ui/react';
 
 // import useDeleteInvoice from "../../../hooks/useDeleteInvoice";
-import InvoiceOptions from "../../../containers/Management/Invoices/InvoiceOptions";
+import InvoiceOptions from '../../../containers/Management/Invoices/InvoiceOptions';
 
-import CustomRawTable from "../CustomRawTable";
+import CustomRawTable from '../CustomRawTable';
 // import TableActions from "../TableActions";
 
-import InvoiceDates from "./InvoiceDates";
+import InvoiceDates from './InvoiceDates';
 
-import { getInvoiceStatus } from "../../../utils/invoices";
+import { getInvoiceStatus } from '../../../utils/invoices';
 function InvoicesTable(props) {
   const { invoices, showCustomer } = props;
   // console.log({ invoices });
 
   const columns = useMemo(() => {
     return [
-      { Header: "", accessor: "actions" },
-      { Header: "Date", accessor: "date" },
-      { Header: "Invoice#", accessor: "invoiceId" },
+      { Header: '', accessor: 'actions' },
+      { Header: 'Date', accessor: 'date' },
+      { Header: 'Invoice#', accessor: 'invoiceId' },
       ...(showCustomer
-        ? [{ Header: "Customer", accessor: "customer.displayName" }]
+        ? [{ Header: 'Customer', accessor: 'customer.displayName' }]
         : []),
-      { Header: "Status", accessor: "status" },
-      { Header: "Amount", accessor: "summary.totalAmount", isNumeric: true },
-      { Header: "Balance", accessor: "balance", isNumeric: true },
+      { Header: 'Status', accessor: 'status' },
+      { Header: 'Amount', accessor: 'summary.totalAmount', isNumeric: true },
+      { Header: 'Balance', accessor: 'balance', isNumeric: true },
     ];
   }, [showCustomer]);
 
   const data = useMemo(() => {
-    return invoices.map((invoice) => {
+    return invoices.map(invoice => {
       const { message, status } = getInvoiceStatus(invoice);
 
       return {
@@ -39,11 +39,11 @@ function InvoicesTable(props) {
           <Text
             fontSize="sm"
             color={
-              status === "OVERDUE"
-                ? "red"
-                : status === "PARTIALLY PAID" || status === "PAID"
-                ? "green"
-                : "blue"
+              status === 'OVERDUE'
+                ? 'red'
+                : status === 'PARTIALLY PAID' || status === 'PAID'
+                ? 'green'
+                : 'blue'
             }
           >
             {message}
@@ -70,7 +70,7 @@ InvoicesTable.propTypes = {
       }),
       invoiceDate: PropTypes.instanceOf(Date).isRequired,
       dueDate: PropTypes.instanceOf(Date).isRequired,
-      status: PropTypes.string.isRequired,
+      status: PropTypes.number.isRequired,
       invoiceId: PropTypes.string.isRequired,
     })
   ),

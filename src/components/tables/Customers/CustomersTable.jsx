@@ -53,7 +53,8 @@ CustomersTable.propTypes = {
       displayName: PropTypes.string.isRequired,
       companyName: PropTypes.string,
       customerId: PropTypes.string.isRequired,
-      type: PropTypes.oneOf(['individual', 'business']).isRequired,
+      type: PropTypes.oneOf(['individual', 'business', 'walk_in_customer'])
+        .isRequired,
       phone: PropTypes.string.isRequired,
       email: PropTypes.string,
       openingBalance: PropTypes.number,

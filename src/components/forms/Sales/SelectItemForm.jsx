@@ -63,7 +63,7 @@ function SelectItemForm(props) {
             templateColumns="repeat(12, 1fr)"
             flexGrow={1}
           >
-            <GridItem colSpan={[12, 6, 5]}>
+            <GridItem colSpan={[12, 6]}>
               <FormControl isRequired isInvalid={!!itemErrors?.item}>
                 <CustomLabel htmlFor="item">Item</CustomLabel>
                 <ControlledSelect
@@ -89,10 +89,10 @@ function SelectItemForm(props) {
                       }
                     })
                     .map((originalItem, i) => {
-                      const { name, variant, itemId } = originalItem;
+                      const { name, itemId } = originalItem;
 
                       return {
-                        name: `${name} - ${variant}`,
+                        name,
                         value: itemId,
                       };
                     })}
@@ -178,7 +178,7 @@ function SelectItemForm(props) {
               </FormControl>
             </GridItem>
 
-            <GridItem colSpan={[6, 4, 2]}>
+            <GridItem colSpan={[6, 4, 1]}>
               <FormControl isInvalid={itemErrors?.itemRateTotal}>
                 <FormLabel textAlign="right" fontSize="smaller" mb={0}>
                   Total
