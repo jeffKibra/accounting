@@ -1,4 +1,5 @@
-import { SalesItem, SalesTax } from "types";
+import { SalesItem, SalesTax } from 'types';
+import BigNumber from 'bignumber.js';
 
 interface Taxes {
   [key: string]: SalesTax;
@@ -10,11 +11,19 @@ interface Summary {
   taxes: Taxes;
 }
 
+BigNumber.config({ DECIMAL_PLACES: 2 });
+
 export default function getSaleSummary(selectedItems: SalesItem[]) {
+  console.log({ selectedItems });
+
   const { subTotal, totalTax, taxes } = selectedItems.reduce(
     (summary: Summary, item) => {
-      const { subTotal, taxes } = summary;
-      const { itemRateTotal, itemTaxTotal, salesTax } = item;
+      const { taxes } = summary;
+      const subTotal = new BigNumber(summary.subTotal);
+
+      const { salesTax } = item;
+      const itemTaxTotal = new BigNumber(item.itemTaxTotal);
+      const itemRateTotal = new BigNumber(item.itemRateTotal);
 
       const newSummary = {
         ...summary,
@@ -31,17 +40,19 @@ export default function getSaleSummary(selectedItems: SalesItem[]) {
         //check if a similar tax is available in the taxes summary
         const currentTax = taxes[taxId];
 
+        const currentTotalTax = new BigNumber(currentTax?.totalTax || 0);
+
         if (currentTax) {
           //if tax is available in the tax summary, increment its totalTax value
           newTaxes[taxId] = {
             ...currentTax,
-            totalTax: currentTax.totalTax + itemTaxTotal,
+            totalTax: currentTotalTax.plus(itemTaxTotal).dp(2).toNumber(),
           };
         } else {
           //create new tax field
           newTaxes[taxId] = {
             ...salesTax,
-            totalTax: itemTaxTotal,
+            totalTax: itemTaxTotal.dp(2).toNumber(),
           };
         }
         //asign taxes field
@@ -51,12 +62,13 @@ export default function getSaleSummary(selectedItems: SalesItem[]) {
          * step 2:
          * accumulate the overall tax total for the sale
          */
-        newSummary.totalTax = newSummary.totalTax + itemTaxTotal;
+        const prevTotalTax = new BigNumber(newSummary.totalTax);
+        newSummary.totalTax = prevTotalTax.plus(itemTaxTotal).dp(2).toNumber();
       }
 
       return {
         ...newSummary,
-        subTotal: subTotal + itemRateTotal,
+        subTotal: subTotal.plus(itemRateTotal).dp(2).toNumber(),
       };
     },
     { subTotal: 0, totalTax: 0, taxes: {} }
@@ -64,7 +76,7 @@ export default function getSaleSummary(selectedItems: SalesItem[]) {
 
   return {
     taxes: Object.values(taxes),
-    subTotal: +subTotal.toFixed(2),
-    totalTax: +totalTax.toFixed(2),
+    subTotal,
+    totalTax,
   };
 }

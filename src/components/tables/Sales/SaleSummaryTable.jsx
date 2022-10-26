@@ -2,6 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { TableContainer, Table, Tbody, Td, Th, Tr } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { Controller, useFormContext } from 'react-hook-form';
+import BigNumber from 'bignumber.js';
 
 import RHFPlainNumInput from 'components/ui/RHFPlainNumInput';
 
@@ -14,9 +15,12 @@ function SaleSummaryTable(props) {
   const { taxes } = summary;
 
   function getTotalAmount(subSummary) {
-    const { subTotal, shipping, adjustment } = subSummary;
+    console.log({ subSummary });
+    const subTotal = new BigNumber(subSummary.subTotal || 0);
+    const shipping = new BigNumber(subSummary.shipping || 0);
+    const adjustment = new BigNumber(subSummary.adjustment || 0);
 
-    return subTotal + +shipping + +adjustment;
+    return subTotal.plus(shipping).plus(adjustment).dp(2).toNumber();
   }
 
   const updateSummaryOnFieldBlur = useCallback(
@@ -25,13 +29,15 @@ function SaleSummaryTable(props) {
       const currentSummary = getValues('summary');
 
       const { shipping, adjustment } = currentSummary;
-      let { subTotal, totalTax, taxes } = subSummary;
-      const newSubTotal = subTotal + totalTax;
+      let { taxes } = subSummary;
+      let subTotal = new BigNumber(subSummary.subTotal);
+      const totalTax = new BigNumber(subSummary.totalTax);
+      const newSubTotal = subTotal.plus(totalTax);
 
       subTotal = taxType === 'taxInclusive' ? newSubTotal : subTotal;
 
       const totalAmount = getTotalAmount({
-        subTotal: newSubTotal,
+        subTotal: newSubTotal.dp(2).toNumber(),
         shipping,
         adjustment,
         /**
@@ -44,8 +50,8 @@ function SaleSummaryTable(props) {
       //update whole summary
       setValue('summary', {
         ...currentSummary,
-        subTotal,
-        totalTax,
+        subTotal: subTotal.dp(2).toNumber(),
+        totalTax: totalTax.dp(2).toNumber(),
         taxes,
         totalAmount,
         ...(fieldName ? { [fieldName]: value } : {}),

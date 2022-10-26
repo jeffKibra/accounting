@@ -39,16 +39,7 @@ export interface SalesItem {
   itemTaxTotal: number;
 }
 
-export interface SaleItem {
-  item: SelectedItem;
-  rate: number;
-  quantity: number;
-  salesTax?: Tax;
-  itemRate: number;
-  itemTax: number;
-  itemRateTotal: number;
-  itemTaxTotal: number;
-}
+export interface SaleItem extends SalesItem {}
 
 export interface GroupedItems {
   accountId: string;

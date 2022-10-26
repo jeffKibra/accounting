@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import { SalesItem, Item, Tax } from 'types';
 
 interface SelectedItemData {
@@ -6,6 +7,8 @@ interface SelectedItemData {
   quantity: number;
   salesTax?: Tax;
 }
+//----------------------------------------------------------------
+BigNumber.config({ DECIMAL_PLACES: 2 });
 
 export default function getSalesItemData(
   salesItem: SelectedItemData,
@@ -22,14 +25,15 @@ export default function getSalesItemData(
     ...itemFormData
   } = item;
 
-  const { salesTaxType } = itemFormData;
+  const { pricesIncludeTax } = itemFormData;
+  console.log({ pricesIncludeTax });
 
   let itemRate = rate;
   let itemTax = 0;
 
   //set all rates to be tax exclusive
   if (salesTax?.rate) {
-    if (salesTaxType === 'tax inclusive') {
+    if (pricesIncludeTax) {
       //item rate is inclusive of tax
       const tax = (salesTax.rate / (100 + salesTax.rate)) * rate;
       itemRate = rate - tax;
@@ -48,11 +52,13 @@ export default function getSalesItemData(
     item: { ...itemFormData },
     rate,
     quantity,
-    itemRate: +itemRate.toFixed(2),
-    itemTax: +itemTax.toFixed(2),
-    itemRateTotal: +itemRateTotal.toFixed(2),
-    itemTaxTotal: +itemTaxTotal.toFixed(2),
+    itemRate: new BigNumber(itemRate).dp(2).toNumber(),
+    itemTax: new BigNumber(itemTax).dp(2).toNumber(),
+    itemRateTotal: new BigNumber(itemRateTotal).dp(2).toNumber(),
+    itemTaxTotal: new BigNumber(itemTaxTotal).dp(2).toNumber(),
   };
+
+  console.log({ itemData });
 
   if (salesTax?.rate) {
     itemData.salesTax = salesTax;

@@ -1,4 +1,4 @@
-import { Account, Tax } from ".";
+import { Account, Tax } from '.';
 
 export interface ItemFormData {
   name: string;
@@ -11,7 +11,7 @@ export interface ItemFormData {
   costPrice?: number;
   extraDetails?: string;
   salesTax?: Tax;
-  salesTaxType?: string;
+  pricesIncludeTax?: string;
   variant?: string;
 }
 
