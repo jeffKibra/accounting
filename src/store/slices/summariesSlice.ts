@@ -33,6 +33,10 @@ const summariesSlice = createSlice({
         loading: true,
         error: null,
         action: action.payload,
+        summary: {
+          ...state.summary,
+          main: null,
+        },
       };
     },
     success: (state: State) => {

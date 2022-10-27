@@ -1,5 +1,5 @@
 import { useMemo, useEffect } from 'react';
-import { Button, Grid, GridItem } from '@chakra-ui/react';
+import { Button, Grid, GridItem, Stack } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { useForm, FormProvider } from 'react-hook-form';
 import { connect } from 'react-redux';
@@ -119,26 +119,21 @@ function ItemForm(props) {
           <General loading={updating} accounts={incomeAccounts} />
         </GridItem>
         <GridItem colSpan={[12, null, 4]}>
-          <Grid w="full" gap={6} templateColumns="repeat(12, 1fr)">
-            <GridItem colSpan={12}>
-              <Details loading={updating} />
-            </GridItem>
-            <GridItem colSpan={12}>
-              <SaleDetails loading={updating} taxes={taxes || []} />
-            </GridItem>
+          <Stack spacing={6}>
+            <Details loading={updating} />
 
-            <GridItem colSpan={12} display="flex" justifyContent="flex-end">
-              <Button
-                size="lg"
-                colorScheme="cyan"
-                type="submit"
-                isLoading={updating}
-                w="full"
-              >
-                save
-              </Button>
-            </GridItem>
-          </Grid>
+            <SaleDetails loading={updating} taxes={taxes || []} />
+
+            <Button
+              size="lg"
+              colorScheme="cyan"
+              type="submit"
+              isLoading={updating}
+              w="full"
+            >
+              save
+            </Button>
+          </Stack>
         </GridItem>
       </Grid>
     </FormProvider>

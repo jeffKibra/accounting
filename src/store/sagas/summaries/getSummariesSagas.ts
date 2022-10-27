@@ -1,46 +1,34 @@
 import { put, call, select, takeLatest } from 'redux-saga/effects';
-import { getDoc, doc } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from '../../../utils/firebase';
+import { functions } from '../../../utils/firebase';
 import { GET_SUMMARY } from '../../actions/summariesActions';
 import { start, summarySuccess, fail } from '../../slices/summariesSlice';
 import { error as toastError } from '../../slices/toastSlice';
 
 import { RootState, DailySummary } from '../../../types';
 
-function* getSummary(action: PayloadAction<string>) {
+function* getMainSummary(action: PayloadAction<string>) {
   yield put(start(action.type));
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
 
-  async function get(summaryId: string) {
-    const mainSummaryRef = doc(
-      db,
-      'organizations',
-      orgId,
-      'summaries',
-      summaryId
-    );
+  async function get() {
+    const result = await httpsCallable(
+      functions,
+      'dashboard-org-main'
+    )({ orgId });
 
-    const snap = await getDoc(mainSummaryRef);
-    if (!snap.exists()) {
-      return {};
-    }
-
-    return {
-      ...snap.data(),
-      summaryId: snap.id,
-    };
+    return result.data;
   }
 
   try {
-    const summaryId = action.payload;
-    const summary: DailySummary = yield call(get, summaryId);
+    const summary: DailySummary = yield call(get);
     console.log({ summary });
 
-    yield put(summarySuccess({ summaryId, summaryData: summary }));
+    yield put(summarySuccess({ summaryId: 'main', summaryData: summary }));
   } catch (err) {
     const error = err as Error;
     console.error(error);
@@ -49,6 +37,6 @@ function* getSummary(action: PayloadAction<string>) {
   }
 }
 
-export function* watchGetSummary() {
-  yield takeLatest(GET_SUMMARY, getSummary);
+export function* watchGetMainSummary() {
+  yield takeLatest(GET_SUMMARY, getMainSummary);
 }

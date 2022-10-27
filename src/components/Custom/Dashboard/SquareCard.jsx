@@ -1,5 +1,5 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React from 'react';
+import PropTypes from 'prop-types';
 import {
   VStack,
   Grid,
@@ -8,12 +8,16 @@ import {
   StatHelpText,
   StatNumber,
   StatLabel,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 
-import formats from "../../../utils/formats";
+import formats from '../../../utils/formats';
+
+SquareCard.defaultProps = {
+  netValueLabel: 'Net Value',
+};
 
 function SquareCard(props) {
-  const { data1, data2, cardLabel } = props;
+  const { data1, data2, cardLabel, netValueLabel } = props;
   const net = data1.amount - data2.amount;
   return (
     <VStack
@@ -28,7 +32,7 @@ function SquareCard(props) {
       <Stat>
         <StatLabel>{cardLabel}</StatLabel>
         <StatNumber>{formats.formatCash(net)}</StatNumber>
-        <StatHelpText>Net Value</StatHelpText>
+        <StatHelpText>{netValueLabel}</StatHelpText>
       </Stat>
       <Grid w="full" columnGap={2} templateColumns="repeat(12, 1fr)">
         <GridItem colSpan={6}>

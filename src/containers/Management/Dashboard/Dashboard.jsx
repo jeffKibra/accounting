@@ -1,89 +1,142 @@
-import { useEffect, useMemo, useCallback } from 'react';
+import { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { Grid, GridItem } from '@chakra-ui/react';
+import { Grid, GridItem, Spinner, Box } from '@chakra-ui/react';
+import BigNumber from 'bignumber.js';
 
 import { GET_SUMMARY } from '../../../store/actions/summariesActions';
 
 import SquareCard from '../../../components/Custom/Dashboard/SquareCard';
 
+//------------------------------------------------------------------
+function CustomSpinner() {
+  return (
+    <Box
+      shadow="md"
+      w="full"
+      h="full"
+      p={6}
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+    >
+      <Spinner />
+    </Box>
+  );
+}
+
+//----------------------------------------------------------------
+
 function Dashboard(props) {
-  const { getSummary, summary, accounts } = props;
+  const { getSummary, summary } = props;
   console.log({ summary });
 
   useEffect(() => {
     getSummary();
   }, [getSummary]);
 
-  const getAccountsTotal = useCallback((accounts, summary) => {
-    return summary.accounts
-      ? accounts.reduce((sum, account) => {
-          const { accountId } = account;
-          const amount = summary.accounts[accountId];
+  const incomeTotal = summary?.totalIncome || 0;
+  const expenseTotal = summary?.totalExpenses || 0;
+  const profitAndLoss = new BigNumber(incomeTotal - expenseTotal)
+    .dp(2)
+    .toNumber();
 
-          return sum + +amount;
-        }, 0)
-      : 0;
-  }, []);
+  const totalReceivables = summary?.totalReceivables || 0;
+  const overdueInvoices = summary?.overdueInvoicesTotal || 0;
+  const openReceivables = new BigNumber(totalReceivables - overdueInvoices)
+    .dp(2)
+    .toNumber();
 
-  const { incomeTotal, expenseTotal } = useMemo(() => {
-    const incomeAccounts = accounts.filter(
-      account => account.accountType.main === 'income'
-    );
-    const expenseAccounts = accounts.filter(
-      account => account.accountType.main === 'expense'
-    );
+  const totalPayables = summary?.totalPayables || 0;
+  const overdueBills = summary?.overdueBillsTotal || 0;
+  const openPayables = new BigNumber(totalPayables - overdueBills)
+    .dp(2)
+    .toNumber();
 
-    const incomeTotal = getAccountsTotal(incomeAccounts, summary);
-    const expenseTotal = getAccountsTotal(expenseAccounts, summary);
+  const cashflowIncoming = summary?.cashflow?.incoming || 0;
+  const cashflowOutgoing = summary?.cashflow?.outgoing || 0;
 
-    return { incomeTotal, expenseTotal };
-  }, [accounts, summary, getAccountsTotal]);
+  const netCashflow = new BigNumber(cashflowIncoming - cashflowOutgoing)
+    .dp(2)
+    .toNumber();
 
   return (
-    <Grid columnGap={3} rowGap={2} w="full" templateColumns="repeat(12, 1fr)">
-      <GridItem colSpan={[12, 6, 4]}>
-        <SquareCard
-          data1={{
-            label: 'Income',
-            amount: incomeTotal || 0,
-          }}
-          data2={{
-            label: 'Expenses',
-            amount: expenseTotal || 0,
-          }}
-          cardLabel="PROFIT AND LOSS"
-          netValue={incomeTotal}
-        />
+    <Grid gap={4} w="full" templateColumns="repeat(12, 1fr)">
+      <GridItem colSpan={[12, 6]}>
+        {summary ? (
+          <SquareCard
+            data1={{
+              label: 'Open Invoices',
+              amount: openReceivables,
+            }}
+            data2={{
+              label: 'Overdue',
+              amount: overdueInvoices,
+            }}
+            netValueLabel=""
+            cardLabel="UNPAID INVOICES"
+            netValue={totalReceivables}
+          />
+        ) : (
+          <CustomSpinner />
+        )}
       </GridItem>
 
-      <GridItem colSpan={[12, 6, 4]}>
-        <SquareCard
-          data1={{
-            label: 'Incoming',
-            amount: summary?.cashFlow?.incoming || 0,
-          }}
-          data2={{
-            label: 'Outgoing',
-            amount: summary?.cashFlow?.outgoing || 0,
-          }}
-          cardLabel="CASH FLOW"
-          netValue={incomeTotal}
-        />
+      <GridItem colSpan={[12, 6]}>
+        {summary ? (
+          <SquareCard
+            data1={{
+              label: 'Open Bills',
+              amount: openPayables,
+            }}
+            data2={{
+              label: 'Overdue',
+              amount: overdueBills,
+            }}
+            netValueLabel=""
+            cardLabel="UNPAID BILLS"
+            netValue={totalPayables}
+          />
+        ) : (
+          <CustomSpinner />
+        )}
       </GridItem>
 
-      <GridItem colSpan={[12, 6, 4]}>
-        <SquareCard
-          data1={{
-            label: 'Unpaid Invoices',
-            amount: summary?.accounts?.accounts_receivable || 0,
-          }}
-          data2={{
-            label: 'Unpaid Bills',
-            amount: summary?.accounts?.accounts_payable || 0,
-          }}
-          cardLabel="OUTSTANDINGS"
-          netValue={incomeTotal}
-        />
+      <GridItem colSpan={[12, 6]}>
+        {summary ? (
+          <SquareCard
+            data1={{
+              label: 'Income',
+              amount: incomeTotal,
+            }}
+            data2={{
+              label: 'Expenses',
+              amount: expenseTotal,
+            }}
+            cardLabel="PROFIT AND LOSS"
+            netValue={profitAndLoss}
+          />
+        ) : (
+          <CustomSpinner />
+        )}
+      </GridItem>
+
+      <GridItem colSpan={[12, 6]}>
+        {summary ? (
+          <SquareCard
+            data1={{
+              label: 'Incoming',
+              amount: cashflowIncoming,
+            }}
+            data2={{
+              label: 'Outgoing',
+              amount: cashflowOutgoing,
+            }}
+            cardLabel="CASH FLOW"
+            netValue={netCashflow}
+          />
+        ) : (
+          <CustomSpinner />
+        )}
       </GridItem>
     </Grid>
   );
@@ -93,7 +146,7 @@ function mapStateToProps(state) {
   const { loading, summary } = state.summariesReducer;
   const { accounts } = state.accountsReducer;
 
-  return { loading, summary: summary || {}, accounts: accounts || [] };
+  return { loading, summary: summary?.main, accounts: accounts || [] };
 }
 
 function mapDispatchToProps(dispatch) {
