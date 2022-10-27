@@ -6,8 +6,8 @@ type State = {
   loading: boolean;
   isModified: boolean;
   summary: {
-    [key: string]: DailySummary | null;
-    main: DailySummary | null;
+    [key: string]: DailySummary | null | {};
+    main: DailySummary | null | {};
   };
   action: string | null;
   error: { code?: string; message?: string } | null;
@@ -70,6 +70,10 @@ const summariesSlice = createSlice({
         ...state,
         loading: false,
         error: action.payload,
+        summary: {
+          ...state.summary,
+          main: {},
+        },
       };
     },
     reset: (state: State) => {
