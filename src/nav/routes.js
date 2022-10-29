@@ -50,6 +50,11 @@ export const NEW_EXPENSE = '/expenses/new';
 export const EDIT_EXPENSE = '/expenses/:expenseId/edit';
 export const VIEW_EXPENSE = '/expenses/:expenseId/view';
 
+//book keeping
+//chart of accounts
+export const CHART_OF_ACCOUNTS = '/chart-of-accounts';
+
+
 //settings
 //taxes
 export const TAXES = '/settings/taxes';

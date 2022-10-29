@@ -89,6 +89,13 @@ function ManagementSidebar(props) {
       <Divider />
 
       <ExpandableDrawerItem
+        title="Bookkeeping"
+        icon={RiCoinsLine}
+        subRoutes={[{ title: 'Chart of Accounts', route: routes.VENDORS }]}
+      />
+      <Divider />
+
+      <ExpandableDrawerItem
         title="Settings"
         icon={RiSettings6Line}
         subRoutes={[{ title: 'Taxes', route: routes.TAXES }]}

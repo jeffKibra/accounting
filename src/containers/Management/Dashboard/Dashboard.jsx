@@ -28,7 +28,7 @@ function CustomSpinner() {
 
 function Dashboard(props) {
   const { getSummary, summary } = props;
-  console.log({ summary });
+  // console.log({ summary });
 
   useEffect(() => {
     getSummary();
@@ -72,9 +72,9 @@ function Dashboard(props) {
               label: 'Overdue',
               amount: overdueInvoices,
             }}
-            netValueLabel=""
+            mainValueLabel=""
             cardLabel="UNPAID INVOICES"
-            netValue={totalReceivables}
+            mainValue={totalReceivables}
           />
         ) : (
           <CustomSpinner />
@@ -92,9 +92,9 @@ function Dashboard(props) {
               label: 'Overdue',
               amount: overdueBills,
             }}
-            netValueLabel=""
+            mainValueLabel=""
             cardLabel="UNPAID BILLS"
-            netValue={totalPayables}
+            mainValue={totalPayables}
           />
         ) : (
           <CustomSpinner />
@@ -113,7 +113,7 @@ function Dashboard(props) {
               amount: expenseTotal,
             }}
             cardLabel="PROFIT AND LOSS"
-            netValue={profitAndLoss}
+            mainValue={profitAndLoss}
           />
         ) : (
           <CustomSpinner />
@@ -132,7 +132,7 @@ function Dashboard(props) {
               amount: cashflowOutgoing,
             }}
             cardLabel="CASH FLOW"
-            netValue={netCashflow}
+            mainValue={netCashflow}
           />
         ) : (
           <CustomSpinner />

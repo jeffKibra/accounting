@@ -13,12 +13,11 @@ import {
 import formats from '../../../utils/formats';
 
 SquareCard.defaultProps = {
-  netValueLabel: 'Net Value',
+  mainValueLabel: 'Net Value',
 };
 
 function SquareCard(props) {
-  const { data1, data2, cardLabel, netValueLabel } = props;
-  const net = data1.amount - data2.amount;
+  const { data1, data2, cardLabel, mainValueLabel, mainValue } = props;
   return (
     <VStack
       align="flex-start"
@@ -31,8 +30,8 @@ function SquareCard(props) {
     >
       <Stat>
         <StatLabel>{cardLabel}</StatLabel>
-        <StatNumber>{formats.formatCash(net)}</StatNumber>
-        <StatHelpText>{netValueLabel}</StatHelpText>
+        <StatNumber>{formats.formatCash(mainValue)}</StatNumber>
+        <StatHelpText>{mainValueLabel}</StatHelpText>
       </Stat>
       <Grid w="full" columnGap={2} templateColumns="repeat(12, 1fr)">
         <GridItem colSpan={6}>
@@ -69,6 +68,8 @@ SquareCard.propTypes = {
     label: PropTypes.string.isRequired,
   }),
   cardLabel: PropTypes.string.isRequired,
+  mainValue: PropTypes.number.isRequired,
+  mainValueLabel: PropTypes.string.isRequired,
 };
 
 export default SquareCard;
