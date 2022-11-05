@@ -5,6 +5,7 @@ import {
   signOut,
   onAuthStateChanged,
   User,
+  getIdToken,
 } from 'firebase/auth';
 import { PayloadAction } from '@reduxjs/toolkit';
 
@@ -79,6 +80,10 @@ export function* activeAuthListener() {
           // }
 
           // console.log({ claims });
+          if (user) {
+            const token = await getIdToken(user);
+            console.log(token);
+          }
 
           emit({ user, error: null });
         },

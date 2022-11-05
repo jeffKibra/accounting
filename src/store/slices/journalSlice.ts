@@ -20,7 +20,7 @@ const initialState: State = {
   error: null,
 };
 
-const accountsSlice = createSlice({
+const journalSlice = createSlice({
   name: 'accounts_slice',
   initialState,
   reducers: {
@@ -32,7 +32,7 @@ const accountsSlice = createSlice({
         action: action.payload,
       };
     },
-    success: (state: State, action: PayloadAction<string>) => {
+    success: (state: State) => {
       return {
         ...state,
         loading: false,
@@ -75,7 +75,7 @@ const accountsSlice = createSlice({
 });
 
 export const { start, success, accountSuccess, accountsSuccess, fail, reset } =
-  accountsSlice.actions;
-export const accountsReducer = accountsSlice.reducer;
+  journalSlice.actions;
+export const journalReducer = journalSlice.reducer;
 
-export default accountsSlice;
+export default journalSlice;

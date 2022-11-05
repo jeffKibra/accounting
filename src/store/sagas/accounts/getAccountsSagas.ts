@@ -1,4 +1,4 @@
-import { put, call, select, takeLatest } from "redux-saga/effects";
+import { put, call, select, takeLatest } from 'redux-saga/effects';
 // import {
 //   getDoc,
 //   getDocs,
@@ -15,17 +15,17 @@ import { put, call, select, takeLatest } from "redux-saga/effects";
 import {
   // GET_ACCOUNT,
   GET_ACCOUNTS,
-} from "../../actions/accountsActions";
+} from '../../actions/accountsActions';
 import {
   start,
   // accountSuccess,
   accountsSuccess,
   fail,
-} from "../../slices/accountsSlice";
-import { error as toastError } from "../../slices/toastSlice";
+} from '../../slices/accountsSlice';
+import { error as toastError } from '../../slices/toastSlice';
 
-import { getAllAccounts } from "../../../utils/accounts";
-import { RootState, Account } from "../../../types";
+import { getAllAccounts } from '../../../utils/accounts';
+import { RootState, AccountFromDb } from '../../../types';
 
 // const allStatuses = ["pending", "partially paid", "paid", "draft", "sent"];
 
@@ -119,7 +119,7 @@ function* getAccounts() {
   }
 
   try {
-    const accounts: Account[] = yield call(get);
+    const accounts: AccountFromDb[] = yield call(get);
     // console.log({ accounts });
 
     yield put(accountsSuccess(accounts));

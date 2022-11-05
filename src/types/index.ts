@@ -24,6 +24,8 @@ export type {
   AccountMapping,
   AccountsMapping,
   AccountType,
+  AccountFormData,
+  AccountFromDb,
 } from './accounts';
 export type { Tax, TaxForm, TaxFromDb } from './tax';
 export type {

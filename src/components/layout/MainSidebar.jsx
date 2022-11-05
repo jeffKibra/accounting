@@ -7,6 +7,7 @@ import {
   RiShoppingCartLine,
   RiCoinsLine,
   RiStore3Line,
+  RiBook2Line,
 } from 'react-icons/ri';
 
 import { isAdmin } from '../../utils/roles';
@@ -90,7 +91,7 @@ function ManagementSidebar(props) {
 
       <ExpandableDrawerItem
         title="Bookkeeping"
-        icon={RiCoinsLine}
+        icon={RiBook2Line}
         subRoutes={[{ title: 'Chart of Accounts', route: routes.VENDORS }]}
       />
       <Divider />
