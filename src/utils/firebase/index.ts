@@ -18,10 +18,10 @@ export const db = getFirestore(app);
 export const analytics = getAnalytics(app);
 export const functions = getFunctions(app, 'asia-south1');
 
-const isDev = process.env.REACT_APP_ENV === 'dev';
+const isDev = process.env.REACT_APP_ENV === 'prod';
 
 if (isDev) {
-  connectFirestoreEmulator(db, 'localhost', 8080);
+  // connectFirestoreEmulator(db, 'localhost', 8080);
   connectFunctionsEmulator(functions, 'localhost', 5001);
 }
 

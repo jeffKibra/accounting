@@ -92,7 +92,9 @@ function ManagementSidebar(props) {
       <ExpandableDrawerItem
         title="Bookkeeping"
         icon={RiBook2Line}
-        subRoutes={[{ title: 'Chart of Accounts', route: routes.VENDORS }]}
+        subRoutes={[
+          { title: 'Chart of Accounts', route: routes.CHART_OF_ACCOUNTS },
+        ]}
       />
       <Divider />
 

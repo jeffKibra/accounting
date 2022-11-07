@@ -3,8 +3,8 @@ import * as routes from '../routes';
 
 import ManagementRoute from '../ManagementRoute';
 
-//customers
-import { CustomersPage } from '../../pages/Management/Customers';
+//accounts
+import AccountsListPage from '../../pages/Management/Accounts/List';
 
 function ChartOfAccounts() {
   return [
@@ -14,7 +14,7 @@ function ChartOfAccounts() {
       exact
       element={
         <ManagementRoute>
-          <CustomersPage />
+          <AccountsListPage />
         </ManagementRoute>
       }
     />,

@@ -5,8 +5,8 @@ import { PayloadAction } from '@reduxjs/toolkit';
 
 import { functions } from 'utils/firebase';
 
-import { UPDATE_ACCOUNT } from '../../actions/journalActions';
-import { start, fail, success } from '../../slices/journalSlice';
+import { CREATE_ACCOUNT } from '../../actions/accountsActions';
+import { start, fail, success } from '../../slices/accountsSlice';
 import {
   error as toastError,
   success as toastSuccess,
@@ -14,31 +14,27 @@ import {
 
 import { AccountFormData, RootState } from 'types';
 
-interface UpdateData extends AccountFormData {
-  accountId: string;
-}
+function* createAccount(action: PayloadAction<AccountFormData>) {
+  yield put(start(CREATE_ACCOUNT));
 
-function* updateAccount(action: PayloadAction<UpdateData>) {
-  yield put(start(UPDATE_ACCOUNT));
-
-  const { accountId, ...formData } = action.payload;
+  const formData = action.payload;
 
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
 
-  function update() {
+  function create() {
     return httpsCallable(
       functions,
-      'books-chartOfAccounts-update'
-    )({ orgId, accountId, formData });
+      'books-accounts-create'
+    )({ orgId, formData });
   }
 
   try {
-    yield call(update);
+    yield call(create);
 
     yield put(success());
-    yield put(toastSuccess('Successfully updated account!'));
+    yield put(toastSuccess('Successfully created new account!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);
@@ -47,6 +43,6 @@ function* updateAccount(action: PayloadAction<UpdateData>) {
   }
 }
 
-export function* watchUpdateAccount() {
-  yield takeLatest(UPDATE_ACCOUNT, updateAccount);
+export function* watchCreateAccount() {
+  yield takeLatest(CREATE_ACCOUNT, createAccount);
 }

@@ -5,36 +5,36 @@ import { PayloadAction } from '@reduxjs/toolkit';
 
 import { functions } from 'utils/firebase';
 
-import { CREATE_ACCOUNT } from '../../actions/journalActions';
-import { start, fail, success } from '../../slices/journalSlice';
+import { DELETE_ACCOUNT } from '../../actions/accountsActions';
+import { start, fail, success } from '../../slices/accountsSlice';
 import {
   error as toastError,
   success as toastSuccess,
 } from '../../slices/toastSlice';
 
-import { AccountFormData, RootState } from 'types';
+import { RootState } from 'types';
 
-function* createAccount(action: PayloadAction<AccountFormData>) {
-  yield put(start(CREATE_ACCOUNT));
-
-  const formData = action.payload;
+function* deleteAccount(action: PayloadAction<string>) {
+  yield put(start(DELETE_ACCOUNT));
 
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
 
-  function create() {
+  const accountId = action.payload;
+
+  function markAsDeleted() {
     return httpsCallable(
       functions,
-      'books-chartOfAccounts-create'
-    )({ orgId, formData });
+      'books-accounts-delete'
+    )({ orgId, accountId });
   }
 
   try {
-    yield call(create);
+    yield call(markAsDeleted);
 
     yield put(success());
-    yield put(toastSuccess('Successfully created new account!'));
+    yield put(toastSuccess('Successfully deleted account!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);
@@ -43,6 +43,6 @@ function* createAccount(action: PayloadAction<AccountFormData>) {
   }
 }
 
-export function* watchCreateAccount() {
-  yield takeLatest(CREATE_ACCOUNT, createAccount);
+export function* watchDeleteAccount() {
+  yield takeLatest(DELETE_ACCOUNT, deleteAccount);
 }

@@ -7,6 +7,7 @@ type State = {
   isModified: boolean;
   account: AccountFromDb | null;
   accounts: AccountFromDb[] | null;
+  chartOfAccounts: AccountFromDb[] | null;
   action: string | null;
   error: { code?: string; message?: string } | null;
 };
@@ -16,6 +17,7 @@ const initialState: State = {
   isModified: false,
   account: null,
   accounts: null,
+  chartOfAccounts: null,
   action: '',
   error: null,
 };
@@ -32,7 +34,7 @@ const accountsSlice = createSlice({
         action: action.payload,
       };
     },
-    success: (state: State, action: PayloadAction<string>) => {
+    success: (state: State) => {
       return {
         ...state,
         loading: false,
@@ -56,6 +58,18 @@ const accountsSlice = createSlice({
         accounts: action.payload,
       };
     },
+
+    chartOfAccountsSuccess: (
+      state: State,
+      action: PayloadAction<AccountFromDb[] | null>
+    ) => {
+      return {
+        ...state,
+        loading: false,
+        chartOfAccounts: action.payload,
+      };
+    },
+
     fail: (state: State, action: PayloadAction<{}>) => {
       return {
         ...state,
@@ -63,6 +77,14 @@ const accountsSlice = createSlice({
         error: action.payload,
       };
     },
+
+    resetList: (state: State) => {
+      return {
+        ...state,
+        chartOfAccounts: null,
+      };
+    },
+
     reset: (state: State) => {
       return {
         ...state,
@@ -74,8 +96,16 @@ const accountsSlice = createSlice({
   },
 });
 
-export const { start, success, accountSuccess, accountsSuccess, fail, reset } =
-  accountsSlice.actions;
+export const {
+  start,
+  success,
+  accountSuccess,
+  accountsSuccess,
+  chartOfAccountsSuccess,
+  fail,
+  reset,
+  resetList,
+} = accountsSlice.actions;
 export const accountsReducer = accountsSlice.reducer;
 
 export default accountsSlice;
