@@ -147,6 +147,7 @@ function InvoiceForm(props) {
             <FormErrorMessage>{errors.dueDate?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
+
         <GridItem colSpan={[12, 6, 4]}>
           <FormControl isDisabled={loading} isInvalid={errors.orderNumber}>
             <FormLabel htmlFor="orderNumber">Order Number</FormLabel>
