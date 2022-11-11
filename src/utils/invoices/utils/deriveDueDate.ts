@@ -10,7 +10,7 @@ export default function deriveDueDate(
   let month = startDate.getMonth() + 1;
   let year = startDate.getFullYear();
 
-  if (waitingDays === 0) {
+  if (waitingDays === 0 && value !== 'on_receipt') {
     //either end_month or next_month
     //compute remaining days to end of the month and add them to waiting days
     const remainingDays =

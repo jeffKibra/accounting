@@ -116,6 +116,7 @@ function* getInvoices() {
 
   async function get() {
     const invoicesCollection = dbCollections(orgId).invoices;
+
     const q = query(
       invoicesCollection,
       orderBy('createdAt', 'desc'),

@@ -31,6 +31,7 @@ interface Meta {
   transactionType: keyof InvoiceTransactionTypes;
   balance: number;
   isSent: boolean;
+  isOverdue: boolean;
   paymentsCount: number;
   paymentsIds: string[];
   paymentsReceived: InvoicePayments;
