@@ -1,9 +1,7 @@
 import { useEffect } from 'react';
 import { connect } from 'react-redux';
 
-import { Link, useLocation } from 'react-router-dom';
-import { Button } from '@chakra-ui/react';
-import { RiAddLine } from 'react-icons/ri';
+import { useLocation } from 'react-router-dom';
 
 import { FETCH_ACCOUNTS } from 'store/actions/accountsActions';
 
@@ -13,6 +11,8 @@ import SkeletonLoader from 'components/ui/SkeletonLoader';
 import AlertError from 'components/ui/AlertError';
 
 import AccountsTable from '../../../components/tables/Accounts/AccountsTable';
+
+import CreateAccount from './CreateAccount';
 
 function AccountsListPage(props) {
   console.log({ props });
@@ -27,13 +27,7 @@ function AccountsListPage(props) {
   return (
     <PageLayout
       pageTitle="Chart of Accounts"
-      actions={
-        <Link to={`${location.pathname}/new`}>
-          <Button leftIcon={<RiAddLine />} colorScheme="cyan" size="sm">
-            New Account
-          </Button>
-        </Link>
-      }
+      actions={<CreateAccount />}
       breadcrumbLinks={{
         Dashboard: '/',
         Accounts: location.pathname,

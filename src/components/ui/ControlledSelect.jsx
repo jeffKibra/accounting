@@ -177,7 +177,7 @@ function ControlledSelect(props) {
               </MenuButton>
             )}
 
-            <MenuList maxH="250px" overflowY="auto">
+            <MenuList maxH="200px" overflowY="auto">
               {groupedOptions?.length > 0 ? (
                 <Grouped
                   onChange={onChange}

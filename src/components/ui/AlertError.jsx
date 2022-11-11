@@ -20,7 +20,7 @@ AlertError.defaultProps = {
 
 export default function AlertError({ title, message }) {
   return (
-    <Alert>
+    <Alert status="error">
       <AlertIcon />
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>{message}</AlertDescription>

@@ -19,6 +19,8 @@ import { salesReceiptsReducer } from './slices/salesReceiptsSlice';
 import { vendorsReducer } from './slices/vendorsSlice';
 import { expensesReducer } from './slices/expenseSlice';
 import { summariesReducer } from './slices/summariesSlice';
+import { accountTypesReducer } from './slices/accountTypesSlice';
+
 import { modifyItemsCategoriesReducer } from './slices/itemsCategories/modifyItemsCategoriesSlice';
 
 const sagaMiddleware = createSagaMiddleware();
@@ -39,6 +41,7 @@ const appReducer = combineReducers({
   vendorsReducer,
   expensesReducer,
   summariesReducer,
+  accountTypesReducer,
   modifyItemsCategoriesReducer,
 });
 
