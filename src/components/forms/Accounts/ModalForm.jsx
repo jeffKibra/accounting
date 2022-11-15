@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 
 import {
@@ -20,12 +21,23 @@ import { useAccountTypes } from 'hooks';
 import FormFields from './FormFields';
 import AlertError from 'components/ui/AlertError';
 
-export default function AccountForm({
+//-------------------------------------------------------------------
+AccountModalForm.propTypes = {
+  loading: PropTypes.bool.isRequired,
+  defaultValues: PropTypes.object,
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  modalTitle: PropTypes.string.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+};
+
+export default function AccountModalForm({
   loading,
   defaultValues,
   isOpen,
   onClose,
   modalTitle,
+  onSubmit,
 }) {
   const { accountTypes, errorMsg, fetchAccountTypes } = useAccountTypes({
     defaultFetch: false,
@@ -42,14 +54,9 @@ export default function AccountForm({
     defaultValues: {
       name: defaultValues?.name || '',
       accountType: defaultValues?.accountType || null,
-      code: defaultValues?.code || '',
       description: defaultValues?.description || '',
     },
   });
-
-  function onSubmit(data) {
-    console.log({ data });
-  }
 
   const { handleSubmit } = formMethods;
 
@@ -67,7 +74,7 @@ export default function AccountForm({
         <ModalContent as="form" role="form" onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>{modalTitle}</ModalHeader>
 
-          <ModalCloseButton />
+          <ModalCloseButton disabled={loading} />
 
           <ModalBody>
             {Array.isArray(accountTypes) ? (
@@ -91,7 +98,9 @@ export default function AccountForm({
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="red">cancel</Button>
+            <Button disabled={loading} colorScheme="red" onClick={onClose}>
+              cancel
+            </Button>
 
             <Button ml={4} colorScheme="cyan" type="submit" isLoading={loading}>
               save

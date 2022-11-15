@@ -6,9 +6,9 @@ import {
   Textarea,
   FormHelperText,
   FormErrorMessage,
-//   Button,
+  //   Button,
   VStack,
-//   Box,
+  //   Box,
 } from '@chakra-ui/react';
 
 import { useFormContext, Controller } from 'react-hook-form';
@@ -23,8 +23,8 @@ export default function FormFields({ loading, accountTypes }) {
     let list = []; //name and value
 
     map = accountTypes.reduce((acc, accountType) => {
-      const { name, id } = accountType;
-      list.push({ name, value: id });
+      const { name, id, main } = accountType;
+      list.push({ name, value: id, groupName: main });
 
       return {
         ...acc,
@@ -52,10 +52,12 @@ export default function FormFields({ loading, accountTypes }) {
       <Controller
         name="accountType"
         control={control}
+        rules={{ required: { value: true, message: '*Required!' } }}
         render={({
           field: { value, onChange, name, onBlur },
           fieldState: { error },
         }) => {
+          console.log({ value });
           console.log('field error', error);
 
           function onAccountTypeChange(accountTypeId) {
@@ -70,7 +72,7 @@ export default function FormFields({ loading, accountTypes }) {
             <FormControl isRequired isDisabled={loading} isInvalid={!!error}>
               <FormLabel>Account Type</FormLabel>
               <ControlledSelect
-                options={accountTypesList}
+                groupedOptions={accountTypesList}
                 value={value?.id || ''}
                 onChange={onAccountTypeChange}
                 onBlur={onBlur}

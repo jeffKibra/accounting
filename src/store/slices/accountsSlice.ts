@@ -27,6 +27,7 @@ const accountsSlice = createSlice({
   initialState,
   reducers: {
     start: (state: State, action: PayloadAction<string>) => {
+      console.log('starting');
       return {
         ...state,
         loading: true,
@@ -35,6 +36,7 @@ const accountsSlice = createSlice({
       };
     },
     success: (state: State) => {
+      console.log('success');
       return {
         ...state,
         loading: false,
@@ -52,6 +54,7 @@ const accountsSlice = createSlice({
       state: State,
       action: PayloadAction<AccountFromDb[] | null>
     ) => {
+      console.log('accounts succes action', action.payload);
       return {
         ...state,
         loading: false,
@@ -71,6 +74,7 @@ const accountsSlice = createSlice({
     },
 
     fail: (state: State, action: PayloadAction<{}>) => {
+      console.log('failed');
       return {
         ...state,
         loading: false,

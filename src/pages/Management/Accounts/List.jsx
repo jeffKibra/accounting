@@ -5,24 +5,26 @@ import { useLocation } from 'react-router-dom';
 
 import { FETCH_ACCOUNTS } from 'store/actions/accountsActions';
 
-import PageLayout from '../../../components/layout/PageLayout';
+import PageLayout from 'components/layout/PageLayout';
 //components
 import SkeletonLoader from 'components/ui/SkeletonLoader';
 import AlertError from 'components/ui/AlertError';
 
-import AccountsTable from '../../../components/tables/Accounts/AccountsTable';
+import AccountsTable from 'components/tables/Accounts/AccountsTable';
 
-import CreateAccount from './CreateAccount';
+import CreateAccount from 'containers/Management/Accounts/CreateAccount';
 
 function AccountsListPage(props) {
-  console.log({ props });
+  // console.log({ props });
   const { fetchList, accounts, error } = props;
 
   const location = useLocation();
 
   useEffect(() => {
-    fetchList();
-  }, [fetchList]);
+    if (!accounts) {
+      fetchList();
+    }
+  }, [fetchList, accounts]);
 
   return (
     <PageLayout
