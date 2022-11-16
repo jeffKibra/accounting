@@ -49,9 +49,6 @@ AccountsTable.propTypes = {
       openingBalance: PropTypes.number,
     })
   ),
-  deleting: PropTypes.bool.isRequired,
-  isDeleted: PropTypes.bool.isRequired,
-  handleDelete: PropTypes.func.isRequired,
 };
 
 export default AccountsTable;

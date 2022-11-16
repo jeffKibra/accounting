@@ -9,6 +9,8 @@ import {
   fail,
   chartOfAccountsSuccess,
 } from 'store/slices/accountsSlice';
+//hooks
+import { useCustomToast } from 'hooks';
 
 import ModalForm from 'components/forms/Accounts/ModalForm';
 
@@ -18,6 +20,7 @@ function create(orgId, formData) {
 
 export default function CreateAccount() {
   const { isOpen, onClose, onOpen } = useDisclosure();
+  const { showToast } = useCustomToast();
 
   const dispatch = useDispatch();
   const { loading } = useSelector(state => state.accountsReducer);
@@ -34,9 +37,11 @@ export default function CreateAccount() {
       console.log({ result });
 
       dispatch(chartOfAccountsSuccess(null));
+      showToast('Successfully created account!');
     } catch (error) {
       console.error(error);
       dispatch(fail(error));
+      showToast(error?.message || 'unknown error!', { status: 'error' });
     }
 
     onClose();

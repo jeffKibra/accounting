@@ -32,8 +32,8 @@ export default function getInvoiceStatus(invoice: Invoice) {
   const partiallyPaid = balance < totalAmount;
 
   //   const overdue = today.getTime() > dueDate.getTime();
-  const overdueDays = getDaysDifference(dueDate, today);
-  // console.log({ overdueDays, dueToday, balance, daysDue });
+  // const overdueDays = getDaysDifference(dueDate, today);
+  // console.log({ isOverdue, overdueDays, dueToday, daysDue, balance });
 
   let status = '';
   let message = '';
@@ -67,11 +67,12 @@ export default function getInvoiceStatus(invoice: Invoice) {
       }
       break;
     case 'OVERDUE':
-      if (overdueDays === 0) {
-        message = status;
-      } else {
-        message = `OVERDUE BY ${overdueDays} DAYS`;
-      }
+      message = status;
+      // if (overdueDays === 0) {
+      //   message = status;
+      // } else {
+      //   message = `OVERDUE BY ${overdueDays} DAYS`;
+      // }
       break;
     default:
       message = status;

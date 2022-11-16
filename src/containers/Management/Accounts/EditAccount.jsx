@@ -9,6 +9,8 @@ import {
   fail,
   chartOfAccountsSuccess,
 } from 'store/slices/accountsSlice';
+//hooks
+import { useCustomToast } from 'hooks';
 
 import ModalForm from 'components/forms/Accounts/ModalForm';
 
@@ -27,6 +29,7 @@ EditAccount.propTypes = {
 
 export default function EditAccount({ children, account }) {
   const { isOpen, onClose, onOpen } = useDisclosure();
+  const { showToast } = useCustomToast();
 
   const dispatch = useDispatch();
   const { loading } = useSelector(state => state.accountsReducer);
@@ -44,9 +47,13 @@ export default function EditAccount({ children, account }) {
       console.log({ result });
 
       dispatch(chartOfAccountsSuccess(null));
+      showToast('Successfully updated account!');
     } catch (error) {
       console.error(error);
       dispatch(fail(error));
+      showToast(error?.message || 'Unknown error', {
+        status: 'error',
+      });
     }
 
     onClose();

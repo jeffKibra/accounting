@@ -136,6 +136,7 @@ function EditInvoice(props) {
             customers={customers}
             paymentTerms={paymentTerms}
             loading={updating}
+            invoiceId={invoice?.invoiceId || ''}
           />
           <EditSale loading={updating} items={items} taxes={taxes} />
         </Box>

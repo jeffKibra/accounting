@@ -19,8 +19,16 @@ import CustomSelect from '../../ui/CustomSelect';
 import CustomDatePicker from '../../ui/CustomDatePicker';
 import { useEffect } from 'react';
 
-function InvoiceForm(props) {
-  const { customers, paymentTerms, loading } = props;
+//---------------------------------------------------------------
+InvoiceForm.propTypes = {
+  customers: PropTypes.array.isRequired,
+  loading: PropTypes.bool.isRequired,
+  paymentTerms: PropTypes.array.isRequired,
+  invoiceId: PropTypes.string,
+};
+
+export default function InvoiceForm(props) {
+  const { customers, paymentTerms, loading, invoiceId } = props;
 
   const {
     register,
@@ -53,14 +61,14 @@ function InvoiceForm(props) {
    * update due date according to the selected payment term
    */
   useEffect(() => {
-    if (paymentTermId) {
+    if (!invoiceId && paymentTermId) {
       const paymentTerm = paymentTerms.find(
         term => term.value === paymentTermId
       );
       const dueDate = deriveDueDate(paymentTerm, invoiceDate);
       setValue('dueDate', dueDate);
     }
-  }, [paymentTermId, invoiceDate, paymentTerms, setValue]);
+  }, [paymentTermId, invoiceDate, paymentTerms, setValue, invoiceId]);
 
   return (
     <Box pb={1}>
@@ -185,11 +193,3 @@ function InvoiceForm(props) {
     </Box>
   );
 }
-
-InvoiceForm.propTypes = {
-  customers: PropTypes.array.isRequired,
-  loading: PropTypes.bool.isRequired,
-  paymentTerms: PropTypes.array.isRequired,
-};
-
-export default InvoiceForm;
