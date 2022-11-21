@@ -1,12 +1,12 @@
-import { useEffect } from "react";
-import { Box } from "@chakra-ui/react";
-import { RiDeleteBin4Line, RiEdit2Line, RiEyeLine } from "react-icons/ri";
-import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { useEffect } from 'react';
+import { Box } from '@chakra-ui/react';
+import { RiDeleteBin4Line, RiEdit2Line, RiEyeLine } from 'react-icons/ri';
+import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
-import useDeleteInvoice from "../../../hooks/useDeleteInvoice";
+import useDeleteInvoice from '../../../hooks/useDeleteInvoice';
 
-import MenuOptions from "../../../components/ui/MenuOptions";
+import MenuOptions from '../../../components/ui/MenuOptions';
 
 function InvoiceOptions(props) {
   const { invoice, edit, view, deletion } = props;
@@ -23,27 +23,27 @@ function InvoiceOptions(props) {
     ...(view
       ? [
           {
-            name: "View",
+            name: 'View',
             icon: RiEyeLine,
             as: Link,
-            to: `/invoices/${invoiceId}/view`,
+            to: `/sale/invoices/${invoiceId}/view`,
           },
         ]
       : []),
     ...(edit
       ? [
           {
-            name: "Edit",
+            name: 'Edit',
             icon: RiEdit2Line,
             as: Link,
-            to: `/invoices/${invoiceId}/edit`,
+            to: `/sale/invoices/${invoiceId}/edit`,
           },
         ]
       : []),
     ...(deletion
       ? [
           {
-            name: "Delete",
+            name: 'Delete',
             icon: RiDeleteBin4Line,
             dialogDetails: {
               ...details,

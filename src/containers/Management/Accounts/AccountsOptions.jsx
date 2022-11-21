@@ -49,7 +49,7 @@ function AccountsOptions(props) {
             {view && (
               <MenuItem
                 as={Link}
-                to={`/accountss/${accountId}/view`}
+                to={`/accounts/${accountId}/view`}
                 icon={<RiEyeLine />}
               >
                 View

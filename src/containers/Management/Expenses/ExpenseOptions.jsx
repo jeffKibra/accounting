@@ -1,12 +1,12 @@
-import { useEffect } from "react";
-import { Box } from "@chakra-ui/react";
-import { RiDeleteBin4Line, RiEdit2Line, RiEyeLine } from "react-icons/ri";
-import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { useEffect } from 'react';
+import { Box } from '@chakra-ui/react';
+import { RiDeleteBin4Line, RiEdit2Line, RiEyeLine } from 'react-icons/ri';
+import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
-import { useDeleteExpense } from "../../../hooks";
+import { useDeleteExpense } from '../../../hooks';
 
-import MenuOptions from "../../../components/ui/MenuOptions";
+import MenuOptions from '../../../components/ui/MenuOptions';
 
 function ExpenseOptions(props) {
   const { expense, edit, view, deletion } = props;
@@ -23,27 +23,27 @@ function ExpenseOptions(props) {
     ...(view
       ? [
           {
-            name: "View",
+            name: 'View',
             icon: RiEyeLine,
             as: Link,
-            to: `/expenses/${expenseId}/view`,
+            to: `/purchase/expenses/${expenseId}/view`,
           },
         ]
       : []),
     ...(edit
       ? [
           {
-            name: "Edit",
+            name: 'Edit',
             icon: RiEdit2Line,
             as: Link,
-            to: `/expenses/${expenseId}/edit`,
+            to: `/purchase/expenses/${expenseId}/edit`,
           },
         ]
       : []),
     ...(deletion
       ? [
           {
-            name: "Delete",
+            name: 'Delete',
             icon: RiDeleteBin4Line,
             dialogDetails: {
               ...details,

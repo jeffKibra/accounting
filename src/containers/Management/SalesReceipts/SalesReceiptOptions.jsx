@@ -1,12 +1,12 @@
-import { useEffect } from "react";
-import { Box } from "@chakra-ui/react";
-import { RiDeleteBin4Line, RiEdit2Line, RiEyeLine } from "react-icons/ri";
-import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { useEffect } from 'react';
+import { Box } from '@chakra-ui/react';
+import { RiDeleteBin4Line, RiEdit2Line, RiEyeLine } from 'react-icons/ri';
+import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
-import useDeleteSalesReceipt from "../../../hooks/useDeleteSalesReceipt";
+import useDeleteSalesReceipt from '../../../hooks/useDeleteSalesReceipt';
 
-import MenuOptions from "../../../components/ui/MenuOptions";
+import MenuOptions from '../../../components/ui/MenuOptions';
 
 function SalesReceiptOptions(props) {
   const { salesReceipt, edit, view, deletion } = props;
@@ -24,27 +24,27 @@ function SalesReceiptOptions(props) {
     ...(view
       ? [
           {
-            name: "View",
+            name: 'View',
             icon: RiEyeLine,
             as: Link,
-            to: `/sales-receipts/${salesReceiptId}/view`,
+            to: `/sale/sales-receipts/${salesReceiptId}/view`,
           },
         ]
       : []),
     ...(edit
       ? [
           {
-            name: "Edit",
+            name: 'Edit',
             icon: RiEdit2Line,
             as: Link,
-            to: `/sales-receipts/${salesReceiptId}/edit`,
+            to: `/sale/sales-receipts/${salesReceiptId}/edit`,
           },
         ]
       : []),
     ...(deletion
       ? [
           {
-            name: "Delete",
+            name: 'Delete',
             icon: RiDeleteBin4Line,
             dialogDetails: {
               ...details,
