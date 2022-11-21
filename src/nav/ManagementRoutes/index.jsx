@@ -18,6 +18,7 @@ import SalesReceipts from './SalesReceipts';
 import Vendors from './Vendors';
 //
 import ChartOfAccounts from './ChartOfAccounts';
+import ManualJournals from './ManualJournals';
 
 import ItemsCategories from './ItemsCategories';
 
@@ -45,6 +46,7 @@ function ManagementRoutes() {
     ...Vendors(),
 
     ...ChartOfAccounts(),
+    ...ManualJournals(),
 
     ...ItemsCategories(),
   ];

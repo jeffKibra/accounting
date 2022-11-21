@@ -94,7 +94,7 @@ function ManagementSidebar(props) {
         icon={RiBook2Line}
         subRoutes={[
           { title: 'Chart of Accounts', route: routes.CHART_OF_ACCOUNTS },
-          { title: 'Manual Journals', route: routes.CHART_OF_ACCOUNTS },
+          { title: 'Manual Journals', route: routes.MANUAL_JOURNALS },
         ]}
       />
       <Divider />
