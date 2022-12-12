@@ -7,10 +7,10 @@ import {
   Grid,
   GridItem,
   IconButton,
-  Heading,
   Show,
   Divider,
   Stack,
+  Textarea,
 } from '@chakra-ui/react';
 import { RiDeleteBinLine } from 'react-icons/ri';
 import { useFormContext } from 'react-hook-form';
@@ -27,11 +27,11 @@ function CustomLabel({ children }) {
   );
 }
 
-function LineFields(props) {
+function EntryFields(props) {
   console.log({ props });
   const {
     itemsObject,
-    selectedItemsObject,
+    entriesObject,
     index,
     field,
     updateItemFields,
@@ -43,15 +43,14 @@ function LineFields(props) {
 
   const {
     formState: { errors },
-    watch,
     getValues,
+    register,
   } = useFormContext();
 
-  const taxType = watch('summary.taxType');
-  const details = getValues(`selectedItems.${index}`);
-  const { item, salesTax } = details;
+  const details = getValues(`entries.${index}`);
+  const { item, tax } = details;
 
-  const itemErrors = errors?.selectedItems && errors?.selectedItems[index];
+  const itemErrors = errors?.entries && errors?.entries[index];
 
   return (
     <Stack direction="column" mt="0px!important">
@@ -64,17 +63,18 @@ function LineFields(props) {
             templateColumns="repeat(12, 1fr)"
             flexGrow={1}
           >
-            <GridItem colSpan={[12, 6]}>
+            <GridItem colSpan={[6, 4, 3]}>
               <FormControl isRequired isInvalid={!!itemErrors?.item}>
-                <CustomLabel htmlFor="item">Item</CustomLabel>
+                <CustomLabel htmlFor="item">Account</CustomLabel>
 
                 <ControlledSelect
                   onChange={itemId => handleItemChange(itemId, index)}
                   value={item?.itemId || ''}
                   id={field.id}
                   isDisabled={loading}
-                  placeholder="---select item---"
+                  placeholder="select account"
                   allowClearSelection={false}
+                  size="sm"
                   options={Object.values(itemsObject)
                     .filter(originalItem => {
                       const { itemId } = originalItem;
@@ -83,8 +83,8 @@ function LineFields(props) {
                        * 1. if there is and itemToEdit and current item is similar to itemToEdit
                        * 2. field is not in the selected items object
                        */
-                      const itemInSelectedItems = selectedItemsObject[itemId];
-                      if (item?.itemId === itemId || !itemInSelectedItems) {
+                      const accountAlreadySelected = entriesObject[itemId];
+                      if (item?.itemId === itemId || !accountAlreadySelected) {
                         return true;
                       } else {
                         return false;
@@ -104,36 +104,58 @@ function LineFields(props) {
               </FormControl>
             </GridItem>
 
-            <GridItem colSpan={[6, null, 3]}>
+            <GridItem colSpan={[6, 4, 3]}>
               <FormControl
                 isDisabled={loading}
                 isRequired
-                isInvalid={errors.customer}
+                isInvalid={errors.description}
               >
-                <FormLabel htmlFor="customer">Customer</FormLabel>
-                <ControlledSelect
-                  name="customer"
-                  size="md"
-                  placeholder="--select customer--"
+                <CustomLabel htmlFor="description">Description</CustomLabel>
+                <Textarea
+                  {...register(`entries.${index}.description`, {
+                    required: { value: true, message: '*Required!' },
+                  })}
                   isDisabled={loading}
-                  rules={{ required: { value: true, message: '*Required!' } }}
-                  // options={customers.map(customer => {
-                  //   const { customerId, displayName } = customer;
-
-                  //   return { name: displayName, value: customerId };
-                  // })}
-                  options={[]}
+                  resize="none"
+                  size="xs"
+                  rows={2}
                 />
-                <FormErrorMessage>{errors.customer?.message}</FormErrorMessage>
+                <FormErrorMessage>
+                  {errors.description?.message}
+                </FormErrorMessage>
               </FormControl>
             </GridItem>
 
-            <GridItem colSpan={[6, null, 3]}>
-              <FormControl isInvalid={itemErrors?.salesTax}>
-                <CustomLabel htmlFor="salesTax">Item Tax</CustomLabel>
+            <GridItem colSpan={[6, 4, 2]}>
+              <FormControl
+                isDisabled={loading}
+                isRequired
+                isInvalid={errors.contact}
+              >
+                <CustomLabel htmlFor="contact">Contact</CustomLabel>
                 <ControlledSelect
-                  id={`${field.id}-salesTax`}
-                  onChange={taxId => updateItemFields('salesTax', taxId, index)}
+                  name="contact"
+                  size="sm"
+                  placeholder="select contact"
+                  isDisabled={loading}
+                  rules={{ required: { value: true, message: '*Required!' } }}
+                  // options={contacts.map(contact => {
+                  //   const { contactId, displayName } = contact;
+
+                  //   return { name: displayName, value: contactId };
+                  // })}
+                  options={[]}
+                />
+                <FormErrorMessage>{errors.contact?.message}</FormErrorMessage>
+              </FormControl>
+            </GridItem>
+
+            <GridItem colSpan={[6, 4, 2]}>
+              <FormControl isInvalid={itemErrors?.tax}>
+                <CustomLabel htmlFor="tax">Tax</CustomLabel>
+                <ControlledSelect
+                  id={`${field.id}-tax`}
+                  onChange={taxId => updateItemFields('tax', taxId, index)}
                   placeholder="Item Tax"
                   options={Object.values(taxesObject).map(tax => {
                     const { taxId, name, rate } = tax;
@@ -143,25 +165,24 @@ function LineFields(props) {
                       value: taxId,
                     };
                   })}
-                  value={salesTax?.taxId || ''}
-                  isDisabled={!item?.itemId || loading}
+                  size="sm"
+                  value={tax?.taxId || ''}
+                  isDisabled={loading}
                 />
 
-                <FormErrorMessage>
-                  {itemErrors?.salesTax?.message}
-                </FormErrorMessage>
+                <FormErrorMessage>{itemErrors?.tax?.message}</FormErrorMessage>
               </FormControl>
             </GridItem>
 
             <GridItem colSpan={[6, 4, 1]}>
-              <FormControl isInvalid={itemErrors?.rate}>
-                <CustomLabel htmlFor="rate">Rate</CustomLabel>
+              <FormControl isInvalid={itemErrors?.debit}>
+                <CustomLabel htmlFor="debit">Debit</CustomLabel>
                 {/* <TableNumInput onBlur={() => } /> */}
                 <RHFPlainNumInput
-                  name={`selectedItems.${index}.rate`}
+                  name={`entries.${index}.debit`}
                   mode="onBlur"
                   updateValueOnBlur={false}
-                  onBlur={value => updateItemFields('rate', value, index)}
+                  onBlur={value => updateItemFields('debit', value, index)}
                   rules={{
                     required: { value: true, message: '*Required' },
                     min: {
@@ -170,70 +191,40 @@ function LineFields(props) {
                     },
                   }}
                   min={1}
+                  size="sm"
                   isReadOnly={loading}
-                  isDisabled={!item?.itemId}
-                />
-
-                <FormErrorMessage>{itemErrors?.rate?.message}</FormErrorMessage>
-              </FormControl>
-            </GridItem>
-
-            <GridItem colSpan={[6, 4, 1]}>
-              <FormControl isInvalid={itemErrors?.quantity}>
-                <CustomLabel htmlFor="quantity">Quantity</CustomLabel>
-                <RHFPlainNumInput
-                  name={`selectedItems.${index}.quantity`}
-                  mode="onBlur"
-                  updateValueOnBlur={false}
-                  onBlur={value => updateItemFields('quantity', value, index)}
-                  min={1}
-                  isReadOnly={loading}
-                  isDisabled={!item?.itemId}
-                  rules={{
-                    required: { value: true, message: '*Required' },
-                    min: {
-                      value: 1,
-                      message: 'Value should be greater than zero(0)!',
-                    },
-                  }}
+                  // isDisabled={loading}
                 />
 
                 <FormErrorMessage>
-                  {itemErrors?.quantity?.message}
+                  {itemErrors?.debit?.message}
                 </FormErrorMessage>
               </FormControl>
             </GridItem>
 
             <GridItem colSpan={[6, 4, 1]}>
-              <FormControl isInvalid={itemErrors?.itemRateTotal}>
-                <FormLabel textAlign="right" fontSize="smaller" mb={0}>
-                  Total
-                </FormLabel>
-
-                {(() => {
-                  const fieldValues = getValues(`selectedItems.${index}`);
-                  const itemRateTotal = fieldValues?.itemRateTotal || 0;
-                  const itemTaxTotal = fieldValues?.itemTaxTotal || 0;
-
-                  return (
-                    <Flex
-                      justifyContent="flex-end"
-                      alignItems="center"
-                      px={2}
-                      h="40px"
-                      w="full"
-                    >
-                      <Heading size="sm">
-                        {taxType === 'taxInclusive'
-                          ? itemTaxTotal + itemRateTotal
-                          : itemRateTotal}
-                      </Heading>
-                    </Flex>
-                  );
-                })()}
+              <FormControl isInvalid={itemErrors?.credit}>
+                <CustomLabel htmlFor="credit">Credit</CustomLabel>
+                <RHFPlainNumInput
+                  name={`entries.${index}.credit`}
+                  mode="onBlur"
+                  updateValueOnBlur={false}
+                  onBlur={value => updateItemFields('credit', value, index)}
+                  min={1}
+                  isReadOnly={loading}
+                  // isDisabled={!item?.itemId}
+                  size="sm"
+                  rules={{
+                    required: { value: true, message: '*Required' },
+                    min: {
+                      value: 1,
+                      message: 'Value should be greater than zero(0)!',
+                    },
+                  }}
+                />
 
                 <FormErrorMessage>
-                  {itemErrors?.quantity?.message}
+                  {itemErrors?.credit?.message}
                 </FormErrorMessage>
               </FormControl>
             </GridItem>
@@ -282,9 +273,9 @@ function LineFields(props) {
   );
 }
 
-LineFields.propTypes = {
+EntryFields.propTypes = {
   itemsObject: PropTypes.object.isRequired,
-  selectedItemsObject: PropTypes.object.isRequired,
+  entriesObject: PropTypes.object.isRequired,
   updateItemFields: PropTypes.func.isRequired,
   handleItemChange: PropTypes.func.isRequired,
   removeItem: PropTypes.func.isRequired,
@@ -294,4 +285,4 @@ LineFields.propTypes = {
   loading: PropTypes.bool.isRequired,
 };
 
-export default LineFields;
+export default EntryFields;

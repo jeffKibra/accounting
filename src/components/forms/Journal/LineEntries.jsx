@@ -1,9 +1,7 @@
 import { useMemo, useCallback, useEffect } from 'react';
 import { useFormContext, useFieldArray } from 'react-hook-form';
 import {
-  Box,
   Flex,
-  Text,
   VStack,
   Button,
   Grid,
@@ -18,11 +16,20 @@ import { useToasts } from 'hooks';
 //utils
 import { getSalesItemData, getSaleSummary } from 'utils/sales';
 
-import LineFields from './LineFields';
+import EntryFields from './EntryFields';
 //tables
-import SaleSummaryTable from 'components/tables/Sales/SaleSummaryTable';
+import JournalSummaryTable from 'components/tables/Journal/SummaryTable';
 
-export default function LineItems(props) {
+//-----------------------------------------------------------------------
+LineEntries.propTypes = {
+  loading: PropTypes.bool.isRequired,
+  items: PropTypes.array.isRequired,
+  taxes: PropTypes.array.isRequired,
+  // preentries: PropTypes.array,
+  customers: PropTypes.array.isRequired,
+};
+
+export default function LineEntries(props) {
   const { loading, taxes, customers } = props;
   //taxes object
   const taxesObject = useMemo(() => {
@@ -49,13 +56,13 @@ export default function LineItems(props) {
    * initialize field array for selected items
    */
   const { fields, remove, append } = useFieldArray({
-    name: 'selectedItems',
+    name: 'entries',
     control,
     // shouldUnregister: true,
   });
   // console.log({
   //   fields,
-  //   slItems: watch('selectedItems'),
+  //   slItems: watch('entries'),
   //   customer: watch('customer'),
   // });
 
@@ -67,16 +74,16 @@ export default function LineItems(props) {
 
   // useEffect(() => {
   //   /**
-  //    * add default selectedItems
+  //    * add default entries
   //    */
-  //   console.log('updating default selectedItems');
+  //   console.log('updating default entries');
   //   if (
-  //     preSelectedItems &&
-  //     Array.isArray(preSelectedItems) &&
-  //     preSelectedItems.length > 0
+  //     preentries &&
+  //     Array.isArray(preentries) &&
+  //     preentries.length > 0
   //   ) {
-  //     // replace(preSelectedItems);
-  //     // preSelectedItems.forEach(item => {
+  //     // replace(preentries);
+  //     // preentries.forEach(item => {
   //     //   append({ ...item });
   //     // });
   //   } else {
@@ -95,7 +102,7 @@ export default function LineItems(props) {
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, []);
 
-  const itemsFields = watch('selectedItems');
+  const itemsFields = watch('entries');
 
   /**
    * using watch makes selecetd items(fields) to change on every render.
@@ -105,13 +112,13 @@ export default function LineItems(props) {
    */
   const fieldsString = JSON.stringify(itemsFields || []);
   //compute summary values whenever selected items change
-  const { summary, selectedItemsObject } = useMemo(() => {
+  const { summary, entriesObject } = useMemo(() => {
     /**
      * parse the json string to get back field values
      */
-    const selectedItems = JSON.parse(fieldsString);
+    const entries = JSON.parse(fieldsString);
 
-    const selectedItemsObject = selectedItems.reduce((summary, itemDetails) => {
+    const entriesObject = entries.reduce((summary, itemDetails) => {
       const { item } = itemDetails;
       if (item) {
         return {
@@ -124,9 +131,9 @@ export default function LineItems(props) {
     }, {});
 
     console.log('generating summary');
-    const summary = getSaleSummary(selectedItems);
+    const summary = getSaleSummary(entries);
 
-    return { selectedItemsObject, summary };
+    return { entriesObject, summary };
   }, [fieldsString]);
   /**
    * convert items into an object for easier updates .
@@ -168,7 +175,7 @@ export default function LineItems(props) {
   const removeItem = useCallback(
     index => {
       //fetch item from list using the index
-      const item = getValues(`selectedItems.${index}`);
+      const item = getValues(`entries.${index}`);
       // console.log({ item, index });
 
       if (item && typeof item === 'object') {
@@ -184,7 +191,7 @@ export default function LineItems(props) {
 
   const updateItemFields = useCallback(
     (fieldName, value, index) => {
-      const fieldId = `selectedItems.${index}`;
+      const fieldId = `entries.${index}`;
       const currentValues = getValues(fieldId);
       const {
         item: { itemId },
@@ -228,7 +235,7 @@ export default function LineItems(props) {
       );
 
       //update item at index
-      setValue(`selectedItems.${index}`, { ...itemData });
+      setValue(`entries.${index}`, { ...itemData });
     },
     [setValue, itemsObject]
   );
@@ -246,11 +253,11 @@ export default function LineItems(props) {
       </Flex>
       {fields.map((field, index) => {
         return (
-          <LineFields
+          <EntryFields
             key={field.id}
             index={index}
             itemsObject={itemsObject || {}}
-            selectedItemsObject={selectedItemsObject || {}}
+            entriesObject={entriesObject || {}}
             removeItem={removeItem}
             handleItemChange={handleItemChange}
             updateItemFields={updateItemFields}
@@ -276,17 +283,9 @@ export default function LineItems(props) {
       <Grid w="full" rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
         <GridItem colSpan={[0, 4, 6]}></GridItem>
         <GridItem colSpan={[12, 8, 6]}>
-          <SaleSummaryTable loading={loading} summary={summary} />
+          <JournalSummaryTable loading={loading} summary={summary} />
         </GridItem>
       </Grid>
     </VStack>
   );
 }
-
-LineItems.propTypes = {
-  loading: PropTypes.bool.isRequired,
-  items: PropTypes.array.isRequired,
-  taxes: PropTypes.array.isRequired,
-  // preSelectedItems: PropTypes.array,
-  customers: PropTypes.array.isRequired,
-};

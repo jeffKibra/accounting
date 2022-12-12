@@ -10,10 +10,10 @@ import SkeletonLoader from 'components/ui/SkeletonLoader';
 import Empty from 'components/ui/Empty';
 
 import FormFields from './FormFields';
-import LineItems from './LineItems';
+import LineEntries from './LineEntries';
 
 function JournalForm(props) {
-  const { invoice, handleFormSubmit, updating } = props;
+  const { journal, handleFormSubmit, updating } = props;
 
   const { loading, items, customers, paymentTerms, taxes } = useGetSalesProps();
 
@@ -21,26 +21,20 @@ function JournalForm(props) {
   const formMethods = useForm({
     mode: 'onChange',
     defaultValues: {
-      customer: invoice?.customer?.customerId || '',
-      orderNumber: invoice?.orderNumber || '',
-      invoiceDate: invoice?.invoiceDate || today,
-      paymentTerm: invoice?.paymentTerm?.value || 'on_receipt',
-      dueDate: invoice?.dueDate || today,
-      subject: invoice?.subject || '',
-      customerNotes: invoice?.customerNotes || '',
-      selectedItems: invoice?.selectedItems || [
+      notes: journal?.notes || '',
+      reference: journal?.reference || '',
+      journalDate: journal?.journalDate || today,
+      entries: journal?.entries || [
         {
-          item: null,
-          rate: 0,
-          quantity: 0,
-          itemRate: 0,
-          itemTax: 0,
-          itemRateTotal: 0,
-          itemTaxTotal: 0,
-          salesTax: null,
+          account: null,
+          description: '',
+          contact: null,
+          tax: null,
+          debit: 0,
+          credit: 0,
         },
       ],
-      summary: invoice?.summary || {
+      summary: journal?.summary || {
         adjustment: 0,
         shipping: 0,
         subTotal: 0,
@@ -58,12 +52,12 @@ function JournalForm(props) {
   // console.log({
   //   dirtyFields,
   //   isDirty,
-  //   totalAmount: invoice?.summary?.totalAmount,
+  //   totalAmount: journal?.summary?.totalAmount,
   // });
 
   function onSubmit(data) {
     const { customer: customerId, paymentTerm: paymentTermId, ...rest } = data;
-    const { invoiceDate, dueDate, selectedItems } = rest;
+    const { journalDate, dueDate, entries } = rest;
     let formValues = { ...rest };
     /**
      * check if selected items is not an empty array or
@@ -71,8 +65,8 @@ function JournalForm(props) {
      */
 
     const fieldsValid =
-      (selectedItems && selectedItems.filter(item => item).length > 0) || false;
-    // console.log({ selectedItems });
+      (entries && entries.filter(item => item).length > 0) || false;
+    // console.log({ entries });
 
     if (!fieldsValid) {
       return toasts.error('Please add atleast one(1) item to proceed!');
@@ -84,9 +78,9 @@ function JournalForm(props) {
     /**
      * ensure dueDate is not a past date
      */
-    const dueDateIsFuture = confirmFutureDate(invoiceDate, dueDate);
+    const dueDateIsFuture = confirmFutureDate(journalDate, dueDate);
     if (!dueDateIsFuture) {
-      return toasts.error('Due date cannot be less than invoice date');
+      return toasts.error('Due date cannot be less than journal date');
     }
 
     const customer = customers.find(
@@ -103,8 +97,8 @@ function JournalForm(props) {
     }
     formValues.paymentTerm = paymentTerm;
 
-    // if (invoice) {
-    //   //invoice is being updated-submit only the changed values
+    // if (journal) {
+    //   //journal is being updated-submit only the changed values
     //   formValues = getDirtyFields(dirtyFields, formValues);
     // }
     // console.log({ formValues });
@@ -134,7 +128,7 @@ function JournalForm(props) {
         >
           <FormFields />
 
-          <LineItems items={[]} loading={false} taxes={[]} customers={[]} />
+          <LineEntries items={[]} loading={false} taxes={[]} customers={[]} />
 
           {/* <Grid
             w="full"
@@ -172,7 +166,7 @@ function JournalForm(props) {
 JournalForm.propTypes = {
   handleFormSubmit: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,
-  invoice: PropTypes.shape({
+  journal: PropTypes.shape({
     summary: PropTypes.shape({
       shipping: PropTypes.number,
       adjustment: PropTypes.number,
@@ -181,13 +175,13 @@ JournalForm.propTypes = {
       subTotal: PropTypes.number,
       taxes: PropTypes.array,
     }),
-    selectedItems: PropTypes.array,
+    lineEntries: PropTypes.array,
     customerId: PropTypes.string,
-    invoiceDate: PropTypes.instanceOf(Date),
+    journalDate: PropTypes.instanceOf(Date),
     dueDate: PropTypes.instanceOf(Date),
     subject: PropTypes.string,
     customerNotes: PropTypes.string,
-    invoiceId: PropTypes.string,
+    journalId: PropTypes.string,
   }),
 };
 

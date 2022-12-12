@@ -53,6 +53,8 @@ export default function FormFields(props) {
               {...register('notes', {
                 required: { value: true, message: 'Required!' },
               })}
+              rows={2}
+              resize="none"
             />
             <FormErrorMessage>{errors.notes?.message}</FormErrorMessage>
           </FormControl>
