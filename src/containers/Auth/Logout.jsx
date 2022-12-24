@@ -1,20 +1,28 @@
-import { useEffect } from "react";
-import { connect } from "react-redux";
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { Navigate } from 'react-router-dom';
 
-import { LOGOUT } from "../../store/actions/authActions";
+import { LOGOUT } from '../../store/actions/authActions';
+import { LOGIN_USER } from 'nav/routes';
 
-import FullPageSpinner from "../../components/ui/FullPageSpinner";
+import FullPageSpinner from '../../components/ui/FullPageSpinner';
 
 function Logout(props) {
   const { userProfile, signout } = props;
 
+  const email = userProfile?.email;
+
   useEffect(() => {
-    if (userProfile?.email) {
+    if (email) {
       signout();
     }
-  }, [signout, userProfile]);
+  }, [signout, email]);
 
-  return <FullPageSpinner label="SIGNING OUT..." />;
+  return email ? (
+    <FullPageSpinner label="SIGNING OUT..." />
+  ) : (
+    <Navigate to={LOGIN_USER} />
+  );
 }
 
 function mapStateToProps(state) {

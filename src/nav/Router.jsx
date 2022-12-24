@@ -1,21 +1,21 @@
 // import { useContext } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route } from 'react-router-dom';
 
-import useAuth from "../hooks/useAuth";
-import { isAdmin } from "../utils/roles";
+import useAuth from '../hooks/useAuth';
+import { isAdmin } from '../utils/roles';
 
-import * as routes from "../nav/routes";
+import * as routes from '../nav/routes';
 
-import ManagementRoutes from "./ManagementRoutes";
-import AdminRoutes from "./AdminRoutes";
+import ManagementRoutes from './ManagementRoutes';
+import AdminRoutes from './AdminRoutes';
 
-import ProtectedRoute from "./ProtectedRoute";
-import PublicRoute from "./PublicRoute";
+// import ProtectedRoute from './ProtectedRoute';
+import PublicRoute from './PublicRoute';
 
 //auth
-import LoginPage from "../pages/Auth/LoginPage";
-import LogoutPage from "../pages/Auth/LogoutPage";
-import CreateUserPage from "../pages/Auth/CreateUserPage";
+import LoginPage from '../pages/Auth/LoginPage';
+import LogoutPage from '../pages/Auth/LogoutPage';
+import CreateUserPage from '../pages/Auth/CreateUserPage';
 
 function Router() {
   const userProfile = useAuth();
@@ -23,7 +23,7 @@ function Router() {
 
   return (
     <>
-      {" "}
+      {' '}
       <Routes>
         <Route
           path={routes.LOGIN_USER}
@@ -44,15 +44,7 @@ function Router() {
             </PublicRoute>
           }
         />
-        <Route
-          path={routes.LOGOUT_USER}
-          exact
-          element={
-            <ProtectedRoute>
-              <LogoutPage />
-            </ProtectedRoute>
-          }
-        />
+        <Route path={routes.LOGOUT_USER} exact element={<LogoutPage />} />
 
         {isAdmin(userProfile?.role) ? AdminRoutes() : ManagementRoutes()}
 

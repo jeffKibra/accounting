@@ -1,10 +1,10 @@
-import { useEffect } from "react";
-import { connect } from "react-redux";
-import PropTypes from "prop-types";
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
-import { CHECK_ACCOUNTS } from "../../../store/actions/accountsActions";
+import { CHECK_ACCOUNTS } from '../../../store/actions/accountsActions';
 
-import FullPageSpinner from "../../../components/ui/FullPageSpinner";
+import FullPageSpinner from '../../../components/ui/FullPageSpinner';
 
 function CheckAccounts(props) {
   const { check, loading, action, orgId, children } = props;
