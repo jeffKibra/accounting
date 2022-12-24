@@ -1,35 +1,20 @@
-import { useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
 import { Flex } from '@chakra-ui/react';
 
 import { DrawerContextProvider } from '../../contexts/DrawerContext';
 
-import * as routes from '../../nav/routes';
+import { useAuth } from 'hooks';
+
 import AppBar from './AppBar';
 import Sidebar from './Sidebar';
 
 function Layout(props) {
-  const location = useLocation();
   const { children } = props;
 
-  const isFreeRoute = useMemo(() => {
-    const freeRoutes = [routes.LOGIN_USER, routes.LOGOUT_USER, routes.SIGNUP];
-
-    const route = freeRoutes.find(route => route === location.pathname);
-    if (!route) {
-      return false;
-    }
-
-    return true;
-  }, [location]);
+  const userProfile = useAuth();
 
   return (
     <Flex h="100vh" minW="full" overflowY="hidden">
-      {isFreeRoute ? (
-        <Flex flexGrow={1} overflowY="hidden">
-          {children}
-        </Flex>
-      ) : (
+      {userProfile ? (
         <DrawerContextProvider>
           <Sidebar />
 
@@ -42,6 +27,10 @@ function Layout(props) {
             </Flex>
           </Flex>
         </DrawerContextProvider>
+      ) : (
+        <Flex flexGrow={1} overflowY="hidden">
+          {children}
+        </Flex>
       )}
     </Flex>
   );
