@@ -16,6 +16,7 @@ import { RiDeleteBinLine } from 'react-icons/ri';
 import { useFormContext } from 'react-hook-form';
 import PropTypes from 'prop-types';
 
+import CustomSelect from 'components/ui/CustomSelect';
 import ControlledSelect from 'components/ui/ControlledSelect';
 import RHFPlainNumInput from 'components/ui/RHFPlainNumInput';
 
@@ -48,6 +49,7 @@ function EntryFields(props) {
   } = useFormContext();
 
   const details = getValues(`entries.${index}`);
+  console.log({ details });
   const { item, tax } = details;
 
   const itemErrors = errors?.entries && errors?.entries[index];
@@ -152,11 +154,9 @@ function EntryFields(props) {
 
             <GridItem colSpan={[6, 4, 2]}>
               <FormControl isInvalid={itemErrors?.tax}>
-                <CustomLabel htmlFor="tax">Tax</CustomLabel>
-                <ControlledSelect
-                  id={`${field.id}-tax`}
-                  onChange={taxId => updateItemFields('tax', taxId, index)}
-                  placeholder="Item Tax"
+                <CustomLabel htmlFor={`entries.${index}.tax`}>Tax</CustomLabel>
+                <CustomSelect
+                  name={`entries.${index}.tax`}
                   options={Object.values(taxesObject).map(tax => {
                     const { taxId, name, rate } = tax;
 
@@ -166,8 +166,8 @@ function EntryFields(props) {
                     };
                   })}
                   size="sm"
-                  value={tax?.taxId || ''}
                   isDisabled={loading}
+                  placeholder="tax"
                 />
 
                 <FormErrorMessage>{itemErrors?.tax?.message}</FormErrorMessage>

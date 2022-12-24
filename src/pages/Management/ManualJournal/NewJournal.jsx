@@ -2,15 +2,15 @@ import { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { MANUAL_JOURNALS } from '../../../nav/routes';
+import { MANUAL_JOURNALS } from 'nav/routes';
 
-import { CREATE_INVOICE } from '../../../store/actions/invoicesActions';
-import { reset } from '../../../store/slices/invoicesSlice';
+import { CREATE_INVOICE } from 'store/actions/invoicesActions';
+import { reset } from 'store/slices/invoicesSlice';
 
-import useSavedLocation from '../../../hooks/useSavedLocation';
+import { useSavedLocation, useTaxes } from 'hooks';
 
-import PageLayout from '../../../components/layout/PageLayout';
-
+import PageLayout from 'components/layout/PageLayout';
+import SkeletonLoader from 'components/ui/SkeletonLoader';
 import JournalForm from 'components/forms/Journal/JournalForm';
 
 function NewJournalPage(props) {
@@ -18,6 +18,8 @@ function NewJournalPage(props) {
   useSavedLocation().setLocation();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { taxes, isLoading: loadingTaxes } = useTaxes();
 
   useEffect(() => {
     if (isModified) {
@@ -35,7 +37,15 @@ function NewJournalPage(props) {
         'New Journal': location.pathname,
       }}
     >
-      <JournalForm handleFormSubmit={() => console.log('plus')} />
+      {loadingTaxes ? (
+        <SkeletonLoader />
+      ) : (
+        <JournalForm
+          taxes={taxes}
+          handleFormSubmit={() => console.log('plus')}
+        />
+      )}
+
       {/* <EditInvoice
         updating={loading && action === CREATE_INVOICE}
         handleFormSubmit={createInvoice}

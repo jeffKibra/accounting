@@ -13,3 +13,4 @@ export { default as useDeleteVendor } from './useDeleteVendor';
 export { default as useDeleteExpense } from './useDeleteExpense';
 export { default as useGetSalesProps } from './useGetSalesProps';
 export { default as useAccountTypes } from './useAccountTypes';
+export { default as useTaxes } from './useTaxes';

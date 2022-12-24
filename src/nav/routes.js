@@ -55,8 +55,7 @@ export const VIEW_EXPENSE = '/purchase/expenses/:expenseId/view';
 export const CHART_OF_ACCOUNTS = '/book-keeping/chart-of-accounts';
 //manual journals
 export const MANUAL_JOURNALS = '/book-keeping/manual-journals';
-export const NEW_MANUAL_JOURNAL =
-  '/book-keeping/manual-journals/:journalId/new';
+export const NEW_MANUAL_JOURNAL = '/book-keeping/manual-journals/new';
 export const EDIT_MANUAL_JOURNAL =
   '/book-keeping/manual-journals/:journalId/edit';
 

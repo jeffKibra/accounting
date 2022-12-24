@@ -13,9 +13,7 @@ import FormFields from './FormFields';
 import LineEntries from './LineEntries';
 
 function JournalForm(props) {
-  const { journal, handleFormSubmit, updating } = props;
-
-  const { loading, items, customers, paymentTerms, taxes } = useGetSalesProps();
+  const { journal, handleFormSubmit, updating, taxes } = props;
 
   const today = new Date();
   const formMethods = useForm({
@@ -83,19 +81,19 @@ function JournalForm(props) {
       return toasts.error('Due date cannot be less than journal date');
     }
 
-    const customer = customers.find(
-      customer => customer.customerId === customerId
-    );
-    if (!customer) {
-      return toasts.error('Selected an Invalid customer');
-    }
-    formValues.customer = formats.formatCustomerData(customer);
+    // const customer = customers.find(
+    //   customer => customer.customerId === customerId
+    // );
+    // if (!customer) {
+    //   return toasts.error('Selected an Invalid customer');
+    // }
+    // formValues.customer = formats.formatCustomerData(customer);
 
-    const paymentTerm = paymentTerms.find(term => term.value === paymentTermId);
-    if (!paymentTerm) {
-      return toasts.error('Selected Payment Term is not a valid Payment Term');
-    }
-    formValues.paymentTerm = paymentTerm;
+    // const paymentTerm = paymentTerms.find(term => term.value === paymentTermId);
+    // if (!paymentTerm) {
+    //   return toasts.error('Selected Payment Term is not a valid Payment Term');
+    // }
+    // formValues.paymentTerm = paymentTerm;
 
     // if (journal) {
     //   //journal is being updated-submit only the changed values
@@ -109,9 +107,7 @@ function JournalForm(props) {
 
   // console.log({ customers, items, paymentTerms, loading });
 
-  return loading ? (
-    <SkeletonLoader />
-  ) : customers?.length > 0 && items?.length > 0 && paymentTerms?.length > 0 ? (
+  return (
     <FormProvider {...formMethods}>
       <Box as="form" role="form" onSubmit={handleSubmit(onSubmit)} w="full">
         <Box
@@ -128,7 +124,12 @@ function JournalForm(props) {
         >
           <FormFields />
 
-          <LineEntries items={[]} loading={false} taxes={[]} customers={[]} />
+          <LineEntries
+            items={[]}
+            loading={false}
+            taxes={taxes || []}
+            customers={[]}
+          />
 
           {/* <Grid
             w="full"
@@ -154,12 +155,6 @@ function JournalForm(props) {
         </Flex>
       </Box>
     </FormProvider>
-  ) : items?.length === 0 ? (
-    <Empty message="Please add atleast one ITEM to continue or reload the page" />
-  ) : customers?.length === 0 ? (
-    <Empty message="Please add atleast one CUSTOMER to continue or reload the page" />
-  ) : (
-    <Empty message="Payment Terms not Found. Try Reloading the page" />
   );
 }
 
