@@ -14,7 +14,8 @@ import SkeletonLoader from 'components/ui/SkeletonLoader';
 import JournalForm from 'components/forms/Journal/JournalForm';
 
 function NewJournalPage(props) {
-  const { loading, action, isModified, createInvoice, resetInvoice } = props;
+  const { loading, action, isModified, createInvoice, resetInvoice, accounts } =
+    props;
   useSavedLocation().setLocation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -42,6 +43,7 @@ function NewJournalPage(props) {
       ) : (
         <JournalForm
           taxes={taxes}
+          accounts={accounts}
           handleFormSubmit={() => console.log('plus')}
         />
       )}
@@ -56,8 +58,9 @@ function NewJournalPage(props) {
 
 function mapStateToProps(state) {
   const { loading, action, isModified } = state.invoicesReducer;
+  const { accounts } = state?.accountsReducer;
 
-  return { loading, action, isModified };
+  return { loading, action, isModified, accounts };
 }
 
 function mapDispatchToProps(dispatch) {

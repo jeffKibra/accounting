@@ -1,7 +1,7 @@
-import PropTypes from "prop-types";
-import { Controller, useFormContext } from "react-hook-form";
+import PropTypes from 'prop-types';
+import { Controller, useFormContext } from 'react-hook-form';
 
-import ControlledSelect from "./ControlledSelect";
+import ControlledSelect from './ControlledSelect';
 
 function CustomSelect(props) {
   //   console.log({ props });
@@ -47,7 +47,7 @@ CustomSelect.propTypes = {
     })
   ),
   placeholder: PropTypes.string,
-  size: PropTypes.oneOf(["xs", "sm", "md", "lg", "xl"]),
+  size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl']),
   colorScheme: PropTypes.string,
   isDisabled: PropTypes.bool,
   renderTrigger: PropTypes.func,

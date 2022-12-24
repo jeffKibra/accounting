@@ -14,7 +14,7 @@ import PropTypes from 'prop-types';
 //hooks
 import { useToasts } from 'hooks';
 //utils
-import { getSalesItemData, getSaleSummary } from 'utils/sales';
+import { getSaleSummary } from 'utils/sales';
 
 import EntryFields from './EntryFields';
 //tables
@@ -23,14 +23,15 @@ import JournalSummaryTable from 'components/tables/Journal/SummaryTable';
 //-----------------------------------------------------------------------
 LineEntries.propTypes = {
   loading: PropTypes.bool.isRequired,
-  items: PropTypes.array.isRequired,
+  accounts: PropTypes.array.isRequired,
   taxes: PropTypes.array.isRequired,
   // preentries: PropTypes.array,
   customers: PropTypes.array.isRequired,
 };
 
 export default function LineEntries(props) {
-  const { loading, taxes, customers } = props;
+  const { loading, taxes, customers, accounts } = props;
+
   //taxes object
   const taxesObject = useMemo(() => {
     return taxes.reduce((obj, tax) => {
@@ -41,6 +42,18 @@ export default function LineEntries(props) {
       };
     }, {});
   }, [taxes]);
+
+  //taxes object
+  const accountsObject = useMemo(() => {
+    return accounts.reduce((obj, account) => {
+      const { name, accountType, accountId } = account;
+      return {
+        ...obj,
+        [accountId]: { name, accountType, accountId },
+      };
+    }, {});
+  }, [accounts]);
+
   //form methhods
   const {
     watch,
@@ -102,7 +115,7 @@ export default function LineEntries(props) {
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, []);
 
-  const itemsFields = watch('entries');
+  const entriesFields = watch('entries');
 
   /**
    * using watch makes selecetd items(fields) to change on every render.
@@ -110,20 +123,21 @@ export default function LineEntries(props) {
    * useMemo and useEffect with be able to compare strings appropriately
    * and only rerender when value changes
    */
-  const fieldsString = JSON.stringify(itemsFields || []);
+  const fieldsString = JSON.stringify(entriesFields || []);
   //compute summary values whenever selected items change
   const { summary, entriesObject } = useMemo(() => {
     /**
      * parse the json string to get back field values
      */
     const entries = JSON.parse(fieldsString);
+    console.log({ entries });
 
-    const entriesObject = entries.reduce((summary, itemDetails) => {
-      const { item } = itemDetails;
-      if (item) {
+    const entriesObject = entries.reduce((summary, entryDetails) => {
+      const { account } = entryDetails;
+      if (account) {
         return {
           ...summary,
-          [item.itemId]: itemDetails,
+          [account.accountId]: entryDetails,
         };
       } else {
         return summary;
@@ -135,38 +149,16 @@ export default function LineEntries(props) {
 
     return { entriesObject, summary };
   }, [fieldsString]);
-  /**
-   * convert items into an object for easier updates .
-   * helps to avoid iterating the whole array for every update
-   */
-  const itemsObject = useMemo(() => {
-    const items = props.items;
-    let itemsObject = {};
-
-    if (items && Array.isArray(items)) {
-      itemsObject = items.reduce((obj, item) => {
-        const { itemId } = item;
-        return {
-          ...obj,
-          [itemId]: { ...item },
-        };
-      }, {});
-    }
-
-    return itemsObject;
-  }, [props.items]);
 
   const addNewLine = useCallback(() => {
     console.log('adding new line');
     append({
-      item: null,
-      rate: 0,
-      quantity: 0,
-      itemRate: 0,
-      itemTax: 0,
-      itemRateTotal: 0,
-      itemTaxTotal: 0,
-      salesTax: null,
+      account: null,
+      description: 0,
+      contact: null,
+      tax: null,
+      debit: 0,
+      credit: 0,
     });
   }, [append]);
 
@@ -189,55 +181,30 @@ export default function LineEntries(props) {
     [remove, getValues, toasts]
   );
 
-  const updateItemFields = useCallback(
-    (fieldName, value, index) => {
-      const fieldId = `entries.${index}`;
-      const currentValues = getValues(fieldId);
-      const {
-        item: { itemId },
-        quantity,
-        rate,
-        salesTax,
-      } = currentValues;
-
-      const originalItem = itemsObject[itemId];
-      let selectedItemData = {
-        itemId,
-        quantity,
-        rate,
-        salesTax,
-      };
-
-      /**
-       * field name is either quantity or rate or salesTax.
-       * add at bottom to overide current value
-       */
-      selectedItemData = {
-        ...selectedItemData,
-        [fieldName]: fieldName === 'salesTax' ? taxesObject[value] : +value,
-      };
-
-      const updatedValues = getSalesItemData(selectedItemData, originalItem);
-      //update item
-      setValue(fieldId, updatedValues);
+  /**
+   * function to update non-object values
+   * (strings and numbers)
+   */
+  const updateEntryField = useCallback(
+    (fieldName, value) => {
+      setValue(fieldName, value);
     },
-    [setValue, getValues, itemsObject, taxesObject]
+    [setValue]
   );
 
-  const handleItemChange = useCallback(
-    (itemId, index) => {
-      const selectedItem = itemsObject[itemId];
-      const { sellingPrice, salesTax } = selectedItem;
+  useEffect(() => {
+    console.log('taxes object changed');
+  }, [taxesObject]);
+  /**
+   * function to update select object values
+   */
+  const handleSelectChange = useCallback(
+    (fieldName, selectedValue, optionsObject) => {
+      const selectedObjectValue = optionsObject[selectedValue];
 
-      const itemData = getSalesItemData(
-        { itemId, quantity: 1, rate: sellingPrice, salesTax },
-        itemsObject[itemId]
-      );
-
-      //update item at index
-      setValue(`entries.${index}`, { ...itemData });
+      setValue(fieldName, selectedObjectValue);
     },
-    [setValue, itemsObject]
+    [setValue]
   );
 
   // console.log({ errors });
@@ -247,7 +214,7 @@ export default function LineEntries(props) {
       <Flex w="full" justify="flex-end" align="center" flexWrap="wrap">
         <Flex grow={1} h="32px" alignItems="center">
           <Heading size="md" as="h3">
-            Items
+            Entries
           </Heading>
         </Flex>
       </Flex>
@@ -256,15 +223,15 @@ export default function LineEntries(props) {
           <EntryFields
             key={field.id}
             index={index}
-            itemsObject={itemsObject || {}}
             entriesObject={entriesObject || {}}
             removeItem={removeItem}
-            handleItemChange={handleItemChange}
-            updateItemFields={updateItemFields}
+            updateEntryField={updateEntryField}
             field={field}
             taxesObject={taxesObject || {}}
             loading={loading}
             customers={customers || []}
+            handleSelectChange={handleSelectChange}
+            accountsObject={accountsObject || {}}
           />
         );
       })}

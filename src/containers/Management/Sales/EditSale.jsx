@@ -9,6 +9,7 @@ import {
   Grid,
   GridItem,
   Heading,
+  Select,
 } from '@chakra-ui/react';
 import { RiAddLine } from 'react-icons/ri';
 import PropTypes from 'prop-types';
