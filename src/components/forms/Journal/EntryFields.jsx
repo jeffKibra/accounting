@@ -18,6 +18,8 @@ import PropTypes from 'prop-types';
 import ControlledSelect from 'components/ui/ControlledSelect';
 import FieldArrayTextarea from 'components/ui/FieldArrayTextarea';
 import FieldArrayNumberInput from 'components/ui/FieldArrayNumberInput';
+import ContactSelect from 'components/ui/ContactSelect';
+import CustomSelect from 'components/ui/CustomSelect';
 
 function CustomLabel({ children }) {
   return (
@@ -132,7 +134,8 @@ function EntryFields(props) {
                 isInvalid={errors.contact}
               >
                 <CustomLabel htmlFor="contact">Contact</CustomLabel>
-                <ControlledSelect
+                <ContactSelect name={`entries.${index}.name`} />
+                {/* <ControlledSelect
                   name="contact"
                   size="sm"
                   placeholder="select contact"
@@ -144,7 +147,7 @@ function EntryFields(props) {
                   //   return { name: displayName, value: contactId };
                   // })}
                   options={[]}
-                />
+                /> */}
                 <FormErrorMessage>{errors.contact?.message}</FormErrorMessage>
               </FormControl>
             </GridItem>
@@ -197,35 +200,33 @@ function EntryFields(props) {
             </GridItem>
 
             <GridItem colSpan={[6, 4, 1]}>
-              <FormControl isInvalid={itemErrors?.debit}>
-                <CustomLabel htmlFor="debit">Debit</CustomLabel>
+              <FormControl isInvalid={itemErrors?.type}>
+                <CustomLabel htmlFor={`entries.${index}.type`}>
+                  Type
+                </CustomLabel>
                 {/* <TableNumInput onBlur={() => } /> */}
-                <FieldArrayNumberInput
-                  name={`entries.${index}.debit`}
-                  rules={{
-                    required: { value: true, message: '*Required' },
-                    min: {
-                      value: 1,
-                      message: 'Value should be greater than zero(0)!',
-                    },
-                  }}
-                  min={1}
-                  size="sm"
-                  isReadOnly={loading}
-                  // isDisabled={loading}
-                />
 
-                <FormErrorMessage>
-                  {itemErrors?.debit?.message}
-                </FormErrorMessage>
+                <CustomSelect
+                  name={`entries.${index}.type`}
+                  options={[
+                    { name: 'Debit', value: 'debit' },
+                    { name: 'Credit', value: 'credit' },
+                  ]}
+                  size="sm"
+                  isDisabled={loading}
+                  placeholder="Entry Type"
+                />
+                <FormErrorMessage>{itemErrors?.type?.message}</FormErrorMessage>
               </FormControl>
             </GridItem>
 
             <GridItem colSpan={[6, 4, 1]}>
-              <FormControl isInvalid={itemErrors?.credit}>
-                <CustomLabel htmlFor="credit">Credit</CustomLabel>
+              <FormControl isInvalid={itemErrors?.amount}>
+                <CustomLabel htmlFor={`entries.${index}.amount`}>
+                  Amount
+                </CustomLabel>
                 <FieldArrayNumberInput
-                  name={`entries.${index}.credit`}
+                  name={`entries.${index}.amount`}
                   min={1}
                   isReadOnly={loading}
                   // isDisabled={!item?.itemId}
@@ -240,7 +241,7 @@ function EntryFields(props) {
                 />
 
                 <FormErrorMessage>
-                  {itemErrors?.credit?.message}
+                  {itemErrors?.amount?.message}
                 </FormErrorMessage>
               </FormControl>
             </GridItem>

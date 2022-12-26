@@ -14,3 +14,5 @@ export { default as useDeleteExpense } from './useDeleteExpense';
 export { default as useGetSalesProps } from './useGetSalesProps';
 export { default as useAccountTypes } from './useAccountTypes';
 export { default as useTaxes } from './useTaxes';
+export { default as useSearchContacts } from './useSearchContacts';
+export { default as useFetchFromFirestore } from './useFetchFromFirestore';

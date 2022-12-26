@@ -9,6 +9,7 @@
     "@emotion/styled": "^11.10.0",
     "@hookform/resolvers": "^2.9.7",
     "@reduxjs/toolkit": "^1.8.3",
+    "algoliasearch": "^4.14.3",
     "big.js": "^6.2.1",
     "bignumber.js": "^9.1.0",
     "chakra-ui-steps": "^1.7.3",
