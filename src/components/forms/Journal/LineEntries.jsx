@@ -14,11 +14,12 @@ import PropTypes from 'prop-types';
 //hooks
 import { useToasts } from 'hooks';
 //utils
-import { getSaleSummary } from 'utils/sales';
+import { computeSummary } from 'utils/manualJournals';
 
 import EntryFields from './EntryFields';
 //tables
 import JournalSummaryTable from 'components/tables/Journal/SummaryTable';
+import { initialJournalEntry } from './JournalForm';
 
 //-----------------------------------------------------------------------
 LineEntries.propTypes = {
@@ -145,21 +146,15 @@ export default function LineEntries(props) {
     }, {});
 
     console.log('generating summary');
-    const summary = getSaleSummary(entries);
+    const summary = computeSummary(entries);
+    console.log({ summary });
 
     return { entriesObject, summary };
   }, [fieldsString]);
 
   const addNewLine = useCallback(() => {
     console.log('adding new line');
-    append({
-      account: null,
-      description: 0,
-      contact: null,
-      tax: null,
-      debit: 0,
-      credit: 0,
-    });
+    append(initialJournalEntry);
   }, [append]);
 
   // console.log({ fields, errors });

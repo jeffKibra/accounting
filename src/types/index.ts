@@ -27,7 +27,7 @@ export type {
   AccountFormData,
   AccountFromDb,
 } from './accounts';
-export type { Tax, TaxForm, TaxFromDb } from './tax';
+export type { Tax, TaxForm, TaxFromDb, TaxSummary } from './tax';
 export type {
   SalesItem,
   SaleItem,
@@ -88,6 +88,9 @@ export type {
   CustomerOpeningBalanceFromDb,
 } from './customerOpeningBalance';
 export type { DateDetails } from './others';
+
+export type { IContactSummary } from './contacts';
+export type { IManualJournalEntry } from './manualJournals';
 
 export type { OneOfType } from './oneOfType';
 

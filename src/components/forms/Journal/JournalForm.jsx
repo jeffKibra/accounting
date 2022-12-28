@@ -13,6 +13,15 @@ import Empty from 'components/ui/Empty';
 import FormFields from './FormFields';
 import LineEntries from './LineEntries';
 
+export const initialJournalEntry = {
+  account: null,
+  description: '',
+  contact: null,
+  tax: null,
+  type: 'credit',
+  amount: 0,
+};
+
 function JournalForm(props) {
   const { journal, handleFormSubmit, updating, taxes, accounts } = props;
 
@@ -24,14 +33,8 @@ function JournalForm(props) {
       reference: journal?.reference || '',
       journalDate: journal?.journalDate || today,
       entries: journal?.entries || [
-        {
-          account: null,
-          description: '',
-          contact: null,
-          tax: null,
-          debit: 0,
-          credit: 0,
-        },
+        initialJournalEntry,
+        { ...initialJournalEntry, type: 'debit' },
       ],
       summary: journal?.summary || {
         subTotal: 0,

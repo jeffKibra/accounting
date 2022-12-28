@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from 'firebase/firestore';
 
 export interface TaxForm {
   name: string;
@@ -17,3 +17,6 @@ export interface TaxFromDb extends TaxForm, Meta {}
 export interface Tax extends TaxFromDb {
   taxId: string;
 }
+
+export interface TaxSummary
+  extends Omit<Tax, 'createdAt' | 'createdBy' | 'modifiedAt' | 'modifiedBy'> {}
