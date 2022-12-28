@@ -1,13 +1,6 @@
-import { useMemo, useCallback, useEffect } from 'react';
+import { useMemo, useCallback, useEffect, useState } from 'react';
 import { useFormContext, useFieldArray } from 'react-hook-form';
-import {
-  Flex,
-  VStack,
-  Button,
-  Grid,
-  GridItem,
-  Heading,
-} from '@chakra-ui/react';
+import { Flex, VStack, Button, Heading } from '@chakra-ui/react';
 import { RiAddLine } from 'react-icons/ri';
 import PropTypes from 'prop-types';
 //contexts
@@ -17,8 +10,7 @@ import { useToasts } from 'hooks';
 import { computeSummary } from 'utils/manualJournals';
 
 import EntryFields from './EntryFields';
-//tables
-import JournalSummaryTable from 'components/tables/Journal/SummaryTable';
+
 import { initialJournalEntry } from './JournalForm';
 
 //-----------------------------------------------------------------------
@@ -32,6 +24,8 @@ LineEntries.propTypes = {
 
 export default function LineEntries(props) {
   const { loading, taxes, customers, accounts } = props;
+
+  const [formSummary, setFormSummary] = useState(null);
 
   //taxes object
   const taxesObject = useMemo(() => {
@@ -116,6 +110,17 @@ export default function LineEntries(props) {
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, []);
 
+  useEffect(() => {
+    setValue('summary', formSummary);
+  }, [setValue, formSummary]);
+
+  const updateSummary = useCallback(
+    summary => {
+      setFormSummary(summary);
+    },
+    [setFormSummary]
+  );
+
   const entriesFields = watch('entries');
 
   /**
@@ -126,12 +131,12 @@ export default function LineEntries(props) {
    */
   const fieldsString = JSON.stringify(entriesFields || []);
   //compute summary values whenever selected items change
-  const { summary, entriesObject } = useMemo(() => {
+  const { entriesObject } = useMemo(() => {
     /**
      * parse the json string to get back field values
      */
     const entries = JSON.parse(fieldsString);
-    console.log({ entries });
+    // console.log({ entries });
 
     const entriesObject = entries.reduce((summary, entryDetails) => {
       const { account } = entryDetails;
@@ -145,15 +150,17 @@ export default function LineEntries(props) {
       }
     }, {});
 
-    console.log('generating summary');
+    // console.log('generating summary');
     const summary = computeSummary(entries);
-    console.log({ summary });
+    // console.log({ summary });
+    //update form summary values
+    updateSummary(summary);
 
     return { entriesObject, summary };
-  }, [fieldsString]);
+  }, [fieldsString, updateSummary]);
 
   const addNewLine = useCallback(() => {
-    console.log('adding new line');
+    // console.log('adding new line');
     append(initialJournalEntry);
   }, [append]);
 
@@ -188,19 +195,19 @@ export default function LineEntries(props) {
   );
 
   useEffect(() => {
-    console.log('taxes object changed');
+    // console.log('taxes object changed');
   }, [taxesObject]);
   /**
    * function to update select object values
    */
-  const handleSelectChange = useCallback(
-    (fieldName, selectedValue, optionsObject) => {
-      const selectedObjectValue = optionsObject[selectedValue];
+  // const handleSelectChange = useCallback(
+  //   (fieldName, selectedValue, optionsObject) => {
+  //     const selectedObjectValue = optionsObject[selectedValue];
 
-      setValue(fieldName, selectedObjectValue);
-    },
-    [setValue]
-  );
+  //     setValue(fieldName, selectedObjectValue);
+  //   },
+  //   [setValue]
+  // );
 
   // console.log({ errors });
 
@@ -225,7 +232,7 @@ export default function LineEntries(props) {
             taxesObject={taxesObject || {}}
             loading={loading}
             customers={customers || []}
-            handleSelectChange={handleSelectChange}
+            // handleSelectChange={handleSelectChange}
             accountsObject={accountsObject || {}}
           />
         );
@@ -241,13 +248,6 @@ export default function LineEntries(props) {
           add item
         </Button>
       </Flex>
-      );
-      <Grid w="full" rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
-        <GridItem colSpan={[0, 4, 6]}></GridItem>
-        <GridItem colSpan={[12, 8, 6]}>
-          <JournalSummaryTable loading={loading} summary={summary} />
-        </GridItem>
-      </Grid>
     </VStack>
   );
 }

@@ -12,7 +12,7 @@ import {
   Stack,
 } from '@chakra-ui/react';
 import { RiDeleteBinLine } from 'react-icons/ri';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, Controller } from 'react-hook-form';
 import PropTypes from 'prop-types';
 
 import ControlledSelect from 'components/ui/ControlledSelect';
@@ -30,28 +30,19 @@ function CustomLabel({ children }) {
 }
 
 function EntryFields(props) {
-  console.log({ props });
-  const {
-    index,
-    field,
-    removeItem,
-    taxesObject,
-    loading,
-    handleSelectChange,
-    accountsObject,
-  } = props;
+  // console.log({ props });
+  const { index, field, removeItem, taxesObject, loading, accountsObject } =
+    props;
 
   const {
     formState: { errors },
-    getValues,
+    control,
   } = useFormContext();
 
   const fieldPrefix = `entries.${index}`;
 
-  const details = getValues(fieldPrefix);
-  console.log({ details });
-  const { tax, account } = details;
-  console.log({ tax });
+  // const details = getValues(fieldPrefix);
+  // console.log({ details });
 
   const itemErrors = errors?.entries && errors?.entries[index];
 
@@ -68,32 +59,40 @@ function EntryFields(props) {
           >
             <GridItem colSpan={[6, 4, 3]}>
               <FormControl isRequired isInvalid={!!itemErrors?.account}>
-                <CustomLabel htmlFor={`${field.id}-account`}>
+                <CustomLabel htmlFor={`${fieldPrefix}-account`}>
                   Account
                 </CustomLabel>
 
-                <ControlledSelect
-                  onChange={accountId =>
-                    handleSelectChange(
-                      `${fieldPrefix}.account`,
-                      accountId,
-                      accountsObject
-                    )
-                  }
-                  value={account?.accountId || ''}
-                  id={`${field.id}-account`}
-                  isDisabled={loading}
-                  placeholder="select account"
-                  allowClearSelection={false}
-                  size="sm"
-                  options={Object.values(accountsObject).map(account => {
-                    const { name, accountId } = account;
+                <Controller
+                  name={`${fieldPrefix}.account`}
+                  control={control}
+                  rules={{ required: { value: true, message: '* Required!' } }}
+                  render={({ field: { onChange, value: selectedAccount } }) => {
+                    function handleAccountChange(accountId) {
+                      const account = accountsObject[accountId];
+                      onChange(account);
+                    }
 
-                    return {
-                      name,
-                      value: accountId,
-                    };
-                  })}
+                    return (
+                      <ControlledSelect
+                        onChange={handleAccountChange}
+                        value={selectedAccount?.accountId || ''}
+                        id={`${field.id}-account`}
+                        isDisabled={loading}
+                        placeholder="select account"
+                        allowClearSelection={false}
+                        size="sm"
+                        options={Object.values(accountsObject).map(account => {
+                          const { name, accountId } = account;
+
+                          return {
+                            name,
+                            value: accountId,
+                          };
+                        })}
+                      />
+                    );
+                  }}
                 />
 
                 <FormErrorMessage>
@@ -103,17 +102,10 @@ function EntryFields(props) {
             </GridItem>
 
             <GridItem colSpan={[6, 4, 3]}>
-              <FormControl
-                isDisabled={loading}
-                isRequired
-                isInvalid={errors.description}
-              >
+              <FormControl isDisabled={loading} isInvalid={errors.description}>
                 <CustomLabel htmlFor="description">Description</CustomLabel>
                 <FieldArrayTextarea
-                  name={`entries.${index}.description`}
-                  controllerProps={{
-                    rules: { required: { value: true, message: '*Required!' } },
-                  }}
+                  name={`${fieldPrefix}.description`}
                   inputProps={{
                     isDisabled: loading,
                     resize: 'none',
@@ -122,92 +114,62 @@ function EntryFields(props) {
                   }}
                 />
                 <FormErrorMessage>
-                  {errors.description?.message}
+                  {itemErrors?.description?.message}
                 </FormErrorMessage>
               </FormControl>
             </GridItem>
 
             <GridItem colSpan={[6, 4, 2]}>
-              <FormControl
-                isDisabled={loading}
-                isRequired
-                isInvalid={errors.contact}
-              >
+              <FormControl isDisabled={loading} isInvalid={errors.contact}>
                 <CustomLabel htmlFor="contact">Contact</CustomLabel>
-                <ContactSelect name={`entries.${index}.name`} />
-                {/* <ControlledSelect
-                  name="contact"
-                  size="sm"
-                  placeholder="select contact"
-                  isDisabled={loading}
-                  rules={{ required: { value: true, message: '*Required!' } }}
-                  // options={contacts.map(contact => {
-                  //   const { contactId, displayName } = contact;
-
-                  //   return { name: displayName, value: contactId };
-                  // })}
-                  options={[]}
-                /> */}
-                <FormErrorMessage>{errors.contact?.message}</FormErrorMessage>
+                <ContactSelect name={`${fieldPrefix}.name`} />
+                <FormErrorMessage>
+                  {itemErrors?.contact?.message}
+                </FormErrorMessage>
               </FormControl>
             </GridItem>
 
             <GridItem colSpan={[6, 4, 2]}>
               <FormControl isInvalid={itemErrors?.tax}>
-                <CustomLabel htmlFor={`entries.${index}.tax`}>Tax</CustomLabel>
-                <ControlledSelect
-                  // name={`entries.${index}.tax`}
-                  options={Object.values(taxesObject).map(tax => {
-                    const { taxId, name, rate } = tax;
-
-                    return {
-                      name: `${name} (${rate}%)`,
-                      value: taxId,
-                    };
-                  })}
-                  size="sm"
-                  isDisabled={loading}
-                  placeholder="tax"
-                  onChange={taxId =>
-                    handleSelectChange(`${fieldPrefix}.tax`, taxId, taxesObject)
-                  }
-                  value={tax?.taxId || ''}
-                />
-
-                {/* <Controller
-                  name={`entries.${index}.tax`}
+                <CustomLabel htmlFor={`${fieldPrefix}.tax`}>Tax</CustomLabel>
+                <Controller
+                  name={`${fieldPrefix}.tax`}
                   control={control}
-                  render={({ field }) => {
+                  render={({ field: { onChange, value: selectedTax } }) => {
+                    function handleTaxChange(taxId) {
+                      const tax = taxesObject[taxId];
+                      onChange(tax);
+                    }
+
                     return (
-                      <Select {...field}>
-                        <option value="">select tax</option>
-                        {Object.values(taxesObject).map(tax => {
+                      <ControlledSelect
+                        options={Object.values(taxesObject).map(tax => {
                           const { taxId, name, rate } = tax;
 
-                          return (
-                            <option value={taxId}>
-                              {`${name} (${rate}%)`}
-                            </option>
-                          );
+                          return {
+                            name: `${name} (${rate}%)`,
+                            value: taxId,
+                          };
                         })}
-                      </Select>
+                        size="sm"
+                        isDisabled={loading}
+                        placeholder="tax"
+                        onChange={handleTaxChange}
+                        value={selectedTax?.taxId || ''}
+                      />
                     );
                   }}
-                /> */}
+                />
 
                 <FormErrorMessage>{itemErrors?.tax?.message}</FormErrorMessage>
               </FormControl>
             </GridItem>
 
             <GridItem colSpan={[6, 4, 1]}>
-              <FormControl isInvalid={itemErrors?.type}>
-                <CustomLabel htmlFor={`entries.${index}.type`}>
-                  Type
-                </CustomLabel>
-                {/* <TableNumInput onBlur={() => } /> */}
-
+              <FormControl isRequired isInvalid={itemErrors?.type}>
+                <CustomLabel htmlFor={`${fieldPrefix}.type`}>Type</CustomLabel>
                 <CustomSelect
-                  name={`entries.${index}.type`}
+                  name={`${fieldPrefix}.type`}
                   options={[
                     { name: 'Debit', value: 'debit' },
                     { name: 'Credit', value: 'credit' },
@@ -215,18 +177,23 @@ function EntryFields(props) {
                   size="sm"
                   isDisabled={loading}
                   placeholder="Entry Type"
+                  controllerProps={{
+                    rules: {
+                      required: { value: true, message: '* Required!' },
+                    },
+                  }}
                 />
                 <FormErrorMessage>{itemErrors?.type?.message}</FormErrorMessage>
               </FormControl>
             </GridItem>
 
             <GridItem colSpan={[6, 4, 1]}>
-              <FormControl isInvalid={itemErrors?.amount}>
-                <CustomLabel htmlFor={`entries.${index}.amount`}>
+              <FormControl isRequired isInvalid={itemErrors?.amount}>
+                <CustomLabel htmlFor={`${fieldPrefix}.amount`}>
                   Amount
                 </CustomLabel>
                 <FieldArrayNumberInput
-                  name={`entries.${index}.amount`}
+                  name={`${fieldPrefix}.amount`}
                   min={1}
                   isReadOnly={loading}
                   // isDisabled={!item?.itemId}

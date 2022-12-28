@@ -21,6 +21,7 @@ interface SubSummary {
 interface Summary extends Omit<SubSummary, 'taxes'> {
   total: SummaryEntry;
   taxes: TaxEntry[];
+  difference: number;
 }
 
 BigNumber.config({ DECIMAL_PLACES: 2 });
@@ -140,10 +141,16 @@ export default function computeSummary(entries: IManualJournalEntry[]) {
   const totalCredit = subTotalCredit.plus(totalTax.credit).dp(2).toNumber();
   const totalDebit = subTotalDebit.plus(totalTax.debit).dp(2).toNumber();
 
+  const difference = new BigNumber(totalCredit)
+    .minus(totalDebit)
+    .dp(2)
+    .toNumber();
+
   const computedSummary: Summary = {
     ...computedSubSummary,
     taxes: Object.values(taxes),
     total: { credit: totalCredit, debit: totalDebit },
+    difference,
   };
 
   return computedSummary;

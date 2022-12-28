@@ -3,15 +3,13 @@ import PropTypes from 'prop-types';
 import { useForm, FormProvider } from 'react-hook-form';
 import { connect } from 'react-redux';
 
-import formats from 'utils/formats';
+// import formats from 'utils/formats';
 import { confirmFutureDate } from 'utils/dates';
-import { useToasts, useGetSalesProps } from 'hooks';
-
-import SkeletonLoader from 'components/ui/SkeletonLoader';
-import Empty from 'components/ui/Empty';
+import { useToasts } from 'hooks';
 
 import FormFields from './FormFields';
 import LineEntries from './LineEntries';
+import Summary from './Summary';
 
 export const initialJournalEntry = {
   account: null,
@@ -43,7 +41,7 @@ function JournalForm(props) {
       },
     },
   });
-  const { handleSubmit } = formMethods;
+  const { handleSubmit, setError } = formMethods;
 
   const toasts = useToasts();
 
@@ -54,7 +52,18 @@ function JournalForm(props) {
   // });
 
   function onSubmit(data) {
+    console.log({ data });
+    const difference = data?.summary?.difference || 0;
+
+    if (difference) {
+      return setError('summary', {
+        type: 'validate',
+        message: 'The Debits and the Credits must be equal!',
+      });
+    }
+
     const { customer: customerId, paymentTerm: paymentTermId, ...rest } = data;
+
     const { journalDate, dueDate, entries } = rest;
     let formValues = { ...rest };
     /**
@@ -131,17 +140,7 @@ function JournalForm(props) {
             customers={[]}
           />
 
-          {/* <Grid
-            w="full"
-            rowGap={2}
-            columnGap={4}
-            templateColumns="repeat(12, 1fr)"
-          >
-            <GridItem colSpan={[0, 4, 6]}></GridItem>
-            <GridItem colSpan={[12, 8, 6]}>
-              <SaleSummaryTable loading={loading} summary={summary} />
-            </GridItem>
-          </Grid> */}
+          <Summary />
         </Box>
         <Flex w="full" py={6} justify="flex-end">
           <Button
