@@ -4,7 +4,6 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { connect } from 'react-redux';
 
 // import formats from 'utils/formats';
-import { confirmFutureDate } from 'utils/dates';
 import { useToasts } from 'hooks';
 
 import FormFields from './FormFields';
@@ -54,6 +53,7 @@ function JournalForm(props) {
   function onSubmit(data) {
     console.log({ data });
     const difference = data?.summary?.difference || 0;
+    // console.log({ difference });
 
     if (difference) {
       return setError('summary', {
@@ -62,10 +62,7 @@ function JournalForm(props) {
       });
     }
 
-    const { customer: customerId, paymentTerm: paymentTermId, ...rest } = data;
-
-    const { journalDate, dueDate, entries } = rest;
-    let formValues = { ...rest };
+    const { entries } = data;
     /**
      * check if selected items is not an empty array or
      * values are not empty objects-item set to null
@@ -76,42 +73,10 @@ function JournalForm(props) {
     // console.log({ entries });
 
     if (!fieldsValid) {
-      return toasts.error('Please add atleast one(1) item to proceed!');
+      return toasts.error('Please add atleast one(1) entry to proceed!');
     }
-    // if (totalAmount <= 0) {
-    //   return toasts.error("Total Sale Amount should be greater than ZERO(0)!");
-    // }
-
-    /**
-     * ensure dueDate is not a past date
-     */
-    const dueDateIsFuture = confirmFutureDate(journalDate, dueDate);
-    if (!dueDateIsFuture) {
-      return toasts.error('Due date cannot be less than journal date');
-    }
-
-    // const customer = customers.find(
-    //   customer => customer.customerId === customerId
-    // );
-    // if (!customer) {
-    //   return toasts.error('Selected an Invalid customer');
-    // }
-    // formValues.customer = formats.formatCustomerData(customer);
-
-    // const paymentTerm = paymentTerms.find(term => term.value === paymentTermId);
-    // if (!paymentTerm) {
-    //   return toasts.error('Selected Payment Term is not a valid Payment Term');
-    // }
-    // formValues.paymentTerm = paymentTerm;
-
-    // if (journal) {
-    //   //journal is being updated-submit only the changed values
-    //   formValues = getDirtyFields(dirtyFields, formValues);
-    // }
-    // console.log({ formValues });
-
     //submit the data
-    handleFormSubmit(formValues);
+    handleFormSubmit(data);
   }
 
   // console.log({ customers, items, paymentTerms, loading });

@@ -56,7 +56,7 @@ function EditInvoicePage(props) {
   const navigate = useNavigate();
   const location = useLocation();
   useSavedLocation().setLocation();
-  const viewRoute = `/invoices/${invoiceId}/view`;
+  const viewRoute = `/sale/invoices/${invoiceId}/view`;
 
   useEffect(() => {
     getInvoice(invoiceId);

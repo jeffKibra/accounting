@@ -58,7 +58,7 @@ function EditExpensePage(props) {
   const navigate = useNavigate();
   const location = useLocation();
   useSavedLocation().setLocation();
-  const viewRoute = `/expenses/${expenseId}/view`;
+  const viewRoute = `/purchase/expenses/${expenseId}/view`;
 
   useEffect(() => {
     getExpense(expenseId);

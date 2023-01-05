@@ -4,8 +4,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { MANUAL_JOURNALS } from 'nav/routes';
 
-import { CREATE_INVOICE } from 'store/actions/invoicesActions';
-import { reset } from 'store/slices/invoicesSlice';
+import { CREATE_MANUAL_JOURNAL } from 'store/actions/manualJournalsActions';
+import { reset } from 'store/slices/manualJournalsSlice';
 
 import { useSavedLocation, useTaxes } from 'hooks';
 
@@ -14,8 +14,9 @@ import SkeletonLoader from 'components/ui/SkeletonLoader';
 import JournalForm from 'components/forms/Journal/JournalForm';
 
 function NewJournalPage(props) {
-  const { loading, action, isModified, createInvoice, resetInvoice, accounts } =
+  const { loading, action, isModified, createJournal, resetJournal, accounts } =
     props;
+  console.log({ loading, action });
   useSavedLocation().setLocation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -24,10 +25,10 @@ function NewJournalPage(props) {
 
   useEffect(() => {
     if (isModified) {
-      resetInvoice();
+      resetJournal();
       navigate(MANUAL_JOURNALS);
     }
-  }, [isModified, resetInvoice, navigate]);
+  }, [isModified, resetJournal, navigate]);
 
   return (
     <PageLayout
@@ -44,20 +45,16 @@ function NewJournalPage(props) {
         <JournalForm
           taxes={taxes}
           accounts={accounts}
-          handleFormSubmit={() => console.log('plus')}
+          handleFormSubmit={createJournal}
+          updating={loading && action === CREATE_MANUAL_JOURNAL}
         />
       )}
-
-      {/* <EditInvoice
-        updating={loading && action === CREATE_INVOICE}
-        handleFormSubmit={createInvoice}
-      /> */}
     </PageLayout>
   );
 }
 
 function mapStateToProps(state) {
-  const { loading, action, isModified } = state.invoicesReducer;
+  const { loading, action, isModified } = state.manualJournalsReducer;
   const { accounts } = state?.accountsReducer;
 
   return { loading, action, isModified, accounts };
@@ -65,8 +62,9 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createInvoice: payload => dispatch({ type: CREATE_INVOICE, payload }),
-    resetInvoice: () => dispatch(reset()),
+    createJournal: payload =>
+      dispatch({ type: CREATE_MANUAL_JOURNAL, payload }),
+    resetJournal: () => dispatch(reset()),
   };
 }
 

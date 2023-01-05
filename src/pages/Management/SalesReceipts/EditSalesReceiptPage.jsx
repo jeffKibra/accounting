@@ -59,7 +59,7 @@ function EditSalesReceiptPage(props) {
   const navigate = useNavigate();
   const location = useLocation();
   useSavedLocation().setLocation();
-  const viewRoute = `/sales-receipts/${salesReceiptId}/view`;
+  const viewRoute = `/sale/sales-receipts/${salesReceiptId}/view`;
 
   useEffect(() => {
     getSalesReceipt(salesReceiptId);

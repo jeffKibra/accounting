@@ -56,7 +56,7 @@ function EditPaymentPage(props) {
   const navigate = useNavigate();
   const location = useLocation();
   useSavedLocation().setLocation();
-  const viewRoute = `/payments/${paymentId}/view`;
+  const viewRoute = `/sale/payments/${paymentId}/view`;
 
   useEffect(() => {
     getPayment(paymentId);

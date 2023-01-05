@@ -83,6 +83,8 @@ import { watchDeleteExpense } from './expenses/deleteExpenseSagas';
 import { watchGetMainSummary } from './summaries/getSummariesSagas';
 //accountTypes
 import { watchFetchAccountTypes } from './accountTypes/fetchAccountTypesSagas';
+//manual journals
+import { watchCreateManualJournal } from './manualJournals/createManualJournalSagas';
 //categories
 import { watchCreateItemCategory } from './itemsCategories/createItemCategorySagas';
 
@@ -154,6 +156,7 @@ export default function* rootSaga() {
     watchDeleteExpense(),
     watchGetMainSummary(),
     watchFetchAccountTypes(),
+    watchCreateManualJournal(),
     watchCreateItemCategory(),
   ]);
 }

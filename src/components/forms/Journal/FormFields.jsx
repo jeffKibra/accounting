@@ -31,8 +31,8 @@ export default function FormFields(props) {
       <Grid mb={2} rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
         <GridItem colSpan={[12, 6]}>
           <FormControl isDisabled={loading} isRequired isInvalid={errors.date}>
-            <FormLabel htmlFor="date">Date</FormLabel>
-            <CustomDatePicker size="md" name="date" required />
+            <FormLabel htmlFor="journalDate">Date</FormLabel>
+            <CustomDatePicker size="md" name="journalDate" required />
             <FormErrorMessage>{errors.date?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>

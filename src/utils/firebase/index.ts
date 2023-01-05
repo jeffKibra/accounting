@@ -20,9 +20,12 @@ export const functions = getFunctions(app, 'asia-south1');
 
 const isDev = process.env.REACT_APP_ENV === 'dev';
 
+const localhost = 'localhost';
+// ('127.0.0.1');
+
 if (isDev) {
-  connectFirestoreEmulator(db, 'localhost', 8080);
-  connectFunctionsEmulator(functions, 'localhost', 5001);
+  connectFirestoreEmulator(db, localhost, 8080);
+  connectFunctionsEmulator(functions, localhost, 5001);
 }
 
 export { default as dbCollections } from './dbCollections';

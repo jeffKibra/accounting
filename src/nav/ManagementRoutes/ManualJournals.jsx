@@ -4,9 +4,9 @@ import * as routes from '../routes';
 import ManagementRoute from '../ManagementRoute';
 
 //journals
-import JournalListPage from '../../pages/Management/ManualJournal/JournalList';
-import NewJournalPage from '../../pages/Management/ManualJournal/NewJournal';
-import EditJournalPage from '../../pages/Management/ManualJournal/EditJournal';
+import JournalListPage from '../../pages/Management/ManualJournals/JournalList';
+import NewJournalPage from '../../pages/Management/ManualJournals/NewJournal';
+import EditJournalPage from '../../pages/Management/ManualJournals/EditJournal';
 
 function ManualJournals() {
   return [

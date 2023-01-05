@@ -90,7 +90,12 @@ export type {
 export type { DateDetails } from './others';
 
 export type { IContactSummary } from './contacts';
-export type { IManualJournalEntry } from './manualJournals';
+export type {
+  IManualJournalEntry,
+  IManualJournalForm,
+  IManualJournalFromDb,
+  IManualJournal,
+} from './manualJournals';
 
 export type { OneOfType } from './oneOfType';
 

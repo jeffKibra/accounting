@@ -20,6 +20,7 @@ import { vendorsReducer } from './slices/vendorsSlice';
 import { expensesReducer } from './slices/expenseSlice';
 import { summariesReducer } from './slices/summariesSlice';
 import { accountTypesReducer } from './slices/accountTypesSlice';
+import { manualJournalsReducer } from './slices/manualJournalsSlice';
 
 import { modifyItemsCategoriesReducer } from './slices/itemsCategories/modifyItemsCategoriesSlice';
 
@@ -42,6 +43,7 @@ const appReducer = combineReducers({
   expensesReducer,
   summariesReducer,
   accountTypesReducer,
+  manualJournalsReducer,
   modifyItemsCategoriesReducer,
 });
 
