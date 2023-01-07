@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext } from 'react';
 import {
   Flex,
   FormControl,
@@ -9,36 +9,36 @@ import {
   Grid,
   GridItem,
   Container,
-} from "@chakra-ui/react";
-import { useForm, FormProvider } from "react-hook-form";
-import PropTypes from "prop-types";
-import * as Yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
+} from '@chakra-ui/react';
+import { useForm, FormProvider } from 'react-hook-form';
+import PropTypes from 'prop-types';
+import * as Yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 
-import formats from "utils/formats";
-import StepperContext from "../../../contexts/StepperContext";
-import { useToasts } from "../../../hooks";
+import formats from 'utils/formats';
+import StepperContext from '../../../contexts/StepperContext';
+import { useToasts } from '../../../hooks';
 
-import NumInput from "../../ui/NumInput";
+import NumInput from '../../ui/NumInput';
 // import RadioInput from "../../ui/RadioInput";
-import CustomSelect from "../../ui/CustomSelect";
-import CustomDatePicker from "../../ui/CustomDatePicker";
+import CustomSelect from '../../ui/CustomSelect';
+import CustomDatePicker from '../../ui/CustomDatePicker';
 
 const schema = Yup.object().shape({
-  customerId: Yup.string().required("*Required!"),
+  customerId: Yup.string().required('*Required!'),
   paymentDate: Yup.date()
-    .typeError("Value must be a valid date!")
-    .required("*Required!"),
+    .typeError('Value must be a valid date!')
+    .required('*Required!'),
   amount: Yup.number()
-    .typeError("Value must be a number!")
-    .min(1, "Amount cannot be less than one(1)!")
-    .required("*Required!"),
+    .typeError('Value must be a number!')
+    .min(1, 'Amount cannot be less than one(1)!')
+    .required('*Required!'),
   reference: Yup.string(),
-  paymentModeId: Yup.string().required("*Required!"),
+  paymentModeId: Yup.string().required('*Required!'),
   bankCharges: Yup.number()
-    .typeError("Value must be a number!")
-    .min(0, "Minimum value accepted is zero(0)!"),
-  accountId: Yup.string().required("*Required!"),
+    .typeError('Value must be a number!')
+    .min(0, 'Minimum value accepted is zero(0)!'),
+  accountId: Yup.string().required('*Required!'),
   // taxDeducted: Yup.string().required("*Required!"),
   // tdsTaxAccount: Yup.string().when("taxDeducted", {
   //   is: "yes",
@@ -58,27 +58,27 @@ function ReceivePaymentForm(props) {
   const toasts = useToasts();
   const { nextStep } = useContext(StepperContext);
 
-  const paymentAccounts = accounts.filter((account) => {
+  const paymentAccounts = accounts.filter(account => {
     const {
       accountType: { id },
       tags,
     } = account;
-    const index = tags.findIndex((tag) => tag === "receivable");
+    const index = tags.findIndex(tag => tag === 'receivable');
 
-    return (id === "cash" || id === "other_current_liability") && index > -1;
+    return (id === 'cash' || id === 'other_current_liability') && index > -1;
   });
   // console.log({ paymentAccounts });
   // console.log({ defaultValues });
   const formMethods = useForm({
-    mode: "onChange",
+    mode: 'onChange',
     resolver: yupResolver(schema),
     defaultValues: {
-      customerId: defaultValues?.customer?.customerId || "",
+      customerId: defaultValues?.customer?.id || '',
       paymentDate: defaultValues?.paymentDate || new Date(),
       amount: defaultValues?.amount || 0,
-      accountId: defaultValues?.account?.accountId || "undeposited_funds",
-      paymentModeId: defaultValues?.paymentMode?.value || "cash",
-      reference: defaultValues?.reference || "",
+      accountId: defaultValues?.account?.accountId || 'undeposited_funds',
+      paymentModeId: defaultValues?.paymentMode?.value || 'cash',
+      reference: defaultValues?.reference || '',
     },
   });
 
@@ -92,25 +92,22 @@ function ReceivePaymentForm(props) {
   function onSubmit(data) {
     // console.log({ data });
     const { customerId, accountId, paymentModeId, ...formData } = data;
-    const customer = customers.find(
-      (customer) => customer.customerId === customerId
-    );
+    //
+    const customer = customers.find(customer => customer.id === customerId);
     if (!customer) {
-      return toasts.error("The selected customer is not valid");
+      return toasts.error('The selected customer is not valid');
     }
 
-    const paymentMode = paymentModes.find(
-      (mode) => mode.value === paymentModeId
-    );
+    const paymentMode = paymentModes.find(mode => mode.value === paymentModeId);
     if (!paymentMode) {
-      return toasts.error("The selected payment mode is not valid");
+      return toasts.error('The selected payment mode is not valid');
     }
 
     const account = paymentAccounts.find(
-      (account) => account.accountId === accountId
+      account => account.accountId === accountId
     );
     if (!account) {
-      return toasts.error("The selected account is not valid");
+      return toasts.error('The selected account is not valid');
     }
     const { name, accountType } = account;
     const newData = {
@@ -158,8 +155,8 @@ function ReceivePaymentForm(props) {
                 <CustomSelect
                   name="customerId"
                   placeholder="--select customer--"
-                  options={customers.map((customer) => {
-                    const { displayName, customerId } = customer;
+                  options={customers.map(customer => {
+                    const { displayName, id: customerId } = customer;
                     return { name: displayName, value: customerId };
                   })}
                 />
@@ -205,7 +202,7 @@ function ReceivePaymentForm(props) {
                 <CustomSelect
                   name="accountId"
                   placeholder="---select account---"
-                  groupedOptions={paymentAccounts.map((account) => {
+                  groupedOptions={paymentAccounts.map(account => {
                     const { name, accountId, accountType } = account;
                     return {
                       name,
@@ -243,7 +240,7 @@ function ReceivePaymentForm(props) {
                 isInvalid={errors.reference}
               >
                 <FormLabel htmlFor="reference">Reference#</FormLabel>
-                <Input id="reference" {...register("reference")} />
+                <Input id="reference" {...register('reference')} />
                 <FormErrorMessage>{errors.reference?.message}</FormErrorMessage>
               </FormControl>
             </GridItem>

@@ -3,15 +3,15 @@ import {
   serverTimestamp,
   increment,
   Transaction,
-} from "firebase/firestore";
+} from 'firebase/firestore';
 
-import { db, dbCollections } from "../firebase";
+import { db, dbCollections } from '../firebase';
 
-import { createSimilarAccountEntries } from "../journals";
-import { getAccountData, getAccountsMapping } from "../accounts";
-import formats from "../formats";
-import { getDateDetails } from "../dates";
-import { getEntryAmount } from ".";
+import { createSimilarAccountEntries } from '../journals';
+import { getAccountData, getAccountsMapping } from '../accounts';
+import formats from '../formats';
+import { getDateDetails } from '../dates';
+import { getEntryAmount } from '.';
 
 import {
   Org,
@@ -20,12 +20,12 @@ import {
   ExpenseFormData,
   ExpenseFromDb,
   TransactionTypes,
-} from "types";
+} from 'types';
 
 interface TDetails
   extends Omit<
     ExpenseFromDb,
-    "createdAt" | "createdBy" | "modifiedBy" | "modifiedAt"
+    'createdAt' | 'createdBy' | 'modifiedBy' | 'modifiedAt'
   > {}
 
 export default async function createExpense(
@@ -35,7 +35,7 @@ export default async function createExpense(
   accounts: Account[],
   expenseId: string,
   data: ExpenseFormData,
-  transactionType: keyof Pick<TransactionTypes, "expense"> = "expense"
+  transactionType: keyof Pick<TransactionTypes, 'expense'> = 'expense'
 ) {
   const { orgId } = org;
   const { email } = userProfile;
@@ -53,7 +53,7 @@ export default async function createExpense(
   // console.log({ items });
   const tDetails: TDetails = {
     ...data,
-    status: "active",
+    status: 'active',
     transactionType,
     org: formats.formatOrgData(org),
     items: items,
@@ -61,9 +61,9 @@ export default async function createExpense(
   /**
    * if the vendor is not undefined, add it to the object
    */
-  if (vendor) {
-    tDetails.vendor = formats.formatVendorData(vendor);
-  }
+  // if (vendor) {
+  //   tDetails.vendor = formats.formatVendorData(vendor);
+  // }
   const transactionDetails = {
     ...tDetails,
     expenseId,
@@ -74,19 +74,19 @@ export default async function createExpense(
    * create journal entries for income accounts
    */
   const allItems = [
-    ...items.map((item) => {
+    ...items.map(item => {
       const {
         account: { accountId },
         itemRate,
       } = item;
       return { accountId, amount: itemRate };
     }),
-    { accountId: "tax_payable", amount: totalTax },
+    { accountId: 'tax_payable', amount: totalTax },
     { accountId: paymentAccountId, amount: totalAmount },
   ];
   const { newAccounts } = getAccountsMapping([], allItems);
 
-  newAccounts.forEach((newAccount) => {
+  newAccounts.forEach(newAccount => {
     const { accountId, incoming } = newAccount;
     const expenseAccount = getAccountData(accountId, accounts);
 
@@ -114,27 +114,27 @@ export default async function createExpense(
    * update vendor summaries if a vendor was selected
    */
   if (vendor) {
-    let vendorId = vendor.vendorId || "";
+    let vendorId = vendor.id || '';
 
-    const vendorRef = doc(db, "organizations", orgId, "vendors", vendorId);
+    const vendorRef = doc(db, 'organizations', orgId, 'vendors', vendorId);
 
     transaction.update(vendorRef, {
-      "summary.expenses": increment(1),
-      "summary.totalExpenses": increment(summary.totalAmount),
+      'summary.expenses': increment(1),
+      'summary.totalExpenses': increment(summary.totalAmount),
     });
   }
   /**
    * update org summaries
    */
   const { yearMonthDay } = getDateDetails();
-  const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
+  const summaryRef = doc(db, 'organizations', orgId, 'summaries', yearMonthDay);
   /**
    * this is an expense, subtract amount from paymentMode
    */
   transaction.update(summaryRef, {
     expenses: increment(1),
     [`paymentModes.${paymentModeId}`]: increment(0 - totalAmount),
-    "cashFlow.outgoing": increment(totalAmount),
+    'cashFlow.outgoing': increment(totalAmount),
   });
 
   /**

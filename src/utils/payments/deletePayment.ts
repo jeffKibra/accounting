@@ -3,23 +3,23 @@ import {
   serverTimestamp,
   increment,
   Transaction,
-} from "firebase/firestore";
+} from 'firebase/firestore';
 
-import { db } from "../firebase";
+import { db } from '../firebase';
 import {
   deleteSimilarAccountEntries,
   groupEntriesIntoAccounts,
-} from "../journals";
+} from '../journals';
 import {
   getPaymentsTotal,
   getPaymentData,
   getPaymentsMapping,
   deleteInvoicesPayments,
   getAllPaymentEntries,
-} from ".";
-import { getDateDetails } from "../dates";
+} from '.';
+import { getDateDetails } from '../dates';
 
-import { UserProfile } from "../../types";
+import { UserProfile } from '../../types';
 
 export default async function deletePayment(
   transaction: Transaction,
@@ -32,9 +32,9 @@ export default async function deletePayment(
 
   // const invoicesIds = Object.keys(payments);
 
-  const paymentRef = doc(db, "organizations", orgId, "payments", paymentId);
+  const paymentRef = doc(db, 'organizations', orgId, 'payments', paymentId);
   const { yearMonthDay } = getDateDetails();
-  const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
+  const summaryRef = doc(db, 'organizations', orgId, 'summaries', yearMonthDay);
 
   /**
    * get current paymentData and incoming customer details
@@ -44,7 +44,7 @@ export default async function deletePayment(
     getAllPaymentEntries(orgId, paymentId),
   ]);
   const {
-    customer: { customerId },
+    customer: { id: customerId },
     payments,
     amount,
     paymentMode: { value: paymentModeId },
@@ -70,7 +70,7 @@ export default async function deletePayment(
   /**
    * delete entries
    */
-  Object.values(groupedEntries).forEach((entries) => {
+  Object.values(groupedEntries).forEach(entries => {
     deleteSimilarAccountEntries(
       transaction,
       userProfile,
@@ -97,11 +97,11 @@ export default async function deletePayment(
    * update customers
    * function also handles a change of customer situation.
    */
-  const customerRef = doc(db, "organizations", orgId, "customers", customerId);
+  const customerRef = doc(db, 'organizations', orgId, 'customers', customerId);
   transaction.update(customerRef, {
-    "summary.deletedPayments": increment(1),
-    "summary.unusedCredits": increment(0 - excess),
-    "summary.invoicePayments": increment(0 - paymentsTotal),
+    'summary.deletedPayments': increment(1),
+    'summary.unusedCredits': increment(0 - excess),
+    'summary.invoicePayments': increment(0 - paymentsTotal),
     modifiedAt: serverTimestamp(),
     modifiedBy: email,
   });
@@ -114,13 +114,13 @@ export default async function deletePayment(
   transaction.update(summaryRef, {
     deletedPayments: increment(1),
     [`paymentModes.${paymentModeId}`]: increment(adjustment),
-    "cashFlow.incoming": increment(adjustment),
+    'cashFlow.incoming': increment(adjustment),
   });
   /**
    * mark payment as deleted
    */
   transaction.update(paymentRef, {
-    status: "deleted",
+    status: 'deleted',
     modifiedAt: serverTimestamp(),
     modifiedBy: email,
   });

@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext } from 'react';
 import {
   Container,
   FormControl,
@@ -11,14 +11,14 @@ import {
   GridItem,
   Flex,
   FormHelperText,
-} from "@chakra-ui/react";
-import { useForm, FormProvider } from "react-hook-form";
-import PropTypes from "prop-types";
+} from '@chakra-ui/react';
+import { useForm, FormProvider } from 'react-hook-form';
+import PropTypes from 'prop-types';
 
-import StepperContext from "../../../contexts/StepperContext";
+import StepperContext from '../../../contexts/StepperContext';
 
-import CustomSelect from "../../ui/CustomSelect";
-import CustomDatePicker from "../../ui/CustomDatePicker";
+import CustomSelect from '../../ui/CustomSelect';
+import CustomDatePicker from '../../ui/CustomDatePicker';
 
 function ExpenseForm(props) {
   const {
@@ -34,14 +34,14 @@ function ExpenseForm(props) {
   const { prevStep } = useContext(StepperContext);
 
   const formMethods = useForm({
-    mode: "onChange",
+    mode: 'onChange',
     defaultValues: {
       paymentAccountId:
-        defaultValues?.paymentAccount?.accountId || "undeposited_funds",
+        defaultValues?.paymentAccount?.accountId || 'undeposited_funds',
       expenseDate: defaultValues?.expenseDate || new Date(),
-      vendorId: defaultValues?.vendor?.vendorId || "",
-      paymentModeId: defaultValues?.paymentMode?.value || "cash",
-      reference: defaultValues?.reference || "",
+      vendorId: defaultValues?.vendor?.vendorId || '',
+      paymentModeId: defaultValues?.paymentMode?.value || 'cash',
+      reference: defaultValues?.reference || '',
     },
   });
   const {
@@ -53,14 +53,14 @@ function ExpenseForm(props) {
 
   function formulateData(formData) {
     const { vendorId, paymentAccountId, paymentModeId, ...rest } = formData;
-    const vendor =
-      vendors.find((vendor) => vendor.vendorId === vendorId) || null;
+    //
+    const vendor = vendors.find(vendor => vendor.id === vendorId) || null;
+    //
     const paymentAccount = paymentAccounts.find(
-      (account) => account.accountId === paymentAccountId
+      account => account.accountId === paymentAccountId
     );
-    const paymentMode = paymentModes.find(
-      (mode) => mode.value === paymentModeId
-    );
+    //
+    const paymentMode = paymentModes.find(mode => mode.value === paymentModeId);
 
     const newData = {
       ...rest,
@@ -121,8 +121,8 @@ function ExpenseForm(props) {
                   name="paymentAccountId"
                   placeholder="---select account---"
                   isDisabled={loading}
-                  rules={{ required: { value: true, message: "*Required" } }}
-                  groupedOptions={paymentAccounts.map((account) => {
+                  rules={{ required: { value: true, message: '*Required' } }}
+                  groupedOptions={paymentAccounts.map(account => {
                     const { name, accountId, accountType } = account;
                     return {
                       name,
@@ -158,8 +158,8 @@ function ExpenseForm(props) {
                   name="vendorId"
                   placeholder="who are you paying?"
                   isDisabled={loading}
-                  options={vendors.map((vendor) => {
-                    const { vendorId, displayName } = vendor;
+                  options={vendors.map(vendor => {
+                    const { id: vendorId, displayName } = vendor;
                     return {
                       name: displayName,
                       value: vendorId,
@@ -182,7 +182,7 @@ function ExpenseForm(props) {
                   name="paymentModeId"
                   placeholder="payment method"
                   isDisabled={loading}
-                  rules={{ required: { value: true, message: "*Required" } }}
+                  rules={{ required: { value: true, message: '*Required' } }}
                   options={paymentModes}
                 />
                 <FormErrorMessage>
@@ -194,7 +194,7 @@ function ExpenseForm(props) {
             <GridItem colSpan={[12, 6]}>
               <FormControl isReadOnly={loading} isInvalid={errors.reference}>
                 <FormLabel htmlFor="reference">Reference#</FormLabel>
-                <Input id="reference" {...register("reference")} />
+                <Input id="reference" {...register('reference')} />
                 <FormErrorMessage>{errors.reference?.message}</FormErrorMessage>
               </FormControl>
             </GridItem>

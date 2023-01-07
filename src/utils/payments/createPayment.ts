@@ -4,19 +4,19 @@ import {
   increment,
   Transaction,
   Timestamp,
-} from "firebase/firestore";
+} from 'firebase/firestore';
 
-import { db, dbCollections } from "../firebase";
-import { getAccountData } from "../accounts";
+import { db, dbCollections } from '../firebase';
+import { getAccountData } from '../accounts';
 import {
   getPaymentsTotal,
   payInvoices,
   getPaymentsMapping,
   createPaymentId,
-} from ".";
-import { createSimilarAccountEntries } from "../journals";
-import formats from "../formats";
-import { getDateDetails } from "../dates";
+} from '.';
+import { createSimilarAccountEntries } from '../journals';
+import formats from '../formats';
+import { getDateDetails } from '../dates';
 
 import {
   Org,
@@ -25,7 +25,7 @@ import {
   PaymentReceivedForm,
   PaymentReceived,
   TransactionTypes,
-} from "../../types";
+} from '../../types';
 
 export default async function createPayment(
   transaction: Transaction,
@@ -35,15 +35,15 @@ export default async function createPayment(
   formData: PaymentReceivedForm,
   transactionType: keyof Pick<
     TransactionTypes,
-    "customer_payment"
-  > = "customer_payment"
+    'customer_payment'
+  > = 'customer_payment'
 ) {
   console.log({ formData });
   const { orgId } = org;
   const { email } = userProfile;
   // console.log({ data, orgId, userProfile });
   const { payments, customer, amount, reference, paymentMode } = formData;
-  const { customerId } = customer;
+  const { id: customerId } = customer;
   const { value: paymentModeId } = paymentMode;
 
   const paymentsTotal = getPaymentsTotal(payments);
@@ -56,13 +56,13 @@ export default async function createPayment(
   // console.log({ paymentsTotal, excess });
 
   //accounts data
-  const unearned_revenue = getAccountData("unearned_revenue", accounts);
+  const unearned_revenue = getAccountData('unearned_revenue', accounts);
   //get payments to create formatted
   const { paymentsToCreate } = getPaymentsMapping({}, payments);
 
   const { yearMonthDay } = getDateDetails();
-  const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
-  const customerRef = doc(db, "organizations", orgId, "customers", customerId);
+  const summaryRef = doc(db, 'organizations', orgId, 'summaries', yearMonthDay);
+  const customerRef = doc(db, 'organizations', orgId, 'customers', customerId);
 
   /**
    * get current customer data.
@@ -78,7 +78,7 @@ export default async function createPayment(
     paidInvoicesIds: Object.keys(payments),
     paymentId,
     transactionType,
-    status: "active",
+    status: 'active',
     org: formats.formatOrgData(org),
     createdBy: email,
     createdAt: serverTimestamp() as Timestamp,
@@ -97,7 +97,7 @@ export default async function createPayment(
   transaction.update(summaryRef, {
     payments: increment(1),
     [`paymentModes.${paymentModeId}`]: increment(amount),
-    "cashFlow.incoming": increment(amount),
+    'cashFlow.incoming': increment(amount),
   });
   /**
    * update customer data
@@ -106,9 +106,9 @@ export default async function createPayment(
    * increment summary.invoicePayments by the paymentsTotal amount
    */
   transaction.update(customerRef, {
-    "summary.payments": increment(1),
-    "summary.unusedCredits": increment(excess),
-    "summary.invoicePayments": increment(paymentsTotal),
+    'summary.payments': increment(1),
+    'summary.unusedCredits': increment(excess),
+    'summary.invoicePayments': increment(paymentsTotal),
     modifiedAt: serverTimestamp(),
     modifiedBy: email,
   });
@@ -139,7 +139,7 @@ export default async function createPayment(
           reference,
           transactionId: paymentId,
           transactionDetails: { ...paymentData },
-          transactionType: "customer_payment",
+          transactionType: 'customer_payment',
         },
       ]
     );

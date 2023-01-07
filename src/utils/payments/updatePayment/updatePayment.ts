@@ -3,28 +3,28 @@ import {
   increment,
   serverTimestamp,
   Transaction,
-} from "firebase/firestore";
+} from 'firebase/firestore';
 
 import {
   deleteSimilarAccountEntries,
   updateSimilarAccountEntries,
   changeEntriesAccount,
-} from "../../journals";
+} from '../../journals';
 import {
   updateCustomersPayments,
   updateInvoicesPayments,
   payInvoices,
   deleteInvoicesPayments,
   overPay,
-} from "..";
-import { getAccountData } from "../../accounts";
-import { changePaymentMode, updatePaymentMode } from "../../summaries";
-import { getDateDetails } from "../../dates";
+} from '..';
+import { getAccountData } from '../../accounts';
+import { changePaymentMode, updatePaymentMode } from '../../summaries';
+import { getDateDetails } from '../../dates';
 
-import { db } from "../../firebase";
+import { db } from '../../firebase';
 
-import { UserProfile, Account, PaymentReceivedForm } from "../../../types";
-import { UpdateData } from ".";
+import { UserProfile, Account, PaymentReceivedForm } from '../../../types';
+import { UpdateData } from '.';
 
 export default function updatePayment(
   transaction: Transaction,
@@ -47,7 +47,7 @@ export default function updatePayment(
     customer,
   } = formData;
   const { accountId } = account;
-  const { customerId } = customer;
+  const { id: customerId } = customer;
   const { value: paymentModeId } = paymentMode;
   //extract update Data
   const {
@@ -68,10 +68,10 @@ export default function updatePayment(
   const excess = amount - paymentsTotal;
 
   //accounts data
-  const accounts_receivable = getAccountData("accounts_receivable", accounts);
+  const accounts_receivable = getAccountData('accounts_receivable', accounts);
   const depositAccount = getAccountData(accountId, accounts);
   const {
-    customer: { customerId: currentCustomerId },
+    customer: { id: currentCustomerId },
     account: { accountId: currentAccountId },
     paymentMode: { value: currentPaymentModeId },
     amount: currentAmount,
@@ -81,7 +81,7 @@ export default function updatePayment(
    */
   const customerHasChanged = customerId !== currentCustomerId;
   if (customerHasChanged) {
-    console.log("customer has changed");
+    console.log('customer has changed');
   }
   /**
    * check if payment account has been changed
@@ -122,9 +122,9 @@ export default function updatePayment(
     userProfile,
     orgId,
     accounts_receivable,
-    accountsReceivableEntriesToUpdate.map((entry) => {
+    accountsReceivableEntriesToUpdate.map(entry => {
       if (!entry.entry) {
-        throw new Error("Entry data not found");
+        throw new Error('Entry data not found');
       }
       const {
         incoming,
@@ -150,16 +150,16 @@ export default function updatePayment(
     /**
      * change the entries details and update associated accounts
      */
-    console.log("account has changed");
+    console.log('account has changed');
     changeEntriesAccount(
       transaction,
       userProfile,
       orgId,
       currentPayment.account,
       depositAccount,
-      paymentAccountEntriesToUpdate.map((entry) => {
+      paymentAccountEntriesToUpdate.map(entry => {
         if (!entry.entry) {
-          throw new Error("Entry data not found");
+          throw new Error('Entry data not found');
         }
         const { invoiceId, incoming } = entry;
         return {
@@ -176,15 +176,15 @@ export default function updatePayment(
     /**
      * do a normal update
      */
-    console.log("normal update");
+    console.log('normal update');
     updateSimilarAccountEntries(
       transaction,
       userProfile,
       orgId,
       depositAccount,
-      paymentAccountEntriesToUpdate.map((entry) => {
+      paymentAccountEntriesToUpdate.map(entry => {
         if (!entry.entry) {
-          throw new Error("Entry data not found");
+          throw new Error('Entry data not found');
         }
         const {
           entry: { credit, debit, entryId },
@@ -208,7 +208,7 @@ export default function updatePayment(
    * the function also creates all the necessary journal entries
    */
   if (paymentsToCreate.length > 0) {
-    console.log("creating payments");
+    console.log('creating payments');
     payInvoices(
       transaction,
       userProfile,
@@ -225,7 +225,7 @@ export default function updatePayment(
    * 3. delete accountsReceivable entries
    */
   if (paymentsToDelete.length > 0) {
-    console.log("deleting payments");
+    console.log('deleting payments');
     deleteInvoicesPayments(
       transaction,
       userProfile,
@@ -238,16 +238,16 @@ export default function updatePayment(
    * delete paymentAccountEntries for deleted invoices payments
    */
   if (paymentAccountEntriesToDelete.length > 0) {
-    console.log("deleting deposit account entries");
+    console.log('deleting deposit account entries');
 
     deleteSimilarAccountEntries(
       transaction,
       userProfile,
       orgId,
       currentPayment.account,
-      paymentAccountEntriesToDelete.map((entry) => {
+      paymentAccountEntriesToDelete.map(entry => {
         if (!entry.entry) {
-          throw new Error("Entry data not found");
+          throw new Error('Entry data not found');
         }
         const {
           entry: { credit, debit, entryId },
@@ -266,16 +266,16 @@ export default function updatePayment(
    * delete accounts_receivable entries for deleted invoice payments
    */
   if (accountsReceivableEntriesToDelete.length > 0) {
-    console.log("deleting accounts_receivebale entries");
+    console.log('deleting accounts_receivebale entries');
 
     deleteSimilarAccountEntries(
       transaction,
       userProfile,
       orgId,
       accounts_receivable,
-      accountsReceivableEntriesToDelete.map((entry) => {
+      accountsReceivableEntriesToDelete.map(entry => {
         if (!entry.entry) {
-          throw new Error("Entry data not found");
+          throw new Error('Entry data not found');
         }
         const {
           entry: { credit, debit, entryId },
@@ -293,7 +293,7 @@ export default function updatePayment(
    * excess amount - credit account with the excess amount
    */
   if (overPayEntry) {
-    console.log("updating overpayment");
+    console.log('updating overpayment');
 
     overPay.updateEntry(
       transaction,
@@ -306,7 +306,7 @@ export default function updatePayment(
     );
   } else {
     if (excess > 0) {
-      console.log("creating overpayment");
+      console.log('creating overpayment');
 
       overPay.createEntry(
         transaction,
@@ -348,14 +348,14 @@ export default function updatePayment(
     const { yearMonthDay } = getDateDetails();
     const summaryRef = doc(
       db,
-      "organizations",
+      'organizations',
       orgId,
-      "summaries",
+      'summaries',
       yearMonthDay
     );
     const adjustment = +amount - +currentPayment.amount;
     transaction.update(summaryRef, {
-      "cashFlow.incoming": increment(adjustment),
+      'cashFlow.incoming': increment(adjustment),
     });
   }
 
@@ -372,6 +372,6 @@ export default function updatePayment(
     modifiedAt: serverTimestamp(),
   };
   console.log({ newDetails });
-  const paymentRef = doc(db, "organizations", orgId, "payments", paymentId);
+  const paymentRef = doc(db, 'organizations', orgId, 'payments', paymentId);
   transaction.update(paymentRef, { ...newDetails });
 }

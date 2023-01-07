@@ -3,7 +3,7 @@ import {
   CustomerOpeningBalanceTransactionType,
   InvoicePayments,
   OrgSummary,
-  CustomerSummary,
+  IContactSummary,
 } from '.';
 
 interface Meta {
@@ -22,7 +22,7 @@ interface Meta {
 }
 
 export interface CustomerOpeningBalanceForm {
-  customer: CustomerSummary;
+  customer: IContactSummary;
   amount: number;
 }
 

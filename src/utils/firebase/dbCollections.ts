@@ -1,11 +1,10 @@
 import { createCollection } from '.';
 
 import {
-  CustomerFromDb,
+  IContactFromDb,
   ExpenseFromDb,
   InvoiceFromDb,
   ItemFromDb,
-  VendorFromDb,
   EntryFromDb,
   PaymentReceivedFromDb,
   SalesReceiptFromDb,
@@ -15,11 +14,10 @@ import {
 export default function dbCollections(orgId: string) {
   const org = `organizations/${orgId}`;
   return {
-    customers: createCollection<CustomerFromDb>(`${org}/customers`),
+    contacts: createCollection<IContactFromDb>(`${org}/contacts`),
     expenses: createCollection<ExpenseFromDb>(`${org}/expenses`),
     invoices: createCollection<InvoiceFromDb>(`${org}/invoices`),
     items: createCollection<ItemFromDb>(`${org}/items`),
-    vendors: createCollection<VendorFromDb>(`${org}/vendors`),
     entries: createCollection<EntryFromDb>(`${org}/journals`),
     paymentsReceived: createCollection<PaymentReceivedFromDb>(
       `${org}/payments`

@@ -10,7 +10,7 @@ import MenuOptions from '../../../components/ui/MenuOptions';
 
 function VendorOptions(props) {
   const { vendor, edit, view, deletion } = props;
-  const { vendorId } = vendor;
+  const { id: vendorId } = vendor;
   const { details, isDeleted, resetVendor } = useDeleteVendor(vendor);
 
   useEffect(() => {

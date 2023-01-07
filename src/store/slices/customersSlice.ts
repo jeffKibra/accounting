@@ -1,12 +1,12 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { Customer } from "../../types";
+import { IContact } from '../../types';
 
 type State = {
   loading: boolean;
   isModified: boolean;
-  customer: Customer | null;
-  customers: Customer[] | null;
+  customer: IContact | null;
+  customers: IContact[] | null;
   action: string | null;
   error: {
     code?: number;
@@ -27,7 +27,7 @@ const initialState: State = {
 };
 
 const customersSlice = createSlice({
-  name: "customers_slice",
+  name: 'customers_slice',
   initialState: {
     ...initialState,
   },
@@ -47,14 +47,14 @@ const customersSlice = createSlice({
         isModified: true,
       };
     },
-    customerSuccess: (state: State, action: PayloadAction<Customer>) => {
+    customerSuccess: (state: State, action: PayloadAction<IContact>) => {
       return {
         ...state,
         loading: false,
         customer: action.payload,
       };
     },
-    customersSuccess: (state: State, action: PayloadAction<Customer[]>) => {
+    customersSuccess: (state: State, action: PayloadAction<IContact[]>) => {
       return {
         ...state,
         loading: false,

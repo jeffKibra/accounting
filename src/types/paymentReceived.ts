@@ -1,13 +1,13 @@
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from 'firebase/firestore';
 import {
   OrgSummary,
-  CustomerSummary,
-  Customer,
+  IContactSummary,
+  IContact,
   Account,
   PaymentMode,
   TransactionTypes,
   Invoice,
-} from ".";
+} from '.';
 
 interface Meta {
   createdAt: Date | Timestamp;
@@ -16,7 +16,7 @@ interface Meta {
   modifiedBy: string;
   status: string;
   org: OrgSummary;
-  transactionType: keyof Pick<TransactionTypes, "customer_payment">;
+  transactionType: keyof Pick<TransactionTypes, 'customer_payment'>;
   paidInvoicesIds: string[];
   excess: number;
 }
@@ -24,7 +24,7 @@ interface Meta {
 export interface PaymentReceivedForm {
   account: Account;
   amount: number;
-  customer: Customer | CustomerSummary;
+  customer: IContact | IContactSummary;
   paymentDate: Date;
   paymentMode: PaymentMode;
   reference: string;
@@ -32,9 +32,9 @@ export interface PaymentReceivedForm {
 }
 
 export interface PaymentReceivedFromDb
-  extends Omit<PaymentReceivedForm, "customer">,
+  extends Omit<PaymentReceivedForm, 'customer'>,
     Meta {
-  customer: CustomerSummary;
+  customer: IContactSummary;
 }
 
 export interface PaymentReceived extends PaymentReceivedFromDb {

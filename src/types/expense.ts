@@ -1,13 +1,12 @@
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from 'firebase/firestore';
 import {
   PaymentMode,
   Account,
   ExpenseItem,
-  Vendor,
-  VendorSummary,
+  IContactSummary,
   OrgSummary,
   TransactionTypes,
-} from ".";
+} from '.';
 
 export interface ExpenseSummary {
   expenseTaxes: [];
@@ -20,7 +19,7 @@ export interface ExpenseFormData {
   paymentMode: PaymentMode;
   reference: string;
   taxType: string;
-  vendor?: Vendor;
+  vendor?: IContactSummary;
   paymentAccount: Account;
   items: ExpenseItem[];
   expenseDate: Date | Timestamp;
@@ -34,15 +33,15 @@ interface Meta {
   modifiedBy: string;
   status: string;
   org: OrgSummary;
-  transactionType: keyof Pick<TransactionTypes, "expense">;
+  transactionType: keyof Pick<TransactionTypes, 'expense'>;
 }
 
-export interface ExpenseFromDb extends Omit<ExpenseFormData, "vendor">, Meta {
-  vendor?: VendorSummary;
+export interface ExpenseFromDb extends Omit<ExpenseFormData, 'vendor'>, Meta {
+  vendor?: IContactSummary;
 }
 
 export interface ExpenseUpdateData
-  extends Omit<ExpenseFromDb, "org" | "createdAt" | "createdBy"> {}
+  extends Omit<ExpenseFromDb, 'org' | 'createdAt' | 'createdBy'> {}
 
 export interface Expense extends ExpenseFromDb {
   expenseId: string;

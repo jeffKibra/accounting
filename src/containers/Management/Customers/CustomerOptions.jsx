@@ -1,16 +1,16 @@
-import { useEffect } from "react";
-import { Box } from "@chakra-ui/react";
-import { RiDeleteBin4Line, RiEdit2Line, RiEyeLine } from "react-icons/ri";
-import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { useEffect } from 'react';
+import { Box } from '@chakra-ui/react';
+import { RiDeleteBin4Line, RiEdit2Line, RiEyeLine } from 'react-icons/ri';
+import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
-import useDeleteCustomer from "../../../hooks/useDeleteCustomer";
+import useDeleteCustomer from '../../../hooks/useDeleteCustomer';
 
-import MenuOptions from "../../../components/ui/MenuOptions";
+import MenuOptions from '../../../components/ui/MenuOptions';
 
 function CustomerOptions(props) {
   const { customer, edit, view, deletion } = props;
-  const { customerId } = customer;
+  const { id: customerId } = customer;
   const { details, isDeleted, resetCustomer } = useDeleteCustomer(customer);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ function CustomerOptions(props) {
     ...(view
       ? [
           {
-            name: "View",
+            name: 'View',
             icon: RiEyeLine,
             as: Link,
             to: `/customers/${customerId}/view`,
@@ -33,7 +33,7 @@ function CustomerOptions(props) {
     ...(edit
       ? [
           {
-            name: "Edit",
+            name: 'Edit',
             icon: RiEdit2Line,
             as: Link,
             to: `/customers/${customerId}/edit`,
@@ -43,7 +43,7 @@ function CustomerOptions(props) {
     ...(deletion
       ? [
           {
-            name: "Delete",
+            name: 'Delete',
             icon: RiDeleteBin4Line,
             dialogDetails: {
               ...details,

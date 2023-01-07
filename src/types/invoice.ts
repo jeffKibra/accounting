@@ -1,6 +1,6 @@
 import {
   OrgSummary,
-  CustomerSummary,
+  IContactSummary,
   PaymentTerm,
   SalesItem,
   SalesSummary,
@@ -44,7 +44,7 @@ interface Meta {
 }
 
 export interface InvoiceFormData {
-  customer: CustomerSummary;
+  customer: IContactSummary;
   customerNotes: string;
   dueDate: Date;
   invoiceDate: Date;

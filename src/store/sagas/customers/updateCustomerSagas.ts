@@ -11,13 +11,13 @@ import {
   error as toastError,
 } from '../../slices/toastSlice';
 
-import { CustomerFormData, RootState, UserProfile } from '../../../types';
+import { IContact, RootState, UserProfile } from '../../../types';
 
-interface updateData extends CustomerFormData {
+interface IUpdateData extends IContact {
   customerId: string;
 }
 
-function* updateCustomer(action: PayloadAction<updateData>) {
+function* updateCustomer(action: PayloadAction<IUpdateData>) {
   yield put(start(UPDATE_CUSTOMER));
 
   const orgId: string = yield select(
@@ -34,7 +34,7 @@ function* updateCustomer(action: PayloadAction<updateData>) {
     /**
      * update customer data
      */
-    await updateDoc(doc(db, 'organizations', orgId, 'customers', customerId), {
+    await updateDoc(doc(db, 'organizations', orgId, 'contacts', customerId), {
       ...rest,
       modifiedBy: email,
       modifiedAt: serverTimestamp(),

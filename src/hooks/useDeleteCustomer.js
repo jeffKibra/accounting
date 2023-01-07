@@ -1,17 +1,17 @@
-import { useSelector, useDispatch } from "react-redux";
-import { Box, Text } from "@chakra-ui/react";
+import { useSelector, useDispatch } from 'react-redux';
+import { Box, Text } from '@chakra-ui/react';
 
-import { DELETE_CUSTOMER } from "../store/actions/customersActions";
+import { DELETE_CUSTOMER } from '../store/actions/customersActions';
 
-import { reset } from "../store/slices/customersSlice";
+import { reset } from '../store/slices/customersSlice';
 
 export default function useDeleteCustomer(customer) {
-  const { customerId, displayName, type } = customer;
+  const { id: customerId, displayName, type } = customer;
   const {
     loading,
     action,
     isModified: isDeleted,
-  } = useSelector((state) => state.customersReducer);
+  } = useSelector(state => state.customersReducer);
   const dispatch = useDispatch();
 
   const deleting = loading && action === DELETE_CUSTOMER;
@@ -26,7 +26,7 @@ export default function useDeleteCustomer(customer) {
 
   const details = {
     isDone: isDeleted,
-    title: "Delete Customer",
+    title: 'Delete Customer',
     onConfirm: () => handleDelete(customerId),
     loading: deleting,
     message: (

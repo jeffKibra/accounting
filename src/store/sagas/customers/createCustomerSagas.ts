@@ -11,20 +11,24 @@ import {
   error as toastError,
 } from '../../slices/toastSlice';
 
-import { CustomerFormData, RootState, Org } from '../../../types';
+import { IContactForm, RootState, Org } from '../../../types';
 
-function* createCustomerSaga(action: PayloadAction<CustomerFormData>) {
+function* createCustomerSaga(action: PayloadAction<IContactForm>) {
   yield put(start(CREATE_CUSTOMER));
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;
 
   // console.log({ data });
+  const formData: IContactForm = {
+    ...action.payload,
+    contactType: 'customer',
+  };
 
   async function create() {
     return httpsCallable(
       functions,
       'sale-customer-create'
-    )({ orgId, formData: action.payload });
+    )({ orgId, formData });
   }
 
   try {

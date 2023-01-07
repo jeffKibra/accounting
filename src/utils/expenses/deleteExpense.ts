@@ -3,18 +3,18 @@ import {
   serverTimestamp,
   increment,
   Transaction,
-} from "firebase/firestore";
+} from 'firebase/firestore';
 
-import { db } from "../firebase";
+import { db } from '../firebase';
 import {
   deleteSimilarAccountEntries,
   groupEntriesIntoAccounts,
   getTransactionEntries,
-} from "../journals";
-import { getExpenseData } from ".";
-import { getDateDetails } from "../dates";
+} from '../journals';
+import { getExpenseData } from '.';
+import { getDateDetails } from '../dates';
 
-import { UserProfile } from "../../types";
+import { UserProfile } from '../../types';
 
 export default async function deleteExpense(
   transaction: Transaction,
@@ -31,7 +31,7 @@ export default async function deleteExpense(
    */
   const [expenseData, allEntries] = await Promise.all([
     getExpenseData(transaction, orgId, expenseId),
-    getTransactionEntries(orgId, expenseId, "expense"),
+    getTransactionEntries(orgId, expenseId, 'expense'),
   ]);
   const {
     vendor,
@@ -50,7 +50,7 @@ export default async function deleteExpense(
   /**
    * delete entries and update accounts summaries
    */
-  Object.values(groupedEntries).forEach((entries) => {
+  Object.values(groupedEntries).forEach(entries => {
     deleteSimilarAccountEntries(
       transaction,
       userProfile,
@@ -63,11 +63,11 @@ export default async function deleteExpense(
    * update vendor summaries
    */
   if (vendor) {
-    const { vendorId } = vendor;
-    const vendorRef = doc(db, "organizations", orgId, "vendors", vendorId);
+    const { id: vendorId } = vendor;
+    const vendorRef = doc(db, 'organizations', orgId, 'vendors', vendorId);
     transaction.update(vendorRef, {
-      "summary.deletedExpenses": increment(1),
-      "summary.totalExpenses": increment(0 - totalAmount),
+      'summary.deletedExpenses': increment(1),
+      'summary.totalExpenses': increment(0 - totalAmount),
     });
   }
   /**
@@ -76,18 +76,18 @@ export default async function deleteExpense(
    * amount should remain +ve
    */
   const { yearMonthDay } = getDateDetails();
-  const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
+  const summaryRef = doc(db, 'organizations', orgId, 'summaries', yearMonthDay);
   transaction.update(summaryRef, {
     deletedExpenses: increment(1),
     [`paymentModes.${paymentModeId}`]: increment(totalAmount),
-    "cashFlow.outgoing": increment(0 - totalAmount),
+    'cashFlow.outgoing': increment(0 - totalAmount),
   });
   /**
    * mark expense as deleted
    */
-  const expenseRef = doc(db, "organizations", orgId, "expenses", expenseId);
+  const expenseRef = doc(db, 'organizations', orgId, 'expenses', expenseId);
   transaction.update(expenseRef, {
-    status: "deleted",
+    status: 'deleted',
     modifiedBy: email,
     modifiedAt: serverTimestamp(),
   });

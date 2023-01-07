@@ -1,24 +1,22 @@
 import { Timestamp } from 'firebase/firestore';
 import {
-  Customer,
-  CustomerSummary,
-  Vendor,
   Invoice,
   PaymentReceived,
   Org,
-  VendorSummary,
+  IContact,
+  IContactSummary,
 } from '../types';
 
-function formatCustomerData(customer: Customer): CustomerSummary {
-  const { displayName, type, companyName, email, customerId } = customer;
+function formatCustomerData(customer: IContact): IContactSummary {
+  const { displayName, type, companyName, email, id, contactType } = customer;
 
-  return { displayName, type, companyName, email, customerId };
+  return { displayName, type, companyName, email, id, contactType };
 }
 
-function formatVendorData(vendor: Vendor): VendorSummary {
-  const { displayName, companyName, email, vendorId } = vendor;
+function formatVendorData(vendor: IContact): IContactSummary {
+  const { displayName, companyName, email, id, contactType, type } = vendor;
 
-  return { displayName, companyName, email, vendorId };
+  return { displayName, companyName, email, id, contactType, type };
 }
 
 function formatInvoices(invoices: Invoice[]) {
@@ -69,7 +67,7 @@ interface TransactionDetails {
   createdBy?: string;
   modifiedAt: Date | Timestamp;
   modifiedBy?: string;
-  customer: Customer;
+  customer: IContact;
   paidInvoices: Invoice[];
   org: Org;
   [key: string]: unknown;

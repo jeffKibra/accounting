@@ -1,4 +1,4 @@
-import { put, call, select, takeLatest } from "redux-saga/effects";
+import { put, call, select, takeLatest } from 'redux-saga/effects';
 import {
   getDocs,
   getDoc,
@@ -6,21 +6,21 @@ import {
   query,
   where,
   orderBy,
-} from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+} from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { dbCollections } from "../../../utils/firebase";
+import { dbCollections } from '../../../utils/firebase';
 
-import { GET_VENDORS, GET_VENDOR } from "../../actions/vendorsActions";
+import { GET_VENDORS, GET_VENDOR } from '../../actions/vendorsActions';
 import {
   start,
   vendorSuccess,
   vendorsSuccess,
   fail,
-} from "../../slices/vendorsSlice";
-import { error as toastError } from "../../slices/toastSlice";
+} from '../../slices/vendorsSlice';
+import { error as toastError } from '../../slices/toastSlice';
 
-import { RootState, Vendor } from "../../../types";
+import { RootState, IContact } from '../../../types';
 
 function* getVendors() {
   yield put(start(GET_VENDORS));
@@ -30,18 +30,19 @@ function* getVendors() {
   );
 
   async function get() {
-    const vendorsCollection = dbCollections(orgId).vendors;
+    const vendorsCollection = dbCollections(orgId).contacts;
     const q = query(
       vendorsCollection,
-      orderBy("createdAt", "desc"),
-      where("status", "==", 0)
+      orderBy('createdAt', 'desc'),
+      where('contactType', '==', 'vendor'),
+      where('status', '==', 0)
     );
     const snap = await getDocs(q);
 
-    const vendors = snap.docs.map((vendorDoc) => {
+    const vendors = snap.docs.map(vendorDoc => {
       return {
         ...vendorDoc.data(),
-        vendorId: vendorDoc.id,
+        id: vendorDoc.id,
       };
     });
 
@@ -49,7 +50,7 @@ function* getVendors() {
   }
 
   try {
-    const vendors: Vendor[] = yield call(get);
+    const vendors: IContact[] = yield call(get);
 
     yield put(vendorsSuccess(vendors));
   } catch (err) {
@@ -72,22 +73,22 @@ function* getVendor(action: PayloadAction<string>) {
   );
 
   async function get() {
-    const vendorsCollection = dbCollections(orgId).vendors;
+    const vendorsCollection = dbCollections(orgId).contacts;
     const vendorDoc = await getDoc(doc(vendorsCollection, vendorId));
     const vendorData = vendorDoc.data();
 
     if (!vendorDoc.exists || !vendorData) {
-      throw new Error("Vendor not found!");
+      throw new Error('Vendor not found!');
     }
 
     return {
       ...vendorDoc.data(),
-      vendorId,
+      id: vendorId,
     };
   }
 
   try {
-    const vendor: Vendor = yield call(get);
+    const vendor: IContact = yield call(get);
 
     yield put(vendorSuccess(vendor));
   } catch (err) {

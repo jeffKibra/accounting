@@ -99,7 +99,7 @@ function EditSalesReceipt(props) {
     let { customerId, paymentModeId, accountId, ...rest } = data;
     let customer = null;
     if (customerId) {
-      customer = customers.find(customer => customer.customerId === customerId);
+      customer = customers.find(customer => customer.id === customerId);
     }
 
     const paymentMode = paymentModes.find(mode => mode.value === paymentModeId);

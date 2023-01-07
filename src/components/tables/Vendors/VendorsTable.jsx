@@ -47,7 +47,7 @@ VendorsTable.propTypes = {
     PropTypes.shape({
       displayName: PropTypes.string.isRequired,
       companyName: PropTypes.string,
-      vendorId: PropTypes.string.isRequired,
+      id: PropTypes.string.isRequired,
       phone: PropTypes.string,
       email: PropTypes.string,
       openingBalance: PropTypes.number,

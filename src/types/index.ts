@@ -1,11 +1,11 @@
 export type { OrgSummary, Org, OrgFormData, OrgFromDb } from './org';
 export type { UserProfile, LoginForm, SignupForm } from './auth';
-export type {
-  Customer,
-  CustomerSummary,
-  CustomerFromDb,
-  CustomerFormData,
-} from './customer';
+// export type {
+//   Customer,
+//   CustomerSummary,
+//   CustomerFromDb,
+//   CustomerFormData,
+// } from './customer';
 export type {
   Entry,
   EntryWithStatus,
@@ -49,12 +49,12 @@ export type {
   InvoicePayments,
   InvoiceFromDb,
 } from './invoice';
-export type {
-  Vendor,
-  VendorFromDb,
-  VendorFormData,
-  VendorSummary,
-} from './vendor';
+// export type {
+//   Vendor,
+//   VendorFromDb,
+//   VendorFormData,
+//   VendorSummary,
+// } from './vendor';
 export type {
   PaymentReceived,
   PaymentReceivedFromDb,
@@ -89,7 +89,12 @@ export type {
 } from './customerOpeningBalance';
 export type { DateDetails } from './others';
 
-export type { IContactSummary } from './contacts';
+export type {
+  IContactSummary,
+  IContact,
+  IContactForm,
+  IContactFromDb,
+} from './contacts';
 export type {
   IManualJournalEntry,
   IManualJournalForm,

@@ -3,28 +3,28 @@ import {
   serverTimestamp,
   increment,
   Transaction,
-} from "firebase/firestore";
+} from 'firebase/firestore';
 
-import { db, dbCollections } from "../firebase";
+import { db, dbCollections } from '../firebase';
 import {
   updateSimilarAccountEntries,
   deleteSimilarAccountEntries,
   createSimilarAccountEntries,
   getAccountsEntriesForTransaction,
-} from "../journals";
+} from '../journals';
 
-import { getAccountData, getAccountsMapping } from "../accounts";
-import { changePaymentMode, updatePaymentMode } from "../summaries";
-import { getExpenseData, getEntryAmount } from ".";
-import formats from "../formats";
-import { getDateDetails } from "../dates";
+import { getAccountData, getAccountsMapping } from '../accounts';
+import { changePaymentMode, updatePaymentMode } from '../summaries';
+import { getExpenseData, getEntryAmount } from '.';
+// import formats from '../formats';
+import { getDateDetails } from '../dates';
 
 import {
   UserProfile,
   Account,
   ExpenseFormData,
   ExpenseUpdateData,
-} from "../../types";
+} from '../../types';
 
 interface ExpenseFormUpdate extends ExpenseFormData {
   expenseId: string;
@@ -32,7 +32,7 @@ interface ExpenseFormUpdate extends ExpenseFormData {
 interface TDetails
   extends Omit<
     ExpenseUpdateData,
-    "modifiedBy" | "modifiedAt" | "status" | "transactionType"
+    'modifiedBy' | 'modifiedAt' | 'status' | 'transactionType'
   > {
   status?: string;
 }
@@ -59,7 +59,7 @@ export default async function updateExpense(
   /**
    * check vendor
    */
-  let vendorId = vendor?.vendorId;
+  let vendorId = vendor?.id;
   /**
    * fetch current expense
    */
@@ -73,7 +73,7 @@ export default async function updateExpense(
     paymentAccount: { accountId: currentPaymentAccountId },
     paymentMode: { value: currentPaymentModeId },
   } = currentExpense;
-  const currentVendorId = currentVendor?.vendorId;
+  const currentVendorId = currentVendor?.id;
 
   /**
    * total amount adjustment
@@ -86,7 +86,7 @@ export default async function updateExpense(
   const vendorHasChanged = currentVendorId !== vendorId;
 
   const allCurrentItems = [
-    ...currentExpense.items.map((item) => {
+    ...currentExpense.items.map(item => {
       const {
         account: { accountId },
         itemRate,
@@ -94,7 +94,7 @@ export default async function updateExpense(
       return { accountId, amount: itemRate };
     }),
     {
-      accountId: "tax_payable",
+      accountId: 'tax_payable',
       amount: currentTaxes,
     },
     {
@@ -104,7 +104,7 @@ export default async function updateExpense(
   ];
 
   const allIncomingItems = [
-    ...items.map((item) => {
+    ...items.map(item => {
       const {
         account: { accountId },
         itemRate,
@@ -115,7 +115,7 @@ export default async function updateExpense(
       };
     }),
     {
-      accountId: "tax_payable",
+      accountId: 'tax_payable',
       amount: totalTax,
     },
     {
@@ -135,13 +135,13 @@ export default async function updateExpense(
     getAccountsEntriesForTransaction(
       orgId,
       expenseId,
-      "expense",
+      'expense',
       accountsToUpdate
     ),
     getAccountsEntriesForTransaction(
       orgId,
       expenseId,
-      "expense",
+      'expense',
       deletedAccounts
     ),
   ]);
@@ -154,9 +154,9 @@ export default async function updateExpense(
   /**
    * if vendor is not undefined, add it to tDetails
    */
-  if (vendor) {
-    tDetails.vendor = formats.formatVendorData(vendor);
-  }
+  // if (vendor) {
+  //   tDetails.vendor = formats.formatVendorData(vendor);
+  // }
 
   const transactionDetails = {
     ...tDetails,
@@ -169,7 +169,7 @@ export default async function updateExpense(
   /**
    * update entries
    */
-  entriesToUpdate.forEach((entry) => {
+  entriesToUpdate.forEach(entry => {
     console.log({ entry });
     const { accountId, incoming, credit, debit, entryId } = entry;
     const entryAccount = getAccountData(accountId, accounts);
@@ -191,7 +191,7 @@ export default async function updateExpense(
   /**
    * delete deleted income accounts
    */
-  entriesToDelete.forEach((entry) => {
+  entriesToDelete.forEach(entry => {
     const { accountId, credit, debit, entryId } = entry;
     const entryAccount = getAccountData(accountId, accounts);
 
@@ -207,7 +207,7 @@ export default async function updateExpense(
   /**
    * create new entries for new income accounts
    */
-  newAccounts.forEach((incomeAccount) => {
+  newAccounts.forEach(incomeAccount => {
     const { accountId, incoming } = incomeAccount;
     const entryAccount = getAccountData(accountId, accounts);
 
@@ -220,7 +220,7 @@ export default async function updateExpense(
         reference,
         transactionDetails,
         transactionId: expenseId,
-        transactionType: "expense",
+        transactionType: 'expense',
       },
     ]);
   });
@@ -254,10 +254,10 @@ export default async function updateExpense(
    * update vendor summaries
    */
   const newVendorRef = vendorId
-    ? doc(db, "organizations", orgId, "vendors", vendorId)
+    ? doc(db, 'organizations', orgId, 'vendors', vendorId)
     : null;
   const currentVendorRef = currentVendorId
-    ? doc(db, "organizations", orgId, "vendors", currentVendorId)
+    ? doc(db, 'organizations', orgId, 'vendors', currentVendorId)
     : null;
   /**
    * opening balance is strictly tied to a vendor.
@@ -267,15 +267,15 @@ export default async function updateExpense(
     //delete values from previous vendor
     if (currentVendorRef) {
       transaction.update(currentVendorRef, {
-        "summary.totalExpenses": increment(0 - currentTotal),
-        "summary.deletedExpenses": increment(1),
+        'summary.totalExpenses': increment(0 - currentTotal),
+        'summary.deletedExpenses': increment(1),
       });
     }
     if (newVendorRef) {
       //add new values to the incoming vendor
       transaction.update(newVendorRef, {
-        "summary.totalExpenses": increment(totalAmount),
-        "summary.expenses": increment(1),
+        'summary.totalExpenses': increment(totalAmount),
+        'summary.expenses': increment(1),
       });
     }
   } else {
@@ -284,7 +284,7 @@ export default async function updateExpense(
         const adjustment = totalAmount - currentTotal;
         //update vendor summaries
         transaction.update(currentVendorRef, {
-          "summary.totalExpenses": increment(adjustment),
+          'summary.totalExpenses': increment(adjustment),
         });
       }
     }
@@ -296,14 +296,14 @@ export default async function updateExpense(
     const { yearMonthDay } = getDateDetails();
     const summaryRef = doc(
       db,
-      "organizations",
+      'organizations',
       orgId,
-      "summaries",
+      'summaries',
       yearMonthDay
     );
     const adjustment = totalAmount - currentTotal;
     transaction.update(summaryRef, {
-      "cashFlow.outgoing": increment(adjustment),
+      'cashFlow.outgoing': increment(adjustment),
     });
   }
 
@@ -316,7 +316,7 @@ export default async function updateExpense(
   transaction.update(expenseRef, {
     ...tDetails,
     // classical: "plus",
-    modifiedBy: email || "",
+    modifiedBy: email || '',
     modifiedAt: serverTimestamp(),
   });
 }

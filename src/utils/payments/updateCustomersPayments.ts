@@ -3,12 +3,12 @@ import {
   increment,
   serverTimestamp,
   Transaction,
-} from "firebase/firestore";
+} from 'firebase/firestore';
 
-import { db } from "../firebase";
-import getPaymentsTotal from "./getPaymentsTotal";
+import { db } from '../firebase';
+import getPaymentsTotal from './getPaymentsTotal';
 
-import { UserProfile, PaymentReceivedForm, PaymentReceived } from "../../types";
+import { UserProfile, PaymentReceivedForm, PaymentReceived } from '../../types';
 
 export default function updateCustomersPayments(
   transaction: Transaction,
@@ -19,22 +19,22 @@ export default function updateCustomersPayments(
 ) {
   const { email } = userProfile;
   const {
-    customer: { customerId },
+    customer: { id: customerId },
     amount,
     payments,
   } = payment;
   const {
-    customer: { customerId: incomingCustomerId },
+    customer: { id: incomingCustomerId },
     amount: incomingAmount,
     payments: incomingPayments,
   } = incomingPayment;
 
-  const customerRef = doc(db, "organizations", orgId, "customers", customerId);
+  const customerRef = doc(db, 'organizations', orgId, 'customers', customerId);
   const incomingCustomerRef = doc(
     db,
-    "organizations",
+    'organizations',
     orgId,
-    "customers",
+    'customers',
     incomingCustomerId
   );
 
@@ -54,9 +54,9 @@ export default function updateCustomersPayments(
      * increase numbers of deleted payments
      */
     transaction.update(customerRef, {
-      "summary.deletedPayments": increment(1),
-      "summary.unusedCredits": increment(0 - excess),
-      "summary.invoicePayments": increment(0 - paymentsTotal),
+      'summary.deletedPayments': increment(1),
+      'summary.unusedCredits': increment(0 - excess),
+      'summary.invoicePayments': increment(0 - paymentsTotal),
       modifiedAt: serverTimestamp(),
       modifiedBy: email,
     });
@@ -66,9 +66,9 @@ export default function updateCustomersPayments(
      * increment number of customer payments
      */
     transaction.update(incomingCustomerRef, {
-      "summary.payments": increment(1),
-      "summary.unusedCredits": increment(incomingExcess),
-      "summary.invoicePayments": increment(incomingPaymentsTotal),
+      'summary.payments': increment(1),
+      'summary.unusedCredits': increment(incomingExcess),
+      'summary.invoicePayments': increment(incomingPaymentsTotal),
       modifiedAt: serverTimestamp(),
       modifiedBy: email,
     });
@@ -81,8 +81,8 @@ export default function updateCustomersPayments(
     const paymentsTotalAdjustment = incomingPaymentsTotal - paymentsTotal;
 
     transaction.update(incomingCustomerRef, {
-      "summary.unusedCredits": increment(excessAdjustment),
-      "summary.invoicePayments": increment(paymentsTotalAdjustment),
+      'summary.unusedCredits': increment(excessAdjustment),
+      'summary.invoicePayments': increment(paymentsTotalAdjustment),
       modifiedAt: serverTimestamp(),
       modifiedBy: email,
     });

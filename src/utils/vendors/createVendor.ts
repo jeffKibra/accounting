@@ -3,15 +3,15 @@ import {
   serverTimestamp,
   increment,
   Transaction,
-} from "firebase/firestore";
+} from 'firebase/firestore';
 
-import { db } from "../firebase";
+import { db } from '../firebase';
 // import { createSimilarAccountEntries } from "../journals";
 // import { getAccountData } from "../accounts";
 // import { createInvoice } from "../invoices";
-import { getDateDetails } from "../dates";
+import { getDateDetails } from '../dates';
 
-import { UserProfile, Org, Account, VendorFormData } from "../../types";
+import { UserProfile, Org, Account, IContactForm } from '../../types';
 
 export default async function createVendor(
   transaction: Transaction,
@@ -19,18 +19,18 @@ export default async function createVendor(
   userProfile: UserProfile,
   accounts: Account[],
   vendorId: string,
-  vendorData: VendorFormData
+  vendorData: IContactForm
 ) {
   const { orgId } = org;
   const { email } = userProfile;
-  const vendorRef = doc(db, "organizations", orgId, "vendors", vendorId);
+  const vendorRef = doc(db, 'organizations', orgId, 'vendors', vendorId);
   const { yearMonthDay } = getDateDetails();
-  const summaryRef = doc(db, "organizations", orgId, "summaries", yearMonthDay);
+  const summaryRef = doc(db, 'organizations', orgId, 'summaries', yearMonthDay);
 
   const transactionDetails = {
     ...vendorData,
     vendorId,
-    status: "active",
+    status: 'active',
     summary: {
       expenses: 0,
       deletedExpenses: 0,

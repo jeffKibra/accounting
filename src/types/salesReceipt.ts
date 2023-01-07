@@ -1,13 +1,13 @@
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from 'firebase/firestore';
 import {
   Account,
-  CustomerSummary,
+  IContactSummary,
   OrgSummary,
   PaymentMode,
   SalesItem,
   SalesSummary,
   TransactionTypes,
-} from ".";
+} from '.';
 
 interface Meta {
   createdAt: Date | Timestamp;
@@ -17,12 +17,12 @@ interface Meta {
   isSent: boolean;
   status: string;
   org: OrgSummary;
-  transactionType: keyof Pick<TransactionTypes, "sales_receipt">;
+  transactionType: keyof Pick<TransactionTypes, 'sales_receipt'>;
 }
 
 export interface SalesReceiptForm {
   account: Account;
-  customer: CustomerSummary;
+  customer: IContactSummary;
   customerNotes: string;
   paymentMode: PaymentMode;
   receiptDate: Date;
@@ -36,6 +36,6 @@ export interface SalesReceipt extends SalesReceiptForm, Meta {
 }
 
 export interface SalesReceiptFromDb
-  extends Omit<SalesReceipt, "salesReceiptId"> {
+  extends Omit<SalesReceipt, 'salesReceiptId'> {
   salesReceiptId?: string;
 }

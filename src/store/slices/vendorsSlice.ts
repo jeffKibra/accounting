@@ -1,12 +1,12 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { Vendor } from "../../types";
+import { IContact } from '../../types';
 
 type State = {
   loading: boolean;
   isModified: boolean;
-  vendor: Vendor | null;
-  vendors: Vendor[] | null;
+  vendor: IContact | null;
+  vendors: IContact[] | null;
   action: string | null;
   error: { code?: string; message?: string } | null;
 };
@@ -21,7 +21,7 @@ const initialState: State = {
 };
 
 const vendorsSlice = createSlice({
-  name: "vendors_slice",
+  name: 'vendors_slice',
   initialState: {
     ...initialState,
   },
@@ -41,14 +41,14 @@ const vendorsSlice = createSlice({
         isModified: true,
       };
     },
-    vendorSuccess: (state: State, action: PayloadAction<Vendor>) => {
+    vendorSuccess: (state: State, action: PayloadAction<IContact>) => {
       return {
         ...state,
         loading: false,
         vendor: action.payload,
       };
     },
-    vendorsSuccess: (state: State, action: PayloadAction<Vendor[]>) => {
+    vendorsSuccess: (state: State, action: PayloadAction<IContact[]>) => {
       return {
         ...state,
         loading: false,

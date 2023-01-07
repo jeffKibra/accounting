@@ -10,14 +10,15 @@ import {
   success as toastSuccess,
   error as toastError,
 } from '../../slices/toastSlice';
+import { dbCollections } from 'utils/firebase';
 
-import { RootState, UserProfile, VendorFormData } from '../../../types';
+import { RootState, UserProfile, IContactForm } from '../../../types';
 
-interface UpdateData extends VendorFormData {
+interface IUpdateData extends IContactForm {
   vendorId: string;
 }
 
-function* updateVendor(action: PayloadAction<UpdateData>) {
+function* updateVendor(action: PayloadAction<IUpdateData>) {
   yield put(start(UPDATE_VENDOR));
 
   const orgId: string = yield select(
@@ -30,8 +31,10 @@ function* updateVendor(action: PayloadAction<UpdateData>) {
 
   const { vendorId, ...formData } = action.payload;
 
-  async function update() {
-    await updateDoc(doc(db, 'organizations', orgId, 'vendors', vendorId), {
+  function update() {
+    const contactsCollection = dbCollections(orgId).contacts;
+    const vendorRef = doc(db, `${contactsCollection.path}/${vendorId}`);
+    return updateDoc(vendorRef, {
       ...formData,
       modifiedBy: email,
       modifiedAt: serverTimestamp(),

@@ -89,9 +89,7 @@ function EditInvoice(props) {
       return toasts.error('Due date cannot be less than invoice date');
     }
 
-    const customer = customers.find(
-      customer => customer.customerId === customerId
-    );
+    const customer = customers.find(customer => customer.id === customerId);
     if (!customer) {
       return toasts.error('Selected an Invalid customer');
     }

@@ -20,7 +20,7 @@ import {
 } from '../../slices/customersSlice';
 import { error as toastError } from '../../slices/toastSlice';
 
-import { RootState, Customer } from '../../../types';
+import { RootState, IContact } from '../../../types';
 
 function* getCustomers() {
   yield put(start(GET_CUSTOMERS));
@@ -30,17 +30,18 @@ function* getCustomers() {
   );
 
   async function get() {
-    const customersCollection = dbCollections(orgId).customers;
+    const customersCollection = dbCollections(orgId).contacts;
     const q = query(
       customersCollection,
       orderBy('createdAt', 'desc'),
+      where('contactType', '==', 'customer'),
       where('status', '==', 0)
     );
     const snap = await getDocs(q);
-    const customers: Customer[] = snap.docs.map(customerDoc => {
+    const customers: IContact[] = snap.docs.map(customerDoc => {
       return {
         ...customerDoc.data(),
-        customerId: customerDoc.id,
+        id: customerDoc.id,
       };
     });
 
@@ -48,7 +49,7 @@ function* getCustomers() {
   }
 
   try {
-    const customers: Customer[] = yield call(get);
+    const customers: IContact[] = yield call(get);
 
     yield put(customersSuccess(customers));
   } catch (err) {
@@ -71,8 +72,8 @@ function* getCustomer(action: PayloadAction<string>) {
   );
 
   async function get() {
-    const customersCollection = dbCollections(orgId).customers;
-    const customerDoc = await getDoc(doc(customersCollection, customerId));
+    const contactsCollection = dbCollections(orgId).contacts;
+    const customerDoc = await getDoc(doc(contactsCollection, customerId));
     const customerData = customerDoc.data();
 
     if (!customerDoc.exists || !customerData) {
@@ -81,12 +82,12 @@ function* getCustomer(action: PayloadAction<string>) {
 
     return {
       ...customerData,
-      customerId,
+      id: customerId,
     };
   }
 
   try {
-    const customer: Customer = yield call(get);
+    const customer: IContact = yield call(get);
 
     yield put(customerSuccess(customer));
   } catch (err) {

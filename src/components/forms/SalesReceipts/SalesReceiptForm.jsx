@@ -50,7 +50,7 @@ function SalesReceiptForm(props) {
                 placeholder="--select customer--"
                 isDisabled={loading}
                 options={customers.map(customer => {
-                  const { customerId, displayName } = customer;
+                  const { id: customerId, displayName } = customer;
 
                   return { name: displayName, value: customerId };
                 })}

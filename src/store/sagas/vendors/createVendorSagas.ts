@@ -11,20 +11,25 @@ import {
   error as toastError,
 } from '../../slices/toastSlice';
 
-import { Org, RootState, VendorFormData } from '../../../types';
+import { Org, RootState, IContactForm } from '../../../types';
 
-function* createVendorSaga(action: PayloadAction<VendorFormData>) {
+function* createVendorSaga(action: PayloadAction<IContactForm>) {
   const { type, payload } = action;
 
   yield put(start(type));
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;
 
+  const formData: IContactForm = {
+    ...payload,
+    contactType: 'vendor',
+  };
+
   async function create() {
     return httpsCallable(
       functions,
       'purchase-vendor-create'
-    )({ orgId, formData: payload });
+    )({ orgId, formData });
   }
 
   try {

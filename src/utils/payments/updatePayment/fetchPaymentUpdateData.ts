@@ -1,4 +1,4 @@
-import { Transaction } from "firebase/firestore";
+import { Transaction } from 'firebase/firestore';
 
 import {
   getPaymentsTotal,
@@ -6,11 +6,11 @@ import {
   getPaymentEntriesToUpdate,
   getPaymentsMapping,
   getPaymentEntry,
-} from "..";
-import { getAccountData } from "../../accounts";
-import { createDailySummary } from "../../summaries";
+} from '..';
+import { getAccountData } from '../../accounts';
+import { createDailySummary } from '../../summaries';
 
-import { Account, PaymentReceivedForm } from "../../../types";
+import { Account, PaymentReceivedForm } from '../../../types';
 
 export default async function updatePayment(
   transaction: Transaction,
@@ -28,18 +28,18 @@ export default async function updatePayment(
     customer,
   } = formData;
   const { accountId } = account;
-  const { customerId } = customer;
+  const { id: customerId } = customer;
   /**
    * get payments total
    */
   const paymentsTotal = getPaymentsTotal(payments);
   if (paymentsTotal > amount) {
-    throw new Error("Invoices payments cannot be more than customer payment!");
+    throw new Error('Invoices payments cannot be more than customer payment!');
   }
 
   //accounts data
-  const unearned_revenue = getAccountData("unearned_revenue", accounts);
-  const accounts_receivable = getAccountData("accounts_receivable", accounts);
+  const unearned_revenue = getAccountData('unearned_revenue', accounts);
+  const accounts_receivable = getAccountData('accounts_receivable', accounts);
 
   /**
    * get current currentPayment and incoming customer details
@@ -50,7 +50,7 @@ export default async function updatePayment(
     createDailySummary(orgId),
   ]);
   const {
-    customer: { customerId: currentCustomerId },
+    customer: { id: currentCustomerId },
     account: { accountId: currentAccountId },
   } = currentPayment;
   /**
@@ -60,7 +60,7 @@ export default async function updatePayment(
   const customerHasChanged = customerId !== currentCustomerId;
 
   if (customerHasChanged) {
-    console.log("customer has changed");
+    console.log('customer has changed');
   }
   /**
    * check if payment account has been changed
