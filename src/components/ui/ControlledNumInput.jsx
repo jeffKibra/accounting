@@ -1,32 +1,12 @@
-import { useState, forwardRef } from 'react';
+import { useState, forwardRef, useEffect } from 'react';
 import { NumberInput, NumberInputField } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
 //---------------------------------------------------------------------------
-ControlledNumInput.propTypes = {
-  isReadOnly: PropTypes.bool,
-  isDisabled: PropTypes.bool,
-  defaultValue: PropTypes.number.isRequired,
-  min: PropTypes.number,
-  max: PropTypes.number,
-  size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl']),
-  updateFieldMode: PropTypes.oneOf(['onBlur', 'onChange']).isRequired,
-  onChange: PropTypes.func.isRequired,
-  onBlur: PropTypes.func.isRequired,
-  inputFieldProps: PropTypes.object,
-};
 
-ControlledNumInput.defaultProps = {
-  defaultValue: 0,
-  min: 0,
-  size: 'md',
-  updateFieldMode: 'onBlur',
-  onBlur: () => {},
-  onChange: () => {},
-};
-
-function ControlledNumInput(props, ref) {
+function CNInput(props, ref) {
   const {
+    value,
     isReadOnly,
     isDisabled,
     defaultValue,
@@ -37,14 +17,22 @@ function ControlledNumInput(props, ref) {
     onChange,
     onBlur,
   } = props;
+  // console.log({ value });
 
-  const [controlledValue, setControlledValue] = useState(defaultValue || 0);
+  const [controlledValue, setControlledValue] = useState(
+    value || defaultValue || 0
+  );
+  // console.log({ controlledValue });
+
+  useEffect(() => {
+    setControlledValue(value);
+  }, [value]);
 
   const updateFieldOnBlur = updateFieldMode === 'onBlur';
   const updateFieldOnChange = updateFieldMode === 'onChange';
 
   function handleChange(inputValue) {
-    console.log({ inputValue });
+    // console.log({ inputValue });
     //set local value
     setControlledValue(+inputValue);
 
@@ -54,6 +42,7 @@ function ControlledNumInput(props, ref) {
   }
 
   function handleBlur() {
+    // console.log('handleBlur');
     onBlur();
 
     if (updateFieldOnBlur) {
@@ -92,4 +81,29 @@ function ControlledNumInput(props, ref) {
   );
 }
 
-export default forwardRef(ControlledNumInput);
+const ControlledNumInput = forwardRef(CNInput);
+
+//----------------------------------------------------------------
+ControlledNumInput.propTypes = {
+  isReadOnly: PropTypes.bool,
+  isDisabled: PropTypes.bool,
+  defaultValue: PropTypes.number.isRequired,
+  min: PropTypes.number,
+  max: PropTypes.number,
+  size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl']),
+  updateFieldMode: PropTypes.oneOf(['onBlur', 'onChange']).isRequired,
+  onChange: PropTypes.func.isRequired,
+  onBlur: PropTypes.func.isRequired,
+  inputFieldProps: PropTypes.object,
+};
+
+ControlledNumInput.defaultProps = {
+  defaultValue: 0,
+  min: 0,
+  size: 'md',
+  updateFieldMode: 'onBlur',
+  onBlur: () => {},
+  onChange: () => {},
+};
+
+export default ControlledNumInput;

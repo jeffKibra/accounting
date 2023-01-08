@@ -17,7 +17,7 @@ import PageLayout from '../../../components/layout/PageLayout';
 import SkeletonLoader from '../../../components/ui/SkeletonLoader';
 import Empty from '../../../components/ui/Empty';
 
-import EditSalesReceipt from '../../../containers/Management/SalesReceipts/EditSalesReceipt';
+import SalesReceiptForm from 'components/forms/SalesReceipts/SalesReceiptForm';
 
 function getFormValuesOnly(salesReceipt = {}) {
   const {
@@ -91,7 +91,7 @@ function EditSalesReceiptPage(props) {
       {loading && action === GET_SALES_RECEIPT ? (
         <SkeletonLoader />
       ) : salesReceipt ? (
-        <EditSalesReceipt
+        <SalesReceiptForm
           updating={loading && action === UPDATE_SALES_RECEIPT}
           handleFormSubmit={update}
           salesReceipt={getFormValuesOnly(salesReceipt)}

@@ -18,7 +18,7 @@ import PropTypes from 'prop-types';
 import ControlledSelect from 'components/ui/ControlledSelect';
 import FieldArrayTextarea from 'components/ui/FieldArrayTextarea';
 import FieldArrayNumberInput from 'components/ui/FieldArrayNumberInput';
-import ContactSelect from 'components/ui/ContactSelect';
+// import ContactSelect from 'components/ui/ContactSelect';
 import CustomSelect from 'components/ui/CustomSelect';
 
 function CustomLabel({ children }) {
@@ -119,7 +119,7 @@ function EntryFields(props) {
               </FormControl>
             </GridItem>
 
-            <GridItem colSpan={[6, 4, 2]}>
+            {/* <GridItem colSpan={[6, 4, 2]}>
               <FormControl isDisabled={loading} isInvalid={errors.contact}>
                 <CustomLabel htmlFor="contact">Contact</CustomLabel>
                 <ContactSelect name={`${fieldPrefix}.name`} />
@@ -127,7 +127,7 @@ function EntryFields(props) {
                   {itemErrors?.contact?.message}
                 </FormErrorMessage>
               </FormControl>
-            </GridItem>
+            </GridItem> */}
 
             <GridItem colSpan={[6, 4, 2]}>
               <FormControl isInvalid={itemErrors?.tax}>

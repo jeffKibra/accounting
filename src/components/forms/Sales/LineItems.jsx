@@ -1,46 +1,34 @@
-import { useMemo, useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useFormContext, useFieldArray } from 'react-hook-form';
-import {
-  Box,
-  Flex,
-  Text,
-  VStack,
-  Button,
-  Grid,
-  GridItem,
-  Heading,
-  Select,
-} from '@chakra-ui/react';
+import { Box, Flex, Text, VStack, Button, Heading } from '@chakra-ui/react';
 import { RiAddLine } from 'react-icons/ri';
 import PropTypes from 'prop-types';
 //contexts
 //hooks
 import { useToasts } from 'hooks';
 //utils
-import { getSalesItemData, getSaleSummary } from 'utils/sales';
+import { getSalesItemData } from 'utils/sales';
 
 //ui components
 import CustomSelect from 'components/ui/CustomSelect';
 //forms
-import SelectItemForm from 'components/forms/Sales/SelectItemForm';
-//tables
-import SaleSummaryTable from 'components/tables/Sales/SaleSummaryTable';
+import SelectItemForm from 'components/forms/Sales/ItemFields';
 
-export default function EditSale(props) {
-  const { loading, taxes } = props;
-  //taxes object
-  const taxesObject = useMemo(() => {
-    return taxes.reduce((obj, tax) => {
-      const { name, rate, taxId } = tax;
-      return {
-        ...obj,
-        [taxId]: { name, rate, taxId },
-      };
-    }, {});
-  }, [taxes]);
+//-----------------------------------------------------------------------------\
+LineItems.propTypes = {
+  loading: PropTypes.bool.isRequired,
+  itemsObject: PropTypes.object.isRequired,
+  taxesObject: PropTypes.object.isRequired,
+  selectedItemsObject: PropTypes.object.isRequired,
+  // preSelectedItems: PropTypes.array,
+};
+
+export default function LineItems(props) {
+  console.log({ props });
+  const { loading, taxesObject, itemsObject, selectedItemsObject } = props;
+
   //form methhods
   const {
-    watch,
     setValue,
     getValues,
     control,
@@ -62,96 +50,6 @@ export default function EditSale(props) {
   //   slItems: watch('selectedItems'),
   //   customer: watch('customer'),
   // });
-
-  useEffect(() => {
-    console.log('mounting');
-
-    return () => console.log('unmounting');
-  }, []);
-
-  // useEffect(() => {
-  //   /**
-  //    * add default selectedItems
-  //    */
-  //   console.log('updating default selectedItems');
-  //   if (
-  //     preSelectedItems &&
-  //     Array.isArray(preSelectedItems) &&
-  //     preSelectedItems.length > 0
-  //   ) {
-  //     // replace(preSelectedItems);
-  //     // preSelectedItems.forEach(item => {
-  //     //   append({ ...item });
-  //     // });
-  //   } else {
-  //     // append({
-  //     //   item: null,
-  //     //   rate: 0,
-  //     //   quantity: 0,
-  //     //   itemRate: 0,
-  //     //   itemTax: 0,
-  //     //   itemRateTotal: 0,
-  //     //   itemTaxTotal: 0,
-  //     //   salesTax: null,
-  //     // });
-  //   }
-
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
-
-  const itemsFields = watch('selectedItems');
-
-  /**
-   * using watch makes selecetd items(fields) to change on every render.
-   * to avoid performance issues, convert formItems into a JSON string
-   * useMemo and useEffect with be able to compare strings appropriately
-   * and only rerender when value changes
-   */
-  const fieldsString = JSON.stringify(itemsFields || []);
-  //compute summary values whenever selected items change
-  const { summary, selectedItemsObject } = useMemo(() => {
-    /**
-     * parse the json string to get back field values
-     */
-    const selectedItems = JSON.parse(fieldsString);
-
-    const selectedItemsObject = selectedItems.reduce((summary, itemDetails) => {
-      const { item } = itemDetails;
-      if (item) {
-        return {
-          ...summary,
-          [item.itemId]: itemDetails,
-        };
-      } else {
-        return summary;
-      }
-    }, {});
-
-    console.log('generating summary');
-    const summary = getSaleSummary(selectedItems);
-
-    return { selectedItemsObject, summary };
-  }, [fieldsString]);
-  /**
-   * convert items into an object for easier updates .
-   * helps to avoid iterating the whole array for every update
-   */
-  const itemsObject = useMemo(() => {
-    const items = props.items;
-    let itemsObject = {};
-
-    if (items && Array.isArray(items)) {
-      itemsObject = items.reduce((obj, item) => {
-        const { itemId } = item;
-        return {
-          ...obj,
-          [itemId]: { ...item },
-        };
-      }, {});
-    }
-
-    return itemsObject;
-  }, [props.items]);
 
   const addNewLine = useCallback(() => {
     console.log('adding new line');
@@ -188,6 +86,7 @@ export default function EditSale(props) {
 
   const updateItemFields = useCallback(
     (fieldName, value, index) => {
+      console.log('updating itemFields', { fieldName, value, index });
       const fieldId = `selectedItems.${index}`;
       const currentValues = getValues(fieldId);
       const {
@@ -215,6 +114,7 @@ export default function EditSale(props) {
       };
 
       const updatedValues = getSalesItemData(selectedItemData, originalItem);
+      console.log({ updatedValues });
       //update item
       setValue(fieldId, updatedValues);
     },
@@ -223,6 +123,7 @@ export default function EditSale(props) {
 
   const handleItemChange = useCallback(
     (itemId, index) => {
+      console.log('item changed', { itemId, index });
       const selectedItem = itemsObject[itemId];
       const { sellingPrice, salesTax } = selectedItem;
 
@@ -230,6 +131,8 @@ export default function EditSale(props) {
         { itemId, quantity: 1, rate: sellingPrice, salesTax },
         itemsObject[itemId]
       );
+
+      console.log({ itemData });
 
       //update item at index
       setValue(`selectedItems.${index}`, { ...itemData });
@@ -293,19 +196,6 @@ export default function EditSale(props) {
         </Button>
       </Flex>
       );
-      <Grid w="full" rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
-        <GridItem colSpan={[0, 4, 6]}></GridItem>
-        <GridItem colSpan={[12, 8, 6]}>
-          <SaleSummaryTable loading={loading} summary={summary} />
-        </GridItem>
-      </Grid>
     </VStack>
   );
 }
-
-EditSale.propTypes = {
-  loading: PropTypes.bool.isRequired,
-  items: PropTypes.array.isRequired,
-  taxes: PropTypes.array.isRequired,
-  // preSelectedItems: PropTypes.array,
-};

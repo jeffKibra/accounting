@@ -13,11 +13,12 @@ import {
   Stack,
 } from '@chakra-ui/react';
 import { RiDeleteBinLine } from 'react-icons/ri';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, Controller } from 'react-hook-form';
 import PropTypes from 'prop-types';
 
 import ControlledSelect from 'components/ui/ControlledSelect';
-import RHFPlainNumInput from 'components/ui/RHFPlainNumInput';
+// import RHFPlainNumInput from 'components/ui/RHFPlainNumInput';
+import ControlledNumInput from 'components/ui/ControlledNumInput';
 
 function CustomLabel({ children }) {
   return (
@@ -27,7 +28,7 @@ function CustomLabel({ children }) {
   );
 }
 
-function SelectItemForm(props) {
+function ItemFields(props) {
   const {
     itemsObject,
     selectedItemsObject,
@@ -44,6 +45,7 @@ function SelectItemForm(props) {
     formState: { errors },
     watch,
     getValues,
+    control,
   } = useFormContext();
 
   const taxType = watch('summary.taxType');
@@ -131,8 +133,29 @@ function SelectItemForm(props) {
               <FormControl isInvalid={itemErrors?.rate}>
                 <CustomLabel htmlFor="rate">Rate</CustomLabel>
                 {/* <TableNumInput onBlur={() => } /> */}
-                <RHFPlainNumInput
+                <Controller
                   name={`selectedItems.${index}.rate`}
+                  control={control}
+                  render={({ field: { value, ref, onBlur } }) => {
+                    return (
+                      <ControlledNumInput
+                        ref={ref}
+                        updateFieldMode="onBlur"
+                        value={value}
+                        mode="onBlur"
+                        onChange={value =>
+                          updateItemFields('rate', value, index)
+                        }
+                        onBlur={onBlur}
+                        min={1}
+                        isReadOnly={loading}
+                        isDisabled={!item?.itemId}
+                      />
+                    );
+                  }}
+                />
+                {/* <RHFPlainNumInput
+                  
                   mode="onBlur"
                   updateValueOnBlur={false}
                   onBlur={value => updateItemFields('rate', value, index)}
@@ -146,7 +169,7 @@ function SelectItemForm(props) {
                   min={1}
                   isReadOnly={loading}
                   isDisabled={!item?.itemId}
-                />
+                /> */}
 
                 <FormErrorMessage>{itemErrors?.rate?.message}</FormErrorMessage>
               </FormControl>
@@ -155,7 +178,35 @@ function SelectItemForm(props) {
             <GridItem colSpan={[6, 4, 1]}>
               <FormControl isInvalid={itemErrors?.quantity}>
                 <CustomLabel htmlFor="quantity">Quantity</CustomLabel>
-                <RHFPlainNumInput
+                <Controller
+                  name={`selectedItems.${index}.quantity`}
+                  control={control}
+                  render={({ field: { ref, value, onBlur } }) => {
+                    return (
+                      <ControlledNumInput
+                        ref={ref}
+                        updateFieldMode="onBlur"
+                        value={value}
+                        mode="onBlur"
+                        onChange={value =>
+                          updateItemFields('quantity', value, index)
+                        }
+                        onBlur={onBlur}
+                        min={1}
+                        isReadOnly={loading}
+                        isDisabled={!item?.itemId}
+                      />
+                    );
+                  }}
+                  rules={{
+                    required: { value: true, message: '*Required' },
+                    min: {
+                      value: 1,
+                      message: 'Value should be greater than zero(0)!',
+                    },
+                  }}
+                />
+                {/* <RHFPlainNumInput
                   name={`selectedItems.${index}.quantity`}
                   mode="onBlur"
                   updateValueOnBlur={false}
@@ -170,7 +221,7 @@ function SelectItemForm(props) {
                       message: 'Value should be greater than zero(0)!',
                     },
                   }}
-                />
+                /> */}
 
                 <FormErrorMessage>
                   {itemErrors?.quantity?.message}
@@ -256,7 +307,7 @@ function SelectItemForm(props) {
   );
 }
 
-SelectItemForm.propTypes = {
+ItemFields.propTypes = {
   itemsObject: PropTypes.object.isRequired,
   selectedItemsObject: PropTypes.object.isRequired,
   updateItemFields: PropTypes.func.isRequired,
@@ -268,4 +319,4 @@ SelectItemForm.propTypes = {
   loading: PropTypes.bool.isRequired,
 };
 
-export default SelectItemForm;
+export default ItemFields;

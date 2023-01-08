@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import { Controller, useFormContext } from 'react-hook-form';
 import BigNumber from 'bignumber.js';
 
-import RHFPlainNumInput from 'components/ui/RHFPlainNumInput';
+// import RHFPlainNumInput from 'components/ui/RHFPlainNumInput';
+import ControlledNumInput from 'components/ui/ControlledNumInput';
 
 function SaleSummaryTable(props) {
   const { loading, summary } = props;
@@ -15,7 +16,7 @@ function SaleSummaryTable(props) {
   const { taxes } = summary;
 
   function getTotalAmount(subSummary) {
-    console.log({ subSummary });
+    // console.log({ subSummary });
     const subTotal = new BigNumber(subSummary.subTotal || 0);
     const shipping = new BigNumber(subSummary.shipping || 0);
     const adjustment = new BigNumber(subSummary.adjustment || 0);
@@ -89,15 +90,24 @@ function SaleSummaryTable(props) {
           <Tr>
             <Td>Shipping Charges </Td>
             <Th w="16%" isNumeric>
-              <RHFPlainNumInput
+              <Controller
                 name="summary.shipping"
-                mode="onBlur"
-                updateValueOnBlur={false}
-                min={0}
-                isReadOnly={loading}
-                onBlur={value =>
-                  updateSummaryOnFieldBlur('shipping', value, summary)
-                }
+                control={control}
+                render={({ field: { ref, onBlur, value } }) => {
+                  return (
+                    <ControlledNumInput
+                      ref={ref}
+                      value={value}
+                      onBlur={onBlur}
+                      mode="onBlur"
+                      onChange={value =>
+                        updateSummaryOnFieldBlur('shipping', value, summary)
+                      }
+                      min={0}
+                      isReadOnly={loading}
+                    />
+                  );
+                }}
                 rules={{
                   min: { value: 0, message: 'Value must be a positive number' },
                 }}
@@ -108,18 +118,27 @@ function SaleSummaryTable(props) {
           <Tr>
             <Td>Adjustments </Td>
             <Th w="16%" isNumeric>
-              <RHFPlainNumInput
+              <Controller
                 name="summary.adjustment"
-                mode="onBlur"
-                updateValueOnBlur={false}
-                rules={{
-                  min: 0,
+                control={control}
+                render={({ field: { ref, onBlur, value } }) => {
+                  return (
+                    <ControlledNumInput
+                      ref={ref}
+                      value={value}
+                      onBlur={onBlur}
+                      mode="onBlur"
+                      onChange={value =>
+                        updateSummaryOnFieldBlur('adjustment', value, summary)
+                      }
+                      min={0}
+                      isReadOnly={loading}
+                    />
+                  );
                 }}
-                min={0}
-                onBlur={value =>
-                  updateSummaryOnFieldBlur('adjustment', value, summary)
-                }
-                isReadOnly={loading}
+                rules={{
+                  min: { value: 0, message: 'Value must be a positive number' },
+                }}
               />
             </Th>
           </Tr>

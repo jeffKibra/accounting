@@ -9,7 +9,7 @@ import { useToasts, useGetSalesProps } from 'hooks';
 import SkeletonLoader from 'components/ui/SkeletonLoader';
 import Empty from 'components/ui/Empty';
 
-import InvoiceForm from '../../../components/forms/Invoice/InvoiceForm';
+import InvoiceForm from '../../../components/forms/Invoice/DetailsFields';
 import EditSale from '../Sales/EditSale';
 
 function EditJournal(props) {

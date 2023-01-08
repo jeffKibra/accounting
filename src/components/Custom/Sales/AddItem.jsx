@@ -1,9 +1,9 @@
-import { IconButton } from "@chakra-ui/react";
-import { RiAddLine } from "react-icons/ri";
-import PropTypes from "prop-types";
+import { IconButton } from '@chakra-ui/react';
+import { RiAddLine } from 'react-icons/ri';
+import PropTypes from 'prop-types';
 
-import SelectItemForm from "../../forms/Sales/SelectItemForm";
-import CustomModal from "../../ui/CustomModal";
+import SelectItemForm from '../../forms/Sales/ItemFields';
+import CustomModal from '../../ui/CustomModal';
 
 function AddItem(props) {
   const { addItem, items, loading } = props;
@@ -12,7 +12,7 @@ function AddItem(props) {
     <CustomModal
       title="Add Item"
       closeOnOverlayClick={false}
-      renderTrigger={(onOpen) => (
+      renderTrigger={onOpen => (
         <IconButton
           onClick={onOpen}
           colorScheme="cyan"
@@ -26,7 +26,7 @@ function AddItem(props) {
           isDisabled={loading}
         />
       )}
-      renderContent={(onClose) => {
+      renderContent={onClose => {
         return (
           <SelectItemForm
             handleFormSubmit={addItem}

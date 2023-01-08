@@ -10,7 +10,7 @@ import { reset } from '../../../store/slices/salesReceiptsSlice';
 import useSavedLocation from '../../../hooks/useSavedLocation';
 
 import PageLayout from '../../../components/layout/PageLayout';
-import SalesReceipts from '../../../containers/Management/SalesReceipts/EditSalesReceipt';
+import SalesReceiptForm from 'components/forms/SalesReceipts/SalesReceiptForm';
 
 function NewSalesReceiptPage(props) {
   const { loading, action, isModified, createReceipt, resetReceipt } = props;
@@ -34,7 +34,7 @@ function NewSalesReceiptPage(props) {
         'New Sales Receipt': location.pathname,
       }}
     >
-      <SalesReceipts
+      <SalesReceiptForm
         updating={loading && action === CREATE_SALES_RECEIPT}
         handleFormSubmit={createReceipt}
       />

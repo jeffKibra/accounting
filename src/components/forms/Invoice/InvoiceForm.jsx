@@ -1,195 +1,183 @@
-import { useCallback } from 'react';
-import {
-  FormControl,
-  FormLabel,
-  Input,
-  Textarea,
-  FormHelperText,
-  FormErrorMessage,
-  Grid,
-  GridItem,
-  Box,
-} from '@chakra-ui/react';
-import { useFormContext } from 'react-hook-form';
+import { Box, Flex, Button } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
+import { useForm, FormProvider } from 'react-hook-form';
 
-import { deriveDueDate } from '../../../utils/invoices';
+import formats from 'utils/formats';
+import { confirmFutureDate } from 'utils/dates';
+import { useToasts, useGetSalesProps } from 'hooks';
 
-import CustomSelect from '../../ui/CustomSelect';
-import CustomDatePicker from '../../ui/CustomDatePicker';
-import { useEffect } from 'react';
+import SkeletonLoader from 'components/ui/SkeletonLoader';
+import Empty from 'components/ui/Empty';
 
-//---------------------------------------------------------------
-InvoiceForm.propTypes = {
-  customers: PropTypes.array.isRequired,
-  loading: PropTypes.bool.isRequired,
-  paymentTerms: PropTypes.array.isRequired,
-  invoiceId: PropTypes.string,
-};
+import InvoiceDetailsFields from './DetailsFields';
+import SaleFormFields from '../Sales/FormFields';
 
-export default function InvoiceForm(props) {
-  const { customers, paymentTerms, loading, invoiceId } = props;
+function InvoiceForm(props) {
+  const { invoice, handleFormSubmit, updating } = props;
 
-  const {
-    register,
-    formState: { errors },
-    setValue,
-    watch,
-  } = useFormContext();
+  const { loading, items, customers, paymentTerms, taxes } = useGetSalesProps();
 
-  const customerId = watch('customer');
-  const paymentTermId = watch('paymentTerm');
-  const invoiceDate = watch('invoiceDate');
-
-  const getCustomer = useCallback(
-    customerId => {
-      return customers.find(customer => customer.id === customerId);
+  const today = new Date();
+  const formMethods = useForm({
+    mode: 'onChange',
+    defaultValues: {
+      customer: invoice?.customer?.id || '',
+      orderNumber: invoice?.orderNumber || '',
+      invoiceDate: invoice?.invoiceDate || today,
+      paymentTerm: invoice?.paymentTerm?.value || 'on_receipt',
+      dueDate: invoice?.dueDate || today,
+      subject: invoice?.subject || '',
+      customerNotes: invoice?.customerNotes || '',
+      selectedItems: invoice?.selectedItems || [
+        {
+          item: null,
+          rate: 0,
+          quantity: 0,
+          itemRate: 0,
+          itemTax: 0,
+          itemRateTotal: 0,
+          itemTaxTotal: 0,
+          salesTax: null,
+        },
+      ],
+      summary: invoice?.summary || {
+        adjustment: 0,
+        shipping: 0,
+        subTotal: 0,
+        taxes: [],
+        totalAmount: 0,
+        totalTax: 0,
+        taxType: 'taxExclusive',
+      },
     },
-    [customers]
-  );
-  /**
-   * update payment term according to customer preference
-   */
-  useEffect(() => {
-    if (customerId) {
-      const { paymentTerm } = getCustomer(customerId);
-      //update payment term field
-      setValue('paymentTerm', paymentTerm.value);
+  });
+  const { handleSubmit } = formMethods;
+
+  const toasts = useToasts();
+
+  // console.log({
+  //   dirtyFields,
+  //   isDirty,
+  //   totalAmount: invoice?.summary?.totalAmount,
+  // });
+
+  function onSubmit(data) {
+    const { customer: customerId, paymentTerm: paymentTermId, ...rest } = data;
+    const { invoiceDate, dueDate, selectedItems } = rest;
+    let formValues = { ...rest };
+    /**
+     * check if selected items is not an empty array or
+     * values are not empty objects-item set to null
+     */
+
+    const fieldsValid =
+      (selectedItems && selectedItems.filter(item => item).length > 0) || false;
+    // console.log({ selectedItems });
+
+    if (!fieldsValid) {
+      return toasts.error('Please add atleast one(1) item to proceed!');
     }
-  }, [customerId, getCustomer, setValue]);
-  /**
-   * update due date according to the selected payment term
-   */
-  useEffect(() => {
-    if (!invoiceId && paymentTermId) {
-      const paymentTerm = paymentTerms.find(
-        term => term.value === paymentTermId
-      );
-      const dueDate = deriveDueDate(paymentTerm, invoiceDate);
-      setValue('dueDate', dueDate);
+    // if (totalAmount <= 0) {
+    //   return toasts.error("Total Sale Amount should be greater than ZERO(0)!");
+    // }
+
+    /**
+     * ensure dueDate is not a past date
+     */
+    const dueDateIsFuture = confirmFutureDate(invoiceDate, dueDate);
+    if (!dueDateIsFuture) {
+      return toasts.error('Due date cannot be less than invoice date');
     }
-  }, [paymentTermId, invoiceDate, paymentTerms, setValue, invoiceId]);
 
-  return (
-    <Box pb={1}>
-      <Grid mb={2} rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
-        <GridItem colSpan={[12, 6]}>
-          <FormControl
-            isDisabled={loading}
-            isRequired
-            isInvalid={errors.customer}
-          >
-            <FormLabel htmlFor="customer">Customer</FormLabel>
-            <CustomSelect
-              name="customer"
-              size="md"
-              placeholder="--select customer--"
-              isDisabled={loading}
-              rules={{ required: { value: true, message: '*Required!' } }}
-              options={customers.map(customer => {
-                const { id: customerId, displayName } = customer;
+    const customer = customers.find(customer => customer.id === customerId);
+    if (!customer) {
+      return toasts.error('Selected an Invalid customer');
+    }
+    formValues.customer = formats.formatCustomerData(customer);
 
-                return { name: displayName, value: customerId };
-              })}
-            />
-            <FormErrorMessage>{errors.customer?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={[12, 6]}>
-          <FormControl isDisabled={loading} isInvalid={errors.customerNotes}>
-            <FormLabel htmlFor="customerNotes">Customer Notes</FormLabel>
-            <Textarea
-              placeholder="Include a note for the customer."
-              id="customerNotes"
-              {...register('customerNotes')}
-            />
-            <FormErrorMessage>{errors.customerNotes?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
-      </Grid>
+    const paymentTerm = paymentTerms.find(term => term.value === paymentTermId);
+    if (!paymentTerm) {
+      return toasts.error('Selected Payment Term is not a valid Payment Term');
+    }
+    formValues.paymentTerm = paymentTerm;
 
-      <Grid
-        rowGap={2}
-        columnGap={4}
-        templateColumns="repeat(12, 1fr)"
-        bg="#f4f6f8"
-        mx={-4}
-        p={4}
-      >
-        <GridItem colSpan={[12, 4]}>
-          <FormControl
-            isDisabled={loading}
-            isRequired
-            isInvalid={errors.invoiceDate}
-          >
-            <FormLabel htmlFor="invoiceDate">Invoice Date</FormLabel>
-            <CustomDatePicker size="md" name="invoiceDate" required />
-            <FormErrorMessage>{errors.invoiceDate?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
+    // if (invoice) {
+    //   //invoice is being updated-submit only the changed values
+    //   formValues = getDirtyFields(dirtyFields, formValues);
+    // }
+    // console.log({ formValues });
 
-        <GridItem colSpan={[12, 4]}>
-          <FormControl
-            isDisabled={loading}
-            isRequired
-            isInvalid={errors.paymentTerm}
-          >
-            <FormLabel htmlFor="paymentTerm">Terms</FormLabel>
-            <CustomSelect
-              name="paymentTerm"
-              options={paymentTerms || []}
-              isDisabled={!customerId || loading}
-            />
-            <FormErrorMessage>{errors.paymentTerm?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
+    //submit the data
+    handleFormSubmit(formValues);
+  }
 
-        <GridItem colSpan={[12, 4]}>
-          <FormControl
-            isDisabled={loading}
-            isRequired
-            isInvalid={errors.dueDate}
-          >
-            <FormLabel htmlFor="dueDate">Due Date</FormLabel>
-            <CustomDatePicker name="dueDate" required />
-            <FormErrorMessage>{errors.dueDate?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
+  // console.log({ customers, items, paymentTerms, loading });
 
-        <GridItem colSpan={[12, 6, 4]}>
-          <FormControl isDisabled={loading} isInvalid={errors.orderNumber}>
-            <FormLabel htmlFor="orderNumber">Order Number</FormLabel>
-            <Input id="orderNumber" {...register('orderNumber')} />
-          </FormControl>
-        </GridItem>
-
-        <GridItem colSpan={[12, 6, 4]}>
-          <FormControl isDisabled={loading} isInvalid={errors.subject}>
-            <FormLabel htmlFor="subject">Subject</FormLabel>
-            <Input size="md" {...register('subject')} />
-            <FormErrorMessage>{errors.subject?.message}</FormErrorMessage>
-            <FormHelperText>
-              Let your customer know what this invoice is for
-            </FormHelperText>
-          </FormControl>
-        </GridItem>
-      </Grid>
-
-      {/* <Flex justify="space-evenly" mt={4}>
-        <Button
-          onClick={prevStep}
-          isDisabled={loading}
-          type="button"
-          colorScheme="cyan"
-          variant="outline"
+  return loading ? (
+    <SkeletonLoader />
+  ) : customers?.length > 0 && items?.length > 0 && paymentTerms?.length > 0 ? (
+    <FormProvider {...formMethods}>
+      <Box as="form" role="form" onSubmit={handleSubmit(onSubmit)} w="full">
+        <Box
+          // h="full"
+          mt={2}
+          p={4}
+          pb={6}
+          bg="white"
+          borderRadius="lg"
+          shadow="lg"
+          border="1px solid"
+          borderColor="gray.200"
+          // maxW="container.sm"
         >
-          back
-        </Button>
-
-        <Button isLoading={loading} colorScheme="cyan" type="submit">
-          save
-        </Button>
-      </Flex> */}
-    </Box>
+          <InvoiceDetailsFields
+            customers={customers}
+            paymentTerms={paymentTerms}
+            loading={updating}
+            invoiceId={invoice?.invoiceId || ''}
+          />
+          <SaleFormFields loading={updating} items={items} taxes={taxes} />
+        </Box>
+        <Flex w="full" py={6} justify="flex-end">
+          <Button
+            size="lg"
+            type="submit"
+            isLoading={updating}
+            colorScheme="cyan"
+          >
+            save
+          </Button>
+        </Flex>
+      </Box>
+    </FormProvider>
+  ) : items?.length === 0 ? (
+    <Empty message="Please add atleast one ITEM to continue or reload the page" />
+  ) : customers?.length === 0 ? (
+    <Empty message="Please add atleast one CUSTOMER to continue or reload the page" />
+  ) : (
+    <Empty message="Payment Terms not Found. Try Reloading the page" />
   );
 }
+InvoiceForm.propTypes = {
+  handleFormSubmit: PropTypes.func.isRequired,
+  updating: PropTypes.bool.isRequired,
+  invoice: PropTypes.shape({
+    summary: PropTypes.shape({
+      shipping: PropTypes.number,
+      adjustment: PropTypes.number,
+      totalTax: PropTypes.number,
+      totalAmount: PropTypes.number,
+      subTotal: PropTypes.number,
+      taxes: PropTypes.array,
+    }),
+    selectedItems: PropTypes.array,
+    customerId: PropTypes.string,
+    invoiceDate: PropTypes.instanceOf(Date),
+    dueDate: PropTypes.instanceOf(Date),
+    subject: PropTypes.string,
+    customerNotes: PropTypes.string,
+    invoiceId: PropTypes.string,
+  }),
+};
+
+export default InvoiceForm;

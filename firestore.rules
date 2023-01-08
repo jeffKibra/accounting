@@ -254,15 +254,15 @@ service cloud.firestore {
         allow delete: if isOwner()
       }
 
-      match /customers/{customerId} {
+      match /contacts/{contactId} {
         function customerFixed(){
           return ['createdAt', 'createdBy'];
         }
-        function verifyCustomerData(){
+        function verifyContactData(){
           let details=['type','salutation','companyName','firstName','lastName','displayName','email','phone','mobile'];
           let address1=['billingStreet','billingCity','billingState','billingPostalCode','billingCountry'];
           let address2=['shippingStreet','shippingCity','shippingState','shippingPostalCode','shippingCountry'];
-          let extras=['openingBalance', 'paymentTerm', 'website', 'remarks'];
+          let extras=['openingBalance', 'paymentTerm', 'website', 'remarks', 'contactType'];
           let fixed=customerFixed();
           let additional=['status', "summary", 'modifiedAt', 'modifiedBy'].concat(fixed);
           let allFields=details.concat(address1).concat(address2).concat(extras).concat(additional);
@@ -292,6 +292,7 @@ service cloud.firestore {
             request.resource.data.paymentTerm is map &&
             request.resource.data.website is string &&
             request.resource.data.remarks is string &&
+            request.resource.data.contactType is string &&
             request.resource.data.status is string &&
             request.resource.data.summary is map &&
             request.resource.data.summary.invoices is int &&
@@ -307,7 +308,7 @@ service cloud.firestore {
             request.resource.data.modifiedBy is string
         }
 
-        function allowCustomerUpdate(){
+        function allowContactUpdate(){
           let fixed=customerFixed();
           let allFields=["openingBalance"].concat(fixed);
 
@@ -321,93 +322,12 @@ service cloud.firestore {
         }
         
         allow read: if isOwner()
-        allow create: if isOwner() && verifyCustomerData()
-        allow update: if isOwner() && verifyCustomerData() &&
-          (allowCustomerUpdate() || updateOpeningBalance())
+        allow create: if isOwner() && verifyContactData()
+        allow update: if isOwner() && verifyContactData() &&
+          (allowContactUpdate() || updateOpeningBalance())
       }
 
-      match /vendors/{vendorId} {
-        function verifyVendorData(){
-          let details=['salutation','companyName','firstName','lastName','displayName','email','phone','mobile'];
-          let address1=['billingStreet','billingCity','billingState','billingPostalCode','billingCountry'];
-          let address2=['shippingStreet','shippingCity','shippingState','shippingPostalCode','shippingCountry'];
-          let extras=['paymentTerm','website','remarks'];
-          let additional=['status', "summary", 'createdAt', 'createdBy', 'modifiedAt', 'modifiedBy'];
-          let allFields=details.concat(address1).concat(address2).concat(extras).concat(additional);
-
-          return request.resource.data.keys().hasAll(allFields) &&
-            request.resource.data.keys().hasOnly(allFields) &&
-            request.resource.data.salutation is string &&
-            request.resource.data.companyName is string &&
-            request.resource.data.firstName is string &&
-            request.resource.data.lastName is string &&
-            request.resource.data.displayName is string &&
-            request.resource.data.email is string &&
-            request.resource.data.phone is string &&
-            request.resource.data.mobile is string &&
-            request.resource.data.billingStreet is string &&
-            request.resource.data.billingCity is string &&
-            request.resource.data.billingState is string &&
-            request.resource.data.billingPostalCode is string &&
-            request.resource.data.billingCountry is string &&
-            request.resource.data.shippingStreet is string &&
-            request.resource.data.shippingCity is string &&
-            request.resource.data.shippingState is string &&
-            request.resource.data.shippingPostalCode is string &&
-            request.resource.data.shippingCountry is string &&
-            request.resource.data.paymentTerm is map &&
-            request.resource.data.website is string &&
-            request.resource.data.remarks is string &&
-            request.resource.data.status is string &&
-            request.resource.data.summary is map &&
-            request.resource.data.summary.bills is int &&
-            request.resource.data.summary.deletedBills is int &&
-            request.resource.data.summary.payments is int &&
-            request.resource.data.summary.deletedPayments is int &&
-            request.resource.data.summary.expenses is int &&
-            request.resource.data.summary.deletedExpenses is int &&
-            numberValue(request.resource.data.summary.unusedCredits) &&
-            numberValue(request.resource.data.summary.totalBills) &&
-            numberValue(request.resource.data.summary.totalPayments) &&
-            numberValue(request.resource.data.summary.totalExpenses) &&
-            request.resource.data.createdAt is timestamp &&
-            request.resource.data.modifiedAt is timestamp &&
-            request.resource.data.createdBy is string &&
-            request.resource.data.modifiedBy is string
-        }
-
-        function allowVendorUpdate(){
-          let details=['salutation','companyName','firstName','lastName','displayName','email','phone','mobile'];
-          let address1=['billingStreet','billingCity','billingState','billingPostalCode','billingCountry'];
-          let address2=['shippingStreet','shippingCity','shippingState','shippingPostalCode','shippingCountry'];
-          let extras=['paymentTerm','website','remarks'];
-          let additional=['status', "summary", 'modifiedAt', 'modifiedBy'];
-          let allFields=details.concat(address1).concat(address2).concat(extras).concat(additional);
-
-          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
-        }
-
-        function updateOpeningBalance(){
-          let allFields=['openingBalance', 'modifiedBy', 'modifiedAt'];
-
-          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
-        }
-        
-        allow read: if isOwner()
-        allow create: if isOwner() && verifyVendorData()
-        allow update: if isOwner() && verifyVendorData() &&
-          (allowVendorUpdate() || updateOpeningBalance())
-      }
-
-      function validateSalesSummary(data){
-        return data.summary is map &&
-          numberValue(data.summary.shipping) &&
-          numberValue(data.summary.adjustment) &&
-          numberValue(data.summary.subTotal) &&
-          numberValue(data.summary.totalAmount) &&
-          numberValue(data.summary.totalTax) &&
-          data.get("summary.taxes", []) is list
-      }
+      
 
       match /invoices/{invoiceId} {
         function balanceIsValid(){
@@ -643,3 +563,89 @@ service cloud.firestore {
     }
   }
 }
+
+
+
+
+// match /vendors/{vendorId} {
+//         function verifyVendorData(){
+//           let details=['salutation','companyName','firstName','lastName','displayName','email','phone','mobile'];
+//           let address1=['billingStreet','billingCity','billingState','billingPostalCode','billingCountry'];
+//           let address2=['shippingStreet','shippingCity','shippingState','shippingPostalCode','shippingCountry'];
+//           let extras=['paymentTerm','website','remarks'];
+//           let additional=['status', "summary", 'createdAt', 'createdBy', 'modifiedAt', 'modifiedBy'];
+//           let allFields=details.concat(address1).concat(address2).concat(extras).concat(additional);
+
+//           return request.resource.data.keys().hasAll(allFields) &&
+//             request.resource.data.keys().hasOnly(allFields) &&
+//             request.resource.data.salutation is string &&
+//             request.resource.data.companyName is string &&
+//             request.resource.data.firstName is string &&
+//             request.resource.data.lastName is string &&
+//             request.resource.data.displayName is string &&
+//             request.resource.data.email is string &&
+//             request.resource.data.phone is string &&
+//             request.resource.data.mobile is string &&
+//             request.resource.data.billingStreet is string &&
+//             request.resource.data.billingCity is string &&
+//             request.resource.data.billingState is string &&
+//             request.resource.data.billingPostalCode is string &&
+//             request.resource.data.billingCountry is string &&
+//             request.resource.data.shippingStreet is string &&
+//             request.resource.data.shippingCity is string &&
+//             request.resource.data.shippingState is string &&
+//             request.resource.data.shippingPostalCode is string &&
+//             request.resource.data.shippingCountry is string &&
+//             request.resource.data.paymentTerm is map &&
+//             request.resource.data.website is string &&
+//             request.resource.data.remarks is string &&
+//             request.resource.data.status is string &&
+//             request.resource.data.summary is map &&
+//             request.resource.data.summary.bills is int &&
+//             request.resource.data.summary.deletedBills is int &&
+//             request.resource.data.summary.payments is int &&
+//             request.resource.data.summary.deletedPayments is int &&
+//             request.resource.data.summary.expenses is int &&
+//             request.resource.data.summary.deletedExpenses is int &&
+//             numberValue(request.resource.data.summary.unusedCredits) &&
+//             numberValue(request.resource.data.summary.totalBills) &&
+//             numberValue(request.resource.data.summary.totalPayments) &&
+//             numberValue(request.resource.data.summary.totalExpenses) &&
+//             request.resource.data.createdAt is timestamp &&
+//             request.resource.data.modifiedAt is timestamp &&
+//             request.resource.data.createdBy is string &&
+//             request.resource.data.modifiedBy is string
+//         }
+
+//         function allowVendorUpdate(){
+//           let details=['salutation','companyName','firstName','lastName','displayName','email','phone','mobile'];
+//           let address1=['billingStreet','billingCity','billingState','billingPostalCode','billingCountry'];
+//           let address2=['shippingStreet','shippingCity','shippingState','shippingPostalCode','shippingCountry'];
+//           let extras=['paymentTerm','website','remarks'];
+//           let additional=['status', "summary", 'modifiedAt', 'modifiedBy'];
+//           let allFields=details.concat(address1).concat(address2).concat(extras).concat(additional);
+
+//           return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+//         }
+
+//         function updateOpeningBalance(){
+//           let allFields=['openingBalance', 'modifiedBy', 'modifiedAt'];
+
+//           return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allFields)
+//         }
+        
+//         allow read: if isOwner()
+//         allow create: if isOwner() && verifyVendorData()
+//         allow update: if isOwner() && verifyVendorData() &&
+//           (allowVendorUpdate() || updateOpeningBalance())
+//       }
+
+//       function validateSalesSummary(data){
+//         return data.summary is map &&
+//           numberValue(data.summary.shipping) &&
+//           numberValue(data.summary.adjustment) &&
+//           numberValue(data.summary.subTotal) &&
+//           numberValue(data.summary.totalAmount) &&
+//           numberValue(data.summary.totalTax) &&
+//           data.get("summary.taxes", []) is list
+//       }

@@ -16,7 +16,7 @@ import PageLayout from '../../../components/layout/PageLayout';
 import SkeletonLoader from '../../../components/ui/SkeletonLoader';
 import Empty from '../../../components/ui/Empty';
 
-import EditInvoice from '../../../containers/Management/Invoices/EditInvoice';
+import InvoiceForm from 'components/forms/Invoice/InvoiceForm';
 
 function getFormValuesOnly(invoice = {}) {
   const {
@@ -88,7 +88,7 @@ function EditInvoicePage(props) {
       {loading && action === GET_INVOICE ? (
         <SkeletonLoader />
       ) : invoice ? (
-        <EditInvoice
+        <InvoiceForm
           updating={loading && action === UPDATE_INVOICE}
           handleFormSubmit={update}
           invoice={getFormValuesOnly(invoice)}

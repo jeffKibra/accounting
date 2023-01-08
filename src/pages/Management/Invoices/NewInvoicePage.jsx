@@ -10,7 +10,7 @@ import { reset } from '../../../store/slices/invoicesSlice';
 import useSavedLocation from '../../../hooks/useSavedLocation';
 
 import PageLayout from '../../../components/layout/PageLayout';
-import EditInvoice from '../../../containers/Management/Invoices/EditInvoice';
+import InvoiceForm from 'components/forms/Invoice/InvoiceForm';
 
 function NewInvoicePage(props) {
   const { loading, action, isModified, createInvoice, resetInvoice } = props;
@@ -34,7 +34,7 @@ function NewInvoicePage(props) {
         'New Invoice': location.pathname,
       }}
     >
-      <EditInvoice
+      <InvoiceForm
         updating={loading && action === CREATE_INVOICE}
         handleFormSubmit={createInvoice}
       />

@@ -39,7 +39,7 @@ function ExpenseForm(props) {
       paymentAccountId:
         defaultValues?.paymentAccount?.accountId || 'undeposited_funds',
       expenseDate: defaultValues?.expenseDate || new Date(),
-      vendorId: defaultValues?.vendor?.vendorId || '',
+      vendorId: defaultValues?.vendor?.id || '',
       paymentModeId: defaultValues?.paymentMode?.value || 'cash',
       reference: defaultValues?.reference || '',
     },
