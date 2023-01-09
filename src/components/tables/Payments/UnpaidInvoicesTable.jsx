@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-import CustomTable from '../CustomTable';
+import CustomRawTable from '../CustomRawTable';
 import TableNumInput from '../../ui/TableNumInput';
 
 import { getInvoiceBalance } from '../../../utils/invoices';
@@ -73,7 +73,7 @@ function UnpaidInvoicesTable(props) {
   }, [invoices, paymentId, amount, loading]);
 
   return (
-    <CustomTable
+    <CustomRawTable
       data={data}
       columns={columns}
       caption="The Excess amount is added to the customers account!"

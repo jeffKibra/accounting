@@ -57,7 +57,7 @@ function EntryFields(props) {
             templateColumns="repeat(12, 1fr)"
             flexGrow={1}
           >
-            <GridItem colSpan={[6, 4, 3]}>
+            <GridItem colSpan={[6, 4]}>
               <FormControl isRequired isInvalid={!!itemErrors?.account}>
                 <CustomLabel htmlFor={`${fieldPrefix}-account`}>
                   Account
@@ -101,7 +101,7 @@ function EntryFields(props) {
               </FormControl>
             </GridItem>
 
-            <GridItem colSpan={[6, 4, 3]}>
+            <GridItem colSpan={[6, 4]}>
               <FormControl isDisabled={loading} isInvalid={errors.description}>
                 <CustomLabel htmlFor="description">Description</CustomLabel>
                 <FieldArrayTextarea
