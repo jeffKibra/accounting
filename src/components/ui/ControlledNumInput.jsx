@@ -1,5 +1,11 @@
 import { useState, forwardRef, useEffect } from 'react';
-import { NumberInput, NumberInputField } from '@chakra-ui/react';
+import {
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+} from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
 //---------------------------------------------------------------------------
@@ -16,6 +22,8 @@ function CNInput(props, ref) {
     updateFieldMode,
     onChange,
     onBlur,
+    inputFieldProps,
+    showButtons,
   } = props;
   // console.log({ value });
 
@@ -74,9 +82,16 @@ function CNInput(props, ref) {
       <NumberInputField
         minW="90px"
         textAlign="right"
-        pl="8px!important"
-        pr="8px!important"
+        {...(showButtons ? {} : { pl: '8px!important', pr: '8px!important' })}
+        {...(inputFieldProps ? inputFieldProps : {})}
       />
+
+      {showButtons ? (
+        <NumberInputStepper>
+          <NumberIncrementStepper />
+          <NumberDecrementStepper />
+        </NumberInputStepper>
+      ) : null}
     </NumberInput>
   );
 }
@@ -104,6 +119,7 @@ ControlledNumInput.defaultProps = {
   updateFieldMode: 'onBlur',
   onBlur: () => {},
   onChange: () => {},
+  showButtons: false,
 };
 
 export default ControlledNumInput;

@@ -74,18 +74,26 @@ export default function PaymentForm(props) {
   );
   console.log({ invoices });
 
-  const customer = watch('customer');
+  // const form = watch();
+  // console.log({ form });
+
+  const watchedFields = watch(['customer', 'amount']);
+  const watchedCustomer = watch('customer');
+  console.log({ watchedFields, watchedCustomer });
+  const customer = watchedFields[0];
   const customerId = customer?.id;
 
-  useEffect(() => {
-    if (customerId && paymentId) {
-      // console.log({ customerId, paymentId });
-      getInvoicesToEdit(customerId, paymentId);
-    } else if (customerId) {
-      // console.log({ customerId });
-      getInvoices(customerId);
-    }
-  }, [customerId, paymentId, getInvoices, getInvoicesToEdit]);
+  const amountReceived = watchedFields[1];
+
+  // useEffect(() => {
+  //   if (customerId && paymentId) {
+  //     // console.log({ customerId, paymentId });
+  //     getInvoicesToEdit(customerId, paymentId);
+  //   } else if (customerId) {
+  //     // console.log({ customerId });
+  //     getInvoices(customerId);
+  //   }
+  // }, [customerId, paymentId, getInvoices, getInvoicesToEdit]);
 
   useEffect(() => {
     if (invoices?.length > 0) {
@@ -175,9 +183,11 @@ export default function PaymentForm(props) {
     }
   }
 
+  console.log({ amountReceived });
+
   // console.log({ UnpaidInvoices, ReceivePaymentForm });
 
-  const formIsDisabled = !customerId || false;
+  const formIsDisabled = false;
 
   return (
     <>
@@ -203,15 +213,19 @@ export default function PaymentForm(props) {
             paymentId={paymentId}
             paymentModes={paymentModes}
             formIsDisabled={formIsDisabled}
+            customerId={customerId}
+            amountReceived={amountReceived}
           />
-          <InvoicesPaymentForm
+          {/* <InvoicesPaymentForm
             paymentId={paymentId}
             updatePayments={setPayments}
             payments={payments}
             invoices={invoices || []}
             loading={loading}
             formIsDisabled={formIsDisabled}
-          />
+            customerId={customerId}
+            amountReceived={amountReceived}
+          /> */}
         </Box>
 
         <Flex w="full" py={4} justify="flex-end">
@@ -220,6 +234,7 @@ export default function PaymentForm(props) {
             type="submit"
             isLoading={loading}
             colorScheme="cyan"
+            onClick={() => console.log(getValues(['customer']))}
           >
             save
           </Button>

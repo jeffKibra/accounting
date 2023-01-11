@@ -4,12 +4,12 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
-} from "@chakra-ui/react";
-import { useFormContext } from "react-hook-form";
-import PropTypes from "prop-types";
+} from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
+import PropTypes from 'prop-types';
 
 function NumInput(props) {
-  const { name, min, max, defaultValue, rules } = props;
+  const { name, min, max, defaultValue, rules, ...moreProps } = props;
   const { register, setValue, watch } = useFormContext();
 
   function handleChange(value) {
@@ -25,6 +25,7 @@ function NumInput(props) {
       min={min}
       max={max}
       defaultValue={defaultValue || 0}
+      {...moreProps}
     >
       <NumberInputField
         {...register(name, {
