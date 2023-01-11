@@ -14,16 +14,11 @@ import { RiArrowUpSLine, RiArrowDownSLine } from 'react-icons/ri';
 // import { sortStrings } from 'utils/functions';
 
 export const SimpleSelectPropTypes = {
-  options: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      value: PropTypes.string.isRequired,
-    })
-  ),
+  options: PropTypes.array.isRequired,
   optionsConfig: PropTypes.shape({
     nameField: PropTypes.string.isRequired,
     valueField: PropTypes.string.isRequired,
-  }).isRequired,
+  }),
   id: PropTypes.string,
   placeholder: PropTypes.string,
   size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl']),
@@ -31,9 +26,6 @@ export const SimpleSelectPropTypes = {
   isDisabled: PropTypes.bool,
   renderTrigger: PropTypes.func,
   allowClearSelection: PropTypes.bool,
-  onChange: PropTypes.func.isRequired,
-  onBlur: PropTypes.func,
-  value: PropTypes.string.isRequired,
 };
 //----------------------------------------------------------------
 
@@ -60,7 +52,7 @@ function ControlledSimpleSelect(props) {
   // console.log({ options });
 
   const optionsObject = useMemo(() => {
-    console.log('options changed-creating new options object');
+    // console.log('options changed-creating new options object');
     if (Array.isArray(options)) {
       return options.reduce((obj, option) => {
         const value = option[valueField];
@@ -167,6 +159,9 @@ ControlledSimpleSelect.defaultProps = {
 
 ControlledSimpleSelect.propTypes = {
   ...SimpleSelectPropTypes,
+  onChange: PropTypes.func.isRequired,
+  onBlur: PropTypes.func,
+  value: PropTypes.string,
 };
 
 export default ControlledSimpleSelect;

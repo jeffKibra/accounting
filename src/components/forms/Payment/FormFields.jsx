@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   FormControl,
   FormLabel,
@@ -11,25 +12,51 @@ import PropTypes from 'prop-types';
 
 import ControlledNumInput from 'components/ui/ControlledNumInput';
 // import RadioInput from "../../ui/RadioInput";
-import CustomSelect from '../../ui/CustomSelect';
 import RHFSimpleSelect from 'components/ui/hookForm/RHFSimpleSelect';
 import RHFGroupedOptionsSelect from 'components/ui/hookForm/RHFGroupedOptionsSelect';
 import CustomDatePicker from '../../ui/CustomDatePicker';
 
 function FormFields(props) {
-  const { customers, accounts, paymentModes, customerId, formDisabled } = props;
+  const {
+    customers: rawCustomers,
+    accounts,
+    paymentModes,
+    customerId,
+    formDisabled,
+  } = props;
 
   // console.log({ formDisabled, customerId });
 
-  const paymentAccounts = accounts.filter(account => {
-    const {
-      accountType: { id },
-      tags,
-    } = account;
-    const index = tags.findIndex(tag => tag === 'receivable');
+  const customers = useMemo(() => {
+    if (!Array.isArray(rawCustomers)) {
+      return [];
+    }
 
-    return (id === 'cash' || id === 'other_current_liability') && index > -1;
-  });
+    return rawCustomers.map(customer => {
+      const { id, companyName, type, contactType, displayName, email } =
+        customer;
+      return { id, displayName, companyName, email, contactType, type };
+    });
+  }, [rawCustomers]);
+
+  const paymentAccounts = useMemo(() => {
+    return accounts
+      .filter(account => {
+        const {
+          accountType: { id },
+          tags,
+        } = account;
+        const index = tags.findIndex(tag => tag === 'receivable');
+
+        return (
+          (id === 'cash' || id === 'other_current_liability') && index > -1
+        );
+      })
+      .map(account => {
+        const { name, accountId, accountType } = account;
+        return { name, accountId, accountType };
+      });
+  }, [accounts]);
   // console.log({ paymentAccounts });
   // console.log({ defaultValues });
   const {
@@ -38,44 +65,6 @@ function FormFields(props) {
     control,
     // watch,
   } = useFormContext();
-
-  // function onSubmit(data) {
-  //   // console.log({ data });
-  //   const { customerId, accountId, paymentModeId, ...formData } = data;
-  //   //
-  //   const customer = customers.find(customer => customer.id === customerId);
-  //   if (!customer) {
-  //     return toasts.error('The selected customer is not valid');
-  //   }
-
-  //   const paymentMode = paymentModes.find(mode => mode.value === paymentModeId);
-  //   if (!paymentMode) {
-  //     return toasts.error('The selected payment mode is not valid');
-  //   }
-
-  //   const account = paymentAccounts.find(
-  //     account => account.accountId === accountId
-  //   );
-  //   if (!account) {
-  //     return toasts.error('The selected account is not valid');
-  //   }
-  //   const { name, accountType } = account;
-  //   const newData = {
-  //     ...formData,
-  //     customer: formats.formatCustomerData(customer),
-  //     paymentMode,
-  //     account: { name, accountId, accountType },
-  //   };
-
-  //   // console.log({ newData, data });
-
-  //   // console.log({ newData });
-  //   //update form values
-  //   handleFormSubmit(newData);
-  //   //go to the next step
-  //   nextStep();
-  // }
-
   // console.log({ errors });
 
   return (
@@ -85,9 +74,9 @@ function FormFields(props) {
           <FormControl
             isDisabled={formDisabled}
             required
-            isInvalid={errors.customerId}
+            isInvalid={errors.customer}
           >
-            <FormLabel htmlFor="customerId">Customer</FormLabel>
+            <FormLabel htmlFor="customer">Customer</FormLabel>
             <RHFSimpleSelect
               name="customer"
               placeholder="--select customer--"
@@ -97,15 +86,8 @@ function FormFields(props) {
                 valueField: 'id',
               }}
             />
-            {/* <CustomSelect
-              name="customerId"
-              placeholder="--select customer--"
-              options={customers.map(customer => {
-                const { displayName, id: customerId } = customer;
-                return { name: displayName, value: customerId };
-              })}
-            /> */}
-            <FormErrorMessage>{errors.customerId?.message}</FormErrorMessage>
+
+            <FormErrorMessage>{errors.customer?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
         <GridItem colSpan={[0, 6]}></GridItem>
@@ -159,9 +141,9 @@ function FormFields(props) {
           <FormControl
             isDisabled={formDisabled || !customerId}
             required
-            isInvalid={errors.accountId}
+            isInvalid={errors.account}
           >
-            <FormLabel htmlFor="accountId">Deposit To</FormLabel>
+            <FormLabel htmlFor="account">Deposit To</FormLabel>
 
             <RHFGroupedOptionsSelect
               name="account"
@@ -175,20 +157,7 @@ function FormFields(props) {
               isDisabled={formDisabled || !customerId}
             />
 
-            {/* <CustomSelect
-              name="accountId"
-              placeholder="---select account---"
-              groupedOptions={paymentAccounts.map(account => {
-                const { name, accountId, accountType } = account;
-                return {
-                  name,
-                  value: accountId,
-                  groupName: accountType.name,
-                };
-              })}
-              isDisabled={formDisabled || !customerId}
-            /> */}
-            <FormErrorMessage>{errors.accountId?.message}</FormErrorMessage>
+            <FormErrorMessage>{errors.account?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
@@ -196,21 +165,17 @@ function FormFields(props) {
           <FormControl
             isDisabled={formDisabled || !customerId}
             required
-            isInvalid={errors.paymentModeId}
+            isInvalid={errors.paymentMode}
           >
-            <FormLabel htmlFor="paymentModeId">Payment Mode</FormLabel>
+            <FormLabel htmlFor="paymentMode">Payment Mode</FormLabel>
             <RHFSimpleSelect
               name="paymentMode"
               placeholder="select payment mode"
               isDisabled={formDisabled || !customerId}
               options={paymentModes}
             />
-            {/* <CustomSelect
-              name="paymentModeId"
-              options={paymentModes}
-              placeholder="select payment mode"
-            /> */}
-            <FormErrorMessage>{errors.paymentModeId?.message}</FormErrorMessage>
+
+            <FormErrorMessage>{errors.paymentMode?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
@@ -298,11 +263,12 @@ function FormFields(props) {
 
 FormFields.propTypes = {
   loading: PropTypes.bool.isRequired,
+  formDisabled: PropTypes.bool.isRequired,
   customers: PropTypes.array.isRequired,
   accounts: PropTypes.array.isRequired,
-  handleFormSubmit: PropTypes.func.isRequired,
-  defaultValues: PropTypes.object,
   paymentModes: PropTypes.array.isRequired,
+  customerId: PropTypes.string,
+  invoices: PropTypes.array,
 };
 
 export default FormFields;

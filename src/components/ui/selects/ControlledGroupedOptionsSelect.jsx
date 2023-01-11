@@ -15,18 +15,15 @@ import { sortStrings } from '../../../utils/functions';
 
 //----------------------------------------------------------------
 export const ControlledGroupedOptionsSelectPropTypes = {
-  options: PropTypes.arrayOf(
-    PropTypes.shape({
-      groupName: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      value: PropTypes.string.isRequired,
-    })
-  ),
+  options: PropTypes.array.isRequired,
   optionsConfig: PropTypes.shape({
-    groupNameField: PropTypes.string.isRequired,
+    groupNameField: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.string),
+    ]).isRequired,
     nameField: PropTypes.string.isRequired,
     valueField: PropTypes.string.isRequired,
-  }).isRequired,
+  }),
   id: PropTypes.string,
   placeholder: PropTypes.string,
   size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl']),
@@ -34,9 +31,6 @@ export const ControlledGroupedOptionsSelectPropTypes = {
   isDisabled: PropTypes.bool,
   renderTrigger: PropTypes.func,
   allowClearSelection: PropTypes.bool,
-  onChange: PropTypes.func.isRequired,
-  onBlur: PropTypes.func,
-  selectedValue: PropTypes.object.isRequired,
 };
 
 //----------------------------------------------------------------
@@ -183,6 +177,9 @@ ControlledGroupedOptionsSelect.defaultProps = {
 
 ControlledGroupedOptionsSelect.propTypes = {
   ...ControlledGroupedOptionsSelectPropTypes,
+  onChange: PropTypes.func.isRequired,
+  onBlur: PropTypes.func,
+  selectedValue: PropTypes.object,
 };
 
 export default ControlledGroupedOptionsSelect;

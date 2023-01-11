@@ -16,3 +16,4 @@ export { default as useAccountTypes } from './useAccountTypes';
 export { default as useTaxes } from './useTaxes';
 export { default as useSearchContacts } from './useSearchContacts';
 export { default as useFetchFromFirestore } from './useFetchFromFirestore';
+export { default as useCustomerInvoices } from './useCustomerInvoices';

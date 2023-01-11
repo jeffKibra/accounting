@@ -1,4 +1,4 @@
-import { InvoicesPayments } from "../../types";
+import { InvoicesPayments } from '../../types';
 
 export default function getPaymentsTotal(payments: InvoicesPayments) {
   if (!payments) return 0;
@@ -7,7 +7,9 @@ export default function getPaymentsTotal(payments: InvoicesPayments) {
   if (invoicesIds.length === 0) return 0;
 
   const paymentsTotal = invoicesIds.reduce((sum, key) => {
-    return sum + +payments[key];
+    const rawAmount = Number(payments[key]);
+    const amount = isNaN(rawAmount) ? 0 : rawAmount;
+    return sum + amount;
   }, 0);
 
   return paymentsTotal;

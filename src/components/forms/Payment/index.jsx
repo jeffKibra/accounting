@@ -5,27 +5,29 @@ import { FormProvider, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 
-import { useToasts } from 'hooks';
+import { getPaymentsTotal } from 'utils/payments';
+
+import { useToasts, useCustomerInvoices } from 'hooks';
 import ControlledDialog from 'components/ui/ControlledDialog';
 
-import InvoicesPaymentForm from 'components/forms/Payment/InvoicesPaymentForm';
+import InvoicesPayments from 'components/forms/Payment/InvoicesPayments';
 import ReceivePaymentForm from 'components/forms/Payment/FormFields';
 
 const schema = Yup.object().shape({
-  customerId: Yup.string().required('*Required!'),
+  customer: Yup.object().required('*Required!').nullable(),
   paymentDate: Yup.date()
     .typeError('Value must be a valid date!')
     .required('*Required!'),
   amount: Yup.number()
     .typeError('Value must be a number!')
-    .min(1, 'Amount cannot be less than one(1)!')
+    .min(1, 'Amount should be greater than zero(0)!')
     .required('*Required!'),
   reference: Yup.string(),
-  paymentModeId: Yup.string().required('*Required!'),
+  paymentMode: Yup.object().required('*Required!').nullable(),
   bankCharges: Yup.number()
     .typeError('Value must be a number!')
-    .min(0, 'Minimum value accepted is zero(0)!'),
-  accountId: Yup.string().required('*Required!'),
+    .min(0, 'Amount should be a positive number(>=0)!'),
+  account: Yup.object().required('*Required!').nullable(),
   // taxDeducted: Yup.string().required("*Required!"),
   // tdsTaxAccount: Yup.string().when("taxDeducted", {
   //   is: "yes",
@@ -36,22 +38,28 @@ const schema = Yup.object().shape({
 //----------------------------------------------------------------
 
 export default function PaymentForm(props) {
-  console.log({ props });
+  // console.log({ props });
   const {
     payment,
     paymentId,
     customers,
     accounts,
     handleFormSubmit,
-    loading,
-    getInvoices,
-    getInvoicesToEdit,
-    invoices,
+    updating,
     paymentModes,
   } = props;
 
+  const [balance, setBalance] = useState(0);
+
   const { isOpen, onClose, onOpen } = useDisclosure();
   const toasts = useToasts();
+  const {
+    getInvoices,
+    getInvoicesToEdit,
+    invoices,
+    loading: loadingInvoices,
+  } = useCustomerInvoices();
+  // console.log({ invoices, loadingInvoices });
 
   const formMethods = useForm({
     mode: 'onChange',
@@ -60,67 +68,68 @@ export default function PaymentForm(props) {
       customer: payment?.customer || null,
       paymentDate: payment?.paymentDate || new Date(),
       amount: payment?.amount || 0,
-      accountId: payment?.account?.accountId || 'undeposited_funds',
-      paymentModeId: payment?.paymentMode?.value || 'cash',
+      account: payment?.account || null,
+      paymentMode: payment?.paymentMode || null,
       reference: payment?.reference || '',
-      payments: payment?.payments,
+      payments: payment?.payments || {},
       // || autoFill(invoices, amount),
     },
   });
   const { handleSubmit, watch, getValues } = formMethods;
 
-  const [payments, setPayments] = useState(
-    payment?.payments ? { ...payment.payments } : null
-  );
-  console.log({ invoices });
+  // const [payments, setPayments] = useState(
+  //   payment?.payments ? { ...payment.payments } : null
+  // );
 
   // const form = watch();
   // console.log({ form });
 
   const watchedFields = watch(['customer', 'amount']);
-  const watchedCustomer = watch('customer');
-  console.log({ watchedFields, watchedCustomer });
+  // console.log({ watchedFields });
   const customer = watchedFields[0];
-  const customerId = customer?.id;
+  const customerId = customer?.id || '';
+  // console.log({ customerId });
 
   const amountReceived = watchedFields[1];
 
-  // useEffect(() => {
-  //   if (customerId && paymentId) {
-  //     // console.log({ customerId, paymentId });
-  //     getInvoicesToEdit(customerId, paymentId);
-  //   } else if (customerId) {
-  //     // console.log({ customerId });
-  //     getInvoices(customerId);
-  //   }
-  // }, [customerId, paymentId, getInvoices, getInvoicesToEdit]);
-
   useEffect(() => {
-    if (invoices?.length > 0) {
-      setPayments(current => {
-        const currentPayments = { ...current };
-        const paymentsArray = Object.keys(currentPayments);
-        console.log({ current, paymentsArray });
-        if (paymentsArray?.length > 0) {
-          paymentsArray.forEach(invoiceId => {
-            //check if this invoice is in the list of invoices
-            const found = invoices.find(
-              invoice => invoice.invoiceId === invoiceId
-            );
-
-            if (!found) {
-              //delete the invoice payment if it has not been found
-              delete currentPayments[invoiceId];
-            }
-          });
-
-          return { ...currentPayments };
-        } else {
-          return current;
-        }
-      });
+    if (customerId) {
+      if (paymentId) {
+        // console.log('fetching invoices to edit', { customerId, paymentId });
+        getInvoicesToEdit(customerId, paymentId);
+      } else {
+        // console.log('fetching customer unpaid invoices', { customerId });
+        getInvoices(customerId);
+      }
     }
-  }, [invoices, setPayments]);
+  }, [customerId, paymentId, getInvoices, getInvoicesToEdit]);
+
+  // useEffect(() => {
+  //   if (invoices?.length > 0) {
+  //     setPayments(current => {
+  //       const currentPayments = { ...current };
+  //       const paymentsArray = Object.keys(currentPayments);
+  //       console.log({ current, paymentsArray });
+  //       if (paymentsArray?.length > 0) {
+  //         paymentsArray.forEach(invoiceId => {
+  //           //check if this invoice is in the list of invoices
+  //           const found = invoices.find(
+  //             invoice => invoice.invoiceId === invoiceId
+  //           );
+
+  //           if (!found) {
+  //             //delete the invoice payment if it has not been found
+  //             delete currentPayments[invoiceId];
+  //           }
+  //         });
+
+  //         return { ...currentPayments };
+  //       } else {
+  //         return current;
+  //       }
+  //     });
+  //   }
+  // }, [invoices, setPayments]);
 
   function onSubmit(data) {
     const { payments } = data;
@@ -141,7 +150,8 @@ export default function PaymentForm(props) {
   }
 
   function checkOverPayment(formData) {
-    const { amount, paymentsTotal } = formData;
+    const { amount, payments } = formData;
+    const paymentsTotal = getPaymentsTotal(payments);
 
     if (amount < paymentsTotal) {
       throw new Error(
@@ -151,9 +161,11 @@ export default function PaymentForm(props) {
   }
 
   function checkUnderPayment(formData) {
-    const { amount, paymentsTotal } = formData;
+    const { amount, payments } = formData;
+    const paymentsTotal = getPaymentsTotal(payments);
 
     if (amount > paymentsTotal) {
+      setBalance(amount - paymentsTotal);
       onOpen();
     } else {
       onSubmit(formData);
@@ -161,6 +173,7 @@ export default function PaymentForm(props) {
   }
 
   function validatePayments(formData) {
+    console.log('validating payments', formData);
     try {
       checkOverPayment(formData);
       checkUnderPayment(formData);
@@ -183,11 +196,9 @@ export default function PaymentForm(props) {
     }
   }
 
-  console.log({ amountReceived });
-
   // console.log({ UnpaidInvoices, ReceivePaymentForm });
 
-  const formIsDisabled = false;
+  const formIsDisabled = updating || false;
 
   return (
     <>
@@ -197,57 +208,59 @@ export default function PaymentForm(props) {
           role="form"
           onSubmit={handleSubmit(validatePayments)}
           w="full"
-          mt={2}
-          p={4}
-          pb={6}
-          bg="white"
-          borderRadius="lg"
-          shadow="lg"
-          border="1px solid"
-          borderColor="gray.200"
         >
-          <ReceivePaymentForm
-            customers={customers}
-            loading={loading}
-            accounts={accounts}
-            paymentId={paymentId}
-            paymentModes={paymentModes}
-            formIsDisabled={formIsDisabled}
-            customerId={customerId}
-            amountReceived={amountReceived}
-          />
-          {/* <InvoicesPaymentForm
-            paymentId={paymentId}
-            updatePayments={setPayments}
-            payments={payments}
-            invoices={invoices || []}
-            loading={loading}
-            formIsDisabled={formIsDisabled}
-            customerId={customerId}
-            amountReceived={amountReceived}
-          /> */}
-        </Box>
-
-        <Flex w="full" py={4} justify="flex-end">
-          <Button
-            size="lg"
-            type="submit"
-            isLoading={loading}
-            colorScheme="cyan"
-            onClick={() => console.log(getValues(['customer']))}
+          <Box
+            w="full"
+            mt={2}
+            p={4}
+            pb={6}
+            bg="white"
+            borderRadius="lg"
+            shadow="lg"
+            border="1px solid"
+            borderColor="gray.200"
           >
-            save
-          </Button>
-        </Flex>
+            <ReceivePaymentForm
+              customers={customers}
+              loading={updating}
+              accounts={accounts}
+              paymentId={paymentId}
+              paymentModes={paymentModes}
+              formIsDisabled={formIsDisabled}
+              customerId={customerId}
+              amountReceived={amountReceived}
+            />
+            <InvoicesPayments
+              paymentId={paymentId}
+              // updatePayments={setPayments}
+              // payments={payments}
+              invoices={invoices || []}
+              loading={updating}
+              formIsDisabled={formIsDisabled}
+              customerId={customerId}
+              amountReceived={amountReceived}
+              loadingInvoices={loadingInvoices}
+            />
+          </Box>
+          <Flex w="full" py={4} justify="flex-end">
+            <Button
+              size="lg"
+              type="submit"
+              isLoading={updating}
+              colorScheme="cyan"
+            >
+              save
+            </Button>
+          </Flex>
+          '
+        </Box>
       </FormProvider>
 
       <ControlledDialog
         isOpen={isOpen}
         onClose={onClose}
         title="OverPayment"
-        message={`The Excess amount of ${
-          0 // amount - paymentsTotal
-        } will be added to the customers Account!`}
+        message={`The Excess amount of ${balance} will be added to the customers Account!`}
         onConfirm={() => {
           onClose();
           confirmUnderPayment();
@@ -259,15 +272,15 @@ export default function PaymentForm(props) {
 
 PaymentForm.propTypes = {
   handleFormSubmit: PropTypes.func.isRequired,
-  loading: PropTypes.bool.isRequired,
+  updating: PropTypes.bool.isRequired,
   paymentId: PropTypes.string,
   payment: PropTypes.shape({
     reference: PropTypes.string,
-    paymentModeId: PropTypes.string,
-    accountId: PropTypes.string,
+    paymentMode: PropTypes.object,
+    account: PropTypes.object,
     bankCharges: PropTypes.number,
     amount: PropTypes.number,
-    customerId: PropTypes.string,
+    customer: PropTypes.object,
     paymentId: PropTypes.string,
     paymentDate: PropTypes.instanceOf(Date),
     taxDeducted: PropTypes.string,

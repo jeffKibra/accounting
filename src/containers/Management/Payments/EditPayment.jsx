@@ -5,10 +5,6 @@ import PropTypes from 'prop-types';
 import { GET_ITEMS } from '../../../store/actions/itemsActions';
 import { GET_CUSTOMERS } from '../../../store/actions/customersActions';
 import { GET_PAYMENT_MODES } from '../../../store/actions/paymentModesActions';
-import {
-  GET_UNPAID_CUSTOMER_INVOICES,
-  GET_PAYMENT_INVOICES_TO_EDIT,
-} from '../../../store/actions/invoicesActions';
 
 import Empty from '../../../components/ui/Empty';
 import SkeletonLoader from '../../../components/ui/SkeletonLoader';
@@ -24,7 +20,9 @@ function EditPayment(props) {
     getPaymentModes,
     loadingPaymentModes,
     paymentModes,
+    saveData,
   } = props;
+  console.log({ props });
 
   useEffect(() => {
     getCustomers();
@@ -34,7 +32,7 @@ function EditPayment(props) {
   return (loading && action === GET_CUSTOMERS) || loadingPaymentModes ? (
     <SkeletonLoader />
   ) : customers?.length > 0 || paymentModes?.length > 0 ? (
-    <PaymentForm {...props} />
+    <PaymentForm handleFormSubmit={saveData} {...props} />
   ) : customers?.length === 0 ? (
     <Empty message="Please add atleast one CUSTOMER to continue or reload the page" />
   ) : paymentModes?.length === 0 ? (
@@ -64,12 +62,8 @@ EditPayment.propTypes = {
 function mapStateToProps(state) {
   const { loading, customers, action } = state.customersReducer;
   const { accounts } = state.accountsReducer;
-  const { loading: l, action: a, invoices } = state.invoicesReducer;
   const { loading: lpm, action: pma, paymentModes } = state.paymentModesReducer;
 
-  const loadingInvoices =
-    l &&
-    (a === GET_UNPAID_CUSTOMER_INVOICES || a === GET_PAYMENT_INVOICES_TO_EDIT);
   const loadingPaymentModes = lpm && pma === GET_PAYMENT_MODES;
 
   return {
@@ -77,8 +71,6 @@ function mapStateToProps(state) {
     action,
     customers,
     accounts,
-    loadingInvoices,
-    invoices,
     loadingPaymentModes,
     paymentModes,
   };
@@ -89,13 +81,6 @@ function mapDispatchToProps(dispatch) {
     getItems: () => dispatch({ type: GET_ITEMS }),
     getCustomers: () => dispatch({ type: GET_CUSTOMERS }),
     getPaymentModes: () => dispatch({ type: GET_PAYMENT_MODES }),
-    getInvoices: customerId =>
-      dispatch({ type: GET_UNPAID_CUSTOMER_INVOICES, payload: customerId }),
-    getInvoicesToEdit: (customerId, paymentId) =>
-      dispatch({
-        type: GET_PAYMENT_INVOICES_TO_EDIT,
-        payload: { customerId, paymentId },
-      }),
   };
 }
 

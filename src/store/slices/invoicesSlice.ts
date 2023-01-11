@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { Invoice } from "../../types";
+import { Invoice } from '../../types';
 
 type State = {
   loading: boolean;
@@ -21,7 +21,7 @@ const initialState: State = {
 };
 
 const invoicesSlice = createSlice({
-  name: "invoices_slice",
+  name: 'invoices_slice',
   initialState: {
     ...initialState,
   },
@@ -32,6 +32,8 @@ const invoicesSlice = createSlice({
         loading: true,
         error: null,
         action: action.payload,
+        invoice: null,
+        invoices: null,
       };
     },
     success: (state: State) => {
@@ -41,14 +43,17 @@ const invoicesSlice = createSlice({
         isModified: true,
       };
     },
-    invoiceSuccess: (state: State, action: PayloadAction<Invoice>) => {
+    invoiceSuccess: (state: State, action: PayloadAction<Invoice | null>) => {
       return {
         ...state,
         loading: false,
         invoice: action.payload,
       };
     },
-    invoicesSuccess: (state: State, action: PayloadAction<Invoice[]>) => {
+    invoicesSuccess: (
+      state: State,
+      action: PayloadAction<Invoice[] | null>
+    ) => {
       return {
         ...state,
         loading: false,

@@ -3,15 +3,24 @@ import { useFormContext } from 'react-hook-form';
 import { Button, Flex, Grid, GridItem, VStack } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
-import { getPaymentsTotal } from '../../../utils/payments';
-import { getInvoiceBalance } from '../../../utils/invoices';
+import { getPaymentsTotal } from 'utils/payments';
+import { getInvoiceBalance } from 'utils/invoices';
 
-import UnpaidInvoicesTable from '../../tables/Payments/UnpaidInvoicesTable';
+import UnpaidInvoicesTable from './UnpaidInvoicesTable';
 import PaymentsSummaryTable from '../../tables/Payments/PaymentsSummaryTable';
 
-function InvoicesPaymentForm(props) {
+function InvoicesPayments(props) {
   // console.log({ props });
-  const { invoices, loading, payments, paymentId } = props;
+  const { invoices, loading, paymentId, defaultPayments, formIsDisabled } =
+    props;
+
+  const { watch, setValue } = useFormContext();
+  const amount = watch('amount');
+
+  const payments = watch('payments');
+  // console.log({ payments });
+  const paymentsTotal = getPaymentsTotal(payments);
+  // console.log({ payments, paymentsTotal });
 
   const autoFill = useCallback(
     (invoices, amount) => {
@@ -42,16 +51,18 @@ function InvoicesPaymentForm(props) {
     [paymentId]
   );
 
-  const { watch, reset } = useFormContext();
-  const amount = watch('amount');
+  const updatePayments = useCallback(
+    values => {
+      setValue('payments', values);
+    },
+    [setValue]
+  );
 
   useEffect(() => {
-    const defaults = payments || autoFill(invoices, amount);
-    reset(defaults);
-  }, [payments, autoFill, amount, invoices, reset]);
+    const defaults = defaultPayments || autoFill(invoices, amount);
+    updatePayments(defaults);
+  }, [defaultPayments, autoFill, amount, invoices, updatePayments]);
 
-  const newPayments = watch();
-  const paymentsTotal = getPaymentsTotal(newPayments);
   /**
    * methods
    */
@@ -64,13 +75,14 @@ function InvoicesPaymentForm(props) {
         values[invoiceId] = 0;
       });
 
-      reset(values);
+      updatePayments(values);
     }
   }
 
   function autoPay() {
     const values = autoFill(invoices, amount);
-    reset(values);
+    updatePayments(values);
+    // reset(values);
   }
 
   return (
@@ -82,7 +94,7 @@ function InvoicesPaymentForm(props) {
           variant="outline"
           size="xs"
           mr={2}
-          isDisabled={loading}
+          isDisabled={formIsDisabled || loading}
         >
           clear
         </Button>
@@ -91,7 +103,7 @@ function InvoicesPaymentForm(props) {
           colorScheme="cyan"
           variant="outline"
           size="xs"
-          isDisabled={loading}
+          isDisabled={formIsDisabled || loading}
         >
           auto pay
         </Button>
@@ -104,6 +116,7 @@ function InvoicesPaymentForm(props) {
             amount={amount}
             paymentId={paymentId || ''}
             loading={loading}
+            formIsDisabled={formIsDisabled}
             // taxDeducted={taxDeducted}
           />
         </GridItem>
@@ -116,16 +129,10 @@ function InvoicesPaymentForm(props) {
   );
 }
 
-InvoicesPaymentForm.propTypes = {
-  handleFormSubmit: PropTypes.func.isRequired,
-  updatePayments: PropTypes.func.isRequired,
+InvoicesPayments.propTypes = {
   invoices: PropTypes.array.isRequired,
   loading: PropTypes.bool.isRequired,
   paymentId: PropTypes.string,
-  formValues: PropTypes.shape({
-    amount: PropTypes.number.isRequired,
-    payments: PropTypes.object,
-  }),
 };
 
-export default InvoicesPaymentForm;
+export default InvoicesPayments;

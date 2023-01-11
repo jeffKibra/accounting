@@ -165,7 +165,7 @@ function* getCustomerInvoices(action: PayloadAction<string>) {
     const q = query(
       invoicesCollection,
       orderBy('createdAt', 'desc'),
-      where('customer.customerId', '==', customerId),
+      where('customer.id', '==', customerId),
       where('status', '==', 0),
       where('transactionType', '==', 'invoice')
     );
@@ -201,7 +201,9 @@ export function* watchGetCustomerInvoices() {
 }
 
 function* getUnpaidCustomerInvoices(action: PayloadAction<string>) {
+  // console.log({ action });
   const { type, payload: customerId } = action;
+
   yield put(start(type));
 
   const orgId: string = yield select(
@@ -213,7 +215,7 @@ function* getUnpaidCustomerInvoices(action: PayloadAction<string>) {
     const q = query(
       invoicesCollection,
       // orderBy("createdAt", "asc"),
-      where('customer.customerId', '==', customerId),
+      where('customer.id', '==', customerId),
       where('status', '==', 0),
       where('balance', '>', 0)
     );
@@ -227,6 +229,7 @@ function* getUnpaidCustomerInvoices(action: PayloadAction<string>) {
         }),
       };
     });
+    // console.log({ invoices });
     /**
      * sort by date
      */
@@ -274,7 +277,7 @@ function* getPaymentInvoicesToEdit(action: PayloadAction<Details>) {
     const q1 = query(
       invoicesCollection,
       orderBy('createdAt', 'asc'),
-      where('customer.customerId', '==', customerId),
+      where('customer.id', '==', customerId),
       where('paymentsIds', 'array-contains', paymentId),
       where('status', '==', 0),
       where('balance', '==', 0)
@@ -283,7 +286,7 @@ function* getPaymentInvoicesToEdit(action: PayloadAction<Details>) {
     const q2 = query(
       invoicesCollection,
       // orderBy("createdAt", "asc"),
-      where('customer.customerId', '==', customerId),
+      where('customer.id', '==', customerId),
       where('status', '==', 0),
       where('balance', '>', 0)
     );
