@@ -22,7 +22,6 @@ function EditPayment(props) {
     paymentModes,
     saveData,
   } = props;
-  console.log({ props });
 
   useEffect(() => {
     getCustomers();

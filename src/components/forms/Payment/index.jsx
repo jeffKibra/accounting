@@ -7,7 +7,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 
 import { getPaymentsTotal } from 'utils/payments';
 
-import { useToasts, useCustomerInvoices } from 'hooks';
+import { useToasts } from 'hooks';
 import ControlledDialog from 'components/ui/ControlledDialog';
 
 import InvoicesPayments from 'components/forms/Payment/InvoicesPayments';
@@ -38,7 +38,10 @@ const schema = Yup.object().shape({
 //----------------------------------------------------------------
 
 export default function PaymentForm(props) {
-  // console.log({ props });
+  useEffect(() => {
+    console.log('props changed', { props });
+  }, [props]);
+  console.log('paymnt form updating', { props });
   const {
     payment,
     paymentId,
@@ -53,12 +56,7 @@ export default function PaymentForm(props) {
 
   const { isOpen, onClose, onOpen } = useDisclosure();
   const toasts = useToasts();
-  const {
-    getInvoices,
-    getInvoicesToEdit,
-    invoices,
-    loading: loadingInvoices,
-  } = useCustomerInvoices();
+
   // console.log({ invoices, loadingInvoices });
 
   const formMethods = useForm({
@@ -91,18 +89,6 @@ export default function PaymentForm(props) {
   // console.log({ customerId });
 
   const amountReceived = watchedFields[1];
-
-  useEffect(() => {
-    if (customerId) {
-      if (paymentId) {
-        // console.log('fetching invoices to edit', { customerId, paymentId });
-        getInvoicesToEdit(customerId, paymentId);
-      } else {
-        // console.log('fetching customer unpaid invoices', { customerId });
-        getInvoices(customerId);
-      }
-    }
-  }, [customerId, paymentId, getInvoices, getInvoicesToEdit]);
 
   // useEffect(() => {
   //   if (invoices?.length > 0) {
@@ -232,14 +218,9 @@ export default function PaymentForm(props) {
             />
             <InvoicesPayments
               paymentId={paymentId}
-              // updatePayments={setPayments}
-              // payments={payments}
-              invoices={invoices || []}
-              loading={updating}
               formIsDisabled={formIsDisabled}
               customerId={customerId}
               amountReceived={amountReceived}
-              loadingInvoices={loadingInvoices}
             />
           </Box>
           <Flex w="full" py={4} justify="flex-end">

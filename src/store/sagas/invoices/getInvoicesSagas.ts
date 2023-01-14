@@ -15,7 +15,7 @@ import {
   GET_INVOICE,
   GET_INVOICES,
   GET_CUSTOMER_INVOICES,
-  GET_UNPAID_CUSTOMER_INVOICES,
+  GET_CUSTOMER_UNPAID_INVOICES,
   GET_PAYMENT_INVOICES_TO_EDIT,
   GET_PAYMENT_INVOICES,
 } from '../../actions/invoicesActions';
@@ -30,6 +30,20 @@ import { error as toastError } from '../../slices/toastSlice';
 import { dateFromTimestamp } from '../../../utils/dates';
 
 import { Invoice, RootState } from '../../../types';
+
+//----------------------------------------------------------------
+
+interface InvoicesResponse {
+  invoices: Invoice[];
+  error: Error;
+}
+
+interface InvoiceResponse {
+  invoice: Invoice;
+  error: Error;
+}
+
+//----------------------------------------------------------------
 
 function formatInvoiceDates(invoice: Invoice) {
   const { invoiceDate, dueDate, createdAt, modifiedAt } = invoice;
@@ -80,20 +94,29 @@ function* getInvoice(action: PayloadAction<string>) {
   );
 
   async function get() {
-    const invoicesCollection = dbCollections(orgId).invoices;
-    const invoiceDoc = await getDoc(doc(invoicesCollection, invoiceId));
-    const invoice = invoiceDoc.data();
-    if (!invoiceDoc.exists || !invoice) {
-      throw new Error('Invoice not found!');
-    }
+    try {
+      const invoicesCollection = dbCollections(orgId).invoices;
+      const invoiceDoc = await getDoc(doc(invoicesCollection, invoiceId));
+      const invoice = invoiceDoc.data();
+      if (!invoiceDoc.exists || !invoice) {
+        throw new Error('Invoice not found!');
+      }
 
-    return {
-      ...formatInvoiceDates({ ...invoice, invoiceId: invoiceDoc.id }),
-    };
+      return {
+        invoice: formatInvoiceDates({ ...invoice, invoiceId: invoiceDoc.id }),
+      };
+    } catch (error) {
+      return { error };
+    }
   }
 
   try {
-    const invoice: Invoice = yield call(get);
+    const response: InvoiceResponse = yield call(get);
+    const { error, invoice } = response;
+
+    if (error) {
+      throw error;
+    }
 
     yield put(invoiceSuccess(invoice));
   } catch (err) {
@@ -115,29 +138,39 @@ function* getInvoices() {
   );
 
   async function get() {
-    const invoicesCollection = dbCollections(orgId).invoices;
+    try {
+      const invoicesCollection = dbCollections(orgId).invoices;
 
-    const q = query(
-      invoicesCollection,
-      orderBy('createdAt', 'desc'),
-      where('status', '==', 0),
-      where('transactionType', '==', 'invoice')
-    );
-    const snap = await getDocs(q);
-    const invoices = snap.docs.map(invoiceDoc => {
-      return {
-        ...formatInvoiceDates({
-          ...invoiceDoc.data(),
-          invoiceId: invoiceDoc.id,
-        }),
-      };
-    });
+      const q = query(
+        invoicesCollection,
+        orderBy('createdAt', 'desc'),
+        where('status', '==', 0),
+        where('transactionType', '==', 'invoice')
+      );
+      const snap = await getDocs(q);
+      const invoices = snap.docs.map(invoiceDoc => {
+        return {
+          ...formatInvoiceDates({
+            ...invoiceDoc.data(),
+            invoiceId: invoiceDoc.id,
+          }),
+        };
+      });
 
-    return invoices;
+      return { invoices };
+    } catch (error) {
+      return { error };
+    }
   }
 
   try {
-    const invoices: Invoice[] = yield call(get);
+    const response: InvoicesResponse = yield call(get);
+    const { error, invoices } = response;
+
+    if (error) {
+      throw error;
+    }
+
     console.log({ invoices });
 
     yield put(invoicesSuccess(invoices));
@@ -161,30 +194,39 @@ function* getCustomerInvoices(action: PayloadAction<string>) {
   );
   // console.log({ customerId, statuses });
   async function get() {
-    const invoicesCollection = dbCollections(orgId).invoices;
-    const q = query(
-      invoicesCollection,
-      orderBy('createdAt', 'desc'),
-      where('customer.id', '==', customerId),
-      where('status', '==', 0),
-      where('transactionType', '==', 'invoice')
-    );
-    const snap = await getDocs(q);
+    try {
+      const invoicesCollection = dbCollections(orgId).invoices;
+      const q = query(
+        invoicesCollection,
+        orderBy('createdAt', 'desc'),
+        where('customer.id', '==', customerId),
+        where('status', '==', 0),
+        where('transactionType', '==', 'invoice')
+      );
+      const snap = await getDocs(q);
 
-    const invoices = snap.docs.map(invoiceDoc => {
-      return {
-        ...formatInvoiceDates({
-          ...invoiceDoc.data(),
-          invoiceId: invoiceDoc.id,
-        }),
-      };
-    });
+      const invoices = snap.docs.map(invoiceDoc => {
+        return {
+          ...formatInvoiceDates({
+            ...invoiceDoc.data(),
+            invoiceId: invoiceDoc.id,
+          }),
+        };
+      });
 
-    return invoices;
+      return { invoices };
+    } catch (error) {
+      return { error };
+    }
   }
 
   try {
-    const invoices: Invoice[] = yield call(get);
+    const response: InvoicesResponse = yield call(get);
+    const { invoices, error } = response;
+
+    if (error) {
+      throw error;
+    }
     // console.log({ invoices });
 
     yield put(invoicesSuccess(invoices));
@@ -200,7 +242,7 @@ export function* watchGetCustomerInvoices() {
   yield takeLatest(GET_CUSTOMER_INVOICES, getCustomerInvoices);
 }
 
-function* getUnpaidCustomerInvoices(action: PayloadAction<string>) {
+function* getCustomerUnpaidInvoices(action: PayloadAction<string>) {
   // console.log({ action });
   const { type, payload: customerId } = action;
 
@@ -211,36 +253,44 @@ function* getUnpaidCustomerInvoices(action: PayloadAction<string>) {
   );
   // console.log({ customerId, statuses });
   async function get() {
-    const invoicesCollection = dbCollections(orgId).invoices;
-    const q = query(
-      invoicesCollection,
-      // orderBy("createdAt", "asc"),
-      where('customer.id', '==', customerId),
-      where('status', '==', 0),
-      where('balance', '>', 0)
-    );
+    try {
+      const invoicesCollection = dbCollections(orgId).invoices;
+      const q = query(
+        invoicesCollection,
+        // orderBy("createdAt", "asc"),
+        where('customer.id', '==', customerId),
+        where('status', '==', 0),
+        where('balance', '>', 0)
+      );
 
-    const snap = await getDocs(q);
-    const invoices = snap.docs.map(invoiceDoc => {
-      return {
-        ...formatInvoiceDates({
-          ...invoiceDoc.data(),
-          invoiceId: invoiceDoc.id,
-        }),
-      };
-    });
-    // console.log({ invoices });
-    /**
-     * sort by date
-     */
-    invoices.sort(sortByDateAsc);
+      const snap = await getDocs(q);
+      const invoices = snap.docs.map(invoiceDoc => {
+        return {
+          ...formatInvoiceDates({
+            ...invoiceDoc.data(),
+            invoiceId: invoiceDoc.id,
+          }),
+        };
+      });
+      // console.log({ invoices });
+      /**
+       * sort by date
+       */
+      invoices.sort(sortByDateAsc);
 
-    return invoices;
+      return { invoices };
+    } catch (error) {
+      return { error };
+    }
   }
 
   try {
-    const invoices: Invoice[] = yield call(get);
-    // console.log({ invoices });
+    const response: InvoicesResponse = yield call(get);
+    const { error, invoices } = response;
+    if (error) {
+      throw error;
+    }
+    console.warn({ invoices });
 
     yield put(invoicesSuccess(invoices));
   } catch (err) {
@@ -251,8 +301,8 @@ function* getUnpaidCustomerInvoices(action: PayloadAction<string>) {
   }
 }
 
-export function* watchGetUnpaidCustomerInvoices() {
-  yield takeLatest(GET_UNPAID_CUSTOMER_INVOICES, getUnpaidCustomerInvoices);
+export function* watchGetCustomerUnpaidInvoices() {
+  yield takeLatest(GET_CUSTOMER_UNPAID_INVOICES, getCustomerUnpaidInvoices);
 }
 
 interface Details {
@@ -272,55 +322,63 @@ function* getPaymentInvoicesToEdit(action: PayloadAction<Details>) {
   );
   // console.log({ customerId, statuses });
   async function get() {
-    const invoicesCollection = dbCollections(orgId).invoices;
-    //paid invoices to edit
-    const q1 = query(
-      invoicesCollection,
-      orderBy('createdAt', 'asc'),
-      where('customer.id', '==', customerId),
-      where('paymentsIds', 'array-contains', paymentId),
-      where('status', '==', 0),
-      where('balance', '==', 0)
-    );
-    //unpaid customer invoices
-    const q2 = query(
-      invoicesCollection,
-      // orderBy("createdAt", "asc"),
-      where('customer.id', '==', customerId),
-      where('status', '==', 0),
-      where('balance', '>', 0)
-    );
+    try {
+      const invoicesCollection = dbCollections(orgId).invoices;
+      //paid invoices to edit
+      const q1 = query(
+        invoicesCollection,
+        orderBy('createdAt', 'asc'),
+        where('customer.id', '==', customerId),
+        where('paymentsIds', 'array-contains', paymentId),
+        where('status', '==', 0),
+        where('balance', '==', 0)
+      );
+      //unpaid customer invoices
+      const q2 = query(
+        invoicesCollection,
+        // orderBy("createdAt", "asc"),
+        where('customer.id', '==', customerId),
+        where('status', '==', 0),
+        where('balance', '>', 0)
+      );
 
-    const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+      const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
 
-    const invoices1 = snap1.docs.map(invoiceDoc => {
-      return {
-        ...formatInvoiceDates({
-          ...invoiceDoc.data(),
-          invoiceId: invoiceDoc.id,
-        }),
-      };
-    });
-    const invoices2 = snap2.docs.map(invoiceDoc => {
-      return {
-        ...formatInvoiceDates({
-          ...invoiceDoc.data(),
-          invoiceId: invoiceDoc.id,
-        }),
-      };
-    });
-    /**
-     * sort by date
-     */
-    invoices1.sort(sortByDateAsc);
-    invoices2.sort(sortByDateAsc);
-    console.log({ invoices1, invoices2 });
+      const invoices1 = snap1.docs.map(invoiceDoc => {
+        return {
+          ...formatInvoiceDates({
+            ...invoiceDoc.data(),
+            invoiceId: invoiceDoc.id,
+          }),
+        };
+      });
+      const invoices2 = snap2.docs.map(invoiceDoc => {
+        return {
+          ...formatInvoiceDates({
+            ...invoiceDoc.data(),
+            invoiceId: invoiceDoc.id,
+          }),
+        };
+      });
+      /**
+       * sort by date
+       */
+      invoices1.sort(sortByDateAsc);
+      invoices2.sort(sortByDateAsc);
+      console.log({ invoices1, invoices2 });
 
-    return [...invoices1, ...invoices2];
+      return { invoices: [...invoices1, ...invoices2] };
+    } catch (error) {
+      return { error };
+    }
   }
 
   try {
-    const invoices: Invoice[] = yield call(get);
+    const response: InvoicesResponse = yield call(get);
+    const { invoices, error } = response;
+    if (error) {
+      throw error;
+    }
     // console.log({ invoices });
 
     yield put(invoicesSuccess(invoices));
@@ -345,32 +403,41 @@ function* getPaymentInvoices(action: PayloadAction<Details>) {
   );
   // console.log({ customerId, statuses });
   async function get() {
-    const invoicesCollection = dbCollections(orgId).invoices;
-    //paid invoices to edit
-    const q1 = query(
-      invoicesCollection,
-      orderBy('createdAt', 'asc'),
-      where('paymentsIds', 'array-contains', paymentId),
-      where('status', '==', 0)
-    );
+    try {
+      const invoicesCollection = dbCollections(orgId).invoices;
+      //paid invoices to edit
+      const q1 = query(
+        invoicesCollection,
+        orderBy('createdAt', 'asc'),
+        where('paymentsIds', 'array-contains', paymentId),
+        where('status', '==', 0)
+      );
 
-    const [snap] = await Promise.all([getDocs(q1)]);
+      const [snap] = await Promise.all([getDocs(q1)]);
 
-    const invoices1 = snap.docs.map(invoiceDoc => {
-      return {
-        ...formatInvoiceDates({
-          ...invoiceDoc.data(),
-          invoiceId: invoiceDoc.id,
-        }),
-      };
-    });
+      const invoices = snap.docs.map(invoiceDoc => {
+        return {
+          ...formatInvoiceDates({
+            ...invoiceDoc.data(),
+            invoiceId: invoiceDoc.id,
+          }),
+        };
+      });
 
-    return invoices1;
+      return { invoices };
+    } catch (error) {
+      return { error };
+    }
   }
 
   try {
-    const invoices: Invoice[] = yield call(get);
+    const response: InvoicesResponse = yield call(get);
     // console.log({ invoices });
+    const { error, invoices } = response;
+
+    if (error) {
+      throw error;
+    }
 
     yield put(invoicesSuccess(invoices));
   } catch (err) {
