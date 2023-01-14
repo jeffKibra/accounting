@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Box, useDisclosure, Flex, Button } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -38,10 +38,7 @@ const schema = Yup.object().shape({
 //----------------------------------------------------------------
 
 export default function PaymentForm(props) {
-  useEffect(() => {
-    console.log('props changed', { props });
-  }, [props]);
-  console.log('paymnt form updating', { props });
+  // console.log('paymnt form updating', { props });
   const {
     payment,
     paymentId,
@@ -53,6 +50,12 @@ export default function PaymentForm(props) {
   } = props;
 
   const [balance, setBalance] = useState(0);
+
+  const defaultPayments = useMemo(() => {
+    const payments = payment?.payments || {};
+    // console.log('default payments have changed index', payments);
+    return payments;
+  }, [payment?.payments]);
 
   const { isOpen, onClose, onOpen } = useDisclosure();
   const toasts = useToasts();
@@ -86,36 +89,8 @@ export default function PaymentForm(props) {
   // console.log({ watchedFields });
   const customer = watchedFields[0];
   const customerId = customer?.id || '';
-  // console.log({ customerId });
 
   const amountReceived = watchedFields[1];
-
-  // useEffect(() => {
-  //   if (invoices?.length > 0) {
-  //     setPayments(current => {
-  //       const currentPayments = { ...current };
-  //       const paymentsArray = Object.keys(currentPayments);
-  //       console.log({ current, paymentsArray });
-  //       if (paymentsArray?.length > 0) {
-  //         paymentsArray.forEach(invoiceId => {
-  //           //check if this invoice is in the list of invoices
-  //           const found = invoices.find(
-  //             invoice => invoice.invoiceId === invoiceId
-  //           );
-
-  //           if (!found) {
-  //             //delete the invoice payment if it has not been found
-  //             delete currentPayments[invoiceId];
-  //           }
-  //         });
-
-  //         return { ...currentPayments };
-  //       } else {
-  //         return current;
-  //       }
-  //     });
-  //   }
-  // }, [invoices, setPayments]);
 
   function onSubmit(data) {
     const { payments } = data;
@@ -128,11 +103,15 @@ export default function PaymentForm(props) {
       }
     });
 
-    // console.log({ allData });
-    handleFormSubmit({
+    const formData = {
       ...data,
       payments,
-    });
+    };
+
+    console.log({ formData });
+
+    // console.log({ allData });
+    handleFormSubmit(formData);
   }
 
   function checkOverPayment(formData) {
@@ -221,6 +200,7 @@ export default function PaymentForm(props) {
               formIsDisabled={formIsDisabled}
               customerId={customerId}
               amountReceived={amountReceived}
+              defaultPayments={defaultPayments}
             />
           </Box>
           <Flex w="full" py={4} justify="flex-end">

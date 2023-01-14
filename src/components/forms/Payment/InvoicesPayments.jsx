@@ -26,20 +26,105 @@ import Empty from 'components/ui/Empty';
 import UnpaidInvoicesTable from './UnpaidInvoicesTable';
 import PaymentsSummaryTable from '../../tables/Payments/PaymentsSummaryTable';
 
+//custom hooks
+function usePaymentsTotal() {
+  const { watch } = useFormContext();
+  const payments = watch('payments');
+  const paymentsTotal = getPaymentsTotal(payments);
+  return paymentsTotal;
+}
+//----------------------------------------------------------------
+function arePaymentsEqual(newPayments = {}, oldPayments = {}) {
+  const payments1 = { ...newPayments };
+  const payments2 = { ...oldPayments };
+
+  const similarValues = [];
+  const uniqueValues = [];
+  Object.keys(payments1).forEach(key => {
+    const newValue = payments1[key];
+    const oldValue = payments2[key];
+
+    if (newValue === oldValue) {
+      similarValues.push(key);
+    } else {
+      uniqueValues.push(key);
+    }
+
+    delete payments2[key];
+  });
+
+  Object.keys(payments2).forEach(key => {
+    uniqueValues.push(key);
+  });
+
+  // console.log({ uniqueValues, similarValues });
+
+  return uniqueValues.length === 0;
+}
+
+//----------------------------------------------------------------
+
 function InvoicesPayments(props) {
   // console.log({ props });
-  const { paymentId, formIsDisabled, customerId } = props;
+  const { paymentId, formIsDisabled, customerId, defaultPayments } = props;
 
-  const { watch, setValue } = useFormContext();
+  const { watch, setValue, getValues } = useFormContext();
+  const paymentsTotal = usePaymentsTotal();
 
   const { getInvoices, getInvoicesToEdit, invoices, loading, error } =
     useCustomerInvoices();
 
-  useEffect(() => {
-    console.log('invoices changed', invoices);
+  const updatePayments = useCallback(
+    values => {
+      setValue('payments', values);
+    },
+    [setValue]
+  );
 
-    setValue('payments', {});
-  }, [invoices, setValue]);
+  useEffect(() => {
+    function getPaymentsResetValues() {
+      if (Array.isArray(invoices) && invoices?.length > 0) {
+        const paymentsFromForm = getValues('payments') || {};
+        // console.log({ paymentsFromForm });
+        const currentPayments = {
+          ...defaultPayments,
+          ...paymentsFromForm,
+        };
+        const paymentsArray = Object.keys(currentPayments);
+        // console.log({ paymentsArray });
+        if (paymentsArray?.length > 0) {
+          paymentsArray.forEach(invoiceId => {
+            //check if this invoice is in the list of invoices
+            const found = invoices.find(
+              invoice => invoice.invoiceId === invoiceId
+            );
+
+            if (!found) {
+              //delete the invoice payment if it has not been found
+              delete currentPayments[invoiceId];
+            }
+          });
+
+          return { ...currentPayments };
+        } else {
+          return {};
+        }
+      } else {
+        return {};
+      }
+    }
+
+    // console.log('generating payments rest values');
+    const newPayments = getPaymentsResetValues();
+    // console.log({ newPayments });
+    const oldPayments = getValues('payments');
+    const paymentsAreEqual = arePaymentsEqual(newPayments, oldPayments);
+    // console.log({ paymentsAreEqual });
+
+    if (!paymentsAreEqual) {
+      updatePayments(newPayments);
+    }
+  }, [invoices, defaultPayments, updatePayments, getValues]);
 
   useEffect(() => {
     if (customerId) {
@@ -55,9 +140,14 @@ function InvoicesPayments(props) {
 
   const amount = watch('amount');
 
-  const payments = watch('payments');
+  // const payments = watch('payments');
+
+  // const paymentsTotal = getPaymentsTotal(payments);
+
+  // useEffect(() => {
+  //   console.log('payments have changed', payments);
+  // }, [payments]);
   // console.log({ payments });
-  const paymentsTotal = getPaymentsTotal(payments);
   // console.log({ payments, paymentsTotal });
 
   const autoFill = useCallback(
@@ -87,13 +177,6 @@ function InvoicesPayments(props) {
       return {};
     },
     [paymentId]
-  );
-
-  const updatePayments = useCallback(
-    values => {
-      setValue('payments', values);
-    },
-    [setValue]
   );
 
   /**
