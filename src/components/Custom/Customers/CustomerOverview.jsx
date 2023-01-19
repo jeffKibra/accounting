@@ -26,6 +26,7 @@ import { RiPhoneLine, RiGlobalLine } from 'react-icons/ri';
 import formats from '../../../utils/formats';
 
 import EditOpeningBalance from './EditOpeningBalance';
+import { addressPropTypes } from 'components/forms/Customers/AddressForm';
 
 function CustomerOverview(props) {
   const { customer } = props;
@@ -41,7 +42,7 @@ function CustomerOverview(props) {
     website,
     type,
     paymentTerm,
-    customerId,
+    id: customerId,
   } = customer;
   const openingBalance = ob?.amount || 0;
   // const { unusedCredits, invoicedAmount, invoicePayments } = summary;
@@ -153,12 +154,8 @@ CustomerOverview.propTypes = {
     openingBalance: PropTypes.number,
     website: PropTypes.string,
     remarks: PropTypes.string,
-    billingStreet: PropTypes.string,
-    billingCity: PropTypes.string,
-    billingState: PropTypes.string,
-    billingPostalCode: PropTypes.string,
-    billingCountry: PropTypes.string,
-    shippingStreet: PropTypes.string,
+    billingAddress: addressPropTypes,
+    shippingAddress: addressPropTypes,
     shippingCity: PropTypes.string,
     shippingState: PropTypes.string,
     shippingPostalCode: PropTypes.string,
@@ -170,39 +167,15 @@ export default CustomerOverview;
 
 function Address(props) {
   const { customer } = props;
-  const {
-    billingCity,
-    billingCountry,
-    billingPostalCode,
-    billingState,
-    billingStreet,
-    shippingCity,
-    shippingCountry,
-    shippingPostalCode,
-    shippingState,
-    shippingStreet,
-    remarks,
-  } = customer;
+  const { billingAddress, shippingAddress, remarks } = customer;
 
   return (
     <Accordion w="full" allowToggle>
       <CollapseItem title="Billing Address">
-        <AddressItem
-          city={billingCity}
-          country={billingCountry}
-          postalCode={billingPostalCode}
-          state={billingState}
-          street={billingStreet}
-        />
+        <AddressItem address={billingAddress} />
       </CollapseItem>
       <CollapseItem title="Shipping Address">
-        <AddressItem
-          city={shippingCity}
-          country={shippingCountry}
-          postalCode={shippingPostalCode}
-          state={shippingState}
-          street={shippingStreet}
-        />
+        <AddressItem address={shippingAddress} />
       </CollapseItem>
 
       {remarks && <CollapseItem title="Remarks">{remarks}</CollapseItem>}
@@ -225,8 +198,8 @@ function CollapseItem(props) {
   );
 }
 
-function AddressItem(props) {
-  const { city, country, postalCode, state, street } = props;
+function AddressItem({ address }) {
+  const { city, country, postalCode, state, street } = address;
 
   return (
     <List>

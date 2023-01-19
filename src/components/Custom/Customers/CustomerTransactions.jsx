@@ -1,22 +1,23 @@
-import { useState } from "react";
-import PropTypes from "prop-types";
-import { Box } from "@chakra-ui/react";
+import { useState } from 'react';
+import PropTypes from 'prop-types';
+import { Box } from '@chakra-ui/react';
 
-import ControlledSelect from "../../ui/ControlledSelect";
+import ControlledSelect from '../../ui/ControlledSelect';
 
-import CustomerInvoices from "../../../containers/Management/Invoices/CustomerInvoices";
+import CustomerInvoices from '../../../containers/Management/Invoices/CustomerInvoices';
 
 const transactionTypes = [
-  { name: "Invoices", value: "invoices" },
-  { name: "Payments", value: "payments" },
-  { name: "Sales Receipts", value: "sales_receipts" },
+  { name: 'Invoices', value: 'invoices' },
+  { name: 'Payments', value: 'payments' },
+  { name: 'Sales Receipts', value: 'sales_receipts' },
 ];
 
 function CustomerTransactions(props) {
+  console.log({ props });
   const {
-    customer: { customerId },
+    customer: { id: customerId },
   } = props;
-  const [transactionType, setTransactionType] = useState("invoices");
+  const [transactionType, setTransactionType] = useState('invoices');
 
   return (
     <Box w="full">

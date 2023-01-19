@@ -1,21 +1,23 @@
-import { useEffect } from "react";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
-import { Container } from "@chakra-ui/react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { Container } from '@chakra-ui/react';
+import { useForm, FormProvider } from 'react-hook-form';
 
-import { useToasts } from "hooks";
-import { getDirtyFields } from "utils/functions";
-import { GET_PAYMENT_TERMS } from "../../../store/actions/paymentTermsActions";
+import { useToasts } from 'hooks';
+import { getDirtyFields } from 'utils/functions';
+import { GET_PAYMENT_TERMS } from '../../../store/actions/paymentTermsActions';
 
-import Stepper from "../../../components/ui/Stepper";
+import Stepper from '../../../components/ui/Stepper';
 
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
 
-import DetailsForm from "../../../components/forms/Vendors/DetailsForm";
-import ExtraDetailsForm from "../../../components/forms/Vendors/ExtraDetailsForm";
-import AddressForm from "../../../components/forms/Vendors/AddressForm";
+import DetailsForm from '../../../components/forms/Vendors/DetailsForm';
+import ExtraDetailsForm from '../../../components/forms/Vendors/ExtraDetailsForm';
+import AddressForm, {
+  addressPropTypes,
+} from '../../../components/forms/Customers/AddressForm';
 
 function EditVendor(props) {
   const {
@@ -34,29 +36,21 @@ function EditVendor(props) {
   }, [getPaymentTerms]);
 
   const formMethods = useForm({
-    mode: "onChange",
+    mode: 'onChange',
     defaultValues: {
-      companyName: vendor?.companyName || "",
-      salutation: vendor?.salutation || "",
-      firstName: vendor?.firstName || "",
-      lastName: vendor?.lastName || "",
-      displayName: vendor?.displayName || "",
-      email: vendor?.email || "",
-      phone: vendor?.phone || "",
-      mobile: vendor?.mobile || "",
-      billingStreet: vendor?.billingStreet || "",
-      billingCity: vendor?.billingCity || "",
-      billingState: vendor?.billingState || "",
-      billingPostalCode: vendor?.billingPostalCode || "",
-      billingCountry: vendor?.billingCountry || "",
-      shippingStreet: vendor?.shippingStreet || "",
-      shippingCity: vendor?.shippingCity || "",
-      shippingState: vendor?.shippingState || "",
-      shippingPostalCode: vendor?.shippingPostalCode || "",
-      shippingCountry: vendor?.shippingCountry || "",
-      paymentTerm: vendor?.paymentTerm?.value || "on_receipt",
-      website: vendor?.website || "",
-      remarks: vendor?.remarks || "",
+      companyName: vendor?.companyName || '',
+      salutation: vendor?.salutation || '',
+      firstName: vendor?.firstName || '',
+      lastName: vendor?.lastName || '',
+      displayName: vendor?.displayName || '',
+      email: vendor?.email || '',
+      phone: vendor?.phone || '',
+      mobile: vendor?.mobile || '',
+      billingAddress: vendor?.billingAddress || {},
+      shippingAddress: vendor?.shippingAddress || {},
+      paymentTerm: vendor?.paymentTerm?.value || 'on_receipt',
+      website: vendor?.website || '',
+      remarks: vendor?.remarks || '',
     },
   });
   const {
@@ -68,11 +62,9 @@ function EditVendor(props) {
     const { paymentTerm: paymentTermId, ...rest } = data;
     let formValues = { ...rest };
     //retrieve paymentTerm object
-    const paymentTerm = paymentTerms.find(
-      (term) => term.value === paymentTermId
-    );
+    const paymentTerm = paymentTerms.find(term => term.value === paymentTermId);
     if (!paymentTerm) {
-      toasts.error("Selected Payment Term not found!");
+      toasts.error('Selected Payment Term not found!');
     }
     formValues.paymentTerm = paymentTerm;
 
@@ -101,20 +93,20 @@ function EditVendor(props) {
         <Stepper
           steps={[
             {
-              label: "Details",
+              label: 'Details',
               content: <DetailsForm loading={loading} />,
             },
             {
-              label: "Address",
+              label: 'Address',
               content: <AddressForm loading={loading} />,
             },
             {
-              label: "Extras",
+              label: 'Extras',
               content: (
                 <ExtraDetailsForm
                   loading={loading}
                   paymentTerms={paymentTerms}
-                  vendorId={vendor?.vendorId || ""}
+                  vendorId={vendor?.vendorId || ''}
                 />
               ),
             },
@@ -126,6 +118,8 @@ function EditVendor(props) {
     <Empty message="Payment Terms not found! Try to reload the page!" />
   );
 }
+
+//----------------------------------------------------------------
 
 EditVendor.propTypes = {
   loading: PropTypes.bool.isRequired,
@@ -139,16 +133,8 @@ EditVendor.propTypes = {
     email: PropTypes.string,
     phone: PropTypes.string,
     mobile: PropTypes.string,
-    billingStreet: PropTypes.string,
-    billingCity: PropTypes.string,
-    billingState: PropTypes.string,
-    billingPostalCode: PropTypes.string,
-    billingCountry: PropTypes.string,
-    shippingStreet: PropTypes.string,
-    shippingCity: PropTypes.string,
-    shippingState: PropTypes.string,
-    shippingPostalCode: PropTypes.string,
-    shippingCountry: PropTypes.string,
+    billingAddress: addressPropTypes,
+    shippingAddress: addressPropTypes,
     website: PropTypes.string,
     paymentTermId: PropTypes.string,
     remarks: PropTypes.string,

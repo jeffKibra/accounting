@@ -1,22 +1,24 @@
-import { useEffect } from "react";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
-import { Container } from "@chakra-ui/react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { Container } from '@chakra-ui/react';
+import { useForm, FormProvider } from 'react-hook-form';
 
-import { useToasts } from "../../../hooks";
-import { getDirtyFields } from "../../../utils/functions";
+import { useToasts } from '../../../hooks';
+import { getDirtyFields } from '../../../utils/functions';
 
-import { GET_PAYMENT_TERMS } from "../../../store/actions/paymentTermsActions";
+import { GET_PAYMENT_TERMS } from '../../../store/actions/paymentTermsActions';
 
-import Stepper from "../../../components/ui/Stepper";
+import Stepper from '../../../components/ui/Stepper';
 
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
 
-import DetailsForm from "../../../components/forms/Customers/DetailsForm";
-import ExtraDetailsForm from "../../../components/forms/Customers/ExtraDetailsForm";
-import AddressForm from "../../../components/forms/Customers/AddressForm";
+import DetailsForm from '../../../components/forms/Customers/DetailsForm';
+import ExtraDetailsForm from '../../../components/forms/Customers/ExtraDetailsForm';
+import AddressForm, {
+  addressPropTypes,
+} from '../../../components/forms/Customers/AddressForm';
 
 function EditCustomer(props) {
   const {
@@ -34,30 +36,22 @@ function EditCustomer(props) {
   }, [getPaymentTerms]);
 
   const formMethods = useForm({
-    mode: "onChange",
+    mode: 'onChange',
     defaultValues: {
-      type: customer?.type || "",
-      companyName: customer?.companyName || "",
-      salutation: customer?.salutation || "",
-      firstName: customer?.firstName || "",
-      lastName: customer?.lastName || "",
-      displayName: customer?.displayName || "",
-      email: customer?.email || "",
-      phone: customer?.phone || "",
-      mobile: customer?.mobile || "",
-      billingStreet: customer?.billingStreet || "",
-      billingCity: customer?.billingCity || "",
-      billingState: customer?.billingState || "",
-      billingPostalCode: customer?.billingPostalCode || "",
-      billingCountry: customer?.billingCountry || "",
-      shippingStreet: customer?.shippingStreet || "",
-      shippingCity: customer?.shippingCity || "",
-      shippingState: customer?.shippingState || "",
-      shippingPostalCode: customer?.shippingPostalCode || "",
-      shippingCountry: customer?.shippingCountry || "",
-      paymentTerm: customer?.paymentTerm?.value || "on_receipt",
-      website: customer?.website || "",
-      remarks: customer?.remarks || "",
+      type: customer?.type || '',
+      companyName: customer?.companyName || '',
+      salutation: customer?.salutation || '',
+      firstName: customer?.firstName || '',
+      lastName: customer?.lastName || '',
+      displayName: customer?.displayName || '',
+      email: customer?.email || '',
+      phone: customer?.phone || '',
+      mobile: customer?.mobile || '',
+      billingAddress: customer?.billingAddress || {},
+      shippingAddress: customer?.shippingAddress || {},
+      paymentTerm: customer?.paymentTerm?.value || 'on_receipt',
+      website: customer?.website || '',
+      remarks: customer?.remarks || '',
       ...(customer ? {} : { openingBalance: customer?.openingBalance || 0 }),
     },
   });
@@ -71,11 +65,9 @@ function EditCustomer(props) {
     let formValues = { ...rest };
 
     //retrieve payment term object
-    const paymentTerm = paymentTerms.find(
-      (term) => term.value === paymentTermId
-    );
+    const paymentTerm = paymentTerms.find(term => term.value === paymentTermId);
     if (!paymentTerm) {
-      return toasts.error("Selected Payment Term not found!");
+      return toasts.error('Selected Payment Term not found!');
     }
     formValues.paymentTerm = paymentTerm;
 
@@ -83,6 +75,8 @@ function EditCustomer(props) {
       //the customer is being updated-submit only changed form values
       formValues = getDirtyFields(dirtyFields, formValues);
     }
+
+    // console.log({ formValues });
 
     saveData(formValues);
   }
@@ -104,20 +98,20 @@ function EditCustomer(props) {
         <Stepper
           steps={[
             {
-              label: "Details",
+              label: 'Details',
               content: <DetailsForm loading={loading} />,
             },
             {
-              label: "Address",
+              label: 'Address',
               content: <AddressForm loading={loading} />,
             },
             {
-              label: "Extras",
+              label: 'Extras',
               content: (
                 <ExtraDetailsForm
                   loading={loading}
                   paymentTerms={paymentTerms}
-                  customerId={customer?.customerId || ""}
+                  customerId={customer?.id || ''}
                 />
               ),
             },
@@ -143,16 +137,8 @@ EditCustomer.propTypes = {
     email: PropTypes.string,
     phone: PropTypes.string,
     mobile: PropTypes.string,
-    billingStreet: PropTypes.string,
-    billingCity: PropTypes.string,
-    billingState: PropTypes.string,
-    billingPostalCode: PropTypes.string,
-    billingCountry: PropTypes.string,
-    shippingStreet: PropTypes.string,
-    shippingCity: PropTypes.string,
-    shippingState: PropTypes.string,
-    shippingPostalCode: PropTypes.string,
-    shippingCountry: PropTypes.string,
+    billingAddress: addressPropTypes,
+    shippingAddress: addressPropTypes,
     paymentTerm: PropTypes.object,
     website: PropTypes.string,
     remarks: PropTypes.string,

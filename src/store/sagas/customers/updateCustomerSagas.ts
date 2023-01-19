@@ -26,9 +26,11 @@ function* updateCustomer(action: PayloadAction<IUpdateData>) {
   const userProfile: UserProfile = yield select(
     (state: RootState) => state.authReducer.userProfile
   );
-  const { email } = userProfile;
+  const { uid } = userProfile;
 
   const { customerId, ...rest } = action.payload;
+  // console.log({ action });
+  // console.log({ customerId });
 
   async function update() {
     /**
@@ -36,7 +38,7 @@ function* updateCustomer(action: PayloadAction<IUpdateData>) {
      */
     await updateDoc(doc(db, 'organizations', orgId, 'contacts', customerId), {
       ...rest,
-      modifiedBy: email,
+      modifiedBy: uid,
       modifiedAt: serverTimestamp(),
     });
   }

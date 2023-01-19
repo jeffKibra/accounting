@@ -1,6 +1,14 @@
 import { FieldValue } from 'firebase/firestore';
 import { PaymentTerm } from '.';
 
+export interface IAddress {
+  city: string;
+  country: string;
+  postalCode: string;
+  state: string;
+  street: string;
+}
+
 export interface IContactForm {
   contactType: 'customer' | 'vendor';
   companyName: string;
@@ -13,16 +21,8 @@ export interface IContactForm {
   phone: string;
   remarks: string;
   salutation: string;
-  billingCity: string;
-  billingCountry: string;
-  billingPostalCode: string;
-  billingState: string;
-  billingStreet: string;
-  shippingCity: string;
-  shippingCountry: string;
-  shippingPostalCode: string;
-  shippingState: string;
-  shippingStreet: string;
+  billingAddress: IAddress;
+  shippingAddress: IAddress;
   type: 'individual' | 'company';
   website: string;
   openingBalance: number;

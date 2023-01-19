@@ -98,7 +98,8 @@ export default function PaymentForm(props) {
     // console.log({ data });
 
     Object.keys(payments).forEach(key => {
-      if (payments[key] <= 0) {
+      const amount = Number(payments[key]);
+      if (isNaN(amount) || amount <= 0) {
         delete payments[key];
       }
     });

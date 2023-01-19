@@ -30,6 +30,7 @@ function* updateVendor(action: PayloadAction<IUpdateData>) {
   const { email } = userProfile;
 
   const { vendorId, ...formData } = action.payload;
+  console.log({ formData });
 
   function update() {
     const contactsCollection = dbCollections(orgId).contacts;

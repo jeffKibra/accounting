@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext } from 'react';
 import {
   FormControl,
   Input,
@@ -10,11 +10,23 @@ import {
   Button,
   Heading,
   Container,
-} from "@chakra-ui/react";
-import PropTypes from "prop-types";
-import { useFormContext } from "react-hook-form";
+} from '@chakra-ui/react';
+import PropTypes from 'prop-types';
+import { useFormContext } from 'react-hook-form';
 
-import StepperContext from "../../../contexts/StepperContext";
+import StepperContext from '../../../contexts/StepperContext';
+
+//-------------------------------------------------------------------------------------------------
+
+export const addressPropTypes = PropTypes.shape({
+  street: PropTypes.string,
+  city: PropTypes.string,
+  state: PropTypes.string,
+  postalCode: PropTypes.string,
+  country: PropTypes.string,
+});
+
+//-------------------------------------------------------------------------------------------------
 
 function AddressForm(props) {
   const { loading } = props;
@@ -31,32 +43,33 @@ function AddressForm(props) {
 
   function copyBilling() {
     const [street, city, state, postalCode, country] = getValues([
-      "billingStreet",
-      "billingCity",
-      "billingState",
-      "billingPostalCode",
-      "billingCountry",
+      'billingAddress.street',
+      'billingAddress.city',
+      'billingAddress.state',
+      'billingAddress.postalCode',
+      'billingAddress.country',
     ]);
-    setValue("shippingStreet", street, { shouldDirty: true });
-    setValue("shippingCity", city, { shouldDirty: true });
-    setValue("shippingState", state, { shouldDirty: true });
-    setValue("shippingPostalCode", postalCode, { shouldDirty: true });
-    setValue("shippingCountry", country, { shouldDirty: true });
+    console.log({ street, city, state, postalCode, country });
+    setValue('shippingAddress.street', street, { shouldDirty: true });
+    setValue('shippingAddress.city', city, { shouldDirty: true });
+    setValue('shippingAddress.state', state, { shouldDirty: true });
+    setValue('shippingAddress.postalCode', postalCode, { shouldDirty: true });
+    setValue('shippingAddress.country', country, { shouldDirty: true });
   }
 
   async function next() {
     //trigger validation
     await trigger([
-      "billingStreet",
-      "billingCity",
-      "billingState",
-      "billingPostalCode",
-      "billingCountry",
-      "shippingStreet",
-      "shippingCity",
-      "shippingState",
-      "shippingPostalCode",
-      "shippingCountry",
+      'billingAddress.street',
+      'billingAddress.city',
+      'billingAddress.state',
+      'billingAddress.postalCode',
+      'billingAddress.country',
+      'shippingAddress.street',
+      'shippingAddress.city',
+      'shippingAddress.state',
+      'shippingAddress.postalCode',
+      'shippingAddress.country',
     ]);
     const fieldsValid = Object.keys(errors).length === 0;
 
@@ -95,12 +108,12 @@ function AddressForm(props) {
             <GridItem colSpan={12}>
               <FormControl
                 isDisabled={loading}
-                isInvalid={!!errors.billingStreet}
+                isInvalid={!!errors?.billingAddress?.street}
               >
                 <Textarea
                   placeholder="Street"
                   id="billingStreet"
-                  {...register("billingStreet")}
+                  {...register('billingAddress.street')}
                 />
               </FormControl>
             </GridItem>
@@ -108,48 +121,48 @@ function AddressForm(props) {
             <GridItem colSpan={6}>
               <FormControl
                 isDisabled={loading}
-                isInvalid={!!errors.billingCity}
+                isInvalid={!!errors?.billingAddress?.city}
               >
                 <Input
                   placeholder="City | Town"
                   id="billingCity"
-                  {...register("billingCity")}
+                  {...register('billingAddress.city')}
                 />
               </FormControl>
             </GridItem>
             <GridItem colSpan={6}>
               <FormControl
                 isDisabled={loading}
-                isInvalid={!!errors.billingState}
+                isInvalid={!!errors?.billingAddress?.state}
               >
                 <Input
                   placeholder="State | Province"
                   id="billingState"
-                  {...register("billingState")}
+                  {...register('billingAddress.state')}
                 />
               </FormControl>
             </GridItem>
             <GridItem colSpan={6}>
               <FormControl
                 isDisabled={loading}
-                isInvalid={!!errors.billingPostalCode}
+                isInvalid={!!errors?.billingAddress?.postalCode}
               >
                 <Input
                   placeholder="Postal code"
                   id="billingPostalCode"
-                  {...register("billingPostalCode")}
+                  {...register('billingAddress.postalCode')}
                 />
               </FormControl>
             </GridItem>
             <GridItem colSpan={6}>
               <FormControl
                 isDisabled={loading}
-                isInvalid={!!errors.billingCountry}
+                isInvalid={!!errors?.billingAddress?.country}
               >
                 <Input
                   placeholder="Country"
                   id="billingCountry"
-                  {...register("billingCountry")}
+                  {...register('billingAddress.country')}
                 />
               </FormControl>
             </GridItem>
@@ -184,12 +197,12 @@ function AddressForm(props) {
             <GridItem colSpan={12}>
               <FormControl
                 isDisabled={loading}
-                isInvalid={!!errors.shippingStreet}
+                isInvalid={!!errors?.shippingAddress?.street}
               >
                 <Textarea
                   placeholder="Street"
                   id="shippingStreet"
-                  {...register("shippingStreet")}
+                  {...register('shippingAddress.street')}
                 />
               </FormControl>
             </GridItem>
@@ -197,48 +210,48 @@ function AddressForm(props) {
             <GridItem colSpan={6}>
               <FormControl
                 isDisabled={loading}
-                isInvalid={!!errors.shippingCity}
+                isInvalid={!!errors?.shippingAddress?.city}
               >
                 <Input
                   placeholder="City | Town"
                   id="shippingCity"
-                  {...register("shippingCity")}
+                  {...register('shippingAddress.city')}
                 />
               </FormControl>
             </GridItem>
             <GridItem colSpan={6}>
               <FormControl
                 isDisabled={loading}
-                isInvalid={!!errors.shippingState}
+                isInvalid={!!errors?.shippingAddress?.state}
               >
                 <Input
                   placeholder="State | Province"
                   id="shippingState"
-                  {...register("shippingState")}
+                  {...register('shippingAddress.state')}
                 />
               </FormControl>
             </GridItem>
             <GridItem colSpan={6}>
               <FormControl
                 isDisabled={loading}
-                isInvalid={!!errors.shippingPostalCode}
+                isInvalid={!!errors?.shippingAddress?.postalCode}
               >
                 <Input
                   placeholder="Postal code"
                   id="shippingPostalCode"
-                  {...register("shippingPostalCode")}
+                  {...register('shippingAddress.postalCode')}
                 />
               </FormControl>
             </GridItem>
             <GridItem colSpan={6}>
               <FormControl
                 isDisabled={loading}
-                isInvalid={!!errors.shippingCountry}
+                isInvalid={!!errors?.shippingAddress?.country}
               >
                 <Input
                   placeholder="Country"
                   id="shippingCountry"
-                  {...register("shippingCountry")}
+                  {...register('shippingAddress.country')}
                 />
               </FormControl>
             </GridItem>

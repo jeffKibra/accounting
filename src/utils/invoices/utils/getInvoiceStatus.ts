@@ -38,10 +38,10 @@ export default function getInvoiceStatus(invoice: Invoice) {
   let status = '';
   let message = '';
 
-  if (isOverdue) {
-    status = 'OVERDUE';
-  } else if (balance === 0) {
+  if (balance === 0) {
     status = 'PAID';
+  } else if (isOverdue) {
+    status = 'OVERDUE';
   } else if (partiallyPaid && (dueToday || isDue)) {
     status = 'PARTIALLY PAID';
   } else if (dueToday) {

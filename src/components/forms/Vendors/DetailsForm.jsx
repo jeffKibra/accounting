@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext } from 'react';
 import {
   FormControl,
   Input,
@@ -12,11 +12,11 @@ import {
   Button,
   // Heading,
   Container,
-} from "@chakra-ui/react";
-import PropTypes from "prop-types";
-import { useFormContext } from "react-hook-form";
+} from '@chakra-ui/react';
+import PropTypes from 'prop-types';
+import { useFormContext } from 'react-hook-form';
 
-import StepperContext from "../../../contexts/StepperContext";
+import StepperContext from '../../../contexts/StepperContext';
 
 function DetailsForm(props) {
   const { loading } = props;
@@ -32,28 +32,27 @@ function DetailsForm(props) {
 
   async function next(data) {
     //trigger validation
-    await trigger([
-      "companyName",
-      "salutation",
-      "firstName",
-      "lastName",
-      "displayName",
-      "email",
-      "phone",
-      "mobile",
+    const fieldsValid = await trigger([
+      'companyName',
+      'salutation',
+      'firstName',
+      'lastName',
+      'displayName',
+      'email',
+      'phone',
+      'mobile',
     ]);
 
-    const fieldsValid = Object.keys(errors).length === 0;
     if (fieldsValid) {
       nextStep();
     }
   }
 
   const [salutation, firstName, lastName, companyName] = watch([
-    "salutation",
-    "firstName",
-    "lastName",
-    "companyName",
+    'salutation',
+    'firstName',
+    'lastName',
+    'companyName',
   ]);
 
   return (
@@ -71,7 +70,7 @@ function DetailsForm(props) {
         <GridItem colSpan={[12, 4]}>
           <FormControl isDisabled={loading} isInvalid={!!errors.salutation}>
             <FormLabel>Salutation</FormLabel>
-            <Select placeholder="salutation" {...register("salutation")}>
+            <Select placeholder="salutation" {...register('salutation')}>
               <option value="Mr.">Mr.</option>
               <option value="Mrs.">Mrs.</option>
               <option value="Ms.">Ms.</option>
@@ -91,8 +90,8 @@ function DetailsForm(props) {
             <FormLabel htmlFor="firstName">First Name</FormLabel>
             <Input
               id="firstName"
-              {...register("firstName", {
-                required: { value: true, message: "Required!" },
+              {...register('firstName', {
+                required: { value: true, message: 'Required!' },
               })}
             />
             <FormErrorMessage>{errors.firstName?.message}</FormErrorMessage>
@@ -107,8 +106,8 @@ function DetailsForm(props) {
             <FormLabel htmlFor="lastName">Last Name</FormLabel>
             <Input
               id="lastName"
-              {...register("lastName", {
-                required: { value: true, message: "Required!" },
+              {...register('lastName', {
+                required: { value: true, message: 'Required!' },
               })}
             />
             <FormErrorMessage>{errors.lastName?.message}</FormErrorMessage>
@@ -118,7 +117,7 @@ function DetailsForm(props) {
         <GridItem colSpan={[12, 6]}>
           <FormControl isDisabled={loading} isInvalid={!!errors.companyName}>
             <FormLabel htmlFor="companyName">Company Name</FormLabel>
-            <Input id="companyName" {...register("companyName")} />
+            <Input id="companyName" {...register('companyName')} />
             <FormHelperText>Company | Business Name</FormHelperText>
             <FormErrorMessage>{errors.companyName?.message}</FormErrorMessage>
           </FormControl>
@@ -133,8 +132,8 @@ function DetailsForm(props) {
             <FormLabel>Vendor Display Name</FormLabel>
             <Select
               placeholder="---select display name---"
-              {...register("displayName", {
-                required: { value: true, message: "Required!" },
+              {...register('displayName', {
+                required: { value: true, message: 'Required!' },
               })}
             >
               <option
@@ -153,7 +152,7 @@ function DetailsForm(props) {
         <GridItem colSpan={[12, 6]}>
           <FormControl isDisabled={loading} isInvalid={!!errors.email}>
             <FormLabel htmlFor="email">Email</FormLabel>
-            <Input id="email" {...register("email")} />
+            <Input id="email" {...register('email')} />
             <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
@@ -164,19 +163,14 @@ function DetailsForm(props) {
             isInvalid={!!errors.phone}
           >
             <FormLabel htmlFor="phone">Phone</FormLabel>
-            <Input
-              id="phone"
-              {...register("phone", {
-                required: { value: true, message: "*Required!" },
-              })}
-            />
+            <Input id="phone" {...register('phone')} />
             <FormErrorMessage>{errors.phone?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
         <GridItem colSpan={[12, 6]}>
           <FormControl isDisabled={loading} isInvalid={!!errors.mobile}>
             <FormLabel htmlFor="mobile">mobile</FormLabel>
-            <Input id="mobile" {...register("mobile")} />
+            <Input id="mobile" {...register('mobile')} />
             <FormErrorMessage>{errors.mobile?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
