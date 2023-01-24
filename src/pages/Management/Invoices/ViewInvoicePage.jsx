@@ -39,11 +39,13 @@ function ViewInvoicePage(props) {
   return (
     <PageLayout
       pageTitle={invoice?.invoiceId || 'View Invoice'}
-      actions={invoice && <InvoiceOptions invoice={invoice} edit deletion />}
+      actions={
+        invoice && <InvoiceOptions invoice={invoice} edit deletion download />
+      }
       breadcrumbLinks={{
         Dashboard: '/',
         Invoices: INVOICES,
-        [invoiceId]: location.pathname,
+        [String(invoiceId).padStart(6, '0')]: location.pathname,
       }}
     >
       {loading && action === GET_INVOICE ? (

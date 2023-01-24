@@ -1,15 +1,30 @@
 import { useEffect } from 'react';
-import { Box } from '@chakra-ui/react';
-import { RiDeleteBin4Line, RiEdit2Line, RiEyeLine } from 'react-icons/ri';
+import {
+  RiDeleteBin4Line,
+  RiEdit2Line,
+  RiEyeLine,
+  RiDownloadCloud2Line,
+  RiMoreFill,
+} from 'react-icons/ri';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import {
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Box,
+} from '@chakra-ui/react';
 
-import useDeleteInvoice from '../../../hooks/useDeleteInvoice';
+import Dialog from 'components/ui/Dialog';
 
-import MenuOptions from '../../../components/ui/MenuOptions';
+import useDeleteInvoice from 'hooks/useDeleteInvoice';
+
+import { generatePDF } from 'utils/invoices';
 
 function InvoiceOptions(props) {
-  const { invoice, edit, view, deletion } = props;
+  const { invoice, edit, view, deletion, download } = props;
   const { invoiceId } = invoice;
   const { details, isDeleted, resetInvoice } = useDeleteInvoice(invoice);
 
@@ -19,46 +34,59 @@ function InvoiceOptions(props) {
     }
   }, [isDeleted, resetInvoice]);
 
-  const options = [
-    ...(view
-      ? [
-          {
-            name: 'View',
-            icon: RiEyeLine,
-            as: Link,
-            to: `/sale/invoices/${invoiceId}/view`,
-          },
-        ]
-      : []),
-    ...(edit
-      ? [
-          {
-            name: 'Edit',
-            icon: RiEdit2Line,
-            as: Link,
-            to: `/sale/invoices/${invoiceId}/edit`,
-          },
-        ]
-      : []),
-    ...(deletion
-      ? [
-          {
-            name: 'Delete',
-            icon: RiDeleteBin4Line,
-            dialogDetails: {
-              ...details,
-            },
-          },
-        ]
-      : []),
-  ];
-
   return (
-    <>
-      <Box>
-        <MenuOptions options={options} />
-      </Box>
-    </>
+    <Menu>
+      <MenuButton
+        as={IconButton}
+        aria-label="Table Options"
+        icon={<RiMoreFill />}
+        colorScheme="cyan"
+        size="sm"
+        title="options"
+        // variant="outline"
+      />
+      <MenuList fontSize="md" lineHeight="6">
+        {view ? (
+          <MenuItem
+            as={Link}
+            to={`/sale/invoices/${invoiceId}/view`}
+            icon={<RiEyeLine />}
+          >
+            View
+          </MenuItem>
+        ) : null}
+        {edit ? (
+          <MenuItem
+            as={Link}
+            to={`/sale/invoices/${invoiceId}/edit`}
+            icon={<RiEdit2Line />}
+          >
+            Edit
+          </MenuItem>
+        ) : null}
+        {deletion ? (
+          <Dialog
+            {...details}
+            renderButton={onOpen => {
+              return (
+                <Box onClick={onOpen}>
+                  <MenuItem icon={<RiDeleteBin4Line />}>Delete</MenuItem>
+                </Box>
+              );
+            }}
+          />
+        ) : null}
+
+        {download ? (
+          <MenuItem
+            onClick={() => generatePDF(invoice)}
+            icon={<RiDownloadCloud2Line />}
+          >
+            Download
+          </MenuItem>
+        ) : null}
+      </MenuList>
+    </Menu>
   );
 }
 
@@ -68,4 +96,5 @@ InvoiceOptions.propTypes = {
   view: PropTypes.bool,
   deletion: PropTypes.bool,
 };
+
 export default InvoiceOptions;

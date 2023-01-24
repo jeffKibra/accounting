@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext } from 'react';
 import {
   FormControl,
   Input,
@@ -11,14 +11,39 @@ import {
   Button,
   // Heading,
   Container,
-} from "@chakra-ui/react";
-import PropTypes from "prop-types";
-import { useFormContext } from "react-hook-form";
+} from '@chakra-ui/react';
+import PropTypes from 'prop-types';
+import { useFormContext } from 'react-hook-form';
 
-import NumInput from "../../ui/NumInput";
-import CustomSelect from "../../ui/CustomSelect";
+import NumInput from '../../ui/NumInput';
+import CustomSelect from '../../ui/CustomSelect';
 
-import StepperContext from "../../../contexts/StepperContext";
+import StepperContext from '../../../contexts/StepperContext';
+
+//------------------------------------------------------------------------------
+
+const currentcyOptions = [
+  'SGD',
+  'MYR',
+  'EUR',
+  'USD',
+  'AUD',
+  'JPY',
+  'CNH',
+  'HKD',
+  'CAD',
+  'INR',
+  'DKK',
+  'GBP',
+  'RUB',
+  'NZD',
+  'MXN',
+  'IDR',
+  'TWD',
+  'THB',
+  'VND',
+];
+//----------------------------------------------------------------
 
 function ExtraDetailsForm(props) {
   const { loading, paymentTerms, customerId } = props;
@@ -55,7 +80,7 @@ function ExtraDetailsForm(props) {
                 rules={{
                   min: {
                     value: 0,
-                    message: "Value cannot be less than zero(0)!",
+                    message: 'Value cannot be less than zero(0)!',
                   },
                 }}
               />
@@ -78,7 +103,7 @@ function ExtraDetailsForm(props) {
               name="paymentTerm"
               placeholder="terms"
               options={paymentTerms}
-              rules={{ required: { value: true, message: "*Required!" } }}
+              rules={{ required: { value: true, message: '*Required!' } }}
             />
             <FormErrorMessage>{errors.paymentTerm?.message}</FormErrorMessage>
           </FormControl>
@@ -87,7 +112,7 @@ function ExtraDetailsForm(props) {
         <GridItem colSpan={[12, 6]}>
           <FormControl isDisabled={loading} isInvalid={!!errors.website}>
             <FormLabel htmlFor="website">website</FormLabel>
-            <Input id="website" {...register("website")} />
+            <Input id="website" {...register('website')} />
             <FormErrorMessage>{errors.website?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
@@ -95,7 +120,7 @@ function ExtraDetailsForm(props) {
         <GridItem colSpan={[12, 6]}>
           <FormControl isDisabled={loading} isInvalid={!!errors.remarks}>
             <FormLabel htmlFor="remarks">Remarks</FormLabel>
-            <Textarea resize="none" id="remarks" {...register("remarks")} />
+            <Textarea resize="none" id="remarks" {...register('remarks')} />
             <FormErrorMessage>{errors.remarks?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>

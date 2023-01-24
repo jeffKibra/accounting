@@ -8,7 +8,7 @@ export interface SalesSummary {
   adjustment: number;
   shipping: number;
   subTotal: number;
-  taxType: string;
+  taxType: 'taxExclusive' | 'taxInclusive';
   totalAmount: number;
   totalTax: number;
   taxes: SalesTax[];
@@ -18,7 +18,7 @@ export interface SaleSummary {
   adjustment: number;
   shipping: number;
   subTotal: number;
-  taxType: string;
+  taxType: 'taxExclusive' | 'taxInclusive';
   totalAmount: number;
   totalTax: number;
   taxes: SalesTax[];

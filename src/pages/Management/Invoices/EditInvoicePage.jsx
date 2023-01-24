@@ -82,7 +82,7 @@ function EditInvoicePage(props) {
       breadcrumbLinks={{
         Dashboard: '/',
         Invoices: INVOICES,
-        [`${invoiceId}`]: location.pathname,
+        [String(invoiceId).padStart(6, '0')]: location.pathname,
       }}
     >
       {loading && action === GET_INVOICE ? (

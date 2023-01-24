@@ -20,6 +20,30 @@ import AddressForm, {
   addressPropTypes,
 } from '../../../components/forms/Customers/AddressForm';
 
+//----------------------------------------------------------------
+const apiOptions = {
+  method: 'GET',
+  headers: {
+    'X-RapidAPI-Key': '41d5f4d4a6msh5866044e89580f0p18dda8jsn7d3f6ad3aeec',
+    'X-RapidAPI-Host': 'currency-exchange.p.rapidapi.com',
+  },
+};
+
+function fetchCurrencyList() {
+  return fetch(
+    'https://currency-exchange.p.rapidapi.com/listquotes',
+    apiOptions
+  ).then(response => response.json());
+}
+
+function fetchCurrencyRate() {
+  return fetch(
+    'https://currency-exchange.p.rapidapi.com/exchange?from=MYR&to=KES&q=1.0',
+    apiOptions
+  ).then(response => response.json());
+}
+//----------------------------------------------------------------
+
 function EditCustomer(props) {
   const {
     customer,

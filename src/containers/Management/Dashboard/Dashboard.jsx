@@ -45,6 +45,7 @@ function Dashboard(props) {
   const openReceivables = new BigNumber(totalReceivables - overdueInvoices)
     .dp(2)
     .toNumber();
+  // console.log({ totalReceivables, overdueInvoices, openReceivables });
 
   const totalPayables = summary?.totalPayables || 0;
   const overdueBills = summary?.overdueBillsTotal || 0;
