@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { Invoice } from '../../types';
+import { GET_INVOICE } from '../actions/invoicesActions';
 
 type State = {
   loading: boolean;
@@ -32,7 +33,7 @@ const invoicesSlice = createSlice({
         loading: true,
         error: null,
         action: action.payload,
-        invoice: null,
+        ...(action.payload === GET_INVOICE ? { invoice: null } : {}),
         invoices: null,
       };
     },
