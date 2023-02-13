@@ -6,7 +6,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { functions } from 'utils/firebase';
 
 import { CREATE_ACCOUNT } from '../../actions/accountsActions';
-import { start, fail, success } from '../../slices/accountsSlice';
+import { start, fail, success } from '../../slices/chartOfAccountsSlice';
 import {
   error as toastError,
   success as toastSuccess,

@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
-import { connect } from 'react-redux';
-
 import { useLocation } from 'react-router-dom';
 
-import { FETCH_ACCOUNTS } from 'store/actions/accountsActions';
+//hooks
+import { useChartOfAccounts } from 'hooks';
+//contexts
+import { EditAccountContextProvider } from 'contexts/EditAccountContext';
 
 import PageLayout from 'components/layout/PageLayout';
 //components
@@ -14,17 +15,15 @@ import AccountsTable from 'components/tables/Accounts/AccountsTable';
 
 import CreateAccount from 'containers/Management/Accounts/CreateAccount';
 
-function AccountsListPage(props) {
+export default function AccountsListPage() {
   // console.log({ props });
-  const { fetchList, accounts, error } = props;
+  const { fetchChartOfAccountsList, accounts, error } = useChartOfAccounts();
 
   const location = useLocation();
 
   useEffect(() => {
-    if (!accounts) {
-      fetchList();
-    }
-  }, [fetchList, accounts]);
+    fetchChartOfAccountsList();
+  }, [fetchChartOfAccountsList]);
 
   return (
     <PageLayout
@@ -36,7 +35,9 @@ function AccountsListPage(props) {
       }}
     >
       {accounts ? (
-        <AccountsTable accounts={accounts} />
+        <EditAccountContextProvider>
+          <AccountsTable accounts={accounts} />
+        </EditAccountContextProvider>
       ) : error ? (
         <AlertError
           title="Error fetching list of accounts: "
@@ -48,20 +49,3 @@ function AccountsListPage(props) {
     </PageLayout>
   );
 }
-
-function mapStateToProps(state) {
-  const { chartOfAccounts: accounts, error } = state.accountsReducer;
-
-  return {
-    accounts,
-    error,
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    fetchList: () => dispatch({ type: FETCH_ACCOUNTS }),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(AccountsListPage);

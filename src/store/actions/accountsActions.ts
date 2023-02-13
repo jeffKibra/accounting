@@ -1,7 +1,7 @@
-export const CHECK_ACCOUNTS = 'CHECK_ACCOUNTS';
-export const INIT_ACCOUNTS = 'INIT_ACCOUNTS';
 export const CREATE_ACCOUNT = 'CREATE_ACCOUNT';
 export const UPDATE_ACCOUNT = 'UPDATE_ACCOUNT';
-export const FETCH_ACCOUNT = 'FETCH_ACCOUNT';
-export const FETCH_ACCOUNTS = 'FETCH_ACCOUNTS';
+export const GET_ACCOUNT = 'GET_ACCOUNT';
+export const GET_ACCOUNTS = 'GET_ACCOUNTS';
 export const DELETE_ACCOUNT = 'DELETE_ACCOUNT';
+//chart of accounts
+export const CHART_OF_ACCOUNTS_GET_LIST = 'CHART_OF_ACCOUNTS_GET_LIST';

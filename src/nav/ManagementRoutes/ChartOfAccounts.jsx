@@ -4,7 +4,7 @@ import * as routes from '../routes';
 import ManagementRoute from '../ManagementRoute';
 
 //accounts
-import AccountsListPage from '../../pages/Management/Accounts/List';
+import ChartOfAccountsListPage from '../../pages/Management/ChartOfAccounts/List';
 
 function ChartOfAccounts() {
   return [
@@ -14,7 +14,7 @@ function ChartOfAccounts() {
       exact
       element={
         <ManagementRoute>
-          <AccountsListPage />
+          <ChartOfAccountsListPage />
         </ManagementRoute>
       }
     />,

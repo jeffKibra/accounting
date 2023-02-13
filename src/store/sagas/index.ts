@@ -47,9 +47,9 @@ import {
 import { watchUpdatePayment } from './payments/updatePaymentSagas';
 import { watchDeletePayment } from './payments/deletePaymentSagas';
 //accounts
-import { watchCheckAccounts } from './accounts/checkAccountsSagas';
+import { watchGetAccounts } from './accounts/getAccountsSagas';
 import { watchCreateAccount } from './accounts/createAccountSagas';
-import { watchListAccounts } from './accounts/listAccountsSagas';
+import { watchChartOfAccountsGetList } from './accounts/getChartOfAccountsListSagas';
 import { watchUpdateAccount } from './accounts/updateAccountSagas';
 import { watchDeleteAccount } from './accounts/deleteAccountSagas';
 //paymentModes
@@ -131,10 +131,10 @@ export default function* rootSaga() {
     watchUpdatePayment(),
     watchDeletePayment(),
     watchCreateAccount(),
-    watchListAccounts(),
+    watchChartOfAccountsGetList(),
     watchUpdateAccount(),
     watchDeleteAccount(),
-    watchCheckAccounts(),
+    watchGetAccounts(),
     watchGetPaymentModes(),
     watchGetPaymentTerms(),
     watchCreateSalesReceipt(),

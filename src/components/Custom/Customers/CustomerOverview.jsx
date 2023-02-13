@@ -65,10 +65,13 @@ function CustomerOverview(props) {
             <Text fontSize="sm">{email}</Text>
 
             <List>
-              <ListItem fontSize="sm">
-                <ListIcon as={RiPhoneLine} />
-                {phone}
-              </ListItem>
+              {phone ? (
+                <ListItem fontSize="sm">
+                  <ListIcon as={RiPhoneLine} />
+                  {phone}
+                </ListItem>
+              ) : null}
+
               {website && (
                 <ListItem fontSize="sm">
                   <ListIcon as={RiGlobalLine} />

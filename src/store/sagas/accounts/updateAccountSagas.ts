@@ -6,7 +6,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { functions } from 'utils/firebase';
 
 import { UPDATE_ACCOUNT } from '../../actions/accountsActions';
-import { start, fail, success } from '../../slices/accountsSlice';
+import { start, fail, success } from '../../slices/chartOfAccountsSlice';
 import {
   error as toastError,
   success as toastSuccess,
@@ -20,6 +20,7 @@ interface UpdateData extends AccountFormData {
 
 function* updateAccount(action: PayloadAction<UpdateData>) {
   yield put(start(UPDATE_ACCOUNT));
+  // console.log({ action });
 
   const { accountId, ...formData } = action.payload;
 

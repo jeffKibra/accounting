@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-import AccountOptions from '../../../containers/Management/Accounts/AccountsOptions';
+import AccountOptions from '../../../containers/Management/Accounts/AccountOptions';
 
 import CustomTable from '../CustomTable';
 
@@ -28,7 +28,7 @@ function AccountsTable(props) {
       return {
         ...account,
         receivables: 0,
-        actions: <AccountOptions account={account} edit view deletion />,
+        actions: <AccountOptions account={account} edit deletion />,
       };
     });
   }, [accounts]);

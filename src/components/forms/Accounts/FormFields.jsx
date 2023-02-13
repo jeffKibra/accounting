@@ -16,7 +16,7 @@ import { useFormContext, Controller } from 'react-hook-form';
 import ControlledSelect from 'components/ui/ControlledSelect';
 
 export default function FormFields({ loading, accountTypes }) {
-  console.log({ accountTypes });
+  // console.log({ accountTypes });
 
   const { accountTypesMap, accountTypesList } = useMemo(() => {
     let map = {};
@@ -39,7 +39,7 @@ export default function FormFields({ loading, accountTypes }) {
     };
   }, [accountTypes]);
 
-  console.log({ accountTypesMap });
+  // console.log({ accountTypesMap });
 
   const {
     control,
@@ -57,13 +57,13 @@ export default function FormFields({ loading, accountTypes }) {
           field: { value, onChange, name, onBlur },
           fieldState: { error },
         }) => {
-          console.log({ value });
-          console.log('field error', error);
+          // console.log({ value });
+          // console.log('field error', error);
 
           function onAccountTypeChange(accountTypeId) {
-            console.log({ accountTypeId });
+            // console.log({ accountTypeId });
             const accountType = accountTypesMap[accountTypeId];
-            console.log({ accountType });
+            // console.log({ accountType });
 
             onChange(accountType);
           }

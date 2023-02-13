@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Text } from '@chakra-ui/react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -6,7 +5,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import Dialog from 'components/ui/Dialog';
 
 import { DELETE_ACCOUNT } from 'store/actions/accountsActions';
-import { reset, chartOfAccountsSuccess } from 'store/slices/accountsSlice';
 
 //----------------------------------------------------------------
 DeleteAccount.propTypes = {
@@ -20,7 +18,7 @@ export default function DeleteAccount({ account, children }) {
     loading,
     action,
     isModified: isDeleted,
-  } = useSelector(state => state.accountsReducer);
+  } = useSelector(state => state.chartOfAccountsReducer);
   const dispatch = useDispatch();
 
   const deleting = loading && action === DELETE_ACCOUNT;
@@ -28,13 +26,6 @@ export default function DeleteAccount({ account, children }) {
   function handleDelete() {
     dispatch({ type: DELETE_ACCOUNT, payload: accountId });
   }
-
-  useEffect(() => {
-    if (isDeleted) {
-      dispatch(reset());
-      dispatch(chartOfAccountsSuccess(null));
-    }
-  }, [isDeleted, dispatch]);
 
   return (
     <Dialog

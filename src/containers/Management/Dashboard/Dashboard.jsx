@@ -145,9 +145,8 @@ function Dashboard(props) {
 
 function mapStateToProps(state) {
   const { loading, summary } = state.summariesReducer;
-  const { accounts } = state.accountsReducer;
 
-  return { loading, summary: summary?.main, accounts: accounts || [] };
+  return { loading, summary: summary?.main };
 }
 
 function mapDispatchToProps(dispatch) {

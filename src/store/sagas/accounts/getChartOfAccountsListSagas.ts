@@ -3,20 +3,18 @@ import { put, takeLatest, call, select } from 'redux-saga/effects';
 
 import { functions } from 'utils/firebase';
 
-import { FETCH_ACCOUNTS } from '../../actions/accountsActions';
+import { CHART_OF_ACCOUNTS_GET_LIST } from '../../actions/accountsActions';
 import {
-  start,
   fail,
-  chartOfAccountsSuccess,
-  resetList,
-} from '../../slices/accountsSlice';
+  getList,
+  getListSuccess,
+} from '../../slices/chartOfAccountsSlice';
 import { error as toastError } from '../../slices/toastSlice';
 
 import { AccountFromDb, RootState } from 'types';
 
-function* listAccounts() {
-  yield put(start(FETCH_ACCOUNTS));
-  yield put(resetList());
+function* getAccounts() {
+  yield put(getList());
 
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
@@ -34,7 +32,7 @@ function* listAccounts() {
   try {
     const accounts: AccountFromDb[] = yield call(fetchList);
 
-    yield put(chartOfAccountsSuccess(accounts));
+    yield put(getListSuccess(accounts));
   } catch (err) {
     const error = err as Error;
     console.log(error);
@@ -43,6 +41,6 @@ function* listAccounts() {
   }
 }
 
-export function* watchListAccounts() {
-  yield takeLatest(FETCH_ACCOUNTS, listAccounts);
+export function* watchChartOfAccountsGetList() {
+  yield takeLatest(CHART_OF_ACCOUNTS_GET_LIST, getAccounts);
 }

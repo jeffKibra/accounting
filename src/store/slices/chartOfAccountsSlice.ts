@@ -20,8 +20,8 @@ const initialState: State = {
   error: null,
 };
 
-const accountsSlice = createSlice({
-  name: 'accounts_slice',
+const chartOfAccountsSlice = createSlice({
+  name: 'chart_of_accounts_slice',
   initialState,
   reducers: {
     start: (state: State, action: PayloadAction<string>) => {
@@ -48,14 +48,16 @@ const accountsSlice = createSlice({
         error: null,
       };
     },
-    getOneSuccess: (state: State, action: PayloadAction<AccountFromDb>) => {
+    getOneSuccess: (
+      state: State,
+      action: PayloadAction<AccountFromDb | null>
+    ) => {
       return {
         ...state,
         loading: false,
         account: action.payload,
       };
     },
-
     getList: (state: State) => {
       return {
         ...state,
@@ -104,7 +106,7 @@ export const {
   getListSuccess,
   fail,
   reset,
-} = accountsSlice.actions;
-export const accountsReducer = accountsSlice.reducer;
+} = chartOfAccountsSlice.actions;
+export const chartOfAccountsReducer = chartOfAccountsSlice.reducer;
 
-export default accountsSlice;
+export default chartOfAccountsSlice;

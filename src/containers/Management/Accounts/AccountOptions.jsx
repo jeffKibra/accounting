@@ -21,7 +21,7 @@ import useDeleteAccount from 'hooks/useDeleteAccount';
 import EditAccount from './EditAccount';
 import DeleteAccount from './DeleteAccount';
 
-function AccountsOptions(props) {
+function AccountOptions(props) {
   const { account, edit, view, deletion } = props;
   const { accountId } = account;
   const { isDeleted, resetAccount } = useDeleteAccount(account);
@@ -84,11 +84,11 @@ function AccountsOptions(props) {
   );
 }
 
-AccountsOptions.propTypes = {
-  accounts: PropTypes.object.isRequired,
+AccountOptions.propTypes = {
+  account: PropTypes.object.isRequired,
   edit: PropTypes.bool,
   view: PropTypes.bool,
   deletion: PropTypes.bool,
 };
 
-export default AccountsOptions;
+export default AccountOptions;

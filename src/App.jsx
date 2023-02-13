@@ -7,7 +7,6 @@ import Layout from './components/layout/Layout';
 import Router from './nav/Router';
 import CheckAuth from './containers/Auth/CheckAuth';
 import CheckOrg from './containers/Management/Orgs/CheckOrg';
-import CheckAccounts from './containers/Management/Accounts/CheckAccounts';
 
 import Toasts from './components/ui/Toasts';
 // import { ColorModeSwitcher } from './ColorModeSwitcher';
@@ -81,13 +80,11 @@ function App() {
       <Toasts />
       <CheckAuth>
         <CheckOrg>
-          <CheckAccounts>
-            <BrowserRouter>
-              <Layout>
-                <Router />
-              </Layout>
-            </BrowserRouter>
-          </CheckAccounts>
+          <BrowserRouter>
+            <Layout>
+              <Router />
+            </Layout>
+          </BrowserRouter>
         </CheckOrg>
       </CheckAuth>
     </ChakraProvider>

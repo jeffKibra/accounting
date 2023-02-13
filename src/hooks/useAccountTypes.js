@@ -7,7 +7,7 @@ const defaultConfig = { defaultFetch: true };
 
 export default function useAccountTypes(config = defaultConfig) {
   const { defaultFetch } = config;
-  console.log({ config });
+  // console.log({ config });
   const dispatch = useDispatch();
 
   const { accountTypes, loading, error } = useSelector(
@@ -22,12 +22,12 @@ export default function useAccountTypes(config = defaultConfig) {
 
   useEffect(() => {
     if (defaultFetch) {
-      console.log('fetching account types by default');
+      // console.log('fetching account types by default');
       fetchAccountTypes();
     }
   }, [defaultFetch, fetchAccountTypes]);
 
-  console.log({ accountTypes, loading, error });
+  // console.log({ accountTypes, loading, error });
 
   return { fetchAccountTypes, accountTypes, errorMsg, loading };
 }

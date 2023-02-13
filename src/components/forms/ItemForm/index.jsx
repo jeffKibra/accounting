@@ -1,12 +1,6 @@
-import { useMemo, useEffect } from 'react';
 import { Button, Grid, GridItem, Stack } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { useForm, FormProvider } from 'react-hook-form';
-import { connect } from 'react-redux';
-
-import { GET_TAXES } from 'store/actions/taxesActions';
-import SkeletonLoader from 'components/ui/SkeletonLoader';
-import Empty from 'components/ui/Empty';
 
 import { getDirtyFields } from 'utils/functions';
 import { useToasts } from 'hooks';
@@ -15,19 +9,11 @@ import Details from './Details';
 import General from './General';
 import SaleDetails from './SaleDetails';
 
-function ItemForm(props) {
-  const {
-    handleFormSubmit,
-    item,
-    getTaxes,
-    loading,
-    accounts,
-    taxes,
-    updating,
-    action,
-  } = props;
+export default function ItemForm(props) {
+  // console.log({ props });
+
+  const { handleFormSubmit, item, taxes, accounts, updating } = props;
   // console.log({ accounts });
-  console.log({ props });
   const toasts = useToasts();
 
   const formMethods = useForm({
@@ -52,14 +38,6 @@ function ItemForm(props) {
     formState: { dirtyFields },
   } = formMethods;
 
-  const incomeAccounts = useMemo(() => {
-    return accounts?.filter(({ accountType: { id } }) => id === 'income');
-  }, [accounts]);
-
-  useEffect(() => {
-    getTaxes();
-  }, [getTaxes]);
-
   function onSubmit(data) {
     console.log({ data });
     const {
@@ -72,7 +50,7 @@ function ItemForm(props) {
     };
     //sales account
     let salesAccount = null;
-    salesAccount = incomeAccounts.find(
+    salesAccount = accounts.find(
       account => account.accountId === salesAccountId
     );
     if (!salesAccount) {
@@ -103,9 +81,7 @@ function ItemForm(props) {
     handleFormSubmit(formData);
   }
 
-  return loading && action === GET_TAXES ? (
-    <SkeletonLoader />
-  ) : incomeAccounts?.length > 0 ? (
+  return (
     <FormProvider {...formMethods}>
       <Grid
         w="full"
@@ -116,7 +92,7 @@ function ItemForm(props) {
         onSubmit={handleSubmit(onSubmit)}
       >
         <GridItem colSpan={[12, null, 8]}>
-          <General loading={updating} accounts={incomeAccounts} />
+          <General loading={updating} accounts={accounts} />
         </GridItem>
         <GridItem colSpan={[12, null, 4]}>
           <Stack spacing={6}>
@@ -137,34 +113,11 @@ function ItemForm(props) {
         </GridItem>
       </Grid>
     </FormProvider>
-  ) : (
-    <Empty message="Accounts Data not found!" />
   );
 }
 
 ItemForm.propTypes = {
-  loading: PropTypes.bool.isRequired,
   handleFormSubmit: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,
   item: PropTypes.object,
 };
-
-function mapStateToProps(state) {
-  const { accounts } = state.accountsReducer;
-  const { loading, action, taxes } = state.taxesReducer;
-
-  return {
-    loading,
-    action,
-    taxes,
-    accounts,
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    getTaxes: () => dispatch({ type: GET_TAXES }),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ItemForm);
