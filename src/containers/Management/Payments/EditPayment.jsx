@@ -1,10 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { GET_ITEMS } from '../../../store/actions/itemsActions';
 import { GET_CUSTOMERS } from '../../../store/actions/customersActions';
 import { GET_PAYMENT_MODES } from '../../../store/actions/paymentModesActions';
+
+import { useAccounts } from 'hooks';
 
 import Empty from '../../../components/ui/Empty';
 import SkeletonLoader from '../../../components/ui/SkeletonLoader';
@@ -22,21 +24,59 @@ function EditPayment(props) {
     paymentModes,
     saveData,
   } = props;
+  const { accounts, loading: loadingAccounts } = useAccounts();
+
+  const paymentAccounts = useMemo(() => {
+    if (!Array.isArray(accounts)) {
+      return [];
+    }
+
+    return accounts
+      .filter(account => {
+        const {
+          accountType: { id },
+          tags,
+        } = account;
+        const index = tags.findIndex(tag => tag === 'receivable');
+
+        return (
+          id === 'cash' || (id === 'other_current_liability' && index > -1)
+        );
+      })
+      .map(account => {
+        const { name, accountId, accountType } = account;
+        return { name, accountId, accountType };
+      });
+  }, [accounts]);
 
   useEffect(() => {
     getCustomers();
     getPaymentModes();
   }, [getCustomers, getPaymentModes]);
 
-  return (loading && action === GET_CUSTOMERS) || loadingPaymentModes ? (
+  return (loading && action === GET_CUSTOMERS) ||
+    loadingPaymentModes ||
+    loadingAccounts ? (
     <SkeletonLoader />
-  ) : customers?.length > 0 || paymentModes?.length > 0 ? (
-    <PaymentForm handleFormSubmit={saveData} {...props} />
-  ) : customers?.length === 0 ? (
-    <Empty message="Please add atleast one CUSTOMER to continue or reload the page" />
-  ) : paymentModes?.length === 0 ? (
-    <Empty message="Failed to load Payment Modes. This could be because of a network issue. Try reloading the page!" />
-  ) : null;
+  ) : accounts?.length > 0 &&
+    customers?.length > 0 &&
+    paymentModes?.length > 0 ? (
+    <PaymentForm
+      {...props}
+      handleFormSubmit={saveData}
+      accounts={paymentAccounts}
+    />
+  ) : (
+    <Empty
+      message={
+        !customers || customers?.length === 0
+          ? 'Please add atleast one CUSTOMER to continue or reload the page'
+          : !accounts || accounts?.length === 0
+          ? 'Failed to load Payment Modes. This could be because of a network issue. Try reloading the page!'
+          : 'Failed to load Payment Modes. This could be because of a network issue. Try reloading the page!'
+      }
+    />
+  );
 }
 
 EditPayment.propTypes = {

@@ -39,25 +39,7 @@ function FormFields(props) {
     });
   }, [rawCustomers]);
 
-  const paymentAccounts = useMemo(() => {
-    return accounts
-      .filter(account => {
-        const {
-          accountType: { id },
-          tags,
-        } = account;
-        const index = tags.findIndex(tag => tag === 'receivable');
-
-        return (
-          (id === 'cash' || id === 'other_current_liability') && index > -1
-        );
-      })
-      .map(account => {
-        const { name, accountId, accountType } = account;
-        return { name, accountId, accountType };
-      });
-  }, [accounts]);
-  // console.log({ paymentAccounts });
+  // console.log({ accounts });
   // console.log({ defaultValues });
   const {
     register,
@@ -148,7 +130,7 @@ function FormFields(props) {
             <RHFGroupedOptionsSelect
               name="account"
               placeholder="---select account---"
-              options={paymentAccounts}
+              options={accounts}
               optionsConfig={{
                 nameField: 'name',
                 valueField: 'accountId',

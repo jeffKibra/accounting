@@ -1,7 +1,6 @@
 import { Box, Flex, Button } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { useForm, FormProvider } from 'react-hook-form';
-import { connect } from 'react-redux';
 
 // import formats from 'utils/formats';
 import { useToasts } from 'hooks';
@@ -19,7 +18,7 @@ export const initialJournalEntry = {
   amount: 0,
 };
 
-function JournalForm(props) {
+export default function JournalForm(props) {
   const { journal, handleFormSubmit, updating, taxes, accounts } = props;
 
   const today = new Date();
@@ -125,6 +124,8 @@ function JournalForm(props) {
 JournalForm.propTypes = {
   handleFormSubmit: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,
+  taxes: PropTypes.array,
+  accounts: PropTypes.array.isRequired,
   journal: PropTypes.shape({
     summary: PropTypes.shape({
       shipping: PropTypes.number,
@@ -143,11 +144,3 @@ JournalForm.propTypes = {
     journalId: PropTypes.string,
   }),
 };
-
-function mapStateToProps(state) {
-  const { accounts } = state?.accountsReducer;
-
-  return { accounts };
-}
-
-export default connect(mapStateToProps)(JournalForm);

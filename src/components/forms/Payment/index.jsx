@@ -48,6 +48,7 @@ export default function PaymentForm(props) {
     updating,
     paymentModes,
   } = props;
+  console.log({ accounts });
 
   const [balance, setBalance] = useState(0);
 

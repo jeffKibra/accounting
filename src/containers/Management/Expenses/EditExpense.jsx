@@ -1,18 +1,20 @@
-import { useEffect, useState } from "react";
-import { Box } from "@chakra-ui/react";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
+import { useEffect, useState, useMemo } from 'react';
+import { Box } from '@chakra-ui/react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
-import { GET_PAYMENT_MODES } from "../../../store/actions/paymentModesActions";
-import { GET_VENDORS } from "../../../store/actions/vendorsActions";
-import { GET_TAXES } from "../../../store/actions/taxesActions";
+import { GET_PAYMENT_MODES } from '../../../store/actions/paymentModesActions';
+import { GET_VENDORS } from '../../../store/actions/vendorsActions';
+import { GET_TAXES } from '../../../store/actions/taxesActions';
+//
+import { useAccounts } from 'hooks';
+//
+import Stepper from '../../../components/ui/Stepper';
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
 
-import Stepper from "../../../components/ui/Stepper";
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
-
-import ExpenseForm from "../../../components/forms/Expenses/ExpenseForm";
-import ExpenseItemsList from "./ExpenseItemsList";
+import ExpenseForm from '../../../components/forms/Expenses/ExpenseForm';
+import ExpenseItemsList from './ExpenseItemsList';
 
 function EditExpense(props) {
   const {
@@ -22,7 +24,6 @@ function EditExpense(props) {
     getPaymentModes,
     loadingPaymentModes,
     paymentModes,
-    accounts,
     getVendors,
     loadingVendors,
     vendors,
@@ -30,20 +31,34 @@ function EditExpense(props) {
     loadingTaxes,
     taxes,
   } = props;
+  const { accounts, loading: loadingAccounts } = useAccounts();
   // console.log({ props });
   const [formValues, setFormValues] = useState(
-    expense || { taxType: "taxInclusive" }
+    expense || { taxType: 'taxInclusive' }
   );
   function updateFormValues(data) {
-    setFormValues((current) => ({ ...current, ...data }));
+    setFormValues(current => ({ ...current, ...data }));
   }
 
-  const paymentAccounts = accounts.filter((account) => {
-    const { tags, accountId } = account;
-    const index = tags.findIndex((tag) => tag === "receivable");
+  const paymentAccounts = useMemo(() => {
+    if (!Array.isArray(accounts)) {
+      return [];
+    }
 
-    return accountId !== "opening_balance_adjustments" && index > -1;
-  });
+    return accounts.filter(account => {
+      const {
+        tags,
+        accountId,
+        accountType: { id: accountTypeId },
+      } = account;
+      const index = tags.findIndex(tag => tag === 'receivable');
+
+      return (
+        accountTypeId === 'cash' ||
+        (accountId !== 'opening_balance_adjustments' && index > -1)
+      );
+    });
+  }, [accounts]);
 
   useEffect(() => {
     getPaymentModes();
@@ -61,14 +76,17 @@ function EditExpense(props) {
     handleFormSubmit(newData);
   }
 
-  return loadingPaymentModes || loadingVendors || loadingTaxes ? (
+  return loadingPaymentModes ||
+    loadingVendors ||
+    loadingTaxes ||
+    loadingAccounts ? (
     <SkeletonLoader />
-  ) : paymentModes?.length > 0 ? (
+  ) : accounts?.length > 0 && paymentModes?.length > 0 ? (
     <Box w="full" h="full">
       <Stepper
         steps={[
           {
-            label: "Add Items",
+            label: 'Add Items',
             content: (
               <ExpenseItemsList
                 updateFormValues={updateFormValues}
@@ -79,7 +97,7 @@ function EditExpense(props) {
             ),
           },
           {
-            label: "Payment Details",
+            label: 'Payment Details',
             content: (
               <ExpenseForm
                 vendors={vendors || []}
@@ -98,7 +116,11 @@ function EditExpense(props) {
       />
     </Box>
   ) : (
-    <Empty message="Payment modes not found! Please try Reloading the page!" />
+    <Empty
+      message={`${
+        !accounts || accounts?.length === 0 ? 'Accounts data' : 'Payment modes'
+      }  not found! Please try Reloading the page!`}
+    />
   );
 }
 

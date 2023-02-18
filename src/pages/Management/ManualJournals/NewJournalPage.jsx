@@ -7,21 +7,17 @@ import { MANUAL_JOURNALS } from 'nav/routes';
 import { CREATE_MANUAL_JOURNAL } from 'store/actions/manualJournalsActions';
 import { reset } from 'store/slices/manualJournalsSlice';
 
-import { useSavedLocation, useTaxes } from 'hooks';
+import { useSavedLocation } from 'hooks';
 
 import PageLayout from 'components/layout/PageLayout';
-import SkeletonLoader from 'components/ui/SkeletonLoader';
-import JournalForm from 'components/forms/Journal/JournalForm';
+import EditJournal from 'containers/Management/ManualJournal/EditJournal';
 
 function NewJournalPage(props) {
-  const { loading, action, isModified, createJournal, resetJournal, accounts } =
-    props;
+  const { loading, action, isModified, createJournal, resetJournal } = props;
   console.log({ loading, action });
   useSavedLocation().setLocation();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const { taxes, isLoading: loadingTaxes } = useTaxes();
 
   useEffect(() => {
     if (isModified) {
@@ -39,25 +35,18 @@ function NewJournalPage(props) {
         'New Journal': location.pathname,
       }}
     >
-      {loadingTaxes ? (
-        <SkeletonLoader />
-      ) : (
-        <JournalForm
-          taxes={taxes}
-          accounts={accounts}
-          handleFormSubmit={createJournal}
-          updating={loading && action === CREATE_MANUAL_JOURNAL}
-        />
-      )}
+      <EditJournal
+        handleFormSubmit={createJournal}
+        updating={loading && action === CREATE_MANUAL_JOURNAL}
+      />
     </PageLayout>
   );
 }
 
 function mapStateToProps(state) {
   const { loading, action, isModified } = state.manualJournalsReducer;
-  const { accounts } = state?.accountsReducer;
 
-  return { loading, action, isModified, accounts };
+  return { loading, action, isModified };
 }
 
 function mapDispatchToProps(dispatch) {
