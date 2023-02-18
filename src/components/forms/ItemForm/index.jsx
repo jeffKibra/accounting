@@ -120,4 +120,6 @@ ItemForm.propTypes = {
   handleFormSubmit: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,
   item: PropTypes.object,
+  taxes: PropTypes.array,
+  accounts: PropTypes.array.isRequired,
 };

@@ -1,18 +1,18 @@
-import { Route } from "react-router-dom";
+import { Route } from 'react-router-dom';
 import {
   SALES_RECEIPTS,
   NEW_SALES_RECEIPT,
   EDIT_SALES_RECEIPT,
   VIEW_SALES_RECEIPT,
-} from "../routes";
+} from '../routes';
 
-import ManagementRoute from "../ManagementRoute";
+import ManagementRoute from '../ManagementRoute';
 
 //sales Receipts
-import SalesReceiptsPage from "../../pages/Management/SalesReceipts/SalesReceiptsPage";
-import NewSalesReceiptPage from "../../pages/Management/SalesReceipts/NewSalesReceiptPage";
-import EditSalesReceiptPage from "../../pages/Management/SalesReceipts/EditSalesReceiptPage";
-import ViewSalesReceiptPage from "../../pages/Management/SalesReceipts/ViewSalesReceiptPage";
+import SalesReceiptsPage from '../../pages/Management/SalesReceipts/SalesReceiptsPage';
+import NewSaleReceiptPage from '../../pages/Management/SalesReceipts/NewSaleReceiptPage';
+import EditSaleReceiptPage from '../../pages/Management/SalesReceipts/EditSaleReceiptPage';
+import ViewSaleReceiptPage from '../../pages/Management/SalesReceipts/ViewSaleReceiptPage';
 
 function SalesReceipts() {
   return [
@@ -32,7 +32,7 @@ function SalesReceipts() {
       exact
       element={
         <ManagementRoute>
-          <NewSalesReceiptPage />
+          <NewSaleReceiptPage />
         </ManagementRoute>
       }
     />,
@@ -42,7 +42,7 @@ function SalesReceipts() {
       exact
       element={
         <ManagementRoute>
-          <EditSalesReceiptPage />
+          <EditSaleReceiptPage />
         </ManagementRoute>
       }
     />,
@@ -52,7 +52,7 @@ function SalesReceipts() {
       exact
       element={
         <ManagementRoute>
-          <ViewSalesReceiptPage />
+          <ViewSaleReceiptPage />
         </ManagementRoute>
       }
     />,

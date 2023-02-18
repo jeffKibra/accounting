@@ -13,10 +13,10 @@ import PageLayout from '../../../components/layout/PageLayout';
 import SkeletonLoader from '../../../components/ui/SkeletonLoader';
 import Empty from '../../../components/ui/Empty';
 
-import SalesReceiptOptions from '../../../containers/Management/SalesReceipts/SalesReceiptOptions';
-import ViewSalesReceipt from '../../../containers/Management/SalesReceipts/ViewSalesReceipt';
+import SalesReceiptOptions from '../../../containers/Management/SalesReceipts/SaleReceiptOptions';
+import ViewSaleReceipt from '../../../containers/Management/SalesReceipts/ViewSaleReceipt';
 
-function ViewSalesReceiptPage(props) {
+function ViewSaleReceiptPage(props) {
   const {
     loading,
     isModified,
@@ -58,7 +58,7 @@ function ViewSalesReceiptPage(props) {
       {loading && action === GET_SALES_RECEIPT ? (
         <SkeletonLoader />
       ) : salesReceipt ? (
-        <ViewSalesReceipt salesReceipt={salesReceipt} />
+        <ViewSaleReceipt salesReceipt={salesReceipt} />
       ) : (
         <Empty message="Sales Receipt not found!" />
       )}
@@ -84,4 +84,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(ViewSalesReceiptPage);
+)(ViewSaleReceiptPage);

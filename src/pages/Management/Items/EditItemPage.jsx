@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import { ITEMS } from '../../../nav/routes';
 
-import useSavedLocation from '../../../hooks/useSavedLocation';
+import { useSavedLocation, useItemFormProps } from 'hooks';
 
 import PageLayout from '../../../components/layout/PageLayout';
 
@@ -20,6 +20,7 @@ function EditItemPage(props) {
   const { getItem, updateItem, resetItem, loading, isModified, action, item } =
     props;
   useSavedLocation().setLocation();
+  const { accounts, taxes, loading: loadingFormProps } = useItemFormProps();
 
   const location = useLocation();
   const { itemId } = useParams();
@@ -57,9 +58,9 @@ function EditItemPage(props) {
         [itemId]: location.pathname,
       }}
     >
-      {loading && action === GET_ITEM ? (
+      {(loading && action === GET_ITEM) || loadingFormProps ? (
         <SkeletonLoader />
-      ) : item ? (
+      ) : item && accounts ? (
         (() => {
           const { createdAt, modifiedAt, createdBy, modifiedBy, ...rest } =
             item;
@@ -68,11 +69,15 @@ function EditItemPage(props) {
               updating={loading && action === UPDATE_ITEM}
               item={rest}
               handleFormSubmit={handleSubmit}
+              accounts={accounts}
+              taxes={taxes || []}
             />
           );
         })()
       ) : (
-        <Empty message="Item Data not found!" />
+        <Empty
+          message={!item ? 'Item Data not found!' : 'Accounts data missing!'}
+        />
       )}
     </PageLayout>
   );

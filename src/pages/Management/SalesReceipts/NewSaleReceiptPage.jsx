@@ -7,14 +7,17 @@ import { SALES_RECEIPTS } from '../../../nav/routes';
 import { CREATE_SALES_RECEIPT } from '../../../store/actions/salesReceiptsActions';
 import { reset } from '../../../store/slices/salesReceiptsSlice';
 
-import useSavedLocation from '../../../hooks/useSavedLocation';
+import { useSavedLocation } from 'hooks';
+
+//
 
 import PageLayout from '../../../components/layout/PageLayout';
-import SalesReceiptForm from 'components/forms/SalesReceipts/SalesReceiptForm';
+import EditSaleReceipt from 'containers/Management/SalesReceipts/EditSaleReceipt';
 
-function NewSalesReceiptPage(props) {
+function NewSaleReceiptPage(props) {
   const { loading, action, isModified, createReceipt, resetReceipt } = props;
   useSavedLocation().setLocation();
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -34,7 +37,7 @@ function NewSalesReceiptPage(props) {
         'New Sales Receipt': location.pathname,
       }}
     >
-      <SalesReceiptForm
+      <EditSaleReceipt
         updating={loading && action === CREATE_SALES_RECEIPT}
         handleFormSubmit={createReceipt}
       />
@@ -55,7 +58,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(NewSalesReceiptPage);
+export default connect(mapStateToProps, mapDispatchToProps)(NewSaleReceiptPage);

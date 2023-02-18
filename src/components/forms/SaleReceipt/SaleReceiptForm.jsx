@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import {
   Box,
   Flex,
@@ -12,45 +11,31 @@ import {
   Grid,
   GridItem,
 } from '@chakra-ui/react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { useForm, FormProvider } from 'react-hook-form';
 
-import { GET_PAYMENT_MODES } from '../../../store/actions/paymentModesActions';
-//hooks
-import { useGetSalesProps } from '../../../hooks';
 //ui
-import SkeletonLoader from '../../ui/SkeletonLoader';
-import Empty from '../../ui/Empty';
+
 import CustomSelect from '../../ui/CustomSelect';
 import CustomDatePicker from '../../ui/CustomDatePicker';
 
 import SaleFormFields from '../Sales/FormFields';
 
+//
+import { SaleReceiptFormPropTypes } from 'propTypes';
 // import SaleItemsForm from "../../../components/forms/Sales/SaleItemsForm";
 
-function SalesReceiptForm(props) {
+export default function SaleReceiptForm(props) {
   const {
     salesReceipt,
     handleFormSubmit,
     updating,
-    getPaymentModes,
-    loadingPaymentModes,
     paymentModes,
     accounts,
+    customers,
+    items,
+    taxes,
   } = props;
   // console.log({ props });
-  const { customers, items, taxes, loading } = useGetSalesProps();
-
-  const paymentAccounts = accounts?.filter(account => {
-    const {
-      accountType: { id },
-      tags,
-    } = account;
-    const index = tags.findIndex(tag => tag === 'receivable');
-
-    return id === 'cash' && index > -1;
-  });
 
   const today = new Date();
 
@@ -92,10 +77,6 @@ function SalesReceiptForm(props) {
     formState: { errors },
   } = formMethods;
 
-  useEffect(() => {
-    getPaymentModes();
-  }, [getPaymentModes]);
-
   function onSubmit(data) {
     let { customerId, paymentModeId, accountId, ...rest } = data;
     let customer = null;
@@ -104,9 +85,7 @@ function SalesReceiptForm(props) {
     }
 
     const paymentMode = paymentModes.find(mode => mode.value === paymentModeId);
-    const account = paymentAccounts.find(
-      account => account.accountId === accountId
-    );
+    const account = accounts.find(account => account.accountId === accountId);
     const { name, accountType } = account;
     const newData = {
       ...rest,
@@ -119,9 +98,7 @@ function SalesReceiptForm(props) {
     handleFormSubmit(newData);
   }
 
-  return loadingPaymentModes || loading ? (
-    <SkeletonLoader />
-  ) : paymentModes?.length > 0 ? (
+  return (
     <Box w="full" h="full">
       <FormProvider {...formMethods}>
         <Box w="full" as="form" role="form" onSubmit={handleSubmit(onSubmit)}>
@@ -224,7 +201,7 @@ function SalesReceiptForm(props) {
                     rules={{
                       required: { value: true, message: '*Required!' },
                     }}
-                    groupedOptions={paymentAccounts.map(account => {
+                    groupedOptions={accounts.map(account => {
                       const { name, accountId, accountType } = account;
                       return {
                         name,
@@ -285,50 +262,9 @@ function SalesReceiptForm(props) {
         </Box>
       </FormProvider>
     </Box>
-  ) : (
-    <Empty message="Payment modes not found! Please try Reloading the page!" />
   );
 }
 
-SalesReceiptForm.propTypes = {
-  handleFormSubmit: PropTypes.func.isRequired,
-  updating: PropTypes.bool.isRequired,
-  invoice: PropTypes.shape({
-    summary: PropTypes.shape({
-      shipping: PropTypes.number,
-      adjustment: PropTypes.number,
-      totalTax: PropTypes.number,
-      totalAmount: PropTypes.number,
-      subTotal: PropTypes.number,
-      taxes: PropTypes.array,
-    }),
-    selectedItems: PropTypes.array,
-    customerId: PropTypes.string,
-    invoiceDate: PropTypes.instanceOf(Date),
-    dueDate: PropTypes.instanceOf(Date),
-    subject: PropTypes.string,
-    customerNotes: PropTypes.string,
-    invoiceSlug: PropTypes.string,
-    invoiceId: PropTypes.string,
-  }),
+SaleReceiptForm.propTypes = {
+  ...SaleReceiptFormPropTypes,
 };
-
-function mapStateToProps(state) {
-  const { loading: loadingPaymentModes, paymentModes } =
-    state.paymentModesReducer;
-  const { accounts } = state.accountsReducer;
-
-  return {
-    loadingPaymentModes,
-    paymentModes,
-    accounts,
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    getPaymentModes: () => dispatch({ type: GET_PAYMENT_MODES }),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(SalesReceiptForm);

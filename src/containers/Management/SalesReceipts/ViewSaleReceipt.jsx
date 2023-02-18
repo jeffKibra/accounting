@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Container,
   VStack,
@@ -11,12 +11,12 @@ import {
   Tbody,
   Td,
   Tr,
-} from "@chakra-ui/react";
-import PropTypes from "prop-types";
+} from '@chakra-ui/react';
+import PropTypes from 'prop-types';
 
-import ViewSaleItemsTable from "../../../components/tables/Sales/ViewSaleItemsTable";
-import ViewSaleSummaryTable from "../../../components/tables/Sales/ViewSaleSummaryTable";
-function ViewSalesReceipt(props) {
+import ViewSaleItemsTable from '../../../components/tables/Sales/ViewSaleItemsTable';
+import ViewSaleSummaryTable from '../../../components/tables/Sales/ViewSaleSummaryTable';
+function ViewSaleReceipt(props) {
   const { salesReceipt } = props;
   const {
     org,
@@ -37,7 +37,7 @@ function ViewSalesReceipt(props) {
       maxW="container.md"
       //   minH="1123px"
       bg="white"
-      px={["20px", "50px"]}
+      px={['20px', '50px']}
       py="70px"
     >
       <VStack color="#333" w="full" h="full">
@@ -117,7 +117,7 @@ function ViewSalesReceipt(props) {
   );
 }
 
-ViewSalesReceipt.propTypes = {
+ViewSaleReceipt.propTypes = {
   salesReceipt: PropTypes.shape({
     customer: PropTypes.object.isRequired,
     org: PropTypes.object.isRequired,
@@ -132,4 +132,4 @@ ViewSalesReceipt.propTypes = {
   }),
 };
 
-export default ViewSalesReceipt;
+export default ViewSaleReceipt;

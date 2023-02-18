@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 // import useDeletesalesReceipt from "../../../hooks/useDeletesalesReceipt";
-import SalesReceiptOptions from '../../../containers/Management/SalesReceipts/SalesReceiptOptions';
+import SaleReceiptOptions from '../../../containers/Management/SalesReceipts/SaleReceiptOptions';
 
 import CustomRawTable from '../CustomRawTable';
 // import TableActions from "../TableActions";
@@ -33,7 +33,7 @@ function SalesReceiptsTable(props) {
         ...salesReceipt,
         date: receiptDate.toDateString(),
         actions: (
-          <SalesReceiptOptions salesReceipt={salesReceipt} edit view deletion />
+          <SaleReceiptOptions salesReceipt={salesReceipt} edit view deletion />
         ),
       };
     });

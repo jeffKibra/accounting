@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
-import { useNavigate, useParams, Link, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { IconButton } from '@chakra-ui/react';
-import { RiCloseFill } from 'react-icons/ri';
 
 import { SALES_RECEIPTS } from '../../../nav/routes';
 import {
@@ -17,7 +15,7 @@ import PageLayout from '../../../components/layout/PageLayout';
 import SkeletonLoader from '../../../components/ui/SkeletonLoader';
 import Empty from '../../../components/ui/Empty';
 
-import SalesReceiptForm from 'components/forms/SalesReceipts/SalesReceiptForm';
+import EditSaleReceipt from 'containers/Management/SalesReceipts/EditSaleReceipt';
 
 function getFormValuesOnly(salesReceipt = {}) {
   const {
@@ -45,7 +43,7 @@ function getFormValuesOnly(salesReceipt = {}) {
   };
 }
 
-function EditSalesReceiptPage(props) {
+function EditSaleReceiptPage(props) {
   const {
     loading,
     action,
@@ -91,7 +89,7 @@ function EditSalesReceiptPage(props) {
       {loading && action === GET_SALES_RECEIPT ? (
         <SkeletonLoader />
       ) : salesReceipt ? (
-        <SalesReceiptForm
+        <EditSaleReceipt
           updating={loading && action === UPDATE_SALES_RECEIPT}
           handleFormSubmit={update}
           salesReceipt={getFormValuesOnly(salesReceipt)}
@@ -123,4 +121,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(EditSalesReceiptPage);
+)(EditSaleReceiptPage);

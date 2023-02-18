@@ -8,7 +8,7 @@ import useDeleteSalesReceipt from '../../../hooks/useDeleteSalesReceipt';
 
 import MenuOptions from '../../../components/ui/MenuOptions';
 
-function SalesReceiptOptions(props) {
+function SaleReceiptOptions(props) {
   const { salesReceipt, edit, view, deletion } = props;
   const { salesReceiptId } = salesReceipt;
   const { details, isDeleted, resetSalesReceipt } =
@@ -63,11 +63,11 @@ function SalesReceiptOptions(props) {
   );
 }
 
-SalesReceiptOptions.propTypes = {
+SaleReceiptOptions.propTypes = {
   salesReceipt: PropTypes.object.isRequired,
   edit: PropTypes.bool,
   view: PropTypes.bool,
   deletion: PropTypes.bool,
 };
 
-export default SalesReceiptOptions;
+export default SaleReceiptOptions;
