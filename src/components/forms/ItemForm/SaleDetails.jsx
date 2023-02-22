@@ -6,6 +6,8 @@ import {
   GridItem,
   FormHelperText,
   Switch,
+  Input,
+  Box,
 } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import PropTypes from 'prop-types';
@@ -13,16 +15,33 @@ import PropTypes from 'prop-types';
 import NumInput from '../../ui/NumInput';
 import CustomSelect from '../../ui/CustomSelect';
 
+//----------------------------------------------------------------
+const units = [
+  'millilitres',
+  'litres',
+  'millimetres',
+  'metres',
+  'grams',
+  'kilograms',
+  'count',
+  'pairs',
+  'dozen',
+  'box',
+  'pieces',
+  'units',
+  'tablets',
+];
+
 function SaleDetails(props) {
   const { loading, taxes } = props;
 
   const {
     register,
     formState: { errors },
-    watch,
+    // watch,
   } = useFormContext();
 
-  const salesTax = watch('salesTax');
+  // const salesTax = watch('salesTax');
 
   return (
     <Grid
@@ -64,6 +83,7 @@ function SaleDetails(props) {
           <NumInput
             name="sellingPrice"
             min={0}
+            size="md"
             rules={{
               required: { value: true, message: '*Required!' },
               min: {
@@ -74,6 +94,30 @@ function SaleDetails(props) {
           />
 
           <FormErrorMessage>{errors?.sellingPrice?.message}</FormErrorMessage>
+        </FormControl>
+      </GridItem>
+
+      <GridItem colSpan={12}>
+        <FormControl isReadOnly={loading} isRequired isInvalid={errors.unit}>
+          <FormLabel htmlFor="unit">Unit</FormLabel>
+          <Input
+            id="unit"
+            {...register('unit', {
+              required: { value: true, message: 'Required' },
+            })}
+            list="unitList"
+          />
+          <datalist id="unitList">
+            {units.map((unit, i) => {
+              return (
+                <Box as="option" textTransform="uppercase" key={i} value={unit}>
+                  {unit}
+                </Box>
+              );
+            })}
+          </datalist>
+          <FormErrorMessage>{errors?.unit?.message}</FormErrorMessage>
+          <FormHelperText>Select or type in your custom unit.</FormHelperText>
         </FormControl>
       </GridItem>
 

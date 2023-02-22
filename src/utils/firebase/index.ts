@@ -18,7 +18,10 @@ export const db = getFirestore(app);
 export const analytics = getAnalytics(app);
 export const functions = getFunctions(app, 'asia-south1');
 
-const isDev = process.env.REACT_APP_ENV === 'prod';
+const appEnv = process.env.REACT_APP_ENV;
+console.log({ appEnv });
+
+const isDev = appEnv === 'dev';
 
 const localhost = 'localhost';
 // ('127.0.0.1');

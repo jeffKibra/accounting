@@ -5,7 +5,6 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { getDirtyFields } from 'utils/functions';
 import { useToasts } from 'hooks';
 
-import Details from './Details';
 import General from './General';
 import SaleDetails from './SaleDetails';
 
@@ -96,8 +95,6 @@ export default function ItemForm(props) {
         </GridItem>
         <GridItem colSpan={[12, null, 4]}>
           <Stack spacing={6}>
-            <Details loading={updating} />
-
             <SaleDetails loading={updating} taxes={taxes || []} />
 
             <Button
