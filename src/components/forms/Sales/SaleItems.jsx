@@ -1,6 +1,15 @@
 import { useMemo, useEffect } from 'react';
-import { useFormContext } from 'react-hook-form';
-import { VStack, Grid, GridItem } from '@chakra-ui/react';
+import {
+  FormControl,
+  FormLabel,
+  Box,
+  VStack,
+  Grid,
+  GridItem,
+} from '@chakra-ui/react';
+import { useFormContext, Controller } from 'react-hook-form';
+
+import ControlledSelect from 'components/ui/ControlledSelect';
 import PropTypes from 'prop-types';
 //utils
 import { getSaleSummary } from 'utils/sales';
@@ -9,16 +18,23 @@ import LineItems from './LineItems';
 //tables
 import SaleSummaryTable from 'components/tables/Sales/SaleSummaryTable';
 
+//----------------------------------------------------------------
+const saleTypes = ['normal', 'booking'];
 //--------------------------------------------------------------------------------
-SaleFormFields.propTypes = {
+SaleItems.propTypes = {
   loading: PropTypes.bool.isRequired,
   items: PropTypes.array.isRequired,
   taxes: PropTypes.array.isRequired,
+  selectSalesType: PropTypes.bool,
   // preSelectedItems: PropTypes.array,
 };
 
-export default function SaleFormFields(props) {
-  const { loading, taxes } = props;
+export default function SaleItems(props) {
+  const { loading, taxes, selectSalesType } = props;
+  const { watch, control } = useFormContext();
+  const saleType = watch('saleType');
+
+  console.log({ saleType });
   //taxes object
   const taxesObject = useMemo(() => {
     return taxes.reduce((obj, tax) => {
@@ -30,10 +46,6 @@ export default function SaleFormFields(props) {
     }, {});
   }, [taxes]);
   //form methhods
-  const {
-    watch,
-    // formState: { errors },
-  } = useFormContext();
 
   useEffect(() => {
     console.log('mounting');
@@ -132,6 +144,43 @@ export default function SaleFormFields(props) {
 
   return (
     <VStack mt={1}>
+      {selectSalesType ? (
+        <Box my={3} width="100%">
+          <FormControl display="flex" alignItems="center">
+            <FormLabel margin="0" paddingRight="20px">
+              Sale Type:
+            </FormLabel>
+
+            <Box width="140px">
+              <Controller
+                name="saleType"
+                control={control}
+                render={({ field: { name, value, onChange, onBlur } }) => {
+                  return (
+                    <ControlledSelect
+                      id={name}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      placeholder="Sale Type"
+                      allowClearSelection={false}
+                      options={saleTypes.map(type => {
+                        return {
+                          name: type,
+                          value: type,
+                        };
+                      })}
+                      value={value || ''}
+                      isDisabled={loading}
+                      size="sm"
+                    />
+                  );
+                }}
+              />
+            </Box>
+          </FormControl>
+        </Box>
+      ) : null}
+
       <LineItems
         loading={loading}
         itemsObject={itemsObject}

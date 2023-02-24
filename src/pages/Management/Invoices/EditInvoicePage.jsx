@@ -28,6 +28,7 @@ function getFormValuesOnly(invoice = {}) {
     summary,
     subject,
     selectedItems,
+    saleType,
   } = invoice;
 
   return {
@@ -39,6 +40,7 @@ function getFormValuesOnly(invoice = {}) {
     summary,
     subject,
     selectedItems,
+    saleType,
   };
 }
 

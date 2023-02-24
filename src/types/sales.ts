@@ -37,6 +37,8 @@ export interface SalesItem {
   itemTax: number;
   itemRateTotal: number;
   itemTaxTotal: number;
+  startDate: Date | null;
+  endDate: Date | null;
 }
 
 export interface SaleItem extends SalesItem {}

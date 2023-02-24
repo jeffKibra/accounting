@@ -8,7 +8,6 @@ import PropTypes from 'prop-types';
 import { useToasts } from 'hooks';
 //utils
 import { getSalesItemData } from 'utils/sales';
-import { getDaysDifference } from 'utils/dates';
 
 //ui components
 import CustomSelect from 'components/ui/CustomSelect';
@@ -16,7 +15,7 @@ import CustomSelect from 'components/ui/CustomSelect';
 import LineFields from './LineFields';
 
 //-----------------------------------------------------------------------------\
-LineItems.propTypes = {
+NormalLineItems.propTypes = {
   loading: PropTypes.bool.isRequired,
   itemsObject: PropTypes.object.isRequired,
   taxesObject: PropTypes.object.isRequired,
@@ -24,8 +23,8 @@ LineItems.propTypes = {
   // preSelectedItems: PropTypes.array,
 };
 
-export default function LineItems(props) {
-  // console.log({ props });
+export default function NormalLineItems(props) {
+  console.log({ props });
   const { loading, taxesObject, itemsObject, selectedItemsObject } = props;
 
   //form methhods
@@ -33,13 +32,11 @@ export default function LineItems(props) {
     setValue,
     getValues,
     control,
-    watch,
     // formState: { errors },
   } = useFormContext();
   //hooks
   const toasts = useToasts();
   //state
-  const saleType = watch('saleType');
   /**
    * initialize field array for selected items
    */
@@ -59,8 +56,6 @@ export default function LineItems(props) {
     append({
       item: null,
       rate: 0,
-      startDate: new Date(),
-      endDate: new Date(),
       quantity: 0,
       itemRate: 0,
       itemTax: 0,
@@ -91,61 +86,39 @@ export default function LineItems(props) {
 
   const updateItemFields = useCallback(
     (fieldName, value, index) => {
-      try {
-        // console.log('updating itemFields', { fieldName, value, index });
-        const fieldId = `selectedItems.${index}`;
-        const currentValues = getValues(fieldId);
-        // console.log({ currentValues });
-        const {
-          item: { itemId },
-          quantity,
-          rate,
-          salesTax,
-          startDate,
-          endDate,
-        } = currentValues;
+      console.log('updating itemFields', { fieldName, value, index });
+      const fieldId = `selectedItems.${index}`;
+      const currentValues = getValues(fieldId);
+      const {
+        item: { itemId },
+        quantity,
+        rate,
+        salesTax,
+      } = currentValues;
 
-        const originalItem = itemsObject[itemId];
-        let selectedItemData = {
-          itemId,
-          quantity,
-          rate,
-          salesTax,
-          startDate: startDate || new Date(),
-          endDate: endDate || new Date(),
-        };
+      const originalItem = itemsObject[itemId];
+      let selectedItemData = {
+        itemId,
+        quantity,
+        rate,
+        salesTax,
+      };
 
-        /**
-         * field name is either quantity or rate or salesTax.
-         * add at bottom to overide current value
-         */
-        selectedItemData = {
-          ...selectedItemData,
-          [fieldName]: fieldName === 'salesTax' ? taxesObject[value] : value,
-        };
+      /**
+       * field name is either quantity or rate or salesTax.
+       * add at bottom to overide current value
+       */
+      selectedItemData = {
+        ...selectedItemData,
+        [fieldName]: fieldName === 'salesTax' ? taxesObject[value] : +value,
+      };
 
-        if (saleType === 'booking') {
-          const daysDifference = getDaysDifference(
-            new Date(selectedItemData?.startDate),
-            new Date(selectedItemData?.endDate)
-          );
-
-          selectedItemData.quantity = daysDifference;
-        }
-
-        const updatedValues = getSalesItemData(selectedItemData, originalItem);
-
-        // console.log({ updatedValues });
-        //update item
-        setValue(fieldId, updatedValues);
-      } catch (error) {
-        console.error(error);
-        toasts.error(
-          `Error update form fields: ${error?.message || 'Unknown Error!'}`
-        );
-      }
+      const updatedValues = getSalesItemData(selectedItemData, originalItem);
+      console.log({ updatedValues });
+      //update item
+      setValue(fieldId, updatedValues);
     },
-    [setValue, getValues, itemsObject, taxesObject, saleType, toasts]
+    [setValue, getValues, itemsObject, taxesObject]
   );
 
   const handleItemChange = useCallback(

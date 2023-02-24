@@ -6,6 +6,8 @@ interface SelectedItemData {
   rate: number;
   quantity: number;
   salesTax?: Tax;
+  startDate: Date;
+  endDate: Date;
 }
 //----------------------------------------------------------------
 BigNumber.config({ DECIMAL_PLACES: 2 });
@@ -14,8 +16,8 @@ export default function getSalesItemData(
   salesItem: SelectedItemData,
   item: Item
 ) {
-  // console.log({ data });
-  const { rate, quantity, salesTax } = salesItem;
+  console.log({ salesItem });
+  const { rate, quantity, salesTax, ...saleItemMoreData } = salesItem;
   const {
     createdAt,
     createdBy,
@@ -49,6 +51,7 @@ export default function getSalesItemData(
   const itemTaxTotal = itemTax * quantity;
 
   const itemData: SalesItem = {
+    ...saleItemMoreData,
     item: { ...itemFormData },
     rate,
     quantity,

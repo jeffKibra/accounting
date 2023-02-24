@@ -28,7 +28,7 @@ function CustomLabel({ children }) {
   );
 }
 
-function ItemFields(props) {
+function LineFields(props) {
   const {
     itemsObject,
     selectedItemsObject,
@@ -307,7 +307,7 @@ function ItemFields(props) {
   );
 }
 
-ItemFields.propTypes = {
+LineFields.propTypes = {
   itemsObject: PropTypes.object.isRequired,
   selectedItemsObject: PropTypes.object.isRequired,
   updateItemFields: PropTypes.func.isRequired,
@@ -319,4 +319,4 @@ ItemFields.propTypes = {
   loading: PropTypes.bool.isRequired,
 };
 
-export default ItemFields;
+export default LineFields;

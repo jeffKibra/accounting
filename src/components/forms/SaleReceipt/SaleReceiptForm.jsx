@@ -18,7 +18,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import CustomSelect from '../../ui/CustomSelect';
 import CustomDatePicker from '../../ui/CustomDatePicker';
 
-import SaleFormFields from '../Sales/FormFields';
+import NormalSale from '../Sales/Normal';
 
 //
 import { SaleReceiptFormPropTypes } from 'propTypes';
@@ -174,7 +174,7 @@ export default function SaleReceiptForm(props) {
               </GridItem>
             </Grid>
             <Box w="full" p={4}>
-              <SaleFormFields loading={updating} items={items} taxes={taxes} />
+              <NormalSale loading={updating} items={items} taxes={taxes} />
             </Box>
 
             <Grid

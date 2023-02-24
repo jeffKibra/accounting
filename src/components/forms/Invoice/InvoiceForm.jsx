@@ -10,10 +10,11 @@ import SkeletonLoader from 'components/ui/SkeletonLoader';
 import Empty from 'components/ui/Empty';
 
 import InvoiceDetailsFields from './DetailsFields';
-import SaleFormFields from '../Sales/FormFields';
+import SaleItems from '../Sales/SaleItems';
 
 function InvoiceForm(props) {
   const { invoice, handleFormSubmit, updating } = props;
+  console.log({ invoice });
 
   const { loading, items, customers, paymentTerms, taxes } = useGetSalesProps();
 
@@ -32,6 +33,8 @@ function InvoiceForm(props) {
         {
           item: null,
           rate: 0,
+          startDate: new Date(),
+          endDate: new Date(),
           quantity: 0,
           itemRate: 0,
           itemTax: 0,
@@ -49,6 +52,7 @@ function InvoiceForm(props) {
         totalTax: 0,
         taxType: 'taxExclusive',
       },
+      saleType: invoice?.saleType || 'booking',
     },
   });
   const { handleSubmit } = formMethods;
@@ -62,6 +66,7 @@ function InvoiceForm(props) {
   // });
 
   function onSubmit(data) {
+    console.log({ data });
     const { customer: customerId, paymentTerm: paymentTermId, ...rest } = data;
     const { invoiceDate, dueDate, selectedItems } = rest;
     let formValues = { ...rest };
@@ -136,7 +141,13 @@ function InvoiceForm(props) {
             loading={updating}
             invoiceId={invoice?.invoiceId || ''}
           />
-          <SaleFormFields loading={updating} items={items} taxes={taxes} />
+
+          <SaleItems
+            loading={updating}
+            items={items}
+            taxes={taxes}
+            selectSalesType={!Boolean(invoice)}
+          />
         </Box>
         <Flex w="full" py={6} justify="flex-end">
           <Button
