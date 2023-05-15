@@ -41,7 +41,7 @@ export type {
 export type { ExpenseItem } from './expenseItem';
 export type { PaymentMode } from './paymentMode';
 export type { PaymentTerm } from './paymentTerm';
-export type { Item, ItemFormData, ItemFromDb } from './item';
+export type { Item, ItemFormData, ItemFromDb, ItemType } from './item';
 export type {
   Invoice,
   InvoiceSummary,

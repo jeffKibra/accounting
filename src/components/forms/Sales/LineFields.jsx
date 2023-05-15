@@ -2,6 +2,7 @@ import {
   FormControl,
   FormLabel,
   FormErrorMessage,
+  FormHelperText,
   Button,
   Flex,
   Grid,
@@ -16,6 +17,8 @@ import { RiDeleteBinLine } from 'react-icons/ri';
 import { useFormContext, Controller } from 'react-hook-form';
 import PropTypes from 'prop-types';
 
+import { isItemABooking } from 'utils/sales';
+
 import ControlledSelect from 'components/ui/ControlledSelect';
 // import RHFPlainNumInput from 'components/ui/RHFPlainNumInput';
 import ControlledNumInput from 'components/ui/ControlledNumInput';
@@ -23,7 +26,7 @@ import ControlledDatePicker from 'components/ui/ControlledDatePicker';
 
 function CustomLabel({ children }) {
   return (
-    <FormLabel fontSize="smaller" mb={0}>
+    <FormLabel fontSize="smaller" mb={0} whiteSpace="nowrap">
       {children}
     </FormLabel>
   );
@@ -50,12 +53,19 @@ function LineFields(props) {
   } = useFormContext();
 
   const taxType = watch('summary.taxType');
-  const saleType = watch('saleType');
   const details = getValues(`selectedItems.${index}`);
+  // console.log({ details });
   const {
     item,
+    endDate,
     // salesTax
   } = details;
+  // console.log({ item });
+
+  const itemType = item?.type;
+  const itemIsABooking = isItemABooking(itemType);
+
+  // console.log({ itemIsABooking });
 
   const itemErrors = errors?.selectedItems && errors?.selectedItems[index];
 
@@ -70,7 +80,7 @@ function LineFields(props) {
             templateColumns="repeat(12, 1fr)"
             flexGrow={1}
           >
-            <GridItem colSpan={[12, 6, ...(saleType === 'normal' ? [9] : [])]}>
+            <GridItem colSpan={[12, 6, ...(itemIsABooking ? [7] : [9])]}>
               <FormControl isRequired isInvalid={!!itemErrors?.item}>
                 <CustomLabel htmlFor="item">Item</CustomLabel>
                 <ControlledSelect
@@ -180,63 +190,7 @@ function LineFields(props) {
               </FormControl>
             </GridItem>
 
-            {saleType === 'normal' ? (
-              <GridItem colSpan={[6, 4, 1]}>
-                <FormControl isInvalid={itemErrors?.quantity}>
-                  <CustomLabel htmlFor="quantity">Quantity</CustomLabel>
-                  <Controller
-                    name={`selectedItems.${index}.quantity`}
-                    control={control}
-                    render={({ field: { ref, value, onBlur } }) => {
-                      return (
-                        <ControlledNumInput
-                          ref={ref}
-                          updateFieldMode="onBlur"
-                          value={value}
-                          mode="onBlur"
-                          onChange={value =>
-                            updateItemFields('quantity', value, index)
-                          }
-                          onBlur={onBlur}
-                          min={1}
-                          isReadOnly={loading}
-                          isDisabled={!item?.itemId}
-                        />
-                      );
-                    }}
-                    rules={{
-                      required: { value: true, message: '*Required' },
-                      min: {
-                        value: 1,
-                        message: 'Value should be greater than zero(0)!',
-                      },
-                    }}
-                  />
-                  {/* <RHFPlainNumInput
-                  name={`selectedItems.${index}.quantity`}
-                  mode="onBlur"
-                  updateValueOnBlur={false}
-                  onBlur={value => updateItemFields('quantity', value, index)}
-                  min={1}
-                  isReadOnly={loading}
-                  isDisabled={!item?.itemId}
-                  rules={{
-                    required: { value: true, message: '*Required' },
-                    min: {
-                      value: 1,
-                      message: 'Value should be greater than zero(0)!',
-                    },
-                  }}
-                /> */}
-
-                  <FormErrorMessage>
-                    {itemErrors?.quantity?.message}
-                  </FormErrorMessage>
-                </FormControl>
-              </GridItem>
-            ) : null}
-
-            {saleType === 'booking' ? (
+            {itemIsABooking ? (
               <>
                 <GridItem colSpan={[6, null, 2]}>
                   <FormControl
@@ -276,47 +230,85 @@ function LineFields(props) {
                     </FormErrorMessage>
                   </FormControl>
                 </GridItem>
-
-                <GridItem colSpan={[6, null, 2]}>
-                  <FormControl
-                    isDisabled={loading}
-                    isRequired
-                    isInvalid={itemErrors?.endDate}
-                  >
-                    <CustomLabel htmlFor={`selectedItems.${index}.endDate`}>
-                      End Date
-                    </CustomLabel>
-                    <Controller
-                      isReadOnly={loading}
-                      isDisabled={!item?.itemId}
-                      name={`selectedItems.${index}.endDate`}
-                      control={control}
-                      rules={{
-                        required: { value: true, message: '* Required!' },
-                      }}
-                      render={({ field: { name, onBlur, ref, value } }) => {
-                        return (
-                          <ControlledDatePicker
-                            size="md"
-                            name={name}
-                            ref={ref}
-                            onBlur={onBlur}
-                            value={new Date(value)}
-                            onChange={value =>
-                              updateItemFields('endDate', value, index)
-                            }
-                          />
-                        );
-                      }}
-                    />
-
-                    <FormErrorMessage>
-                      {itemErrors?.endDate?.message}
-                    </FormErrorMessage>
-                  </FormControl>
-                </GridItem>
               </>
             ) : null}
+
+            <GridItem colSpan={[6, 4, 1]}>
+              <FormControl isInvalid={itemErrors?.quantity}>
+                <CustomLabel htmlFor="quantity">
+                  {itemIsABooking ? 'Days' : 'Quantity'}
+                </CustomLabel>
+                <Controller
+                  name={`selectedItems.${index}.quantity`}
+                  control={control}
+                  render={({ field: { ref, value, onBlur } }) => {
+                    // function handleBlur(blurData) {
+                    //   console.log({ blurData });
+                    //   onBlur(blurData);
+                    // }
+
+                    // function handleChange(value) {
+                    //   console.log({ value });
+                    //   updateItemFields('quantity', value, index);
+                    // }
+
+                    return (
+                      <ControlledNumInput
+                        ref={ref}
+                        updateFieldMode="onBlur"
+                        value={value}
+                        mode="onBlur"
+                        // onChange={handleChange}
+                        // onBlur={handleBlur}
+                        onChange={value =>
+                          updateItemFields('quantity', value, index)
+                        }
+                        onBlur={onBlur}
+                        min={1}
+                        isReadOnly={loading}
+                        isDisabled={!item?.itemId}
+                      />
+                    );
+                  }}
+                  rules={{
+                    required: { value: true, message: '*Required' },
+                    min: {
+                      value: 1,
+                      message: 'Value should be greater than zero(0)!',
+                    },
+                  }}
+                />
+                {/* <RHFPlainNumInput
+                  name={`selectedItems.${index}.quantity`}
+                  mode="onBlur"
+                  updateValueOnBlur={false}
+                  onBlur={value => updateItemFields('quantity', value, index)}
+                  min={1}
+                  isReadOnly={loading}
+                  isDisabled={!item?.itemId}
+                  rules={{
+                    required: { value: true, message: '*Required' },
+                    min: {
+                      value: 1,
+                      message: 'Value should be greater than zero(0)!',
+                    },
+                  }}
+                /> */}
+
+                {itemIsABooking ? (
+                  <FormHelperText fontSize="12px" whiteSpace="nowrap">
+                    To:{' '}
+                    {endDate
+                      ? new Date(endDate).toDateString()
+                      : new Date().toDateString()}
+                  </FormHelperText>
+                ) : null}
+
+                <FormErrorMessage>
+                  {itemErrors?.quantity?.message}
+                </FormErrorMessage>
+              </FormControl>
+            </GridItem>
 
             <GridItem colSpan={[6, 4, 1]}>
               <FormControl isInvalid={itemErrors?.itemRateTotal}>

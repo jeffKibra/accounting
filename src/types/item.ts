@@ -1,12 +1,13 @@
 import { Account, Tax } from '.';
 
+export type ItemType = 'goods' | 'service' | 'vehicle';
 export interface ItemFormData {
   name: string;
   salesAccount: Account;
   sellingPrice: number;
   sku: string;
   skuOption: string;
-  type: string;
+  type: ItemType;
   unit: string;
   costPrice?: number;
   extraDetails?: string;

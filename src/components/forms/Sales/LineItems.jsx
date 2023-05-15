@@ -7,8 +7,11 @@ import PropTypes from 'prop-types';
 //hooks
 import { useToasts } from 'hooks';
 //utils
-import { getSalesItemData } from 'utils/sales';
-import { getDaysDifference } from 'utils/dates';
+import {
+  getSalesItemData,
+  isItemABooking,
+  getBookingEndDate,
+} from 'utils/sales';
 
 //ui components
 import CustomSelect from 'components/ui/CustomSelect';
@@ -33,13 +36,11 @@ export default function LineItems(props) {
     setValue,
     getValues,
     control,
-    watch,
     // formState: { errors },
   } = useFormContext();
   //hooks
   const toasts = useToasts();
   //state
-  const saleType = watch('saleType');
   /**
    * initialize field array for selected items
    */
@@ -92,18 +93,18 @@ export default function LineItems(props) {
   const updateItemFields = useCallback(
     (fieldName, value, index) => {
       try {
-        // console.log('updating itemFields', { fieldName, value, index });
+        console.log('updating itemFields', { fieldName, value, index });
         const fieldId = `selectedItems.${index}`;
         const currentValues = getValues(fieldId);
         // console.log({ currentValues });
         const {
-          item: { itemId },
+          item: { itemId, type },
           quantity,
           rate,
           salesTax,
           startDate,
-          endDate,
         } = currentValues;
+        console.log({ type });
 
         const originalItem = itemsObject[itemId];
         let selectedItemData = {
@@ -112,7 +113,6 @@ export default function LineItems(props) {
           rate,
           salesTax,
           startDate: startDate || new Date(),
-          endDate: endDate || new Date(),
         };
 
         /**
@@ -124,13 +124,17 @@ export default function LineItems(props) {
           [fieldName]: fieldName === 'salesTax' ? taxesObject[value] : value,
         };
 
-        if (saleType === 'booking') {
-          const daysDifference = getDaysDifference(
-            new Date(selectedItemData?.startDate),
-            new Date(selectedItemData?.endDate)
-          );
+        const itemIsABooking = isItemABooking(type);
+        console.log({ itemIsABooking });
 
-          selectedItemData.quantity = daysDifference;
+        if ((fieldName = quantity && itemIsABooking)) {
+          const startDateToUse = startDate || new Date();
+          console.log({ startDate, startDateToUse });
+
+          const endDate = getBookingEndDate(startDate, value);
+          console.log({ endDate });
+
+          selectedItemData.endDate = endDate.toISOString();
         }
 
         const updatedValues = getSalesItemData(selectedItemData, originalItem);
@@ -145,7 +149,7 @@ export default function LineItems(props) {
         );
       }
     },
-    [setValue, getValues, itemsObject, taxesObject, saleType, toasts]
+    [setValue, getValues, itemsObject, taxesObject, toasts]
   );
 
   const handleItemChange = useCallback(
@@ -154,12 +158,29 @@ export default function LineItems(props) {
       const selectedItem = itemsObject[itemId];
       const { sellingPrice, salesTax } = selectedItem;
 
-      const itemData = getSalesItemData(
-        { itemId, quantity: 1, rate: sellingPrice, salesTax },
-        itemsObject[itemId]
-      );
+      const originalItem = itemsObject[itemId];
+      console.log({ originalItem });
 
+      const initialQuantity = 1;
+      const itemData = getSalesItemData(
+        { itemId, quantity: initialQuantity, rate: sellingPrice, salesTax },
+        originalItem
+      );
       console.log({ itemData });
+
+      const itemType = originalItem?.type;
+      console.log({ itemType });
+      const itemIsABooking = isItemABooking(itemType);
+      console.log({ itemIsABooking });
+
+      if (itemIsABooking) {
+        const startDate = new Date();
+        const endDate = getBookingEndDate(startDate, initialQuantity);
+        console.log({ endDate });
+        //update fields in object
+        itemData.startDate = startDate;
+        itemData.endDate = endDate;
+      }
 
       //update item at index
       setValue(`selectedItems.${index}`, { ...itemData });

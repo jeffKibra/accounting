@@ -1,15 +1,7 @@
 import { useMemo, useEffect } from 'react';
-import {
-  FormControl,
-  FormLabel,
-  Box,
-  VStack,
-  Grid,
-  GridItem,
-} from '@chakra-ui/react';
-import { useFormContext, Controller } from 'react-hook-form';
+import { VStack, Grid, GridItem } from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
 
-import ControlledSelect from 'components/ui/ControlledSelect';
 import PropTypes from 'prop-types';
 //utils
 import { getSaleSummary } from 'utils/sales';
@@ -19,7 +11,7 @@ import LineItems from './LineItems';
 import SaleSummaryTable from 'components/tables/Sales/SaleSummaryTable';
 
 //----------------------------------------------------------------
-const saleTypes = ['normal', 'booking'];
+// const saleTypes = ['normal', 'booking'];
 //--------------------------------------------------------------------------------
 SaleItems.propTypes = {
   loading: PropTypes.bool.isRequired,
@@ -30,11 +22,9 @@ SaleItems.propTypes = {
 };
 
 export default function SaleItems(props) {
-  const { loading, taxes, selectSalesType } = props;
-  const { watch, control } = useFormContext();
-  const saleType = watch('saleType');
+  const { loading, taxes } = props;
+  const { watch } = useFormContext();
 
-  console.log({ saleType });
   //taxes object
   const taxesObject = useMemo(() => {
     return taxes.reduce((obj, tax) => {
@@ -116,7 +106,7 @@ export default function SaleItems(props) {
 
     return { selectedItemsObject, summary };
   }, [fieldsString]);
-  console.log({ summary, selectedItemsObject });
+  // console.log({ summary, selectedItemsObject });
   /**
    * convert items into an object for easier updates .
    * helps to avoid iterating the whole array for every update
@@ -144,7 +134,7 @@ export default function SaleItems(props) {
 
   return (
     <VStack mt={1}>
-      {selectSalesType ? (
+      {/* {selectSalesType ? (
         <Box my={3} width="100%">
           <FormControl display="flex" alignItems="center">
             <FormLabel margin="0" paddingRight="20px">
@@ -179,7 +169,7 @@ export default function SaleItems(props) {
             </Box>
           </FormControl>
         </Box>
-      ) : null}
+      ) : null} */}
 
       <LineItems
         loading={loading}
