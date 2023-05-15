@@ -7,7 +7,6 @@ import { useToasts } from 'hooks';
 
 import General from './General';
 import SaleDetails from './SaleDetails';
-import { useEffect } from 'react';
 
 export default function ItemForm(props) {
   // console.log({ props });
@@ -36,38 +35,18 @@ export default function ItemForm(props) {
   const {
     handleSubmit,
     formState: { dirtyFields },
-    watch,
-    setValue,
   } = formMethods;
-
-  const itemType = watch('type');
-  const itemIsVehicle = itemType === 'vehicle';
-
-  useEffect(() => {
-    if (itemIsVehicle) {
-      setValue('salesAccount', 'vehicle_bookings');
-      setValue('unit', 'days');
-    }
-  }, [itemIsVehicle, setValue]);
 
   function onSubmit(data) {
     console.log({ data });
     const {
       salesTax: salesTaxId,
-      salesAccount: formSalesAccountId,
+      salesAccount: salesAccountId,
       ...rest
     } = data;
     let formData = {
       ...rest,
     };
-
-    const salesAccountId = itemIsVehicle
-      ? 'vehicle_bookings'
-      : formSalesAccountId;
-    console.log({ salesAccountId });
-    /**
-     * if item is vehicle- assign account='', sku=generate, unit='days'
-     */
     //sales account
     let salesAccount = null;
     salesAccount = accounts.find(
@@ -112,19 +91,11 @@ export default function ItemForm(props) {
         onSubmit={handleSubmit(onSubmit)}
       >
         <GridItem colSpan={[12, null, 8]}>
-          <General
-            loading={updating}
-            accounts={accounts}
-            itemIsVehicle={itemIsVehicle}
-          />
+          <General loading={updating} accounts={accounts} />
         </GridItem>
         <GridItem colSpan={[12, null, 4]}>
           <Stack spacing={6}>
-            <SaleDetails
-              loading={updating}
-              taxes={taxes || []}
-              itemIsVehicle={itemIsVehicle}
-            />
+            <SaleDetails loading={updating} taxes={taxes || []} />
 
             <Button
               size="lg"

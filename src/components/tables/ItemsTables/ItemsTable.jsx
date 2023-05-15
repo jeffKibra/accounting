@@ -5,6 +5,10 @@ import ItemOptions from '../../../containers/Management/Items/ItemOptions';
 
 import CustomTable from '../CustomTable';
 
+function createTaxDisplay(tax) {
+  return tax?.name ? `${tax?.name} (${tax?.rate}%)` : '';
+}
+
 function ItemsTable(props) {
   const { items } = props;
   // console.log({ items });
@@ -12,11 +16,11 @@ function ItemsTable(props) {
   const columns = useMemo(() => {
     return [
       { Header: 'Name', accessor: 'name' },
-      { Header: 'Variant', accessor: 'variant' },
-      { Header: 'Unit', accessor: 'unit' },
+      { Header: 'SKU', accessor: 'sku' },
       { Header: 'Type', accessor: 'type' },
       { Header: 'Rate', accessor: 'sellingPrice', isNumeric: true },
       { Header: 'Cost', accessor: 'costPrice', isNumeric: true },
+      { Header: 'Tax', accessor: 'tax' },
       { Header: '', accessor: 'actions', isNumeric: true, width: '1%' },
     ];
   }, []);
@@ -25,6 +29,7 @@ function ItemsTable(props) {
     return items.map(item => {
       return {
         ...item,
+        tax: createTaxDisplay(item?.salesTax),
         actions: <ItemOptions item={item} edit deletion />,
       };
     });
@@ -37,11 +42,14 @@ ItemsTable.propTypes = {
   items: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
-      variant: PropTypes.string,
+      unit: PropTypes.string,
+      description: PropTypes.string,
+      sku: PropTypes.string,
       itemId: PropTypes.string.isRequired,
-      type: PropTypes.oneOf(['goods', 'services', 'booking']).isRequired,
+      type: PropTypes.oneOf(['goods', 'services', 'vehicle']).isRequired,
       costPrice: PropTypes.number.isRequired,
       sellingPrice: PropTypes.number.isRequired,
+      salesTax: PropTypes.object,
     })
   ),
   deleting: PropTypes.bool.isRequired,

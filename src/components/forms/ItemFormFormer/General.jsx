@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   FormControl,
   FormLabel,
@@ -7,32 +8,52 @@ import {
   Grid,
   GridItem,
   Textarea,
+  InputGroup,
+  InputRightElement,
 } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import PropTypes from 'prop-types';
 
 import CustomSelect from 'components/ui/CustomSelect';
 // import RadioInput from '../../ui/RadioInput';
-import SKUInput from 'components/ui/SKUInput';
+import SKUOptions from './SKUOptions';
 
 const types = [
   { name: 'Goods', value: 'goods' },
   { name: 'Services', value: 'services' },
-  { name: 'Vehicle', value: 'vehicle' },
-  // { name: 'Booking', value: 'booking' },
+  { name: 'Booking', value: 'booking' },
 ];
 
 function General(props) {
-  // console.log({ props });
-  const { loading, accounts, itemIsVehicle } = props;
+  const { loading, accounts } = props;
 
   const {
     register,
     formState: { errors },
     watch,
+    setValue,
   } = useFormContext();
 
   const skuOption = watch('skuOption');
+  const itemName = watch('name');
+
+  useEffect(() => {
+    function refactor(string) {
+      return String(string)
+        .trim()
+        .toLowerCase()
+        .split(' ')
+        .filter(val => val !== '')
+        .join('-');
+    }
+
+    if (skuOption === 'auto') {
+      const autoSKU = refactor(itemName);
+      // console.log({ name, variant, id });
+
+      setValue('sku', autoSKU);
+    }
+  }, [itemName, setValue, skuOption]);
 
   return (
     <Grid
@@ -78,9 +99,7 @@ function General(props) {
           isRequired
           isInvalid={errors.name}
         >
-          <FormLabel htmlFor="name">
-            {itemIsVehicle ? 'Registration' : 'Item Name'}{' '}
-          </FormLabel>
+          <FormLabel htmlFor="name">Item Name </FormLabel>
           <Input
             id="name"
             {...register('name', {
@@ -97,7 +116,6 @@ function General(props) {
           isReadOnly={loading || skuOption === 'auto'}
           isInvalid={errors.sku}
           isRequired
-          display={itemIsVehicle ? 'none' : 'block'}
         >
           <FormLabel htmlFor="sku">SKU</FormLabel>
           {/* <Input
@@ -108,7 +126,18 @@ function General(props) {
             pr="40px"
           /> */}
 
-          <SKUInput sourceField="name" />
+          <InputGroup>
+            <Input
+              id="sku"
+              {...register('sku', {
+                required: { value: true, message: '*Required!' },
+              })}
+              pr="40px"
+            />
+            <InputRightElement>
+              <SKUOptions name="skuOption" defaultValue="auto" />
+            </InputRightElement>
+          </InputGroup>
 
           <FormErrorMessage>{errors?.sku?.message}</FormErrorMessage>
           <FormHelperText>
@@ -122,7 +151,6 @@ function General(props) {
           isDisabled={loading}
           isRequired
           isInvalid={errors.salesAccount}
-          display={itemIsVehicle ? 'none' : 'block'}
         >
           <FormLabel htmlFor="salesAccount">Account</FormLabel>
           <CustomSelect
@@ -144,7 +172,7 @@ function General(props) {
 
       <GridItem colSpan={12}>
         <FormControl isDisabled={loading} isInvalid={errors.description}>
-          <FormLabel htmlFor="description">Description</FormLabel>
+          <FormLabel htmlFor="description">Extra Details</FormLabel>
           <Textarea id="description" {...register('description')} />
           <FormErrorMessage>{errors?.description?.message}</FormErrorMessage>
         </FormControl>

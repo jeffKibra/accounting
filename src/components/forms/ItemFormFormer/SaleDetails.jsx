@@ -30,16 +30,15 @@ const units = [
   'pieces',
   'units',
   'tablets',
-  'days',
 ];
 
 function SaleDetails(props) {
-  // console.log({ props });
-  const { loading, taxes, itemIsVehicle } = props;
+  const { loading, taxes } = props;
 
   const {
     register,
     formState: { errors },
+    // watch,
   } = useFormContext();
 
   // const salesTax = watch('salesTax');
@@ -55,28 +54,6 @@ function SaleDetails(props) {
       templateColumns="repeat(12, 1fr)"
     >
       <GridItem colSpan={12}>
-        <FormControl isDisabled={loading} isInvalid={errors.sellingPrice}>
-          <FormLabel htmlFor="sellingPrice">
-            {itemIsVehicle ? 'Rate per Day' : 'Selling Price'} (ksh)
-          </FormLabel>
-          <NumInput
-            name="sellingPrice"
-            min={0}
-            size="md"
-            rules={{
-              // required: { value: true, message: '*Required!' },
-              min: {
-                value: 0,
-                message: 'Value should be a positive integer!',
-              },
-            }}
-          />
-
-          <FormErrorMessage>{errors?.sellingPrice?.message}</FormErrorMessage>
-        </FormControl>
-      </GridItem>
-
-      <GridItem colSpan={12} display={itemIsVehicle ? 'none' : 'block'}>
         <FormControl isReadOnly={loading} isInvalid={errors.costPrice}>
           <FormLabel htmlFor="costPrice">Cost Price (ksh)</FormLabel>
           <NumInput
@@ -96,12 +73,40 @@ function SaleDetails(props) {
         </FormControl>
       </GridItem>
 
-      <GridItem colSpan={12} display={itemIsVehicle ? 'none' : 'block'}>
-        <FormControl isReadOnly={loading} isInvalid={errors.unit}>
+      <GridItem colSpan={12}>
+        <FormControl
+          isDisabled={loading}
+          isRequired
+          isInvalid={errors.sellingPrice}
+        >
+          <FormLabel htmlFor="sellingPrice">Selling Price (ksh)</FormLabel>
+          <NumInput
+            name="sellingPrice"
+            min={0}
+            size="md"
+            rules={{
+              required: { value: true, message: '*Required!' },
+              min: {
+                value: 1,
+                message: 'Value should be greater than zero(0)!',
+              },
+            }}
+          />
+
+          <FormErrorMessage>{errors?.sellingPrice?.message}</FormErrorMessage>
+        </FormControl>
+      </GridItem>
+
+      <GridItem colSpan={12}>
+        <FormControl isReadOnly={loading} isRequired isInvalid={errors.unit}>
           <FormLabel htmlFor="unit">Unit</FormLabel>
-
-          <Input id="unit" {...register('unit')} list="unitList" />
-
+          <Input
+            id="unit"
+            {...register('unit', {
+              required: { value: true, message: 'Required' },
+            })}
+            list="unitList"
+          />
           <datalist id="unitList">
             {units.map((unit, i) => {
               return (
