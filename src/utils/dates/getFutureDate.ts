@@ -26,12 +26,12 @@ export default function getFutureDate(
     months[2] = feb;
   }
 
-  let month: number = startDate.getMonth() + 1;
-  let year: number = startDate.getFullYear();
+  let month: number = new Date(startDate).getMonth() + 1;
+  let year: number = new Date(startDate).getFullYear();
   /**
    * initialize remaining month days based on the current date and month
    */
-  let remainingDays: number = months[month] - startDate.getDate();
+  let remainingDays: number = months[month] - new Date(startDate).getDate();
   /**
    * update months before starting loop
    */
@@ -67,11 +67,11 @@ export default function getFutureDate(
   /**
    * return new date
    */
-  const startMonth: number = startDate.getMonth() + 1;
-  const startYear: number = startDate.getFullYear();
+  const startMonth: number = new Date(startDate).getMonth() + 1;
+  const startYear: number = new Date(startDate).getFullYear();
 
   if (month === startMonth && startYear === year) {
-    days = days + startDate.getDate();
+    days = days + new Date(startDate).getDate();
   }
 
   return new Date(`${year}-${month}-${days}`);

@@ -127,11 +127,22 @@ export default function LineItems(props) {
         const itemIsABooking = isItemABooking(type);
         console.log({ itemIsABooking });
 
-        if ((fieldName = quantity && itemIsABooking)) {
-          const startDateToUse = startDate || new Date();
-          console.log({ startDate, startDateToUse });
+        if (
+          (fieldName === 'quantity' || fieldName === 'startDate') &&
+          itemIsABooking
+        ) {
+          let bookingDays = 0;
+          let bookingStartDate = new Date(startDate);
 
-          const endDate = getBookingEndDate(startDate, value);
+          if (fieldName === 'quantity') {
+            bookingDays = value;
+            bookingStartDate = startDate;
+          } else if (fieldName === 'startDate') {
+            bookingDays = quantity;
+            bookingStartDate = value;
+          }
+
+          const endDate = getBookingEndDate(bookingStartDate, bookingDays);
           console.log({ endDate });
 
           selectedItemData.endDate = endDate.toISOString();

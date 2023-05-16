@@ -6,6 +6,7 @@ import { getFutureDate } from '../dates';
  */
 
 export default function getBookingEndDate(startDate: Date, days: number) {
+  console.log({ startDate, days });
   const futureDate = getFutureDate(days, startDate); //value is midnight in the start of new day
   console.log({ futureDate });
   const futureDateMillis = futureDate.getTime();
