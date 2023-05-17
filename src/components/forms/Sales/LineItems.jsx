@@ -15,6 +15,7 @@ import {
 
 //ui components
 import CustomSelect from 'components/ui/CustomSelect';
+import SaleItemFormFieldsModal from './SaleItemModalForm';
 //forms
 import LineFields from './LineFields';
 
@@ -244,7 +245,7 @@ export default function LineItems(props) {
         );
       })}
       <Flex w="full" justifyContent="flex-start">
-        <Button
+        {/* <Button
           onClick={addNewLine}
           size="sm"
           colorScheme="cyan"
@@ -252,7 +253,32 @@ export default function LineItems(props) {
           disabled={loading}
         >
           add item
-        </Button>
+        </Button> */}
+
+        <SaleItemFormFieldsModal
+          itemsObject={itemsObject}
+          selectedItemsObject={selectedItemsObject}
+          removeItem={removeItem}
+          handleItemChange={handleItemChange}
+          updateItemFields={updateItemFields}
+          taxesObject={taxesObject}
+          loading={loading}
+        >
+          {(openModal, triggerRef) => {
+            return (
+              <Button
+                onClick={openModal}
+                size="sm"
+                colorScheme="cyan"
+                leftIcon={<RiAddLine />}
+                disabled={loading}
+                ref={triggerRef}
+              >
+                add item
+              </Button>
+            );
+          }}
+        </SaleItemFormFieldsModal>
       </Flex>
       );
     </VStack>
