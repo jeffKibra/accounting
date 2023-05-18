@@ -37,6 +37,7 @@ export type {
   SalesTax,
   GroupedItems,
   SalesAccountSummary,
+  ISaleItemFormData,
 } from './sales';
 export type { ExpenseItem } from './expenseItem';
 export type { PaymentMode } from './paymentMode';

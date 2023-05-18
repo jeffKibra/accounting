@@ -1,4 +1,4 @@
-import { useTable } from "react-table";
+import { useTable } from 'react-table';
 import {
   TableContainer,
   Table,
@@ -8,8 +8,8 @@ import {
   Tr,
   Th,
   Td,
-} from "@chakra-ui/react";
-import PropTypes from "prop-types";
+} from '@chakra-ui/react';
+import PropTypes from 'prop-types';
 
 function CustomRawTable(props) {
   const { columns, data, caption } = props;
@@ -23,17 +23,17 @@ function CustomRawTable(props) {
       <Table {...getTableProps()} minW="650px" variant="simple" size="sm">
         {caption && <TableCaption>{caption}</TableCaption>}
         <Thead>
-          {headerGroups.map((headerGroup) => {
+          {headerGroups.map(headerGroup => {
             const { headers, getHeaderGroupProps } = headerGroup;
             return (
               <Tr {...getHeaderGroupProps()}>
-                {headers.map((column) => {
+                {headers.map(column => {
                   const { render, getHeaderProps } = column;
                   const { isNumeric } = column;
 
                   return (
                     <Th isNumeric={isNumeric} {...getHeaderProps()}>
-                      {render("Header")}
+                      {render('Header')}
                     </Th>
                   );
                 })}
@@ -42,13 +42,13 @@ function CustomRawTable(props) {
           })}
         </Thead>
         <Tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
+          {rows.map(row => {
             prepareRow(row);
             // console.log({ row });
             const { getRowProps, cells } = row;
             return (
               <Tr {...getRowProps()}>
-                {cells.map((cell) => {
+                {cells.map(cell => {
                   const { getCellProps, render, column } = cell;
                   // console.log(getCellProps(), { cell });
                   const { isNumeric, width } = column;
@@ -59,7 +59,7 @@ function CustomRawTable(props) {
                       {...(width ? { width } : {})}
                       {...getCellProps()}
                     >
-                      {render("Cell")}
+                      {render('Cell')}
                     </Td>
                   );
                 })}

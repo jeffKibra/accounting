@@ -1,4 +1,4 @@
-import { Tax, ItemFormData } from '.';
+import { Tax, ItemFormData, Item } from '.';
 
 export interface SalesTax extends Tax {
   totalTax: number;
@@ -32,11 +32,20 @@ export interface SalesItem {
   item: SelectedItem;
   rate: number;
   quantity: number;
-  salesTax?: Tax;
+  salesTax: Tax | null;
   itemRate: number;
   itemTax: number;
   itemRateTotal: number;
   itemTaxTotal: number;
+  startDate: Date | null;
+  endDate: Date | null;
+}
+
+export interface ISaleItemFormData {
+  item: Item;
+  rate: number;
+  quantity: number;
+  salesTax: Tax | null;
   startDate: Date | null;
   endDate: Date | null;
 }

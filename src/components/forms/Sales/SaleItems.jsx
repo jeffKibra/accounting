@@ -1,15 +1,14 @@
-import { useMemo, useEffect } from 'react';
-import { VStack, Grid, GridItem } from '@chakra-ui/react';
-import { useFormContext } from 'react-hook-form';
+import { useMemo, useEffect, useState, useCallback } from 'react';
+import { useDisclosure } from '@chakra-ui/react';
+import { useFormContext, useFieldArray } from 'react-hook-form';
 
 import PropTypes from 'prop-types';
 //utils
 import { getSaleSummary } from 'utils/sales';
+//hooks
+import { useToasts } from 'hooks';
 
-import LineItems from './LineItems';
-//tables
-import SaleSummaryTable from 'components/tables/Sales/SaleSummaryTable';
-
+import SaleItemsComponent from './SaleItemsComponent';
 //----------------------------------------------------------------
 // const saleTypes = ['normal', 'booking'];
 //--------------------------------------------------------------------------------
@@ -23,7 +22,11 @@ SaleItems.propTypes = {
 
 export default function SaleItems(props) {
   const { loading, taxes } = props;
-  const { watch } = useFormContext();
+  const { isOpen, onClose, onOpen } = useDisclosure();
+
+  const toasts = useToasts();
+
+  const { watch, control, getValues, setValue } = useFormContext();
 
   //taxes object
   const taxesObject = useMemo(() => {
@@ -72,7 +75,7 @@ export default function SaleItems(props) {
 
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, []);
-
+  const taxType = watch('taxType');
   const itemsFields = watch('selectedItems');
 
   /**
@@ -89,17 +92,14 @@ export default function SaleItems(props) {
      */
     const selectedItems = JSON.parse(fieldsString);
 
-    const selectedItemsObject = selectedItems.reduce((summary, itemDetails) => {
-      const { item } = itemDetails;
-      if (item) {
-        return {
-          ...summary,
-          [item.itemId]: itemDetails,
-        };
-      } else {
-        return summary;
+    const selectedItemsObject = {};
+    selectedItems.forEach(saleItem => {
+      const { item } = saleItem;
+      const itemId = item?.itemId;
+      if (itemId) {
+        selectedItemsObject[itemId] = saleItem;
       }
-    }, {});
+    });
 
     console.log('generating summary');
     const summary = getSaleSummary(selectedItems);
@@ -132,58 +132,135 @@ export default function SaleItems(props) {
 
   // console.log({ errors });
 
+  const { remove, append } = useFieldArray({
+    name: 'selectedItems',
+    control,
+    // shouldUnregister: true,
+  });
+  // console.log({
+  //   fields,
+  //   slItems: watch('selectedItems'),
+  //   customer: watch('customer'),
+  // });
+
+  const [editIndex, setEditIndex] = useState(0);
+  const [formDefaultValues, setFormDefaultValues] = useState(null);
+  // console.log({ formDefaultValues });
+  const isAddingNewItem = !Boolean(formDefaultValues);
+
+  const addNewLine = useCallback(
+    data => {
+      console.log('adding new line');
+      append(data);
+      // append({
+      //   item: null,
+      //   rate: 0,
+      //   startDate: new Date(),
+      //   endDate: new Date(),
+      //   quantity: 0,
+      //   itemRate: 0,
+      //   itemTax: 0,
+      //   itemRateTotal: 0,
+      //   itemTaxTotal: 0,
+      //   salesTax: null,
+      // });
+    },
+    [append]
+  );
+
+  // console.log({ fields, errors });
+
+  const removeItem = useCallback(
+    index => {
+      //fetch item from list using the index
+      const item = getValues(`selectedItems.${index}`);
+      // console.log({ item, index });
+
+      if (item && typeof item === 'object') {
+        //remove it from form
+        remove(index);
+      } else {
+        //item is undefined
+        toasts.error(`Item at Index ${index} not found`);
+      }
+    },
+    [remove, getValues, toasts]
+  );
+
+  const handleItemUpdate = useCallback(
+    (data, index) => {
+      try {
+        console.log('updating item', { data, index });
+        const fieldId = `selectedItems.${index}`;
+        // console.log({ currentValues });
+
+        // console.log({ updatedValues });
+        //update item
+        setValue(fieldId, data);
+      } catch (error) {
+        console.error(error);
+        toasts.error(
+          `Error update form fields: ${error?.message || 'Unknown Error!'}`
+        );
+      }
+    },
+    [setValue, toasts]
+  );
+
+  // console.log({ errors });
+
+  const handleSaleItemEdit = useCallback(
+    (data, index) => {
+      console.log({ data, index });
+      setFormDefaultValues(data);
+      setEditIndex(index);
+      //openModal
+      onOpen();
+    },
+    [onOpen, setFormDefaultValues, setEditIndex]
+  );
+
+  const handleFormCancel = useCallback(() => {
+    onClose();
+    setFormDefaultValues(null);
+  }, [onClose, setFormDefaultValues]);
+
+  const handleFormSubmit = useCallback(
+    data => {
+      console.log('submitted data', { data });
+      //submit data first
+      if (isAddingNewItem) {
+        addNewLine(data);
+      } else {
+        //update item
+        handleItemUpdate(data, editIndex);
+      }
+      handleFormCancel();
+    },
+    [addNewLine, handleItemUpdate, handleFormCancel, isAddingNewItem, editIndex]
+  );
+
+  // console.log({ fields, itemsFields });
+
   return (
-    <VStack mt={1}>
-      {/* {selectSalesType ? (
-        <Box my={3} width="100%">
-          <FormControl display="flex" alignItems="center">
-            <FormLabel margin="0" paddingRight="20px">
-              Sale Type:
-            </FormLabel>
-
-            <Box width="140px">
-              <Controller
-                name="saleType"
-                control={control}
-                render={({ field: { name, value, onChange, onBlur } }) => {
-                  return (
-                    <ControlledSelect
-                      id={name}
-                      onChange={onChange}
-                      onBlur={onBlur}
-                      placeholder="Sale Type"
-                      allowClearSelection={false}
-                      options={saleTypes.map(type => {
-                        return {
-                          name: type,
-                          value: type,
-                        };
-                      })}
-                      value={value || ''}
-                      isDisabled={loading}
-                      size="sm"
-                    />
-                  );
-                }}
-              />
-            </Box>
-          </FormControl>
-        </Box>
-      ) : null} */}
-
-      <LineItems
-        loading={loading}
-        itemsObject={itemsObject}
-        taxesObject={taxesObject}
-        selectedItemsObject={selectedItemsObject}
-      />
-
-      <Grid w="full" rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
-        <GridItem colSpan={[0, 4, 6]}></GridItem>
-        <GridItem colSpan={[12, 8, 6]}>
-          <SaleSummaryTable loading={loading} summary={summary} />
-        </GridItem>
-      </Grid>
-    </VStack>
+    <SaleItemsComponent
+      handleSaleItemEdit={handleSaleItemEdit}
+      itemsObject={itemsObject}
+      loading={loading}
+      selectedItemsObject={selectedItemsObject}
+      summary={summary}
+      taxType={taxType}
+      taxesObject={taxesObject}
+      tableProps={{
+        handleItemDelete: removeItem,
+        items: itemsFields,
+      }}
+      saleItemFormProps={{
+        handleFormCancel,
+        handleFormSubmit,
+        isOpen,
+        defaultValues: formDefaultValues,
+      }}
+    />
   );
 }

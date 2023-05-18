@@ -1,56 +1,50 @@
-import { useMemo } from "react";
-import PropTypes from "prop-types";
-import { Stack, IconButton } from "@chakra-ui/react";
-import { RiDeleteBin4Line, RiEdit2Line } from "react-icons/ri";
+import { useMemo } from 'react';
+import PropTypes from 'prop-types';
+import { Stack, IconButton } from '@chakra-ui/react';
+import { RiDeleteBin4Line, RiEdit2Line } from 'react-icons/ri';
 
-import CustomTable from "../CustomTable";
+import CustomTable from '../CustomRawTable';
 // import CustomModal from "../../ui/CustomModal";
 // import SelectItemForm from "../../forms/Sales/SelectItemForm";
 
 function SaleItemsTable(props) {
-  const { items, handleDelete, handleEdit, loading, taxType } = props;
-  // console.log({ items });
+  const { items, handleItemDelete, handleItemEdit, loading, taxType } = props;
+  console.log({ items });
 
   const columns = useMemo(() => {
     return [
-      { Header: "", accessor: "actions" },
-      { Header: "Name", accessor: "displayName" },
-      { Header: "Quantity", accessor: "quantity", isNumeric: true },
-      { Header: "Rate", accessor: "itemRate", isNumeric: true },
-      { Header: "Tax", accessor: "tax", isNumeric: true },
-      { Header: "Amount", accessor: "totalAmount", isNumeric: true },
+      { Header: 'Name', accessor: 'displayName' },
+      { Header: 'Quantity', accessor: 'quantity', isNumeric: true },
+      { Header: 'Rate', accessor: 'itemRate', isNumeric: true },
+      { Header: 'Tax', accessor: 'tax', isNumeric: true },
+      { Header: 'Amount', accessor: 'totalAmount', isNumeric: true },
+      { Header: '', accessor: 'actions' },
     ];
   }, []);
 
   const data = useMemo(() => {
-    return [...items].map((item, index) => {
-      const {
-        name,
-        variant,
-        salesTax,
-        itemRateTotal,
-        itemTaxTotal,
-        itemRate,
-        itemTax,
-      } = item;
+    return [...items].map((saleItem, index) => {
+      console.log({ saleItem });
+      const { item, salesTax, itemRateTotal, itemTaxTotal, itemRate, itemTax } =
+        saleItem;
 
-      const rate = taxType === "taxInclusive" ? itemRate + itemTax : itemRate;
+      const rate = taxType === 'taxInclusive' ? itemRate + itemTax : itemRate;
       const amount =
-        taxType === "taxInclusive"
+        taxType === 'taxInclusive'
           ? itemRateTotal + itemTaxTotal
           : itemRateTotal;
 
       return {
-        ...item,
+        ...saleItem,
         itemRate: rate,
         totalAmount: amount,
-        displayName: `${name}-${variant}`,
-        tax: salesTax?.name ? `${salesTax?.name} (${salesTax?.rate}%)` : "",
+        displayName: `${item?.name}`,
+        tax: salesTax?.name ? `${salesTax?.name} (${salesTax?.rate}%)` : '0%',
         actions: (
           <Stack direction="row" spacing={1}>
             <IconButton
               size="xs"
-              onClick={() => handleEdit(index)}
+              onClick={() => handleItemEdit(saleItem, index)}
               colorScheme="cyan"
               icon={<RiEdit2Line />}
               title="Edit"
@@ -59,7 +53,7 @@ function SaleItemsTable(props) {
 
             <IconButton
               size="xs"
-              onClick={() => handleDelete(index)}
+              onClick={() => handleItemDelete(index)}
               colorScheme="red"
               icon={<RiDeleteBin4Line />}
               title="Delete"
@@ -69,7 +63,7 @@ function SaleItemsTable(props) {
         ),
       };
     });
-  }, [items, handleDelete, handleEdit, loading, taxType]);
+  }, [items, handleItemDelete, handleItemEdit, loading, taxType]);
 
   return <CustomTable data={data} columns={columns} />;
 }
@@ -78,9 +72,9 @@ SaleItemsTable.propTypes = {
   loading: PropTypes.bool.isRequired,
   items: PropTypes.arrayOf(
     PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      variant: PropTypes.string,
-      itemId: PropTypes.string.isRequired,
+      item: PropTypes.object.isRequired,
+      startDate: PropTypes.string,
+      endDate: PropTypes.string,
       rate: PropTypes.number.isRequired,
       tax: PropTypes.oneOfType([
         PropTypes.shape({
@@ -96,8 +90,8 @@ SaleItemsTable.propTypes = {
       quantity: PropTypes.number.isRequired,
     })
   ),
-  handleDelete: PropTypes.func.isRequired,
-  handleEdit: PropTypes.func.isRequired,
+  handleItemDelete: PropTypes.func.isRequired,
+  handleItemEdit: PropTypes.func.isRequired,
   taxType: PropTypes.string.isRequired,
 };
 

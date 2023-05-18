@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import {
   Modal,
   ModalBody,
@@ -7,43 +7,55 @@ import {
   ModalOverlay,
   ModalFooter,
   ModalCloseButton,
-  useDisclosure,
   Button,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { FormProvider, useForm } from 'react-hook-form';
-
+//
 import SaleItemFormFields from './SaleItemFormFields';
+import { getSalesItemData } from 'utils/sales';
 
 //----------------------------------------------------------------------
 
-SaleItemFormFieldsModal.propTypes = {
+SaleItemModalForm.propTypes = {
   children: PropTypes.func.isRequired,
   onSelect: PropTypes.func.isRequired,
   selectedContact: PropTypes.object,
 };
 
-export default function SaleItemFormFieldsModal({
+export default function SaleItemModalForm({
   children,
   handleFormSubmit,
+  handleFormCancel,
   defaultValues,
+  isOpen,
   ...formFieldsProps
 }) {
-  const { isOpen, onClose, onOpen } = useDisclosure();
-
+  // console.log({ defaultValues });
   const inputRef = useRef(null);
-  const triggerRef = useRef(null);
+
+  const formDefaultValues = useMemo(() => {
+    return {
+      item: defaultValues?.item || null,
+      quantity: defaultValues?.quantity || 1,
+      rate: defaultValues?.rate || 0,
+      salesTax: defaultValues?.salesTax || null,
+      startDate: defaultValues?.startDate || new Date(),
+      endDate: defaultValues?.endDate || new Date(),
+    };
+  }, [defaultValues]);
 
   const formMethods = useForm({
     mode: 'onChange',
-    defaultValues: {
-      quantity: defaultValues?.quantity || 1,
-      rate: defaultValues?.rate || 0,
-      startDate: defaultValues?.startDate || new Date(),
-      endDate: defaultValues?.endDate || new Date(),
-    },
+    defaultValues: formDefaultValues,
   });
   const { handleSubmit, reset, trigger, getValues } = formMethods;
+
+  useEffect(() => {
+    console.log('default values have changed', formDefaultValues);
+
+    reset(formDefaultValues);
+  }, [formDefaultValues, reset]);
 
   async function onSave(e) {
     const fieldsAreValid = await trigger();
@@ -60,26 +72,30 @@ export default function SaleItemFormFieldsModal({
   }
 
   function onSubmit(data) {
-    onClose();
+    console.log({ data });
 
-    handleFormSubmit(data);
+    const saleItemData = getSalesItemData(data);
+    console.log({ saleItemData });
+
+    handleFormSubmit(saleItemData);
+
+    //reset form
+    reset();
   }
 
   function onCancel() {
     reset();
-    onClose();
+    handleFormCancel();
   }
 
   return (
     <>
-      {children(onOpen, triggerRef)}
-
       <FormProvider {...formMethods}>
         <Modal
           isOpen={isOpen}
-          onClose={onClose}
+          onClose={handleFormCancel}
           initialFocusRef={inputRef}
-          finalFocusRef={triggerRef}
+          // finalFocusRef={triggerRef}
           closeOnOverlayClick={false}
           scrollBehavior="inside"
           size="xl"

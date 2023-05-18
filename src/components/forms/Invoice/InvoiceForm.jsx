@@ -29,20 +29,23 @@ function InvoiceForm(props) {
       dueDate: invoice?.dueDate || today,
       subject: invoice?.subject || '',
       customerNotes: invoice?.customerNotes || '',
-      selectedItems: invoice?.selectedItems || [
-        {
-          item: null,
-          rate: 0,
-          startDate: new Date(),
-          endDate: new Date(),
-          quantity: 0,
-          itemRate: 0,
-          itemTax: 0,
-          itemRateTotal: 0,
-          itemTaxTotal: 0,
-          salesTax: null,
-        },
-      ],
+      selectedItems:
+        invoice?.selectedItems ||
+        [
+          // {
+          //   item: null,
+          //   rate: 0,
+          //   startDate: new Date(),
+          //   endDate: new Date(),
+          //   quantity: 0,
+          //   itemRate: 0,
+          //   itemTax: 0,
+          //   itemRateTotal: 0,
+          //   itemTaxTotal: 0,
+          //   salesTax: null,
+          // },
+        ],
+      taxType: 'taxExclusive',
       summary: invoice?.summary || {
         adjustment: 0,
         shipping: 0,
@@ -50,7 +53,6 @@ function InvoiceForm(props) {
         taxes: [],
         totalAmount: 0,
         totalTax: 0,
-        taxType: 'taxExclusive',
       },
       saleType: invoice?.saleType || 'booking',
     },

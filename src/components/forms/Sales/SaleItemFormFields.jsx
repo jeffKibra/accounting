@@ -26,25 +26,15 @@ function CustomLabel({ children }) {
 }
 
 function SaleItemFormFields(props) {
-  const {
-    itemsObject,
-    selectedItemsObject,
-    // taxesObject,
-    loading,
-  } = props;
+  const { itemsObject, selectedItemsObject, taxesObject, loading } = props;
 
   const {
     formState: { errors },
     watch,
-    getValues,
     control,
     setValue,
   } = useFormContext();
   console.log({ errors });
-
-  const item = watch('item');
-  console.log({ item });
-  const itemId = item?.itemId || '';
 
   const quantity = watch('quantity');
   const startDate = watch('startDate');
@@ -61,20 +51,36 @@ function SaleItemFormFields(props) {
     }
   }, [startDateString, quantity, setValue]);
 
-  useEffect(() => {
-    if (itemId) {
-      const selectedItem = getValues('item');
-      //update form fields based on item fields
-      const itemRate = selectedItem?.sellingPrice || 0;
-      setValue('rate', itemRate, {
+  // useEffect(() => {
+  //   if (itemId) {
+  //     const selectedItem = getValues('item');
+  //     //update form fields based on item fields
+  //     const itemRate = selectedItem?.sellingPrice || 0;
+  //     setValue('rate', itemRate, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //     });
+  //   }
+  // }, [itemId, getValues, setValue]);
+
+  const item = watch('item');
+  const itemType = item?.type;
+  const itemIsABooking = isItemABooking(itemType);
+
+  function handleItemChange(item) {
+    console.log('item has changed', item);
+    if (item) {
+      const { salesTax, sellingPrice } = item;
+      setValue('rate', sellingPrice, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      setValue('salesTax', salesTax, {
         shouldValidate: true,
         shouldDirty: true,
       });
     }
-  }, [itemId, getValues, setValue]);
-
-  const itemType = item?.type;
-  const itemIsABooking = isItemABooking(itemType);
+  }
 
   // console.log({ itemIsABooking });
 
@@ -101,6 +107,7 @@ function SaleItemFormFields(props) {
               function handleChange(itemId) {
                 const item = itemsObject[itemId];
                 onChange(item);
+                handleItemChange(item); //update rate and tax fields
               }
 
               return (
@@ -142,31 +149,6 @@ function SaleItemFormFields(props) {
           <FormErrorMessage>{errors?.item?.message}</FormErrorMessage>
         </FormControl>
       </GridItem>
-
-      {/* <GridItem colSpan={[6, null, 3]}>
-              <FormControl isInvalid={errors?.salesTax}>
-                <CustomLabel htmlFor="salesTax">Item Tax</CustomLabel>
-                <ControlledSelect
-                  id={`${field.id}-salesTax`}
-                  onChange={taxId => updateItemFields('salesTax', taxId, index)}
-                  placeholder="Item Tax"
-                  options={Object.values(taxesObject).map(tax => {
-                    const { taxId, name, rate } = tax;
-
-                    return {
-                      name: `${name} (${rate}%)`,
-                      value: taxId,
-                    };
-                  })}
-                  value={salesTax?.taxId || ''}
-                  isDisabled={!item?.itemId || loading}
-                />
-
-                <FormErrorMessage>
-                  {errors?.salesTax?.message}
-                </FormErrorMessage>
-              </FormControl>
-            </GridItem> */}
 
       <GridItem colSpan={[12, 6]}>
         <FormControl isInvalid={errors?.rate}>
@@ -211,6 +193,44 @@ function SaleItemFormFields(props) {
                 /> */}
 
           <FormErrorMessage>{errors?.rate?.message}</FormErrorMessage>
+        </FormControl>
+      </GridItem>
+
+      <GridItem colSpan={[12, 6]}>
+        <FormControl isInvalid={errors?.salesTax}>
+          <CustomLabel htmlFor="salesTax">Item Tax</CustomLabel>
+          <Controller
+            name="salesTax"
+            control={control}
+            render={({ field: { onChange, onBlur, value, name } }) => {
+              function handleChange(taxId) {
+                console.log({ taxId });
+                const salesTax = taxesObject[taxId];
+                onChange(salesTax);
+              }
+
+              return (
+                <ControlledSelect
+                  id={name}
+                  onChange={handleChange}
+                  onBlur={onBlur}
+                  placeholder="Item Tax"
+                  options={Object.values(taxesObject).map(tax => {
+                    const { taxId, name, rate } = tax;
+
+                    return {
+                      name: `${name} (${rate}%)`,
+                      value: taxId,
+                    };
+                  })}
+                  value={value?.taxId || ''}
+                  isDisabled={loading}
+                />
+              );
+            }}
+          />
+
+          <FormErrorMessage>{errors?.salesTax?.message}</FormErrorMessage>
         </FormControl>
       </GridItem>
 
