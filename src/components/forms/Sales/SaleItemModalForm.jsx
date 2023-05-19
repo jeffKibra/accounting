@@ -40,6 +40,7 @@ export default function SaleItemModalForm({
       quantity: defaultValues?.quantity || 1,
       rate: defaultValues?.rate || 0,
       salesTax: defaultValues?.salesTax || null,
+      dateRange: defaultValues?.dateRange || [new Date(), new Date()],
       startDate: defaultValues?.startDate || new Date(),
       endDate: defaultValues?.endDate || new Date(),
     };
@@ -105,32 +106,26 @@ export default function SaleItemModalForm({
             <ModalHeader>Item Sale Details</ModalHeader>
 
             <ModalCloseButton />
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <ModalBody>
-                {/* {error ? (
+            <ModalBody>
+              {/* {error ? (
               <Alert status="error" my={4}>
                 <AlertIcon />
                 {error?.message || 'Unknown Error!'}
               </Alert>
             ) : null} */}
-
+              <form onSubmit={handleSubmit(onSubmit)}>
                 <SaleItemFormFields {...formFieldsProps} />
-              </ModalBody>
+              </form>
+            </ModalBody>
 
-              <ModalFooter>
-                <Button
-                  mr={3}
-                  type="button"
-                  colorScheme="red"
-                  onClick={onCancel}
-                >
-                  cancel
-                </Button>
-                <Button type="button" colorScheme="cyan" onClick={onSave}>
-                  save
-                </Button>
-              </ModalFooter>
-            </form>
+            <ModalFooter>
+              <Button mr={3} type="button" colorScheme="red" onClick={onCancel}>
+                cancel
+              </Button>
+              <Button type="button" colorScheme="cyan" onClick={onSave}>
+                save
+              </Button>
+            </ModalFooter>
           </ModalContent>
         </Modal>
       </FormProvider>

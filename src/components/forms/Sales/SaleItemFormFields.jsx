@@ -14,8 +14,9 @@ import { isItemABooking } from 'utils/sales';
 import ControlledSelect from 'components/ui/ControlledSelect';
 // import RHFPlainNumInput from 'components/ui/RHFPlainNumInput';
 import ControlledNumInput from 'components/ui/ControlledNumInput';
-import ControlledDatePicker from 'components/ui/ControlledDatePicker';
-import { getBookingEndDate } from 'utils/sales';
+// import ControlledDatePicker from 'components/ui/ControlledDatePicker';
+import DateRangePicker from 'components/ui/DateRangePicker';
+import { getDaysDifference } from 'utils/dates';
 
 function CustomLabel({ children }) {
   return (
@@ -36,20 +37,21 @@ function SaleItemFormFields(props) {
   } = useFormContext();
   console.log({ errors });
 
-  const quantity = watch('quantity');
-  const startDate = watch('startDate');
-  const startDateString = startDate
-    ? new Date(startDate).toLocaleDateString()
-    : '';
+  const dateRange = watch('dateRange');
+  console.log({ dateRange });
 
   useEffect(() => {
-    if (startDateString) {
-      const endDate = getBookingEndDate(new Date(startDateString), quantity);
-      console.log({ endDate });
+    if (Array.isArray(dateRange)) {
+      const [startDate, endDate] = dateRange;
 
-      setValue('endDate', endDate);
+      if (startDate && endDate) {
+        const quantity = getDaysDifference(startDate, endDate);
+        console.log({ quantity });
+
+        setValue('quantity', quantity);
+      }
     }
-  }, [startDateString, quantity, setValue]);
+  }, [dateRange, setValue]);
 
   // useEffect(() => {
   //   if (itemId) {
@@ -240,10 +242,12 @@ function SaleItemFormFields(props) {
             <FormControl
               isDisabled={loading}
               isRequired
-              isInvalid={errors?.startDate}
+              isInvalid={errors?.dateRange}
             >
-              <CustomLabel htmlFor="startDate">Start Date</CustomLabel>
-              <Controller
+              <CustomLabel htmlFor="dateRange">Select Dates</CustomLabel>
+
+              <DateRangePicker name="dateRange" isReadOnly={loading} inline />
+              {/* <Controller
                 name="startDate"
                 control={control}
                 rules={{
@@ -262,57 +266,56 @@ function SaleItemFormFields(props) {
                     />
                   );
                 }}
-              />
+              /> */}
 
-              <FormErrorMessage>{errors?.startDate?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors?.dateRange?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
         </>
-      ) : null}
+      ) : (
+        <GridItem colSpan={[12, 6]}>
+          <FormControl isInvalid={errors?.quantity}>
+            <CustomLabel htmlFor="quantity">
+              {itemIsABooking ? 'Days' : 'Quantity'}
+            </CustomLabel>
+            <Controller
+              name="quantity"
+              control={control}
+              render={({ field: { ref, value, onBlur, onChange } }) => {
+                // function handleBlur(blurData) {
+                //   console.log({ blurData });
+                //   onBlur(blurData);
+                // }
 
-      <GridItem colSpan={[12, 6]}>
-        <FormControl isInvalid={errors?.quantity}>
-          <CustomLabel htmlFor="quantity">
-            {itemIsABooking ? 'Days' : 'Quantity'}
-          </CustomLabel>
-          <Controller
-            name="quantity"
-            control={control}
-            render={({ field: { ref, value, onBlur, onChange } }) => {
-              // function handleBlur(blurData) {
-              //   console.log({ blurData });
-              //   onBlur(blurData);
-              // }
+                // function handleChange(value) {
+                //   console.log({ value });
+                //   updateItemFields('quantity', value, index);
+                // }
 
-              // function handleChange(value) {
-              //   console.log({ value });
-              //   updateItemFields('quantity', value, index);
-              // }
-
-              return (
-                <ControlledNumInput
-                  ref={ref}
-                  updateFieldMode="onBlur"
-                  value={value}
-                  mode="onBlur"
-                  // onChange={handleChange}
-                  // onBlur={handleBlur}
-                  onChange={onChange}
-                  onBlur={onBlur}
-                  min={1}
-                  isReadOnly={loading}
-                />
-              );
-            }}
-            rules={{
-              required: { value: true, message: '*Required' },
-              min: {
-                value: 1,
-                message: 'Value should be greater than zero(0)!',
-              },
-            }}
-          />
-          {/* <RHFPlainNumInput
+                return (
+                  <ControlledNumInput
+                    ref={ref}
+                    updateFieldMode="onBlur"
+                    value={value}
+                    mode="onBlur"
+                    // onChange={handleChange}
+                    // onBlur={handleBlur}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    min={1}
+                    isReadOnly={loading}
+                  />
+                );
+              }}
+              rules={{
+                required: { value: true, message: '*Required' },
+                min: {
+                  value: 1,
+                  message: 'Value should be greater than zero(0)!',
+                },
+              }}
+            />
+            {/* <RHFPlainNumInput
                   name={`selectedItems.${index}.quantity`}
                   mode="onBlur"
                   updateValueOnBlur={false}
@@ -329,7 +332,7 @@ function SaleItemFormFields(props) {
                   }}
                 /> */}
 
-          {/* {itemIsABooking ? (
+            {/* {itemIsABooking ? (
                   <FormHelperText fontSize="12px" whiteSpace="nowrap">
                     To:{' '}
                     {endDate
@@ -338,11 +341,12 @@ function SaleItemFormFields(props) {
                   </FormHelperText>
                 ) : null} */}
 
-          <FormErrorMessage>{errors?.quantity?.message}</FormErrorMessage>
-        </FormControl>
-      </GridItem>
+            <FormErrorMessage>{errors?.quantity?.message}</FormErrorMessage>
+          </FormControl>
+        </GridItem>
+      )}
 
-      {itemIsABooking ? (
+      {/* {itemIsABooking ? (
         <Controller
           name="endDate"
           control={control}
@@ -358,7 +362,7 @@ function SaleItemFormFields(props) {
             </GridItem>
           )}
         />
-      ) : null}
+      ) : null} */}
 
       <GridItem>
         {/* <FormErrorMessage mt="0px!important">
