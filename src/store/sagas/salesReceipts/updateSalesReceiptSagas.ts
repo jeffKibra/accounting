@@ -14,20 +14,20 @@ import {
 import { RootState, SalesReceiptForm, Org } from '../../../types';
 
 interface UpdateData extends SalesReceiptForm {
-  salesReceiptId: string;
+  saleReceiptId: string;
 }
 
 function* updateSalesReceiptSaga(action: PayloadAction<UpdateData>) {
   yield put(start(UPDATE_SALES_RECEIPT));
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;
-  const { salesReceiptId, ...formData } = action.payload;
+  const { saleReceiptId, ...formData } = action.payload;
 
   async function update() {
     return httpsCallable(
       functions,
-      'sale-salesReceipt-update'
-    )({ orgId, salesReceiptId, formData });
+      'sale-saleReceipt-update'
+    )({ orgId, saleReceiptId, formData });
   }
 
   try {

@@ -1,4 +1,4 @@
-import { put, call, select, takeLatest } from "redux-saga/effects";
+import { put, call, select, takeLatest } from 'redux-saga/effects';
 import {
   getDoc,
   getDocs,
@@ -6,26 +6,26 @@ import {
   query,
   where,
   orderBy,
-} from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+} from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { dbCollections } from "../../../utils/firebase";
+import { dbCollections } from '../../../utils/firebase';
 import {
-  GET_SALES_RECEIPT,
-  GET_SALES_RECEIPTS,
-  GET_CUSTOMER_SALES_RECEIPTS,
-} from "../../actions/salesReceiptsActions";
+  GET_SALE_RECEIPT,
+  GET_SALE_RECEIPTS,
+  GET_CUSTOMER_SALE_RECEIPTS,
+} from '../../actions/salesReceiptsActions';
 import {
   start,
   salesReceiptSuccess,
   salesReceiptsSuccess,
   fail,
-} from "../../slices/salesReceiptsSlice";
-import { error as toastError } from "../../slices/toastSlice";
+} from '../../slices/salesReceiptsSlice';
+import { error as toastError } from '../../slices/toastSlice';
 
-import { dateFromTimestamp } from "../../../utils/dates";
+import { dateFromTimestamp } from '../../../utils/dates';
 
-import { RootState, SalesReceipt } from "../../../types";
+import { RootState, SalesReceipt } from '../../../types';
 
 function formatReceiptDates(receipt: SalesReceipt) {
   const { receiptDate, createdAt, modifiedAt } = receipt;
@@ -51,26 +51,26 @@ function formatReceiptDates(receipt: SalesReceipt) {
 // }
 
 function* getSalesReceipt(action: PayloadAction<string>) {
-  yield put(start(GET_SALES_RECEIPT));
-  const salesReceiptId = action.payload;
+  yield put(start(GET_SALE_RECEIPT));
+  const saleReceiptId = action.payload;
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
-  console.log({ salesReceiptId });
+  console.log({ saleReceiptId });
 
   async function get() {
     const salesCollection = dbCollections(orgId).salesReceipts;
-    const receiptDoc = await getDoc(doc(salesCollection, salesReceiptId));
+    const receiptDoc = await getDoc(doc(salesCollection, saleReceiptId));
     const receiptData = receiptDoc.data();
 
     if (!receiptDoc.exists || !receiptData) {
-      throw new Error("Sales Receipt not found!");
+      throw new Error('Sales Receipt not found!');
     }
 
     return {
       ...formatReceiptDates({
         ...receiptData,
-        salesReceiptId: receiptDoc.id,
+        saleReceiptId: receiptDoc.id,
       }),
     };
   }
@@ -89,11 +89,11 @@ function* getSalesReceipt(action: PayloadAction<string>) {
 }
 
 export function* watchGetSalesReceipt() {
-  yield takeLatest(GET_SALES_RECEIPT, getSalesReceipt);
+  yield takeLatest(GET_SALE_RECEIPT, getSalesReceipt);
 }
 
 function* getSalesReceipts() {
-  yield put(start(GET_SALES_RECEIPTS));
+  yield put(start(GET_SALE_RECEIPTS));
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
@@ -102,16 +102,16 @@ function* getSalesReceipts() {
     const salesCollection = dbCollections(orgId).salesReceipts;
     const q = query(
       salesCollection,
-      orderBy("createdAt", "desc"),
-      where("status", "==", 0)
+      orderBy('createdAt', 'desc'),
+      where('status', '==', 0)
     );
     const snap = await getDocs(q);
 
-    const salesReceipts = snap.docs.map((receiptDoc) => {
+    const salesReceipts = snap.docs.map(receiptDoc => {
       return {
         ...formatReceiptDates({
           ...receiptDoc.data(),
-          salesReceiptId: receiptDoc.id,
+          saleReceiptId: receiptDoc.id,
         }),
       };
     });
@@ -132,11 +132,11 @@ function* getSalesReceipts() {
 }
 
 export function* watchGetSalesReceipts() {
-  yield takeLatest(GET_SALES_RECEIPTS, getSalesReceipts);
+  yield takeLatest(GET_SALE_RECEIPTS, getSalesReceipts);
 }
 
 function* getCustomerSalesReceipts(action: PayloadAction<string>) {
-  yield put(start(GET_CUSTOMER_SALES_RECEIPTS));
+  yield put(start(GET_CUSTOMER_SALE_RECEIPTS));
   const customerId = action.payload;
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
@@ -146,17 +146,17 @@ function* getCustomerSalesReceipts(action: PayloadAction<string>) {
     const salesCollection = dbCollections(orgId).salesReceipts;
     const q = query(
       salesCollection,
-      orderBy("createdAt", "desc"),
-      where("customerId", "==", customerId),
-      where("status", "==", "active")
+      orderBy('createdAt', 'desc'),
+      where('customerId', '==', customerId),
+      where('status', '==', 'active')
     );
     const snap = await getDocs(q);
 
-    const salesReceipts = snap.docs.map((receiptDoc) => {
+    const salesReceipts = snap.docs.map(receiptDoc => {
       return {
         ...formatReceiptDates({
           ...receiptDoc.data(),
-          salesReceiptId: receiptDoc.id,
+          saleReceiptId: receiptDoc.id,
         }),
       };
     });
@@ -178,5 +178,5 @@ function* getCustomerSalesReceipts(action: PayloadAction<string>) {
 }
 
 export function* watchGetCustomerSalesReceipts() {
-  yield takeLatest(GET_CUSTOMER_SALES_RECEIPTS, getCustomerSalesReceipts);
+  yield takeLatest(GET_CUSTOMER_SALE_RECEIPTS, getCustomerSalesReceipts);
 }

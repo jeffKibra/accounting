@@ -32,10 +32,10 @@ export interface SalesReceiptForm {
 }
 
 export interface SalesReceipt extends SalesReceiptForm, Meta {
-  salesReceiptId: string;
+  saleReceiptId: string;
 }
 
 export interface SalesReceiptFromDb
-  extends Omit<SalesReceipt, 'salesReceiptId'> {
-  salesReceiptId?: string;
+  extends Omit<SalesReceipt, 'saleReceiptId'> {
+  saleReceiptId?: string;
 }

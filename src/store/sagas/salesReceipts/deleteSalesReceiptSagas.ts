@@ -15,15 +15,15 @@ import { RootState, Org } from '../../../types';
 
 function* deleteSalesReceiptSaga(action: PayloadAction<string>) {
   yield put(start(DELETE_SALES_RECEIPT));
-  const salesReceiptId = action.payload;
+  const saleReceiptId = action.payload;
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;
 
   async function update() {
     return httpsCallable(
       functions,
-      'sale-salesReceipt-delete'
-    )({ orgId, salesReceiptId });
+      'sale-saleReceipt-delete'
+    )({ orgId, saleReceiptId });
   }
 
   try {

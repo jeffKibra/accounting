@@ -18,7 +18,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import CustomSelect from '../../ui/CustomSelect';
 import CustomDatePicker from '../../ui/CustomDatePicker';
 
-import NormalSale from '../Sales/Normal';
+import SaleItems from '../Sales/SaleItems';
 
 //
 import { SaleReceiptFormPropTypes } from 'propTypes';
@@ -48,18 +48,21 @@ export default function SaleReceiptForm(props) {
       paymentModeId: salesReceipt?.paymentMode?.value || 'cash',
       reference: salesReceipt?.reference || '',
       customerNotes: salesReceipt?.customerNotes || '',
-      selectedItems: salesReceipt?.selectedItems || [
-        {
-          item: null,
-          rate: 0,
-          quantity: 0,
-          itemRate: 0,
-          itemTax: 0,
-          itemRateTotal: 0,
-          itemTaxTotal: 0,
-          salesTax: null,
-        },
-      ],
+      selectedItems:
+        salesReceipt?.selectedItems ||
+        [
+          // {
+          //   item: null,
+          //   rate: 0,
+          //   quantity: 0,
+          //   itemRate: 0,
+          //   itemTax: 0,
+          //   itemRateTotal: 0,
+          //   itemTaxTotal: 0,
+          //   salesTax: null,
+          // },
+        ],
+      taxType: 'taxExclusive',
       summary: salesReceipt?.summary || {
         adjustment: 0,
         shipping: 0,
@@ -67,7 +70,6 @@ export default function SaleReceiptForm(props) {
         taxes: [],
         totalAmount: 0,
         totalTax: 0,
-        taxType: 'taxExclusive',
       },
     },
   });
@@ -174,7 +176,7 @@ export default function SaleReceiptForm(props) {
               </GridItem>
             </Grid>
             <Box w="full" p={4}>
-              <NormalSale loading={updating} items={items} taxes={taxes} />
+              <SaleItems loading={updating} items={items} taxes={taxes} />
             </Box>
 
             <Grid

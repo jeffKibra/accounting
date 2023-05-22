@@ -15,7 +15,7 @@ function SalesReceiptsTable(props) {
     return [
       { Header: '', accessor: 'actions' },
       { Header: 'DATE', accessor: 'date' },
-      { Header: 'SALES RECEIPT#', accessor: 'salesReceiptId' },
+      { Header: 'SALES RECEIPT#', accessor: 'saleReceiptId' },
       ...(showCustomer
         ? [{ Header: 'CUSTOMER', accessor: 'customer.displayName' }]
         : []),
@@ -54,7 +54,7 @@ SalesReceiptsTable.propTypes = {
       }),
       receiptDate: PropTypes.instanceOf(Date).isRequired,
       status: PropTypes.number.isRequired,
-      salesReceiptId: PropTypes.string.isRequired,
+      saleReceiptId: PropTypes.string.isRequired,
     })
   ),
   showCustomer: PropTypes.bool,

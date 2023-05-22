@@ -1,23 +1,23 @@
-import { useSelector, useDispatch } from "react-redux";
-import { Box, Text } from "@chakra-ui/react";
+import { useSelector, useDispatch } from 'react-redux';
+import { Box, Text } from '@chakra-ui/react';
 
-import { DELETE_SALES_RECEIPT } from "../store/actions/salesReceiptsActions";
+import { DELETE_SALES_RECEIPT } from '../store/actions/salesReceiptsActions';
 
-import { reset } from "../store/slices/salesReceiptsSlice";
+import { reset } from '../store/slices/salesReceiptsSlice';
 
 export default function useDeleteSalesReceipt(salesReceipt) {
-  const { customer, salesReceiptId, receiptDate } = salesReceipt;
+  const { customer, saleReceiptId, receiptDate } = salesReceipt;
   const {
     loading,
     action,
     isModified: isDeleted,
-  } = useSelector((state) => state.salesReceiptsReducer);
+  } = useSelector(state => state.salesReceiptsReducer);
   const dispatch = useDispatch();
 
   const deleting = loading && action === DELETE_SALES_RECEIPT;
 
   function handleDelete() {
-    dispatch({ type: DELETE_SALES_RECEIPT, payload: salesReceiptId });
+    dispatch({ type: DELETE_SALES_RECEIPT, payload: saleReceiptId });
   }
 
   function resetSalesReceipt() {
@@ -26,15 +26,15 @@ export default function useDeleteSalesReceipt(salesReceipt) {
 
   const details = {
     isDone: isDeleted,
-    title: "Delete Sales Receipt",
-    onConfirm: () => handleDelete(salesReceiptId),
+    title: 'Delete Sales Receipt',
+    onConfirm: () => handleDelete(saleReceiptId),
     loading: deleting,
     message: (
       <Box>
         <Text>Are you sure you want to delete this Sales Receipt</Text>
         <Box p={1} pl={5}>
           <Text>
-            salesReceipt#: <b>{salesReceiptId}</b>
+            salesReceipt#: <b>{saleReceiptId}</b>
           </Text>
           <Text>
             Customer Name: <b>{customer.displayName}</b>

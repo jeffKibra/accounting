@@ -22,7 +22,7 @@ export default function dbCollections(orgId: string) {
     paymentsReceived: createCollection<PaymentReceivedFromDb>(
       `${org}/payments`
     ),
-    salesReceipts: createCollection<SalesReceiptFromDb>(`${org}/salesReceipts`),
+    salesReceipts: createCollection<SalesReceiptFromDb>(`${org}/saleReceipts`),
     taxes: createCollection<TaxFromDb>(`${org}/taxes`),
     //     customers: createCollection<Customer>(`${org}/customers`),
   };

@@ -1,8 +1,24 @@
-import { TableContainer, Table, Tbody, Td, Tr } from "@chakra-ui/react";
-import PropTypes from "prop-types";
+import { useMemo } from 'react';
+import { TableContainer, Table, Tbody, Td, Tr } from '@chakra-ui/react';
+import PropTypes from 'prop-types';
 
 function ViewSaleSummaryTable(props) {
-  const { summary, paymentsTotal, showBalance } = props;
+  const { summary, payments, showBalance } = props;
+  console.log({ summary, payments });
+
+  const paymentsTotal = useMemo(() => {
+    console.log('payments have changed', payments);
+
+    let total = 0;
+
+    if (payments && typeof payments === 'object') {
+      Object.values(payments).forEach(payment => {
+        total += Number(payment);
+      });
+    }
+
+    return total;
+  }, [payments]);
 
   const {
     subTotal,
@@ -23,7 +39,7 @@ function ViewSaleSummaryTable(props) {
             <Td isNumeric>Sub Total</Td>
             <Td isNumeric>
               {Number(
-                taxType === "taxInclusive" ? subTotal + totalTax : subTotal
+                taxType === 'taxInclusive' ? subTotal + totalTax : subTotal
               ).toLocaleString()}
             </Td>
           </Tr>
@@ -40,7 +56,7 @@ function ViewSaleSummaryTable(props) {
             return (
               <Tr key={i}>
                 <Td isNumeric>
-                  {" "}
+                  {' '}
                   {name} ({rate}%)
                 </Td>
                 <Td isNumeric>{Number(totalTax).toLocaleString()}</Td>

@@ -27,7 +27,7 @@ function ViewSaleReceipt(props) {
     summary,
     selectedItems,
     customerNotes,
-    salesReceiptId,
+    saleReceiptId,
   } = salesReceipt;
 
   return (
@@ -61,7 +61,7 @@ function ViewSaleReceipt(props) {
             SALES RECEIPT
           </Heading>
           <Text fontSize="sm" mt="0px!important">
-            {salesReceiptId}
+            {saleReceiptId}
           </Text>
         </VStack>
 
@@ -122,7 +122,7 @@ ViewSaleReceipt.propTypes = {
     customer: PropTypes.object.isRequired,
     org: PropTypes.object.isRequired,
     receiptDate: PropTypes.instanceOf(Date).isRequired,
-    salesReceiptId: PropTypes.string.isRequired,
+    saleReceiptId: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,
     selectedItems: PropTypes.array.isRequired,
     reference: PropTypes.string,

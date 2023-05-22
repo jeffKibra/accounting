@@ -10,7 +10,7 @@ import MenuOptions from '../../../components/ui/MenuOptions';
 
 function SaleReceiptOptions(props) {
   const { salesReceipt, edit, view, deletion } = props;
-  const { salesReceiptId } = salesReceipt;
+  const { saleReceiptId } = salesReceipt;
   const { details, isDeleted, resetSalesReceipt } =
     useDeleteSalesReceipt(salesReceipt);
 
@@ -27,7 +27,7 @@ function SaleReceiptOptions(props) {
             name: 'View',
             icon: RiEyeLine,
             as: Link,
-            to: `/sale/sales-receipts/${salesReceiptId}/view`,
+            to: `/sale/sales-receipts/${saleReceiptId}/view`,
           },
         ]
       : []),
@@ -37,7 +37,7 @@ function SaleReceiptOptions(props) {
             name: 'Edit',
             icon: RiEdit2Line,
             as: Link,
-            to: `/sale/sales-receipts/${salesReceiptId}/edit`,
+            to: `/sale/sales-receipts/${saleReceiptId}/edit`,
           },
         ]
       : []),

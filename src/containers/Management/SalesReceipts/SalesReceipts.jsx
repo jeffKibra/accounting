@@ -1,14 +1,14 @@
-import { useEffect } from "react";
-import { connect } from "react-redux";
-import { Box } from "@chakra-ui/react";
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { Box } from '@chakra-ui/react';
 
-import { GET_SALES_RECEIPTS } from "../../../store/actions/salesReceiptsActions";
-import { reset } from "../../../store/slices/salesReceiptsSlice";
+import { GET_SALE_RECEIPTS } from '../../../store/actions/salesReceiptsActions';
+import { reset } from '../../../store/slices/salesReceiptsSlice';
 
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
 
-import SalesReceiptsTable from "../../../components/tables/SalesReceipts/SalesReceiptsTable";
+import SalesReceiptsTable from '../../../components/tables/SalesReceipts/SalesReceiptsTable';
 
 function SalesReceipts(props) {
   const {
@@ -31,7 +31,7 @@ function SalesReceipts(props) {
     }
   }, [isModified, resetSalesReceipt, getSalesReceipts]);
 
-  return loading && action === GET_SALES_RECEIPTS ? (
+  return loading && action === GET_SALE_RECEIPTS ? (
     <SkeletonLoader />
   ) : salesReceipts?.length > 0 ? (
     <Box
@@ -59,7 +59,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getSalesReceipts: () => dispatch({ type: GET_SALES_RECEIPTS }),
+    getSalesReceipts: () => dispatch({ type: GET_SALE_RECEIPTS }),
     resetSalesReceipt: () => dispatch(reset()),
   };
 }

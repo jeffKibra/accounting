@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { GET_SALES_RECEIPT } from '../../../store/actions/salesReceiptsActions';
+import { GET_SALE_RECEIPT } from '../../../store/actions/salesReceiptsActions';
 import { reset } from '../../../store/slices/salesReceiptsSlice';
 
 import { SALES_RECEIPTS } from '../../../nav/routes';
@@ -25,14 +25,14 @@ function ViewSaleReceiptPage(props) {
     resetSalesReceipt,
     getSalesReceipt,
   } = props;
-  const { salesReceiptId } = useParams();
+  const { saleReceiptId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   useSavedLocation().setLocation();
 
   useEffect(() => {
-    getSalesReceipt(salesReceiptId);
-  }, [getSalesReceipt, salesReceiptId]);
+    getSalesReceipt(saleReceiptId);
+  }, [getSalesReceipt, saleReceiptId]);
 
   useEffect(() => {
     if (isModified) {
@@ -43,7 +43,7 @@ function ViewSaleReceiptPage(props) {
 
   return (
     <PageLayout
-      pageTitle={salesReceiptId || 'Sales Receipt'}
+      pageTitle={saleReceiptId || 'Sales Receipt'}
       actions={
         salesReceipt && (
           <SalesReceiptOptions salesReceipt={salesReceipt} edit deletion />
@@ -52,10 +52,10 @@ function ViewSaleReceiptPage(props) {
       breadcrumbLinks={{
         Dashboard: '/',
         'Sales Receipts': SALES_RECEIPTS,
-        [salesReceiptId]: location.pathname,
+        [saleReceiptId]: location.pathname,
       }}
     >
-      {loading && action === GET_SALES_RECEIPT ? (
+      {loading && action === GET_SALE_RECEIPT ? (
         <SkeletonLoader />
       ) : salesReceipt ? (
         <ViewSaleReceipt salesReceipt={salesReceipt} />
@@ -76,8 +76,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     resetSalesReceipt: () => dispatch(reset()),
-    getSalesReceipt: salesReceiptId =>
-      dispatch({ type: GET_SALES_RECEIPT, payload: salesReceiptId }),
+    getSalesReceipt: saleReceiptId =>
+      dispatch({ type: GET_SALE_RECEIPT, payload: saleReceiptId }),
   };
 }
 

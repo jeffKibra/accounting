@@ -19,6 +19,7 @@ import ViewSaleSummaryTable from '../../../components/tables/Sales/ViewSaleSumma
 
 function ViewInvoice(props) {
   const { invoice } = props;
+  console.log({ invoice });
   const {
     org,
     customer,
@@ -29,7 +30,7 @@ function ViewInvoice(props) {
     dueDate,
     customerNotes,
     balance,
-    payments,
+    paymentsReceived,
   } = invoice;
 
   return (
@@ -114,8 +115,9 @@ function ViewInvoice(props) {
           <GridItem colSpan={[11, 6]}>
             <ViewSaleSummaryTable
               showBalance
-              payments={payments}
+              balance={balance}
               summary={summary}
+              payments={paymentsReceived}
             />
           </GridItem>
         </Grid>

@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { SALES_RECEIPTS } from '../../../nav/routes';
 import {
   UPDATE_SALES_RECEIPT,
-  GET_SALES_RECEIPT,
+  GET_SALE_RECEIPT,
 } from '../../../store/actions/salesReceiptsActions';
 import { reset } from '../../../store/slices/salesReceiptsSlice';
 
@@ -22,7 +22,7 @@ function getFormValuesOnly(salesReceipt = {}) {
     customer,
     customerNotes,
     receiptDate,
-    salesReceiptId,
+    saleReceiptId,
     account,
     paymentMode,
     reference,
@@ -34,7 +34,7 @@ function getFormValuesOnly(salesReceipt = {}) {
     customer,
     customerNotes,
     receiptDate,
-    salesReceiptId,
+    saleReceiptId,
     account,
     paymentMode,
     reference,
@@ -53,15 +53,15 @@ function EditSaleReceiptPage(props) {
     resetSalesReceipt,
     getSalesReceipt,
   } = props;
-  const { salesReceiptId } = useParams();
+  const { saleReceiptId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   useSavedLocation().setLocation();
-  const viewRoute = `/sale/sales-receipts/${salesReceiptId}/view`;
+  const viewRoute = `/sale/sales-receipts/${saleReceiptId}/view`;
 
   useEffect(() => {
-    getSalesReceipt(salesReceiptId);
-  }, [getSalesReceipt, salesReceiptId]);
+    getSalesReceipt(saleReceiptId);
+  }, [getSalesReceipt, saleReceiptId]);
 
   useEffect(() => {
     if (isModified) {
@@ -73,20 +73,20 @@ function EditSaleReceiptPage(props) {
   function update(data) {
     updateSalesReceipt({
       ...data,
-      salesReceiptId,
+      saleReceiptId,
     });
   }
 
   return (
     <PageLayout
-      pageTitle={`Edit ${salesReceiptId || 'Sales Receipt'}`}
+      pageTitle={`Edit ${saleReceiptId || 'Sales Receipt'}`}
       breadcrumbLinks={{
         Dashboard: '/',
         'Sales Receipts': SALES_RECEIPTS,
-        [salesReceiptId]: location.pathname,
+        [saleReceiptId]: location.pathname,
       }}
     >
-      {loading && action === GET_SALES_RECEIPT ? (
+      {loading && action === GET_SALE_RECEIPT ? (
         <SkeletonLoader />
       ) : salesReceipt ? (
         <EditSaleReceipt
@@ -113,8 +113,8 @@ function mapDispatchToProps(dispatch) {
     updateSalesReceipt: payload =>
       dispatch({ type: UPDATE_SALES_RECEIPT, payload }),
     resetSalesReceipt: () => dispatch(reset()),
-    getSalesReceipt: salesReceiptId =>
-      dispatch({ type: GET_SALES_RECEIPT, payload: salesReceiptId }),
+    getSalesReceipt: saleReceiptId =>
+      dispatch({ type: GET_SALE_RECEIPT, payload: saleReceiptId }),
   };
 }
 

@@ -23,7 +23,7 @@ function* createSalesReceiptSaga(action: PayloadAction<SalesReceiptForm>) {
   async function create() {
     return httpsCallable(
       functions,
-      'sale-salesReceipt-create'
+      'sale-saleReceipt-create'
     )({ orgId, formData: action.payload });
   }
 

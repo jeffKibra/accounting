@@ -1,28 +1,28 @@
-import { doc, Transaction } from "firebase/firestore";
-import { dbCollections } from "../firebase";
+import { doc, Transaction } from 'firebase/firestore';
+import { dbCollections } from '../firebase';
 
-import { SalesReceipt } from "../../types";
+import { SalesReceipt } from '../../types';
 
 export default async function getSalesReceiptData(
   transaction: Transaction,
   orgId: string,
-  salesReceiptId: string
+  saleReceiptId: string
 ): Promise<SalesReceipt> {
   const salesReceiptsCollection = dbCollections(orgId).salesReceipts;
-  const salesReceiptRef = doc(salesReceiptsCollection, salesReceiptId);
+  const salesReceiptRef = doc(salesReceiptsCollection, saleReceiptId);
   const salesReceiptDoc = await transaction.get(salesReceiptRef);
   const salesReceiptData = salesReceiptDoc.data();
 
   if (
     !salesReceiptDoc.exists ||
     !salesReceiptData ||
-    salesReceiptData.status === "deleted"
+    salesReceiptData.status === 'deleted'
   ) {
-    throw new Error(`Sales Receipt with id ${salesReceiptId} not found!`);
+    throw new Error(`Sales Receipt with id ${saleReceiptId} not found!`);
   }
 
   return {
     ...salesReceiptData,
-    salesReceiptId,
+    saleReceiptId,
   };
 }

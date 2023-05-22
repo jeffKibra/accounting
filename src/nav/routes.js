@@ -38,8 +38,8 @@ export const VIEW_PAYMENT = '/sale/payments/:paymentId/view';
 //receipts
 export const SALES_RECEIPTS = '/sale/sales-receipts';
 export const NEW_SALES_RECEIPT = '/sale/sales-receipts/new';
-export const EDIT_SALES_RECEIPT = '/sale/sales-receipts/:salesReceiptId/edit';
-export const VIEW_SALES_RECEIPT = '/sale/sales-receipts/:salesReceiptId/view';
+export const EDIT_SALES_RECEIPT = '/sale/sales-receipts/:saleReceiptId/edit';
+export const VIEW_SALES_RECEIPT = '/sale/sales-receipts/:saleReceiptId/view';
 //vendors
 export const VENDORS = '/purchase/vendors';
 export const NEW_VENDOR = '/purchase/vendors/new';
