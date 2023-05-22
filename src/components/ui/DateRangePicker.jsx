@@ -7,13 +7,14 @@ import ControlledDatePicker from './ControlledDatePicker';
 //----------------------------------------------------------------
 DateRangePicker.propTypes = {
   isReadOnly: PropTypes.bool.isRequired,
-  datesToExclude: PropTypes.array,
+  dateIntervalsToExclude: PropTypes.array,
   inline: PropTypes.bool,
 };
 
 export default function DateRangePicker(props) {
   console.log({ props });
-  const { isReadOnly, name, datesToExclude, inline } = props;
+  const { isReadOnly, name, dateIntervalsToExclude, inline, ...moreProps } =
+    props;
 
   const { control } = useFormContext();
 
@@ -22,6 +23,7 @@ export default function DateRangePicker(props) {
       name={name}
       control={control}
       render={({ field: { onChange, onBlur, value, name, ref } }) => {
+        console.log('date range', value);
         const startDate = value[0];
         const endDate = value[1];
 
@@ -42,10 +44,15 @@ export default function DateRangePicker(props) {
             //date range props
             startDate={startDate}
             endDate={endDate}
-            excludeDates={Array.isArray(datesToExclude) ? datesToExclude : []}
+            excludeDateIntervals={
+              Array.isArray(dateIntervalsToExclude)
+                ? dateIntervalsToExclude
+                : []
+            }
             selectsRange
             selectsDisabledDaysInRange
             inline={inline}
+            {...moreProps}
           />
         );
       }}

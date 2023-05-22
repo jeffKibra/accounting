@@ -21,7 +21,7 @@ SaleItems.propTypes = {
 };
 
 export default function SaleItems(props) {
-  const { loading, taxes } = props;
+  const { loading, taxes, transactionId } = props;
   const { isOpen, onClose, onOpen } = useDisclosure();
 
   const toasts = useToasts();
@@ -244,6 +244,7 @@ export default function SaleItems(props) {
 
   return (
     <SaleItemsComponent
+      transactionId={transactionId}
       handleSaleItemEdit={handleSaleItemEdit}
       itemsObject={itemsObject}
       loading={loading}

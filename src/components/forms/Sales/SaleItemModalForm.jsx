@@ -23,6 +23,13 @@ SaleItemModalForm.propTypes = {
   selectedContact: PropTypes.object,
 };
 
+function checkIfDateIsValid(date) {
+  const dateIsValid = date && new Date(date).toDateString() !== 'Invalid Date';
+  console.log({ dateIsValid });
+
+  return dateIsValid;
+}
+
 export default function SaleItemModalForm({
   children,
   handleFormSubmit,
@@ -35,14 +42,30 @@ export default function SaleItemModalForm({
   const inputRef = useRef(null);
 
   const formDefaultValues = useMemo(() => {
+    const dateRange = defaultValues?.dateRange;
+
+    let defaultDateRange = [new Date(), new Date()];
+
+    if (Array.isArray(dateRange)) {
+      const dStartDate = dateRange[0];
+      const dEndDate = dateRange[1];
+      const startDateIsValid = checkIfDateIsValid(dStartDate);
+      const endDateIsValid = checkIfDateIsValid(dEndDate);
+      console.log({ startDateIsValid, endDateIsValid });
+
+      if (dStartDate && dEndDate && startDateIsValid && endDateIsValid) {
+        defaultDateRange = [new Date(dStartDate), new Date(dEndDate)];
+      }
+    }
+
+    console.log({ defaultDateRange });
+
     return {
       item: defaultValues?.item || null,
       quantity: defaultValues?.quantity || 1,
       rate: defaultValues?.rate || 0,
       salesTax: defaultValues?.salesTax || null,
-      dateRange: defaultValues?.dateRange || [new Date(), new Date()],
-      startDate: defaultValues?.startDate || new Date(),
-      endDate: defaultValues?.endDate || new Date(),
+      dateRange: defaultDateRange,
     };
   }, [defaultValues]);
 

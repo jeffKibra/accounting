@@ -14,7 +14,7 @@ function SaleItemsTable(props) {
   const columns = useMemo(() => {
     return [
       { Header: 'Name', accessor: 'displayName' },
-      { Header: 'Quantity', accessor: 'quantity', isNumeric: true },
+      { Header: 'Quantity', accessor: 'quantityString', isNumeric: true },
       { Header: 'Rate', accessor: 'itemRate', isNumeric: true },
       { Header: 'Tax', accessor: 'tax', isNumeric: true },
       { Header: 'Amount', accessor: 'totalAmount', isNumeric: true },
@@ -25,8 +25,15 @@ function SaleItemsTable(props) {
   const data = useMemo(() => {
     return [...items].map((saleItem, index) => {
       console.log({ saleItem });
-      const { item, salesTax, itemRateTotal, itemTaxTotal, itemRate, itemTax } =
-        saleItem;
+      const {
+        item,
+        salesTax,
+        itemRateTotal,
+        itemTaxTotal,
+        itemRate,
+        itemTax,
+        quantity,
+      } = saleItem;
 
       const rate = taxType === 'taxInclusive' ? itemRate + itemTax : itemRate;
       const amount =
@@ -34,11 +41,15 @@ function SaleItemsTable(props) {
           ? itemRateTotal + itemTaxTotal
           : itemRateTotal;
 
+      const itemName = item?.name || '';
+      const itemUnit = item?.unit || '';
+
       return {
         ...saleItem,
         itemRate: rate,
         totalAmount: amount,
-        displayName: `${item?.name}`,
+        displayName: `${itemName}`,
+        quantityString: `${quantity} ${itemUnit}`,
         tax: salesTax?.name ? `${salesTax?.name} (${salesTax?.rate}%)` : '0%',
         actions: (
           <Stack direction="row" spacing={1}>
@@ -73,8 +84,7 @@ SaleItemsTable.propTypes = {
   items: PropTypes.arrayOf(
     PropTypes.shape({
       item: PropTypes.object.isRequired,
-      startDate: PropTypes.string,
-      endDate: PropTypes.string,
+      dateRange: PropTypes.array,
       rate: PropTypes.number.isRequired,
       tax: PropTypes.oneOfType([
         PropTypes.shape({

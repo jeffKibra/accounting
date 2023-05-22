@@ -6,8 +6,17 @@ import {
   Tbody,
   Tr,
   Td,
+  Text,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
+import { isItemABooking } from 'utils/sales';
+
+function checkIfDateIsValid(date) {
+  const dateIsValid = date && new Date(date).toDateString() !== 'Invalid Date';
+  console.log({ dateIsValid });
+
+  return dateIsValid;
+}
 
 function ViewSaleItemsTable(props) {
   const { items, taxType } = props;
@@ -66,18 +75,52 @@ function ViewSaleItemsTable(props) {
           <Tbody>
             {items.map((itemDetails, i) => {
               const {
-                item: { name },
+                item: { name, type, unit },
                 quantity,
                 itemRate,
                 itemTax,
                 itemRateTotal,
                 itemTaxTotal,
+                dateRange,
               } = itemDetails;
+
+              let startDate = new Date();
+              let endDate = new Date();
+              if (Array.isArray(dateRange)) {
+                const incomingStartDate = dateRange[0];
+                const incomingEndDate = dateRange[1] || incomingStartDate;
+
+                const startDateIsValid = checkIfDateIsValid(incomingStartDate);
+                const endDateIsValid = checkIfDateIsValid(incomingEndDate);
+                console.log({ startDateIsValid, endDateIsValid });
+
+                if (startDateIsValid && endDateIsValid) {
+                  startDate = new Date(incomingStartDate);
+                  endDate = new Date(incomingEndDate);
+                }
+              }
+
+              const itemIsABooking = isItemABooking(type);
+
               return (
                 <Tr key={i}>
                   <Td>{i + 1}</Td>
-                  <Td>{name}</Td>
-                  <Td isNumeric>{Number(quantity).toLocaleString()}</Td>
+                  <Td>
+                    {name} <br />{' '}
+                    {itemIsABooking ? (
+                      <Text fontSize="xs" color="#1A202C">
+                        {/* Booked:{' '} */}
+                        <Text color="green" as="span">
+                          {`${startDate.toDateString()}-${endDate.toDateString()}`}
+                        </Text>
+                      </Text>
+                    ) : (
+                      ''
+                    )}{' '}
+                  </Td>
+                  <Td isNumeric>{`${Number(quantity).toLocaleString()} ${
+                    unit || ''
+                  }`}</Td>
                   <Td isNumeric>
                     {Number(
                       taxType === 'taxInclusive' ? itemRate + itemTax : itemRate

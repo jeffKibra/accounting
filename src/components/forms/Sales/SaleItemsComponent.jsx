@@ -25,6 +25,7 @@ import SaleItemModalForm from './SaleItemModalForm';
 
 //-----------------------------------------------------------------------------\
 SaleItemsComponent.propTypes = {
+  transactionId: PropTypes.string,
   loading: PropTypes.bool.isRequired,
   taxesObject: PropTypes.object,
   itemsObject: PropTypes.object.isRequired,
@@ -48,6 +49,7 @@ SaleItemsComponent.propTypes = {
 export default function SaleItemsComponent(props) {
   // console.log({ props });
   const {
+    transactionId,
     loading,
     taxesObject,
     itemsObject,
@@ -159,6 +161,7 @@ export default function SaleItemsComponent(props) {
         selectedItemsObject={selectedItemsObject}
         taxesObject={taxesObject}
         loading={loading}
+        transactionId={transactionId}
       />
     </VStack>
   );

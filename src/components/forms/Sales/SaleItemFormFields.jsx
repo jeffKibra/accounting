@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   FormControl,
   FormLabel,
@@ -27,7 +27,16 @@ function CustomLabel({ children }) {
 }
 
 function SaleItemFormFields(props) {
-  const { itemsObject, selectedItemsObject, taxesObject, loading } = props;
+  const {
+    itemsObject,
+    selectedItemsObject,
+    taxesObject,
+    loading,
+    transactionId,
+  } = props;
+  console.log({ itemsObject });
+
+  const [dateIntervalsToExclude, setDateIntervalsToExclude] = useState([]);
 
   const {
     formState: { errors },
@@ -38,7 +47,12 @@ function SaleItemFormFields(props) {
   console.log({ errors });
 
   const dateRange = watch('dateRange');
-  console.log({ dateRange });
+  const item = watch('item');
+  console.log({ dateRange, item });
+
+  const itemId = item?.itemId || '';
+  const itemType = item?.type;
+  const itemIsABooking = isItemABooking(itemType);
 
   useEffect(() => {
     if (Array.isArray(dateRange)) {
@@ -53,6 +67,36 @@ function SaleItemFormFields(props) {
     }
   }, [dateRange, setValue]);
 
+  useEffect(() => {
+    console.log('item has changed', { itemId, transactionId });
+
+    const item = itemsObject[itemId];
+    console.log({ item });
+
+    if (item) {
+      //update dateIntervalsToExclude based on already booked dates
+
+      const bookings = item?.bookings || {};
+      console.log({ bookings });
+
+      Object.keys(bookings).forEach(tId => {
+        if (tId !== transactionId) {
+          const dateRange = bookings[tId];
+          console.log({ dateRange });
+
+          const interval = {
+            start: new Date(dateRange[0]),
+            end: new Date(dateRange[1]),
+          };
+
+          setDateIntervalsToExclude(current => {
+            return [...current, interval];
+          });
+        }
+      });
+    }
+  }, [itemId, transactionId, itemsObject]);
+
   // useEffect(() => {
   //   if (itemId) {
   //     const selectedItem = getValues('item');
@@ -64,10 +108,6 @@ function SaleItemFormFields(props) {
   //     });
   //   }
   // }, [itemId, getValues, setValue]);
-
-  const item = watch('item');
-  const itemType = item?.type;
-  const itemIsABooking = isItemABooking(itemType);
 
   function handleItemChange(item) {
     console.log('item has changed', item);
@@ -246,7 +286,12 @@ function SaleItemFormFields(props) {
             >
               <CustomLabel htmlFor="dateRange">Select Dates</CustomLabel>
 
-              <DateRangePicker name="dateRange" isReadOnly={loading} inline />
+              <DateRangePicker
+                name="dateRange"
+                isReadOnly={loading}
+                inline
+                dateIntervalsToExclude={dateIntervalsToExclude}
+              />
               {/* <Controller
                 name="startDate"
                 control={control}
