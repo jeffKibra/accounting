@@ -30,7 +30,7 @@ function ItemsTable(props) {
       return {
         ...item,
         tax: createTaxDisplay(item?.salesTax),
-        actions: <ItemOptions item={item} edit deletion />,
+        actions: <ItemOptions item={item} edit view deletion />,
       };
     });
   }, [items]);

@@ -14,20 +14,20 @@ import {
   GET_SALE_RECEIPT,
   GET_SALE_RECEIPTS,
   GET_CUSTOMER_SALE_RECEIPTS,
-} from '../../actions/salesReceiptsActions';
+} from '../../actions/saleReceiptsActions';
 import {
   start,
-  salesReceiptSuccess,
-  salesReceiptsSuccess,
+  saleReceiptSuccess,
+  saleReceiptsSuccess,
   fail,
-} from '../../slices/salesReceiptsSlice';
+} from '../../slices/saleReceiptsSlice';
 import { error as toastError } from '../../slices/toastSlice';
 
 import { dateFromTimestamp } from '../../../utils/dates';
 
-import { RootState, SalesReceipt } from '../../../types';
+import { RootState, SaleReceipt } from '../../../types';
 
-function formatReceiptDates(receipt: SalesReceipt) {
+function formatReceiptDates(receipt: SaleReceipt) {
   const { receiptDate, createdAt, modifiedAt } = receipt;
 
   return {
@@ -50,7 +50,7 @@ function formatReceiptDates(receipt: SalesReceipt) {
 //   return seconds1 - seconds2;
 // }
 
-function* getSalesReceipt(action: PayloadAction<string>) {
+function* getSaleReceipt(action: PayloadAction<string>) {
   yield put(start(GET_SALE_RECEIPT));
   const saleReceiptId = action.payload;
   const orgId: string = yield select(
@@ -59,7 +59,7 @@ function* getSalesReceipt(action: PayloadAction<string>) {
   console.log({ saleReceiptId });
 
   async function get() {
-    const salesCollection = dbCollections(orgId).salesReceipts;
+    const salesCollection = dbCollections(orgId).saleReceipts;
     const receiptDoc = await getDoc(doc(salesCollection, saleReceiptId));
     const receiptData = receiptDoc.data();
 
@@ -76,10 +76,10 @@ function* getSalesReceipt(action: PayloadAction<string>) {
   }
 
   try {
-    const receipt: SalesReceipt = yield call(get);
+    const receipt: SaleReceipt = yield call(get);
     console.log({ receipt });
 
-    yield put(salesReceiptSuccess(receipt));
+    yield put(saleReceiptSuccess(receipt));
   } catch (err) {
     const error = err as Error;
     console.log(error);
@@ -88,18 +88,18 @@ function* getSalesReceipt(action: PayloadAction<string>) {
   }
 }
 
-export function* watchGetSalesReceipt() {
-  yield takeLatest(GET_SALE_RECEIPT, getSalesReceipt);
+export function* watchGetSaleReceipt() {
+  yield takeLatest(GET_SALE_RECEIPT, getSaleReceipt);
 }
 
-function* getSalesReceipts() {
+function* getSaleReceipts() {
   yield put(start(GET_SALE_RECEIPTS));
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
 
   async function get() {
-    const salesCollection = dbCollections(orgId).salesReceipts;
+    const salesCollection = dbCollections(orgId).saleReceipts;
     const q = query(
       salesCollection,
       orderBy('createdAt', 'desc'),
@@ -107,7 +107,7 @@ function* getSalesReceipts() {
     );
     const snap = await getDocs(q);
 
-    const salesReceipts = snap.docs.map(receiptDoc => {
+    const saleReceipts = snap.docs.map(receiptDoc => {
       return {
         ...formatReceiptDates({
           ...receiptDoc.data(),
@@ -116,13 +116,13 @@ function* getSalesReceipts() {
       };
     });
 
-    return salesReceipts;
+    return saleReceipts;
   }
 
   try {
-    const salesReceipts: SalesReceipt[] = yield call(get);
+    const saleReceipts: SaleReceipt[] = yield call(get);
 
-    yield put(salesReceiptsSuccess(salesReceipts));
+    yield put(saleReceiptsSuccess(saleReceipts));
   } catch (err) {
     const error = err as Error;
     console.log(error);
@@ -131,11 +131,11 @@ function* getSalesReceipts() {
   }
 }
 
-export function* watchGetSalesReceipts() {
-  yield takeLatest(GET_SALE_RECEIPTS, getSalesReceipts);
+export function* watchGetSaleReceipts() {
+  yield takeLatest(GET_SALE_RECEIPTS, getSaleReceipts);
 }
 
-function* getCustomerSalesReceipts(action: PayloadAction<string>) {
+function* getCustomerSaleReceipts(action: PayloadAction<string>) {
   yield put(start(GET_CUSTOMER_SALE_RECEIPTS));
   const customerId = action.payload;
   const orgId: string = yield select(
@@ -143,7 +143,7 @@ function* getCustomerSalesReceipts(action: PayloadAction<string>) {
   );
   // console.log({ customerId, statuses });
   async function get() {
-    const salesCollection = dbCollections(orgId).salesReceipts;
+    const salesCollection = dbCollections(orgId).saleReceipts;
     const q = query(
       salesCollection,
       orderBy('createdAt', 'desc'),
@@ -152,7 +152,7 @@ function* getCustomerSalesReceipts(action: PayloadAction<string>) {
     );
     const snap = await getDocs(q);
 
-    const salesReceipts = snap.docs.map(receiptDoc => {
+    const saleReceipts = snap.docs.map(receiptDoc => {
       return {
         ...formatReceiptDates({
           ...receiptDoc.data(),
@@ -161,14 +161,14 @@ function* getCustomerSalesReceipts(action: PayloadAction<string>) {
       };
     });
 
-    return salesReceipts;
+    return saleReceipts;
   }
 
   try {
-    const salesReceipts: SalesReceipt[] = yield call(get);
-    // console.log({ salesReceipts });
+    const saleReceipts: SaleReceipt[] = yield call(get);
+    // console.log({ saleReceipts });
 
-    yield put(salesReceiptsSuccess(salesReceipts));
+    yield put(saleReceiptsSuccess(saleReceipts));
   } catch (err) {
     const error = err as Error;
     console.log(error);
@@ -177,6 +177,6 @@ function* getCustomerSalesReceipts(action: PayloadAction<string>) {
   }
 }
 
-export function* watchGetCustomerSalesReceipts() {
-  yield takeLatest(GET_CUSTOMER_SALE_RECEIPTS, getCustomerSalesReceipts);
+export function* watchGetCustomerSaleReceipts() {
+  yield takeLatest(GET_CUSTOMER_SALE_RECEIPTS, getCustomerSaleReceipts);
 }

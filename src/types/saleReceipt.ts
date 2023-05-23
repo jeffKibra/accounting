@@ -17,10 +17,10 @@ interface Meta {
   isSent: boolean;
   status: string;
   org: OrgSummary;
-  transactionType: keyof Pick<TransactionTypes, 'sales_receipt'>;
+  transactionType: keyof Pick<TransactionTypes, 'SALE_RECEIPT'>;
 }
 
-export interface SalesReceiptForm {
+export interface SaleReceiptForm {
   account: Account;
   customer: IContactSummary;
   customerNotes: string;
@@ -31,11 +31,10 @@ export interface SalesReceiptForm {
   summary: SalesSummary;
 }
 
-export interface SalesReceipt extends SalesReceiptForm, Meta {
+export interface SaleReceipt extends SaleReceiptForm, Meta {
   saleReceiptId: string;
 }
 
-export interface SalesReceiptFromDb
-  extends Omit<SalesReceipt, 'saleReceiptId'> {
+export interface SaleReceiptFromDb extends Omit<SaleReceipt, 'saleReceiptId'> {
   saleReceiptId?: string;
 }

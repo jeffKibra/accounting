@@ -18,6 +18,8 @@ export const ORGS = '/orgs';
 export const ITEMS = '/items';
 export const NEW_ITEM = '/items/new';
 export const EDIT_ITEM = '/items/:itemId/edit';
+export const VIEW_ITEM = '/items/:itemId/view';
+
 //customers
 export const CUSTOMERS = '/customers';
 export const NEW_CUSTOMER = '/customers/new';
@@ -36,10 +38,10 @@ export const NEW_PAYMENT = '/sale/payments/new';
 export const EDIT_PAYMENT = '/sale/payments/:paymentId/edit';
 export const VIEW_PAYMENT = '/sale/payments/:paymentId/view';
 //receipts
-export const SALES_RECEIPTS = '/sale/sales-receipts';
-export const NEW_SALES_RECEIPT = '/sale/sales-receipts/new';
-export const EDIT_SALES_RECEIPT = '/sale/sales-receipts/:saleReceiptId/edit';
-export const VIEW_SALES_RECEIPT = '/sale/sales-receipts/:saleReceiptId/view';
+export const SALE_RECEIPTS = '/sale/sales-receipts';
+export const NEW_SALE_RECEIPT = '/sale/sales-receipts/new';
+export const EDIT_SALE_RECEIPT = '/sale/sales-receipts/:saleReceiptId/edit';
+export const VIEW_SALE_RECEIPT = '/sale/sales-receipts/:saleReceiptId/view';
 //vendors
 export const VENDORS = '/purchase/vendors';
 export const NEW_VENDOR = '/purchase/vendors/new';

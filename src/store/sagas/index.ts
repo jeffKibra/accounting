@@ -57,14 +57,14 @@ import { watchGetPaymentModes } from './paymentModes/getPaymentModesSagas';
 //paymentTerms
 import { watchGetPaymentTerms } from './paymentTerms/getPaymentTermsSagas';
 //sales receipts
-import { watchCreateSalesReceipt } from './salesReceipts/createSalesReceiptSagas';
+import { watchCreateSaleReceipt } from './saleReceipts/createSaleReceiptSagas';
 import {
-  watchGetSalesReceipt,
-  watchGetSalesReceipts,
-  watchGetCustomerSalesReceipts,
-} from './salesReceipts/getSalesReceiptsSagas';
-import { watchDeleteSalesReceipt } from './salesReceipts/deleteSalesReceiptSagas';
-import { watchUpdateSalesReceipt } from './salesReceipts/updateSalesReceiptSagas';
+  watchGetSaleReceipt,
+  watchGetSaleReceipts,
+  watchGetCustomerSaleReceipts,
+} from './saleReceipts/getSaleReceiptsSagas';
+import { watchDeleteSaleReceipt } from './saleReceipts/deleteSaleReceiptSagas';
+import { watchUpdateSaleReceipt } from './saleReceipts/updateSaleReceiptSagas';
 //vendors
 import { watchCreateVendor } from './vendors/createVendorSagas';
 import { watchGetVendors, watchGetVendor } from './vendors/getVendorsSagas';
@@ -137,12 +137,12 @@ export default function* rootSaga() {
     watchGetAccounts(),
     watchGetPaymentModes(),
     watchGetPaymentTerms(),
-    watchCreateSalesReceipt(),
-    watchGetSalesReceipt(),
-    watchGetSalesReceipts(),
-    watchGetCustomerSalesReceipts(),
-    watchDeleteSalesReceipt(),
-    watchUpdateSalesReceipt(),
+    watchCreateSaleReceipt(),
+    watchGetSaleReceipt(),
+    watchGetSaleReceipts(),
+    watchGetCustomerSaleReceipts(),
+    watchDeleteSaleReceipt(),
+    watchUpdateSaleReceipt(),
     watchCreateVendor(),
     watchGetVendor(),
     watchGetVendors(),

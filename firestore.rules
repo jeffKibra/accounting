@@ -451,16 +451,16 @@ service cloud.firestore {
         allow update: if isOwner() && verifyPaymentData() && allowPaymentUpdate()
       }
 
-      match /salesReceipts/{receiptId} {
-        function salesReceiptsFixed(){
+      match /saleReceipts/{receiptId} {
+        function saleReceiptsFixed(){
           return ['createdAt', 'createdBy', 'org', 'transactionType'];
         }
-        function verifySalesReceiptData(){
+        function verifySaleReceiptData(){
           let form=["receiptDate", "account", 'paymentMode', "reference", 'customerNotes'];
           let optional=["customer"];
           let sale=['selectedItems', 'summary'];
           let meta=['modifiedAt', 'modifiedBy', 'isSent', 'status'];
-          let fixed=salesReceiptsFixed();
+          let fixed=saleReceiptsFixed();
           let required=form.concat(sale).concat(fixed).concat(meta);
           let allFields=required.concat(optional);
 
@@ -484,16 +484,16 @@ service cloud.firestore {
             request.resource.data.status is string
         }
 
-        function allowSalesReceiptUpdate(){
-          let fixed=salesReceiptsFixed();
+        function allowSaleReceiptUpdate(){
+          let fixed=saleReceiptsFixed();
 
           return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fixed)
         }
 
         allow read: if isOwner()
-        allow create: if isOwner() && verifySalesReceiptData()
-        allow update: if isOwner() && verifySalesReceiptData() &&
-          allowSalesReceiptUpdate()
+        allow create: if isOwner() && verifySaleReceiptData()
+        allow update: if isOwner() && verifySaleReceiptData() &&
+          allowSaleReceiptUpdate()
       }
 
       match /expenses/{expenseId} {

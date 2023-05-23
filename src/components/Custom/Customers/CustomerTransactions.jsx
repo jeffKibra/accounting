@@ -9,7 +9,7 @@ import CustomerInvoices from '../../../containers/Management/Invoices/CustomerIn
 const transactionTypes = [
   { name: 'Invoices', value: 'invoices' },
   { name: 'Payments', value: 'payments' },
-  { name: 'Sales Receipts', value: 'sales_receipts' },
+  { name: 'Sales Receipts', value: 'SALE_RECEIPTs' },
 ];
 
 function CustomerTransactions(props) {

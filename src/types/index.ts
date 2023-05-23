@@ -73,10 +73,10 @@ export type {
   ExpenseUpdateData,
 } from './expense';
 export type {
-  SalesReceipt,
-  SalesReceiptForm,
-  SalesReceiptFromDb,
-} from './salesReceipt';
+  SaleReceipt,
+  SaleReceiptForm,
+  SaleReceiptFromDb,
+} from './saleReceipt';
 export type {
   TransactionTypes,
   InvoiceTransactionTypes,

@@ -17,7 +17,7 @@ export interface DailySummary {
   items: number;
   payments: number;
   paymentsTotal: number;
-  salesReceipts: number;
+  saleReceipts: number;
   vendors: number;
   paymentModes: PaymentModes;
 }

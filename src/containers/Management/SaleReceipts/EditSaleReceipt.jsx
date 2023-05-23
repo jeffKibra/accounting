@@ -3,7 +3,7 @@ import { useSaleReceiptFormProps } from 'hooks';
 import SkeletonLoader from 'components/ui/SkeletonLoader';
 import Empty from 'components/ui/Empty';
 //
-import SalesReceiptForm from 'components/forms/SaleReceipt/SaleReceiptForm';
+import SaleReceiptForm from 'components/forms/SaleReceipt/SaleReceiptForm';
 
 //-
 import { EditSaleReceiptPropTypes } from 'propTypes';
@@ -14,7 +14,7 @@ EditSaleReceipt.propTypes = {
 
 export default function EditSaleReceipt(props) {
   console.log({ props });
-  const { updating, handleFormSubmit, salesReceipt } = props;
+  const { updating, handleFormSubmit, saleReceipt } = props;
 
   const { accounts, paymentModes, customers, items, taxes, loading } =
     useSaleReceiptFormProps();
@@ -42,14 +42,14 @@ export default function EditSaleReceipt(props) {
       } data not found! Try Reloading the page.`}
     />
   ) : (
-    <SalesReceiptForm
+    <SaleReceiptForm
       accounts={accounts}
       items={items}
       paymentModes={paymentModes}
       customers={customers}
       taxes={taxes}
       updating={updating}
-      salesReceipt={salesReceipt}
+      saleReceipt={saleReceipt}
       handleFormSubmit={handleFormSubmit}
     />
   );

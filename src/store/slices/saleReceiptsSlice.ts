@@ -1,12 +1,12 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { SalesReceipt } from "../../types";
+import { SaleReceipt } from '../../types';
 
 type State = {
   loading: boolean;
   isModified: boolean;
-  salesReceipt: SalesReceipt | null;
-  salesReceipts: SalesReceipt[] | null;
+  saleReceipt: SaleReceipt | null;
+  saleReceipts: SaleReceipt[] | null;
   action: string | null;
   error: { code?: string; message?: string } | null;
 };
@@ -14,14 +14,14 @@ type State = {
 const initialState: State = {
   loading: false,
   isModified: false,
-  salesReceipt: null,
-  salesReceipts: null,
+  saleReceipt: null,
+  saleReceipts: null,
   action: null,
   error: null,
 };
 
-const salesReceiptsSlice = createSlice({
-  name: "salesReceipts_slice",
+const saleReceiptsSlice = createSlice({
+  name: 'saleReceipts_slice',
   initialState: {
     ...initialState,
   },
@@ -41,24 +41,21 @@ const salesReceiptsSlice = createSlice({
         isModified: true,
       };
     },
-    salesReceiptSuccess: (
-      state: State,
-      action: PayloadAction<SalesReceipt>
-    ) => {
+    saleReceiptSuccess: (state: State, action: PayloadAction<SaleReceipt>) => {
       return {
         ...state,
         loading: false,
-        salesReceipt: action.payload,
+        saleReceipt: action.payload,
       };
     },
-    salesReceiptsSuccess: (
+    saleReceiptsSuccess: (
       state: State,
-      action: PayloadAction<SalesReceipt[]>
+      action: PayloadAction<SaleReceipt[]>
     ) => {
       return {
         ...state,
         loading: false,
-        salesReceipts: action.payload,
+        saleReceipts: action.payload,
       };
     },
     fail: (state: State, action: PayloadAction<{}>) => {
@@ -82,11 +79,11 @@ const salesReceiptsSlice = createSlice({
 export const {
   start,
   success,
-  salesReceiptSuccess,
-  salesReceiptsSuccess,
+  saleReceiptSuccess,
+  saleReceiptsSuccess,
   fail,
   reset,
-} = salesReceiptsSlice.actions;
-export const salesReceiptsReducer = salesReceiptsSlice.reducer;
+} = saleReceiptsSlice.actions;
+export const saleReceiptsReducer = saleReceiptsSlice.reducer;
 
-export default salesReceiptsSlice;
+export default saleReceiptsSlice;

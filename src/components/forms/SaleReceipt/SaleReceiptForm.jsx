@@ -25,8 +25,10 @@ import { SaleReceiptFormPropTypes } from 'propTypes';
 // import SaleItemsForm from "../../../components/forms/Sales/SaleItemsForm";
 
 export default function SaleReceiptForm(props) {
+  // console.log({ props });
+
   const {
-    salesReceipt,
+    saleReceipt,
     handleFormSubmit,
     updating,
     paymentModes,
@@ -35,21 +37,20 @@ export default function SaleReceiptForm(props) {
     items,
     taxes,
   } = props;
-  // console.log({ props });
 
   const today = new Date();
 
   const formMethods = useForm({
     mode: 'onChange',
     defaultValues: {
-      customerId: salesReceipt?.customer?.id || '',
-      receiptDate: salesReceipt?.receiptDate || today,
-      accountId: salesReceipt?.account?.accountId || 'undeposited_funds',
-      paymentModeId: salesReceipt?.paymentMode?.value || 'cash',
-      reference: salesReceipt?.reference || '',
-      customerNotes: salesReceipt?.customerNotes || '',
+      customerId: saleReceipt?.customer?.id || '',
+      receiptDate: saleReceipt?.receiptDate || today,
+      accountId: saleReceipt?.account?.accountId || 'undeposited_funds',
+      paymentModeId: saleReceipt?.paymentMode?.value || 'cash',
+      reference: saleReceipt?.reference || '',
+      customerNotes: saleReceipt?.customerNotes || '',
       selectedItems:
-        salesReceipt?.selectedItems ||
+        saleReceipt?.selectedItems ||
         [
           // {
           //   item: null,
@@ -63,7 +64,7 @@ export default function SaleReceiptForm(props) {
           // },
         ],
       taxType: 'taxExclusive',
-      summary: salesReceipt?.summary || {
+      summary: saleReceipt?.summary || {
         adjustment: 0,
         shipping: 0,
         subTotal: 0,
@@ -176,7 +177,13 @@ export default function SaleReceiptForm(props) {
               </GridItem>
             </Grid>
             <Box w="full" p={4}>
-              <SaleItems loading={updating} items={items} taxes={taxes} />
+              <SaleItems
+                transactionType="sale_receipt"
+                transactionId={saleReceipt?.saleReceiptId}
+                loading={updating}
+                items={items}
+                taxes={taxes}
+              />
             </Box>
 
             <Grid

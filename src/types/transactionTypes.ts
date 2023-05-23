@@ -15,9 +15,9 @@ export interface InvoiceTransactionTypes
 }
 
 export interface SaleTransactionTypes extends InvoiceTransactionTypes {
-  sales_receipt: {
+  SALE_RECEIPT: {
     name: 'Sales Receipt';
-    value: 'sales_receipt';
+    value: 'SALE_RECEIPT';
   };
 }
 

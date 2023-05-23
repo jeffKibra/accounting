@@ -4,37 +4,33 @@ import { PayloadAction } from '@reduxjs/toolkit';
 
 import { functions } from '../../../utils/firebase';
 
-import { UPDATE_SALES_RECEIPT } from '../../actions/salesReceiptsActions';
-import { start, success, fail } from '../../slices/salesReceiptsSlice';
+import { DELETE_SALE_RECEIPT } from '../../actions/saleReceiptsActions';
+import { start, success, fail } from '../../slices/saleReceiptsSlice';
 import {
   error as toastError,
   success as toastSuccess,
 } from '../../slices/toastSlice';
 
-import { RootState, SalesReceiptForm, Org } from '../../../types';
+import { RootState, Org } from '../../../types';
 
-interface UpdateData extends SalesReceiptForm {
-  saleReceiptId: string;
-}
-
-function* updateSalesReceiptSaga(action: PayloadAction<UpdateData>) {
-  yield put(start(UPDATE_SALES_RECEIPT));
+function* deleteSaleReceiptSaga(action: PayloadAction<string>) {
+  yield put(start(DELETE_SALE_RECEIPT));
+  const saleReceiptId = action.payload;
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;
-  const { saleReceiptId, ...formData } = action.payload;
 
   async function update() {
     return httpsCallable(
       functions,
-      'sale-saleReceipt-update'
-    )({ orgId, saleReceiptId, formData });
+      'sale-saleReceipt-delete'
+    )({ orgId, saleReceiptId });
   }
 
   try {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess('Sales Receipt Sucessfully Updated!'));
+    yield put(toastSuccess('Sales Receipt Sucessfully DELETED!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);
@@ -43,6 +39,6 @@ function* updateSalesReceiptSaga(action: PayloadAction<UpdateData>) {
   }
 }
 
-export function* watchUpdateSalesReceipt() {
-  yield takeLatest(UPDATE_SALES_RECEIPT, updateSalesReceiptSaga);
+export function* watchDeleteSaleReceipt() {
+  yield takeLatest(DELETE_SALE_RECEIPT, deleteSaleReceiptSaga);
 }

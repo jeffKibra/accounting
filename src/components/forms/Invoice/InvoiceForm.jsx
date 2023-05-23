@@ -150,6 +150,7 @@ function InvoiceForm(props) {
             taxes={taxes}
             selectSalesType={!Boolean(invoice)}
             transactionId={invoice?.invoiceId}
+            transactionType={"invoice"}
           />
         </Box>
         <Flex w="full" py={6} justify="flex-end">

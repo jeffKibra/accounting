@@ -16,12 +16,14 @@ SaleItems.propTypes = {
   loading: PropTypes.bool.isRequired,
   items: PropTypes.array.isRequired,
   taxes: PropTypes.array.isRequired,
-  selectSalesType: PropTypes.bool,
+  transactionId: PropTypes.string,
+  transactionType: PropTypes.string,
   // preSelectedItems: PropTypes.array,
 };
 
 export default function SaleItems(props) {
-  const { loading, taxes, transactionId } = props;
+  const { loading, taxes, transactionId, transactionType } = props;
+  console.log({ transactionId, transactionType });
   const { isOpen, onClose, onOpen } = useDisclosure();
 
   const toasts = useToasts();
@@ -244,7 +246,7 @@ export default function SaleItems(props) {
 
   return (
     <SaleItemsComponent
-      transactionId={transactionId}
+      transactionId={`${transactionType || ''}_${transactionId}`}
       handleSaleItemEdit={handleSaleItemEdit}
       itemsObject={itemsObject}
       loading={loading}

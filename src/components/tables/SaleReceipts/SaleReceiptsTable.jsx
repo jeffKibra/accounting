@@ -1,15 +1,15 @@
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-// import useDeletesalesReceipt from "../../../hooks/useDeletesalesReceipt";
-import SaleReceiptOptions from '../../../containers/Management/SalesReceipts/SaleReceiptOptions';
+// import useDeletesaleReceipt from "../../../hooks/useDeletesaleReceipt";
+import SaleReceiptOptions from '../../../containers/Management/SaleReceipts/SaleReceiptOptions';
 
 import CustomRawTable from '../CustomRawTable';
 // import TableActions from "../TableActions";
 
-function SalesReceiptsTable(props) {
-  const { salesReceipts, showCustomer } = props;
-  // console.log({ salesReceipts });
+function SaleReceiptsTable(props) {
+  const { saleReceipts, showCustomer } = props;
+  // console.log({ saleReceipts });
 
   const columns = useMemo(() => {
     return [
@@ -26,24 +26,24 @@ function SalesReceiptsTable(props) {
   }, [showCustomer]);
 
   const data = useMemo(() => {
-    return salesReceipts.map(salesReceipt => {
-      const { receiptDate } = salesReceipt;
+    return saleReceipts.map(saleReceipt => {
+      const { receiptDate } = saleReceipt;
 
       return {
-        ...salesReceipt,
+        ...saleReceipt,
         date: receiptDate.toDateString(),
         actions: (
-          <SaleReceiptOptions salesReceipt={salesReceipt} edit view deletion />
+          <SaleReceiptOptions saleReceipt={saleReceipt} edit view deletion />
         ),
       };
     });
-  }, [salesReceipts]);
+  }, [saleReceipts]);
 
   return <CustomRawTable data={data} columns={columns} />;
 }
 
-SalesReceiptsTable.propTypes = {
-  salesReceipts: PropTypes.arrayOf(
+SaleReceiptsTable.propTypes = {
+  saleReceipts: PropTypes.arrayOf(
     PropTypes.shape({
       customer: PropTypes.shape({
         displayName: PropTypes.string.isRequired,
@@ -60,4 +60,4 @@ SalesReceiptsTable.propTypes = {
   showCustomer: PropTypes.bool,
 };
 
-export default SalesReceiptsTable;
+export default SaleReceiptsTable;

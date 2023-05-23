@@ -2,17 +2,17 @@ import { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { SALES_RECEIPTS } from '../../../nav/routes';
+import { SALE_RECEIPTS } from '../../../nav/routes';
 
-import { CREATE_SALES_RECEIPT } from '../../../store/actions/salesReceiptsActions';
-import { reset } from '../../../store/slices/salesReceiptsSlice';
+import { CREATE_SALE_RECEIPT } from '../../../store/actions/saleReceiptsActions';
+import { reset } from '../../../store/slices/saleReceiptsSlice';
 
 import { useSavedLocation } from 'hooks';
 
 //
 
 import PageLayout from '../../../components/layout/PageLayout';
-import EditSaleReceipt from 'containers/Management/SalesReceipts/EditSaleReceipt';
+import EditSaleReceipt from 'containers/Management/SaleReceipts/EditSaleReceipt';
 
 function NewSaleReceiptPage(props) {
   const { loading, action, isModified, createReceipt, resetReceipt } = props;
@@ -24,7 +24,7 @@ function NewSaleReceiptPage(props) {
   useEffect(() => {
     if (isModified) {
       resetReceipt();
-      navigate(SALES_RECEIPTS);
+      navigate(SALE_RECEIPTS);
     }
   }, [isModified, resetReceipt, navigate]);
 
@@ -33,12 +33,12 @@ function NewSaleReceiptPage(props) {
       pageTitle="New Sales Receipt"
       breadcrumbLinks={{
         Dashboard: '/',
-        'Sales Receipts': SALES_RECEIPTS,
+        'Sales Receipts': SALE_RECEIPTS,
         'New Sales Receipt': location.pathname,
       }}
     >
       <EditSaleReceipt
-        updating={loading && action === CREATE_SALES_RECEIPT}
+        updating={loading && action === CREATE_SALE_RECEIPT}
         handleFormSubmit={createReceipt}
       />
     </PageLayout>
@@ -46,14 +46,14 @@ function NewSaleReceiptPage(props) {
 }
 
 function mapStateToProps(state) {
-  const { loading, action, isModified } = state.salesReceiptsReducer;
+  const { loading, action, isModified } = state.saleReceiptsReducer;
 
   return { loading, action, isModified };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    createReceipt: payload => dispatch({ type: CREATE_SALES_RECEIPT, payload }),
+    createReceipt: payload => dispatch({ type: CREATE_SALE_RECEIPT, payload }),
     resetReceipt: () => dispatch(reset()),
   };
 }

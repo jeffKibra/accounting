@@ -2,14 +2,14 @@ import { Button } from '@chakra-ui/react';
 import { Link, useLocation } from 'react-router-dom';
 import { RiAddLine } from 'react-icons/ri';
 
-import { NEW_SALES_RECEIPT } from 'nav/routes';
+import { NEW_SALE_RECEIPT } from 'nav/routes';
 
 import useSavedLocation from 'hooks/useSavedLocation';
 import PageLayout from 'components/layout/PageLayout';
 
-import SalesReceipts from 'containers/Management/SalesReceipts/SalesReceipts';
+import SaleReceipts from 'containers/Management/SaleReceipts/SaleReceipts';
 
-function SalesReceiptsPage() {
+function SaleReceiptsPage() {
   const location = useLocation();
   useSavedLocation().setLocation();
 
@@ -17,7 +17,7 @@ function SalesReceiptsPage() {
     <PageLayout
       pageTitle="Sales Receipts"
       actions={
-        <Link to={NEW_SALES_RECEIPT}>
+        <Link to={NEW_SALE_RECEIPT}>
           <Button colorScheme="cyan" size="sm" leftIcon={<RiAddLine />}>
             New Receipt
           </Button>
@@ -28,9 +28,9 @@ function SalesReceiptsPage() {
         'Sales Receipts': location.pathname,
       }}
     >
-      <SalesReceipts />
+      <SaleReceipts />
     </PageLayout>
   );
 }
 
-export default SalesReceiptsPage;
+export default SaleReceiptsPage;

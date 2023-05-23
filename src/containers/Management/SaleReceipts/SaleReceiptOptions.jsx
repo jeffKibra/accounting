@@ -4,21 +4,21 @@ import { RiDeleteBin4Line, RiEdit2Line, RiEyeLine } from 'react-icons/ri';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-import useDeleteSalesReceipt from '../../../hooks/useDeleteSalesReceipt';
+import useDeleteSaleReceipt from '../../../hooks/useDeleteSaleReceipt';
 
 import MenuOptions from '../../../components/ui/MenuOptions';
 
 function SaleReceiptOptions(props) {
-  const { salesReceipt, edit, view, deletion } = props;
-  const { saleReceiptId } = salesReceipt;
-  const { details, isDeleted, resetSalesReceipt } =
-    useDeleteSalesReceipt(salesReceipt);
+  const { saleReceipt, edit, view, deletion } = props;
+  const { saleReceiptId } = saleReceipt;
+  const { details, isDeleted, resetSaleReceipt } =
+    useDeleteSaleReceipt(saleReceipt);
 
   useEffect(() => {
     if (isDeleted) {
-      resetSalesReceipt();
+      resetSaleReceipt();
     }
-  }, [isDeleted, resetSalesReceipt]);
+  }, [isDeleted, resetSaleReceipt]);
 
   const options = [
     ...(view
@@ -64,7 +64,7 @@ function SaleReceiptOptions(props) {
 }
 
 SaleReceiptOptions.propTypes = {
-  salesReceipt: PropTypes.object.isRequired,
+  saleReceipt: PropTypes.object.isRequired,
   edit: PropTypes.bool,
   view: PropTypes.bool,
   deletion: PropTypes.bool,

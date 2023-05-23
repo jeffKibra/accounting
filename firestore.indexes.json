@@ -363,7 +363,7 @@
       ]
     },
     {
-      "collectionGroup": "salesReceipts",
+      "collectionGroup": "saleReceipts",
       "queryScope": "COLLECTION",
       "fields": [
         {

@@ -2,10 +2,10 @@ import { useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { GET_SALE_RECEIPT } from '../../../store/actions/salesReceiptsActions';
-import { reset } from '../../../store/slices/salesReceiptsSlice';
+import { GET_SALE_RECEIPT } from '../../../store/actions/saleReceiptsActions';
+import { reset } from '../../../store/slices/saleReceiptsSlice';
 
-import { SALES_RECEIPTS } from '../../../nav/routes';
+import { SALE_RECEIPTS } from '../../../nav/routes';
 
 import useSavedLocation from '../../../hooks/useSavedLocation';
 
@@ -13,17 +13,17 @@ import PageLayout from '../../../components/layout/PageLayout';
 import SkeletonLoader from '../../../components/ui/SkeletonLoader';
 import Empty from '../../../components/ui/Empty';
 
-import SalesReceiptOptions from '../../../containers/Management/SalesReceipts/SaleReceiptOptions';
-import ViewSaleReceipt from '../../../containers/Management/SalesReceipts/ViewSaleReceipt';
+import SaleReceiptOptions from '../../../containers/Management/SaleReceipts/SaleReceiptOptions';
+import ViewSaleReceipt from '../../../containers/Management/SaleReceipts/ViewSaleReceipt';
 
 function ViewSaleReceiptPage(props) {
   const {
     loading,
     isModified,
-    salesReceipt,
+    saleReceipt,
     action,
-    resetSalesReceipt,
-    getSalesReceipt,
+    resetSaleReceipt,
+    getSaleReceipt,
   } = props;
   const { saleReceiptId } = useParams();
   const navigate = useNavigate();
@@ -31,34 +31,34 @@ function ViewSaleReceiptPage(props) {
   useSavedLocation().setLocation();
 
   useEffect(() => {
-    getSalesReceipt(saleReceiptId);
-  }, [getSalesReceipt, saleReceiptId]);
+    getSaleReceipt(saleReceiptId);
+  }, [getSaleReceipt, saleReceiptId]);
 
   useEffect(() => {
     if (isModified) {
-      resetSalesReceipt();
-      navigate(SALES_RECEIPTS);
+      resetSaleReceipt();
+      navigate(SALE_RECEIPTS);
     }
-  }, [isModified, resetSalesReceipt, navigate]);
+  }, [isModified, resetSaleReceipt, navigate]);
 
   return (
     <PageLayout
       pageTitle={saleReceiptId || 'Sales Receipt'}
       actions={
-        salesReceipt && (
-          <SalesReceiptOptions salesReceipt={salesReceipt} edit deletion />
+        saleReceipt && (
+          <SaleReceiptOptions saleReceipt={saleReceipt} edit deletion />
         )
       }
       breadcrumbLinks={{
         Dashboard: '/',
-        'Sales Receipts': SALES_RECEIPTS,
+        'Sales Receipts': SALE_RECEIPTS,
         [saleReceiptId]: location.pathname,
       }}
     >
       {loading && action === GET_SALE_RECEIPT ? (
         <SkeletonLoader />
-      ) : salesReceipt ? (
-        <ViewSaleReceipt salesReceipt={salesReceipt} />
+      ) : saleReceipt ? (
+        <ViewSaleReceipt saleReceipt={saleReceipt} />
       ) : (
         <Empty message="Sales Receipt not found!" />
       )}
@@ -67,16 +67,16 @@ function ViewSaleReceiptPage(props) {
 }
 
 function mapStateToProps(state) {
-  const { loading, action, isModified, salesReceipt } =
-    state.salesReceiptsReducer;
+  const { loading, action, isModified, saleReceipt } =
+    state.saleReceiptsReducer;
 
-  return { loading, action, isModified, salesReceipt };
+  return { loading, action, isModified, saleReceipt };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    resetSalesReceipt: () => dispatch(reset()),
-    getSalesReceipt: saleReceiptId =>
+    resetSaleReceipt: () => dispatch(reset()),
+    getSaleReceipt: saleReceiptId =>
       dispatch({ type: GET_SALE_RECEIPT, payload: saleReceiptId }),
   };
 }

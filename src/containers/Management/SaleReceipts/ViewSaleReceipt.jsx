@@ -17,7 +17,7 @@ import PropTypes from 'prop-types';
 import ViewSaleItemsTable from '../../../components/tables/Sales/ViewSaleItemsTable';
 import ViewSaleSummaryTable from '../../../components/tables/Sales/ViewSaleSummaryTable';
 function ViewSaleReceipt(props) {
-  const { salesReceipt } = props;
+  const { saleReceipt } = props;
   const {
     org,
     customer,
@@ -28,7 +28,7 @@ function ViewSaleReceipt(props) {
     selectedItems,
     customerNotes,
     saleReceiptId,
-  } = salesReceipt;
+  } = saleReceipt;
 
   return (
     <Container
@@ -118,7 +118,7 @@ function ViewSaleReceipt(props) {
 }
 
 ViewSaleReceipt.propTypes = {
-  salesReceipt: PropTypes.shape({
+  saleReceipt: PropTypes.shape({
     customer: PropTypes.object.isRequired,
     org: PropTypes.object.isRequired,
     receiptDate: PropTypes.instanceOf(Date).isRequired,

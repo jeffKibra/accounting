@@ -32,7 +32,7 @@ export default async function getSummaryData(
     items: data?.items || 0,
     paymentModes: data?.paymentModes || {},
     paymentsTotal: data?.paymentsTotal || 0,
-    salesReceipts: data?.salesReceipts || 0,
+    saleReceipts: data?.saleReceipts || 0,
     vendors: data?.vendors || 0,
   };
 

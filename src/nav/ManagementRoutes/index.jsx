@@ -14,7 +14,7 @@ import Taxes from './Taxes';
 import Payments from './Payments';
 import Estimates from './Estimates';
 import Expenses from './Expenses';
-import SalesReceipts from './SalesReceipts';
+import SaleReceipts from './SaleReceipts';
 import Vendors from './Vendors';
 //
 import ChartOfAccounts from './ChartOfAccounts';
@@ -42,7 +42,7 @@ function ManagementRoutes() {
     ...Payments(),
     ...Estimates(),
     ...Expenses(),
-    ...SalesReceipts(),
+    ...SaleReceipts(),
     ...Vendors(),
 
     ...ChartOfAccounts(),

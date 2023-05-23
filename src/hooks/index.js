@@ -3,7 +3,7 @@ export { default as useDeleteCustomer } from './useDeleteCustomer';
 export { default as useDeleteInvoice } from './useDeleteInvoice';
 export { default as useDeleteItem } from './useDeleteItem';
 export { default as useDeletePayment } from './useDeletePayment';
-export { default as useDeleteSalesReceipt } from './useDeleteSalesReceipt';
+export { default as useDeleteSaleReceipt } from './useDeleteSaleReceipt';
 export { default as useDeleteTax } from './useDeleteTax';
 export { default as useOrg } from './useOrg';
 export { default as useSavedLocation } from './useSavedLocation';

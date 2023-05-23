@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 export const EditSaleReceiptPropTypes = {
   handleFormSubmit: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,
-  salesReceipt: PropTypes.shape({
+  saleReceipt: PropTypes.shape({
     summary: PropTypes.shape({
       shipping: PropTypes.number,
       adjustment: PropTypes.number,
