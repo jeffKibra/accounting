@@ -1,7 +1,7 @@
 export { default as useAuth } from './useAuth';
 export { default as useDeleteCustomer } from './useDeleteCustomer';
 export { default as useDeleteInvoice } from './useDeleteInvoice';
-export { default as useDeleteItem } from './useDeleteItem';
+export { default as useDeleteVehicle } from './useDeleteVehicle';
 export { default as useDeletePayment } from './useDeletePayment';
 export { default as useDeleteSaleReceipt } from './useDeleteSaleReceipt';
 export { default as useDeleteTax } from './useDeleteTax';
@@ -19,6 +19,6 @@ export { default as useFetchFromFirestore } from './useFetchFromFirestore';
 export { default as useCustomerInvoices } from './useCustomerInvoices';
 export { default as useAccounts } from './useAccounts';
 export { default as useChartOfAccounts } from './useChartOfAccounts';
-export { default as useItemFormProps } from './useItemFormProps';
+export { default as useVehicleFormProps } from './useVehicleFormProps';
 export { default as usePaymentModes } from './usePaymentModes';
 export { default as useSaleReceiptFormProps } from './useSaleReceiptFormProps';

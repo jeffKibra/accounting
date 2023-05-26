@@ -1,12 +1,12 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { Item } from "../../types";
+import { Vehicle } from '../../types';
 
 type State = {
   loading: boolean;
   isModified: boolean;
-  items: Item[] | null;
-  item: Item | null;
+  vehicles: Vehicle[] | null;
+  vehicle: Vehicle | null;
   action: string | null;
   error: { code?: string; message?: string; stack?: string } | null;
 };
@@ -14,14 +14,14 @@ type State = {
 export const initialState: State = {
   loading: false,
   isModified: false,
-  items: null,
-  item: null,
+  vehicles: null,
+  vehicle: null,
   action: null,
   error: null,
 };
 
-const itemsSlice = createSlice({
-  name: "items_slice",
+const vehiclesSlice = createSlice({
+  name: 'vehicles_slice',
   initialState: {
     ...initialState,
   },
@@ -43,20 +43,20 @@ const itemsSlice = createSlice({
         isModified: true,
       };
     },
-    itemsSuccess: (state: State, action: PayloadAction<Item[]>) => {
+    vehiclesSuccess: (state: State, action: PayloadAction<Vehicle[]>) => {
       const { payload } = action;
       return {
         ...state,
         loading: false,
-        items: payload,
+        vehicles: payload,
       };
     },
-    itemSuccess: (state: State, action: PayloadAction<Item>) => {
+    vehicleSuccess: (state: State, action: PayloadAction<Vehicle>) => {
       const { payload } = action;
       return {
         ...state,
         loading: false,
-        item: payload,
+        vehicle: payload,
       };
     },
     fail: (state: State, action: PayloadAction<{}>) => {
@@ -78,9 +78,9 @@ const itemsSlice = createSlice({
   },
 });
 
-export const { start, success, itemSuccess, itemsSuccess, fail, reset } =
-  itemsSlice.actions;
+export const { start, success, vehicleSuccess, vehiclesSuccess, fail, reset } =
+  vehiclesSlice.actions;
 
-export const itemsReducer = itemsSlice.reducer;
+export const vehiclesReducer = vehiclesSlice.reducer;
 
-export default itemsSlice;
+export default vehiclesSlice;

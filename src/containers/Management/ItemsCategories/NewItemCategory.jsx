@@ -1,13 +1,13 @@
-import { useEffect } from "react";
-import { Box } from "@chakra-ui/react";
-import { connect } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from 'react';
+import { Box } from '@chakra-ui/react';
+import { connect } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
-import useToasts from "../../../hooks/useToasts";
-import { CREATE_ITEM_CATEGORY } from "../../../store/actions/itemsCategoriesActions";
-import { reset } from "../../../store/slices/itemsCategories/modifyItemsCategoriesSlice";
+import useToasts from '../../../hooks/useToasts';
+import { CREATE_VEHICLE_CATEGORY } from '../../../store/actions/itemsCategoriesActions';
+import { reset } from '../../../store/slices/itemsCategories/modifyItemsCategoriesSlice';
 
-import ItemCategoryForm from "../../../components/forms/ItemsCategories/ItemCategoryForm";
+import ItemCategoryForm from '../../../components/forms/ItemsCategories/ItemCategoryForm';
 
 function NewItemCategory(props) {
   const { create, loading, isModified, error, resetApp } = props;
@@ -17,7 +17,7 @@ function NewItemCategory(props) {
 
   useEffect(() => {
     if (isModified) {
-      toasts.success("Items Category Successfully created!");
+      toasts.success('Items Category Successfully created!');
       resetApp();
       navigate(-1);
     }
@@ -47,7 +47,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    create: (payload) => dispatch({ type: CREATE_ITEM_CATEGORY, payload }),
+    create: payload => dispatch({ type: CREATE_VEHICLE_CATEGORY, payload }),
     resetApp: () => dispatch(reset()),
   };
 }

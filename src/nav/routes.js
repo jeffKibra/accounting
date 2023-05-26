@@ -14,11 +14,11 @@ export const ADMIN_EDIT_ORG = '/admin/orgs/:orgId/edit';
 //orgs
 export const ORGS = '/orgs';
 // export const NEW_ORG = "/orgs/new";
-//items
-export const ITEMS = '/items';
-export const NEW_ITEM = '/items/new';
-export const EDIT_ITEM = '/items/:itemId/edit';
-export const VIEW_ITEM = '/items/:itemId/view';
+//VEHICLEs
+export const VEHICLES = '/vehicles';
+export const NEW_VEHICLE = '/vehicles/new';
+export const EDIT_VEHICLE = '/vehicles/:vehicleId/edit';
+export const VIEW_VEHICLE = '/vehicles/:vehicleId/view';
 
 //customers
 export const CUSTOMERS = '/customers';
@@ -66,7 +66,8 @@ export const EDIT_MANUAL_JOURNAL =
 export const TAXES = '/settings/taxes';
 export const NEW_TAX = '/settings/taxes/new';
 export const EDIT_TAX = '/settings/taxes/:taxId/edit';
-//items categories
-export const ITEMS_CATEGORIES = '/settings/itemsCategories';
-export const NEW_ITEM_CATEGORY = '/settings/itemsCategories/new';
-export const EDIT_ITEM_CATEGORY = '/settings/itemsCategories/:categoryId/edit';
+//VEHICLEs categories
+export const VEHICLES_CATEGORIES = '/settings/VEHICLEsCategories';
+export const NEW_VEHICLE_CATEGORY = '/settings/VEHICLEsCategories/new';
+export const EDIT_VEHICLE_CATEGORY =
+  '/settings/VEHICLEsCategories/:categoryId/edit';

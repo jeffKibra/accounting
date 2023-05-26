@@ -1,10 +1,10 @@
 import BigNumber from 'bignumber.js';
-import { SalesItem, ISaleItemFormData } from 'types';
+import { SalesItem, ISaleVehicleFormData } from 'types';
 
 //----------------------------------------------------------------
 BigNumber.config({ DECIMAL_PLACES: 2 });
 
-export default function getSalesItemData(formData: ISaleItemFormData) {
+export default function getSalesItemData(formData: ISaleVehicleFormData) {
   console.log({ formData });
   const { rate, quantity, salesTax, item, ...saleItemMoreData } = formData;
   const {
@@ -13,10 +13,10 @@ export default function getSalesItemData(formData: ISaleItemFormData) {
     modifiedAt,
     modifiedBy,
     status,
-    ...itemFormData
+    ...VehicleFormData
   } = item;
 
-  const { pricesIncludeTax } = itemFormData;
+  const { pricesIncludeTax } = VehicleFormData;
   console.log({ pricesIncludeTax });
 
   let itemRate = rate;
@@ -41,7 +41,7 @@ export default function getSalesItemData(formData: ISaleItemFormData) {
 
   const itemData: SalesItem = {
     ...saleItemMoreData,
-    item: { ...itemFormData },
+    item: { ...VehicleFormData },
     rate,
     quantity,
     itemRate: new BigNumber(itemRate).dp(2).toNumber(),

@@ -84,33 +84,37 @@ function LineFields(props) {
               <FormControl isRequired isInvalid={!!itemErrors?.item}>
                 <CustomLabel htmlFor="item">Item</CustomLabel>
                 <ControlledSelect
-                  onChange={itemId => handleItemChange(itemId, index)}
-                  value={item?.itemId || ''}
+                  onChange={vehicleId => handleItemChange(vehicleId, index)}
+                  value={item?.vehicleId || ''}
                   id={field.id}
                   isDisabled={loading}
                   placeholder="---select item---"
                   allowClearSelection={false}
                   options={Object.values(itemsObject)
                     .filter(originalItem => {
-                      const { itemId } = originalItem;
+                      const { vehicleId } = originalItem;
                       /**
                        * filter to remove selected items-valid items include:
                        * 1. if there is and itemToEdit and current item is similar to itemToEdit
                        * 2. field is not in the selected items object
                        */
-                      const itemInSelectedItems = selectedItemsObject[itemId];
-                      if (item?.itemId === itemId || !itemInSelectedItems) {
+                      const itemInSelectedItems =
+                        selectedItemsObject[vehicleId];
+                      if (
+                        item?.vehicleId === vehicleId ||
+                        !itemInSelectedItems
+                      ) {
                         return true;
                       } else {
                         return false;
                       }
                     })
                     .map((originalItem, i) => {
-                      const { name, itemId } = originalItem;
+                      const { name, vehicleId } = originalItem;
 
                       return {
                         name,
-                        value: itemId,
+                        value: vehicleId,
                       };
                     })}
                 />
@@ -135,7 +139,7 @@ function LineFields(props) {
                     };
                   })}
                   value={salesTax?.taxId || ''}
-                  isDisabled={!item?.itemId || loading}
+                  isDisabled={!item?.vehicleId || loading}
                 />
 
                 <FormErrorMessage>
@@ -164,7 +168,7 @@ function LineFields(props) {
                         onBlur={onBlur}
                         min={1}
                         isReadOnly={loading}
-                        isDisabled={!item?.itemId}
+                        isDisabled={!item?.vehicleId}
                       />
                     );
                   }}
@@ -183,7 +187,7 @@ function LineFields(props) {
                   }}
                   min={1}
                   isReadOnly={loading}
-                  isDisabled={!item?.itemId}
+                  isDisabled={!item?.vehicleId}
                 /> */}
 
                 <FormErrorMessage>{itemErrors?.rate?.message}</FormErrorMessage>
@@ -211,7 +215,7 @@ function LineFields(props) {
                         return (
                           <ControlledDatePicker
                             isReadOnly={loading}
-                            isDisabled={!item?.itemId}
+                            isDisabled={!item?.vehicleId}
                             size="md"
                             name={name}
                             ref={ref}
@@ -266,7 +270,7 @@ function LineFields(props) {
                         onBlur={onBlur}
                         min={1}
                         isReadOnly={loading}
-                        isDisabled={!item?.itemId}
+                        isDisabled={!item?.vehicleId}
                       />
                     );
                   }}
@@ -285,7 +289,7 @@ function LineFields(props) {
                   onBlur={value => updateItemFields('quantity', value, index)}
                   min={1}
                   isReadOnly={loading}
-                  isDisabled={!item?.itemId}
+                  isDisabled={!item?.vehicleId}
                   rules={{
                     required: { value: true, message: '*Required' },
                     min: {

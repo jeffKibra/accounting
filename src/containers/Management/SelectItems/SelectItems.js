@@ -1,14 +1,14 @@
-import { useState, useMemo, useEffect } from "react";
-import { connect } from "react-redux";
-import PropTypes from "prop-types";
+import { useState, useMemo, useEffect } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
-import { GET_ITEMS } from "../store/actions/itemsActions";
-import { GET_PAYMENT_TERMS } from "../store/actions/paymentTermsActions";
+import { GET_VEHICLES } from '../store/actions/itemsActions';
+import { GET_PAYMENT_TERMS } from '../store/actions/paymentTermsActions';
 
-import SkeletonLoader from "../components/ui/SkeletonLoader";
-import Empty from "../components/ui/Empty";
+import SkeletonLoader from '../components/ui/SkeletonLoader';
+import Empty from '../components/ui/Empty';
 
-import InvoiceItemsForm from "../../../components/forms/Invoice/InvoiceItemsForm";
+import InvoiceItemsForm from '../../../components/forms/Invoice/InvoiceItemsForm';
 
 function SelectItems(props) {
   const {
@@ -17,7 +17,7 @@ function SelectItems(props) {
     items,
     loadingItems,
     itemsAction,
-    getItems,
+    getVehicles,
     updating,
     getPaymentTerms,
     paymentTerms,
@@ -27,9 +27,9 @@ function SelectItems(props) {
   // console.log({ invoice, customers, items });
   // console.log({ props });
   useEffect(() => {
-    getItems();
+    getVehicles();
     getPaymentTerms();
-  }, [getItems, getPaymentTerms]);
+  }, [getVehicles, getPaymentTerms]);
 
   const [addedItems, setAddedItems] = useState(
     invoice?.selectedItems ? [...invoice.selectedItems] : []
@@ -39,8 +39,8 @@ function SelectItems(props) {
   const selectedItems = useMemo(() => {
     function deriveData(data) {
       // console.log({ data });
-      const { itemId, rate, quantity, discount, discountType } = data;
-      const item = items.find((item) => item.itemId === itemId);
+      const { vehicleId, rate, quantity, discount, discountType } = data;
+      const item = items.find(item => item.vehicleId === vehicleId);
       let itemRate = rate;
       let itemTax = 0;
       let itemDiscount = discount;
@@ -49,7 +49,7 @@ function SelectItems(props) {
 
       //set all rates to be tax exclusive
       if (salesTax?.rate) {
-        if (salesTaxType === "tax inclusive") {
+        if (salesTaxType === 'tax inclusive') {
           //item rate is inclusive of tax
           const tax = (salesTax.rate / (100 + salesTax.rate)) * rate;
           itemRate = rate - tax;
@@ -58,7 +58,7 @@ function SelectItems(props) {
 
       //discounts
       if (discount > 0) {
-        if (discountType === "KES") {
+        if (discountType === 'KES') {
           itemDiscount = discount;
         } else {
           itemDiscount = (discount * itemRate) / 100;
@@ -89,7 +89,7 @@ function SelectItems(props) {
       const itemData = {
         ...item,
         ...data,
-        itemId,
+        vehicleId,
         itemRate: +itemRate.toFixed(2),
         itemTax: +itemTax.toFixed(2),
         itemDiscount: +itemDiscount.toFixed(2),
@@ -103,7 +103,7 @@ function SelectItems(props) {
     }
 
     return items
-      ? addedItems.map((item) => {
+      ? addedItems.map(item => {
           return deriveData(item);
         })
       : addedItems;
@@ -115,9 +115,9 @@ function SelectItems(props) {
     let remaining = [];
 
     if (items) {
-      remaining = items.filter((item) => {
+      remaining = items.filter(item => {
         const addedItem = addedItems.find(
-          ({ itemId }) => itemId === item.itemId
+          ({ vehicleId }) => vehicleId === item.vehicleId
         );
         return !addedItem;
       });
@@ -128,10 +128,8 @@ function SelectItems(props) {
 
   const summary = useMemo(() => {
     let taxes = [];
-    selectedItems.forEach((item) => {
-      const index = taxes.findIndex(
-        (tax) => tax.taxId === item.salesTax?.taxId
-      );
+    selectedItems.forEach(item => {
+      const index = taxes.findIndex(tax => tax.taxId === item.salesTax?.taxId);
 
       if (index === -1) {
         taxes.push(item.salesTax);
@@ -139,12 +137,12 @@ function SelectItems(props) {
     });
 
     taxes = taxes
-      .filter((tax) => tax?.name)
-      .map((tax) => {
+      .filter(tax => tax?.name)
+      .map(tax => {
         const { taxId } = tax;
         //get all items with this tax
         let totalTax = selectedItems
-          .filter((obj) => obj.salesTax.taxId === taxId)
+          .filter(obj => obj.salesTax.taxId === taxId)
           .reduce((sum, item) => {
             return sum + item.totalTax;
           }, 0);
@@ -169,9 +167,9 @@ function SelectItems(props) {
   }, [selectedItems]);
 
   function addItem(itemData) {
-    const { itemId } = itemData;
-    setAddedItems((current) => {
-      const index = current.findIndex((item) => item.itemId === itemId);
+    const { vehicleId } = itemData;
+    setAddedItems(current => {
+      const index = current.findIndex(item => item.vehicleId === vehicleId);
       // console.log({ current, index, quantity });
       let newItems = [];
 
@@ -196,10 +194,10 @@ function SelectItems(props) {
     });
   }
 
-  function removeItem(itemId) {
-    // console.log({ itemId });
-    setAddedItems((current) => {
-      return current.filter((item) => item.itemId !== itemId);
+  function removeItem(vehicleId) {
+    // console.log({ vehicleId });
+    setAddedItems(current => {
+      return current.filter(item => item.vehicleId !== vehicleId);
     });
   }
 
@@ -216,7 +214,8 @@ function SelectItems(props) {
   // console.log({ selectedItems });
   // console.log({ formValues });
 
-  return (loadingItems && itemsAction === GET_ITEMS) || loadingPaymentTerms ? (
+  return (loadingItems && itemsAction === GET_VEHICLES) ||
+    loadingPaymentTerms ? (
     <SkeletonLoader />
   ) : items?.length > 0 && paymentTerms?.length > 0 ? (
     <InvoiceItemsForm
@@ -251,7 +250,7 @@ SelectItems.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const { loading: loadingItems, items, itemsAction } = state.itemsReducer;
+  const { loading: loadingItems, items, itemsAction } = state.vehiclesReducer;
   const {
     loading: lpt,
     paymentTerms,
@@ -270,7 +269,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getItems: () => dispatch({ type: GET_ITEMS }),
+    getVehicles: () => dispatch({ type: GET_VEHICLES }),
     getPaymentTerms: () => dispatch({ type: GET_PAYMENT_TERMS }),
   };
 }

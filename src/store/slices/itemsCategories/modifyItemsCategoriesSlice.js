@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   loading: false,
@@ -7,18 +7,18 @@ const initialState = {
 };
 
 const modifyItemsCategoriesSlice = createSlice({
-  name: "modify_items_categories_slice",
+  name: 'modify_VEHICLEs_categories_slice',
   initialState: {
     ...initialState,
   },
   reducers: {
-    start: (state) => {
+    start: state => {
       return {
         ...state,
         loading: true,
       };
     },
-    success: (state) => {
+    success: state => {
       return {
         ...state,
         loading: false,
@@ -33,7 +33,7 @@ const modifyItemsCategoriesSlice = createSlice({
         error: payload,
       };
     },
-    reset: (state) => {
+    reset: state => {
       return {
         ...initialState,
       };

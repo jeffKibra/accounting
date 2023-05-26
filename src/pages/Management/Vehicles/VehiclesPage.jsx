@@ -5,30 +5,30 @@ import { RiAddLine } from 'react-icons/ri';
 import useSavedLocation from '../../../hooks/useSavedLocation';
 
 import PageLayout from '../../../components/layout/PageLayout';
-import Items from '../../../containers/Management/Items/Items';
+import Vehices from '../../../containers/Management/Vehicles/Vehicles';
 
-function ItemsPage() {
+function VehicesPage() {
   const location = useLocation();
   useSavedLocation().setLocation();
 
   return (
     <PageLayout
-      pageTitle="Items List"
+      pageTitle="Vehices List"
       actions={
         <Link to={`${location.pathname}/new`}>
           <Button leftIcon={<RiAddLine />} colorScheme="cyan" size="sm">
-            New Item
+            New Vehicle
           </Button>
         </Link>
       }
       breadcrumbLinks={{
         Dashboard: '/',
-        Items: location.pathname,
+        Vehices: location.pathname,
       }}
     >
-      <Items />
+      <Vehices />
     </PageLayout>
   );
 }
 
-export default ItemsPage;
+export default VehicesPage;

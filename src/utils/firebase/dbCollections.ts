@@ -4,7 +4,7 @@ import {
   IContactFromDb,
   ExpenseFromDb,
   InvoiceFromDb,
-  ItemFromDb,
+  VehicleFromDb,
   EntryFromDb,
   PaymentReceivedFromDb,
   SaleReceiptFromDb,
@@ -17,7 +17,7 @@ export default function dbCollections(orgId: string) {
     contacts: createCollection<IContactFromDb>(`${org}/contacts`),
     expenses: createCollection<ExpenseFromDb>(`${org}/expenses`),
     invoices: createCollection<InvoiceFromDb>(`${org}/invoices`),
-    items: createCollection<ItemFromDb>(`${org}/items`),
+    vehicles: createCollection<VehicleFromDb>(`${org}/vehicles`),
     entries: createCollection<EntryFromDb>(`${org}/journals`),
     paymentsReceived: createCollection<PaymentReceivedFromDb>(
       `${org}/payments`

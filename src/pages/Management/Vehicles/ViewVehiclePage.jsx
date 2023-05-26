@@ -3,9 +3,9 @@ import { useLocation, useParams } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 //
-import { GET_ITEM } from 'store/actions/itemsActions';
+import { GET_VEHICLE } from 'store/actions/vehiclesActions';
 //
-import { ITEMS } from 'nav/routes';
+import { VEHICLES } from 'nav/routes';
 //
 import PageLayout from 'components/layout/PageLayout';
 import SkeletonLoader from 'components/ui/SkeletonLoader';
@@ -13,57 +13,58 @@ import Empty from 'components/ui/Empty';
 //
 import useSavedLocation from '../../../hooks/useSavedLocation';
 //
-import ViewItem from 'containers/Management/Items/ViewItem';
+import ViewVehicle from 'containers/Management/Vehicles/ViewVehicle';
 
-function ViewItemPage(props) {
-  const { getItem, loading, item } = props;
+function ViewVehiclePage(props) {
+  const { getVehicle, loading, vehicle } = props;
 
-  const { itemId } = useParams();
+  const { vehicleId } = useParams();
 
   const location = useLocation();
   useSavedLocation().setLocation();
 
   useEffect(() => {
-    getItem(itemId);
-  }, [getItem, itemId]);
+    getVehicle(vehicleId);
+  }, [getVehicle, vehicleId]);
 
   return (
     <PageLayout
-      pageTitle="Items Details"
+      pageTitle="Vehicles Details"
       //   actions={
       //     <Link to={`${location.pathname}/new`}>
       //       <Button leftIcon={<RiAddLine />} colorScheme="cyan" size="sm">
-      //         New Item
+      //         New vehicle
       //       </Button>
       //     </Link>
       //   }
       breadcrumbLinks={{
         Dashboard: '/',
-        Items: ITEMS,
-        [itemId]: location.pathname,
+        Vehicles: VEHICLES,
+        [vehicleId]: location.pathname,
       }}
     >
       {loading ? (
         <SkeletonLoader />
-      ) : item ? (
-        <ViewItem item={item} />
+      ) : vehicle ? (
+        <ViewVehicle vehicle={vehicle} />
       ) : (
-        <Empty message={'Item Data not found!'} />
+        <Empty message={'vehicle Data not found!'} />
       )}
     </PageLayout>
   );
 }
 
 function mapStateToProps(state) {
-  const { loading, isModified, action, item } = state.itemsReducer;
+  const { loading, isModified, action, vehicle } = state.vehiclesReducer;
 
-  return { loading, isModified, action, item };
+  return { loading, isModified, action, vehicle };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    getItem: itemId => dispatch({ type: GET_ITEM, payload: itemId }),
+    getVehicle: vehicleId =>
+      dispatch({ type: GET_VEHICLE, payload: vehicleId }),
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ViewItemPage);
+export default connect(mapStateToProps, mapDispatchToProps)(ViewVehiclePage);

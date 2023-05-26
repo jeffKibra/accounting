@@ -11,8 +11,6 @@ import {} from 'react-datepicker';
 //
 import ControlledDatePicker from 'components/ui/ControlledDatePicker';
 
-import { isItemABooking } from 'utils/sales';
-
 //
 import './datePicker.css';
 
@@ -24,9 +22,9 @@ function FieldValue({ children }) {
   return <Td>{children}</Td>;
 }
 
-export default function ViewItem(props) {
+export default function ViewVehicle(props) {
   //   console.log({ props });
-  const { item } = props;
+  const { vehicle } = props;
   const {
     type,
     name,
@@ -37,9 +35,7 @@ export default function ViewItem(props) {
     buyingPrice,
     unit,
     bookings,
-  } = item;
-
-  const itemIsABooking = isItemABooking(type);
+  } = vehicle;
 
   //   let startDate = new Date();
   //   let endDate = new Date();
@@ -64,11 +60,11 @@ export default function ViewItem(props) {
           <Table wordBreak="break-word">
             <Tbody>
               <Tr>
-                <FieldTitle>Item Name</FieldTitle>
+                <FieldTitle>Vehicle Name</FieldTitle>
                 <FieldValue>{name}</FieldValue>
               </Tr>
               <Tr>
-                <FieldTitle>Item Type</FieldTitle>
+                <FieldTitle>Vehicle Type</FieldTitle>
                 <FieldValue>{type}</FieldValue>
               </Tr>
               <Tr>
@@ -104,8 +100,8 @@ export default function ViewItem(props) {
         </TableContainer>
       </Box>
 
-      {itemIsABooking && Object.keys(bookings).length > 0 ? (
-        <ItemBookings bookings={bookings} />
+      {Object.keys(bookings).length > 0 ? (
+        <VehicleBookings bookings={bookings} />
       ) : null}
     </Box>
   );
@@ -118,7 +114,7 @@ function checkIfDateIsValid(date) {
   return dateString !== 'Invalid Date';
 }
 
-function ItemBookings(props) {
+function VehicleBookings(props) {
   console.log({ props });
   const { bookings } = props;
 

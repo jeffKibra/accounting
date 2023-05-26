@@ -6,30 +6,30 @@ import {
   query,
   where,
   orderBy,
-} from "firebase/firestore";
-import { call, put, takeLatest, select } from "redux-saga/effects";
+} from 'firebase/firestore';
+import { call, put, takeLatest, select } from 'redux-saga/effects';
 
-import { db } from "../../../utils/firebase";
+import { db } from '../../../utils/firebase';
 
 import {
   start,
   categorySuccess,
   categoriesSuccess,
   fail,
-} from "../../slices/itemsCategories/itemsCategoriesSlice";
+} from '../../slices/itemsCategories/itemsCategoriesSlice';
 import {
-  GET_ITEM_CATEGORY,
-  GET_ITEMS_CATEGORIES,
-} from "../../actions/itemsCategoriesActions";
+  GET_VEHICLE_CATEGORY,
+  GET_VEHICLES_CATEGORIES,
+} from '../../actions/itemsCategoriesActions';
 
 function* getItemCategory({ categoryId }) {
   yield put(start());
-  const userProfile = yield select((state) => state.authReducer.userProfile);
+  const userProfile = yield select(state => state.authReducer.userProfile);
   const orgId = userProfile.orgs[0]?.orgId;
 
   async function fetchOrg() {
     const categoryDoc = await getDoc(
-      doc(db, "organizations", orgId, "itemsCategories", categoryId)
+      doc(db, 'organizations', orgId, 'itemsCategories', categoryId)
     );
     return categoryDoc.data();
   }
@@ -45,23 +45,23 @@ function* getItemCategory({ categoryId }) {
 }
 
 export function* watchGetItemCategory() {
-  yield takeLatest(GET_ITEM_CATEGORY, getItemCategory);
+  yield takeLatest(GET_VEHICLE_CATEGORY, getItemCategory);
 }
 
-function* getItemsCategories() {
+function* getVehiclesCategories() {
   yield put(start());
-  const userProfile = yield select((state) => state.authReducer.userProfile);
+  const userProfile = yield select(state => state.authReducer.userProfile);
   const orgId = userProfile.orgs[0]?.orgId;
 
   async function fetchOrgs() {
     const q = query(
-      collection(db, "organizations", orgId, "itemsCategories"),
-      where("status", "==", "active"),
-      orderBy("createdAt", "desc")
+      collection(db, 'organizations', orgId, 'itemsCategories'),
+      where('status', '==', 'active'),
+      orderBy('createdAt', 'desc')
     );
     const orgsSnap = await getDocs(q);
     const orgs = [];
-    orgsSnap.forEach((doc) => {
+    orgsSnap.forEach(doc => {
       orgs.push({
         id: doc.id,
         ...doc.data(),
@@ -81,6 +81,6 @@ function* getItemsCategories() {
   }
 }
 
-export function* watchGetItemsCategories() {
-  yield takeLatest(GET_ITEMS_CATEGORIES, getItemsCategories);
+export function* watchGetVehiclesCategories() {
+  yield takeLatest(GET_VEHICLES_CATEGORIES, getVehiclesCategories);
 }

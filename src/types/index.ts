@@ -37,12 +37,17 @@ export type {
   SalesTax,
   GroupedItems,
   SalesAccountSummary,
-  ISaleItemFormData,
+  ISaleVehicleFormData,
 } from './sales';
 export type { ExpenseItem } from './expenseItem';
 export type { PaymentMode } from './paymentMode';
 export type { PaymentTerm } from './paymentTerm';
-export type { Item, ItemFormData, ItemFromDb, ItemType } from './item';
+export type {
+  Vehicle,
+  VehicleFormData,
+  VehicleFromDb,
+  ItemType,
+} from './vehicle';
 export type {
   Invoice,
   InvoiceSummary,

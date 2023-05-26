@@ -99,7 +99,7 @@ export default function LineItems(props) {
         const currentValues = getValues(fieldId);
         // console.log({ currentValues });
         const {
-          item: { itemId, type },
+          item: { vehicleId, type },
           quantity,
           rate,
           salesTax,
@@ -107,9 +107,9 @@ export default function LineItems(props) {
         } = currentValues;
         console.log({ type });
 
-        const originalItem = itemsObject[itemId];
+        const originalItem = itemsObject[vehicleId];
         let selectedItemData = {
-          itemId,
+          vehicleId,
           quantity,
           rate,
           salesTax,
@@ -165,17 +165,17 @@ export default function LineItems(props) {
   );
 
   const handleItemChange = useCallback(
-    (itemId, index) => {
-      console.log('item changed', { itemId, index });
-      const selectedItem = itemsObject[itemId];
+    (vehicleId, index) => {
+      console.log('item changed', { vehicleId, index });
+      const selectedItem = itemsObject[vehicleId];
       const { sellingPrice, salesTax } = selectedItem;
 
-      const originalItem = itemsObject[itemId];
+      const originalItem = itemsObject[vehicleId];
       console.log({ originalItem });
 
       const initialQuantity = 1;
       const itemData = getSalesItemData(
-        { itemId, quantity: initialQuantity, rate: sellingPrice, salesTax },
+        { vehicleId, quantity: initialQuantity, rate: sellingPrice, salesTax },
         originalItem
       );
       console.log({ itemData });

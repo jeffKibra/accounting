@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 
 import { useTaxes, useAccounts } from '.';
 
-export default function useItemFormProps() {
+export default function useVehicleFormProps() {
   const { taxes, isLoading, fetchTaxes } = useTaxes();
   const { accounts, loading: loadingAccounts, fetchAccounts } = useAccounts();
 

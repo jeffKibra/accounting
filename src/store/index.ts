@@ -7,7 +7,7 @@ import rootSaga from './sagas';
 import { toastReducer } from './slices/toastSlice';
 import { authReducer } from './slices/authSlice';
 import { orgsReducer } from './slices/orgsSlice';
-import { itemsReducer } from './slices/itemsSlice';
+import { vehiclesReducer } from './slices/vehiclesSlice';
 import { taxesReducer } from './slices/taxesSlice';
 import { customersReducer } from './slices/customersSlice';
 import { invoicesReducer } from './slices/invoicesSlice';
@@ -31,7 +31,7 @@ const appReducer = combineReducers({
   toastReducer,
   authReducer,
   orgsReducer,
-  itemsReducer,
+  vehiclesReducer,
   taxesReducer,
   customersReducer,
   invoicesReducer,

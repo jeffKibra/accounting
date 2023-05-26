@@ -4,32 +4,32 @@ import { httpsCallable } from 'firebase/functions';
 
 import { functions } from '../../../utils/firebase';
 
-import { UPDATE_ITEM, DELETE_ITEM } from '../../actions/itemsActions';
-import { start, success, fail } from '../../slices/itemsSlice';
+import { UPDATE_VEHICLE, DELETE_VEHICLE } from '../../actions/vehiclesActions';
+import { start, success, fail } from '../../slices/vehiclesSlice';
 import {
   success as toastSuccess,
   error as toastError,
 } from '../../slices/toastSlice';
 
-import { ItemFormData, RootState } from '../../../types';
+import { VehicleFormData, RootState } from '../../../types';
 
-interface UpdateData extends Partial<ItemFormData> {
-  itemId: string;
+interface UpdateData extends Partial<VehicleFormData> {
+  vehicleId: string;
 }
 
-function* updateItem(action: PayloadAction<UpdateData>) {
-  yield put(start(UPDATE_ITEM));
+function* updateVehicle(action: PayloadAction<UpdateData>) {
+  yield put(start(UPDATE_VEHICLE));
 
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
 
   async function update() {
-    const { itemId, ...formData } = action.payload;
+    const { vehicleId, ...formData } = action.payload;
     return httpsCallable(
       functions,
-      'item-update'
-    )({ orgId, itemId, data: formData });
+      'vehicle-update'
+    )({ orgId, vehicleId, data: formData });
   }
 
   try {
@@ -45,20 +45,20 @@ function* updateItem(action: PayloadAction<UpdateData>) {
   }
 }
 
-export function* watchUpdateItem() {
-  yield takeLatest(UPDATE_ITEM, updateItem);
+export function* watchUpdateVehicle() {
+  yield takeLatest(UPDATE_VEHICLE, updateVehicle);
 }
 
-function* deleteItem(action: PayloadAction<string>) {
-  yield put(start(DELETE_ITEM));
-  const itemId = action.payload;
+function* deleteVehicle(action: PayloadAction<string>) {
+  yield put(start(DELETE_VEHICLE));
+  const vehicleId = action.payload;
 
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
 
   async function update() {
-    return httpsCallable(functions, 'item-delete')({ orgId, itemId });
+    return httpsCallable(functions, 'vehicle-delete')({ orgId, vehicleId });
   }
 
   try {
@@ -74,6 +74,6 @@ function* deleteItem(action: PayloadAction<string>) {
   }
 }
 
-export function* watchDeleteItem() {
-  yield takeLatest(DELETE_ITEM, deleteItem);
+export function* watchDeleteVehicle() {
+  yield takeLatest(DELETE_VEHICLE, deleteVehicle);
 }

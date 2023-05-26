@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-import ItemOptions from '../../../containers/Management/Items/ItemOptions';
+import VehicleOptions from '../../../containers/Management/Vehicles/VehicleOptions';
 
 import CustomTable from '../CustomTable';
 
@@ -9,9 +9,9 @@ function createTaxDisplay(tax) {
   return tax?.name ? `${tax?.name} (${tax?.rate}%)` : '';
 }
 
-function ItemsTable(props) {
-  const { items } = props;
-  // console.log({ items });
+function VehicleTable(props) {
+  const { vehicles } = props;
+  // console.log({ vehicles });
 
   const columns = useMemo(() => {
     return [
@@ -26,26 +26,26 @@ function ItemsTable(props) {
   }, []);
 
   const data = useMemo(() => {
-    return items.map(item => {
+    return vehicles.map(vehicle => {
       return {
-        ...item,
-        tax: createTaxDisplay(item?.salesTax),
-        actions: <ItemOptions item={item} edit view deletion />,
+        ...vehicle,
+        tax: createTaxDisplay(vehicle?.salesTax),
+        actions: <VehicleOptions vehicle={vehicle} edit view deletion />,
       };
     });
-  }, [items]);
+  }, [vehicles]);
 
   return <CustomTable data={data} columns={columns} />;
 }
 
-ItemsTable.propTypes = {
-  items: PropTypes.arrayOf(
+VehicleTable.propTypes = {
+  vehicles: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
       unit: PropTypes.string,
       description: PropTypes.string,
       sku: PropTypes.string,
-      itemId: PropTypes.string.isRequired,
+      vehicleId: PropTypes.string.isRequired,
       type: PropTypes.oneOf(['goods', 'services', 'vehicle']).isRequired,
       costPrice: PropTypes.number.isRequired,
       sellingPrice: PropTypes.number.isRequired,
@@ -57,4 +57,4 @@ ItemsTable.propTypes = {
   handleDelete: PropTypes.func.isRequired,
 };
 
-export default ItemsTable;
+export default VehicleTable;

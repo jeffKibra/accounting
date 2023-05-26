@@ -58,8 +58,8 @@ function ManagementSidebar(props) {
       <DrawerItem route={routes.DASHBOARD} icon={RiDashboardLine}>
         Dashboard
       </DrawerItem>
-      <DrawerItem route={routes.ITEMS} icon={RiShoppingBagLine}>
-        Items
+      <DrawerItem route={routes.VEHICLES} icon={RiShoppingBagLine}>
+        Vehicles
       </DrawerItem>
       <DrawerItem route={routes.CUSTOMERS} icon={RiContactsLine}>
         Customers

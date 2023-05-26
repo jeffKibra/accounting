@@ -97,9 +97,9 @@ export default function SaleItems(props) {
     const selectedItemsObject = {};
     selectedItems.forEach(saleItem => {
       const { item } = saleItem;
-      const itemId = item?.itemId;
-      if (itemId) {
-        selectedItemsObject[itemId] = saleItem;
+      const vehicleId = item?.vehicleId;
+      if (vehicleId) {
+        selectedItemsObject[vehicleId] = saleItem;
       }
     });
 
@@ -119,10 +119,10 @@ export default function SaleItems(props) {
 
     if (items && Array.isArray(items)) {
       itemsObject = items.reduce((obj, item) => {
-        const { itemId } = item;
+        const { vehicleId } = item;
         return {
           ...obj,
-          [itemId]: { ...item },
+          [vehicleId]: { ...item },
         };
       }, {});
     }

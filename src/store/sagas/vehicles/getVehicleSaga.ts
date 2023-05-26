@@ -11,19 +11,19 @@ import { PayloadAction } from '@reduxjs/toolkit';
 
 import { db, dbCollections } from '../../../utils/firebase';
 
-import { GET_ITEMS, GET_ITEM } from '../../actions/itemsActions';
+import { GET_VEHICLES, GET_VEHICLE } from '../../actions/vehiclesActions';
 import {
   start,
-  itemSuccess,
-  itemsSuccess,
+  vehicleSuccess,
+  vehiclesSuccess,
   fail,
-} from '../../slices/itemsSlice';
+} from '../../slices/vehiclesSlice';
 import { error as toastError } from '../../slices/toastSlice';
 
-import { RootState, Item } from '../../../types';
+import { RootState, Vehicle } from '../../../types';
 
-function* getItems() {
-  yield put(start(GET_ITEMS));
+function* getVehicles() {
+  yield put(start(GET_VEHICLES));
 
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
@@ -31,28 +31,28 @@ function* getItems() {
   // const {orgId} = org;
 
   async function get() {
-    const itemsCollection = dbCollections(orgId).items;
+    const vehiclesCollection = dbCollections(orgId).vehicles;
     const q = query(
-      itemsCollection,
+      vehiclesCollection,
       orderBy('createdAt', 'desc'),
       where('status', '==', 0)
     );
     const snap = await getDocs(q);
-    const items = snap.docs.map(itemDoc => {
+    const vehicles = snap.docs.map(itemDoc => {
       return {
         ...itemDoc.data(),
-        itemId: itemDoc.id,
+        vehicleId: itemDoc.id,
       };
     });
 
-    return items;
+    return vehicles;
   }
 
   try {
-    const items: Item[] = yield call(get);
-    // console.log({ items });
+    const vehicles: Vehicle[] = yield call(get);
+    // console.log({ vehicles });
 
-    yield put(itemsSuccess(items));
+    yield put(vehiclesSuccess(vehicles));
   } catch (err) {
     const error = err as Error;
     console.log(error);
@@ -61,20 +61,20 @@ function* getItems() {
   }
 }
 
-export function* watchGetItems() {
-  yield takeLatest(GET_ITEMS, getItems);
+export function* watchGetVehicles() {
+  yield takeLatest(GET_VEHICLES, getVehicles);
 }
 
-function* getItem(action: PayloadAction<string>) {
-  yield put(start(GET_ITEM));
-  const itemId = action.payload;
+function* getVehicle(action: PayloadAction<string>) {
+  yield put(start(GET_VEHICLE));
+  const vehicleId = action.payload;
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
 
   async function get() {
     const itemDoc = await getDoc(
-      doc(db, 'organizations', orgId, 'items', itemId)
+      doc(db, 'organizations', orgId, 'vehicles', vehicleId)
     );
 
     if (!itemDoc.exists) {
@@ -83,14 +83,14 @@ function* getItem(action: PayloadAction<string>) {
 
     return {
       ...itemDoc.data(),
-      itemId: itemDoc.id,
+      vehicleId: itemDoc.id,
     };
   }
 
   try {
-    const item: Item = yield call(get);
+    const item: Vehicle = yield call(get);
 
-    yield put(itemSuccess(item));
+    yield put(vehicleSuccess(item));
   } catch (err) {
     const error = err as Error;
     console.log(error);
@@ -99,6 +99,6 @@ function* getItem(action: PayloadAction<string>) {
   }
 }
 
-export function* watchGetItem() {
-  yield takeLatest(GET_ITEM, getItem);
+export function* watchGetVehicle() {
+  yield takeLatest(GET_VEHICLE, getVehicle);
 }
