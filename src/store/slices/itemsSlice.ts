@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { Vehicle } from '../../types';
+import { Item } from '../../types';
 
 type State = {
   loading: boolean;
   isModified: boolean;
-  vehicles: Vehicle[] | null;
-  vehicle: Vehicle | null;
+  items: Item[] | null;
+  item: Item | null;
   action: string | null;
   error: { code?: string; message?: string; stack?: string } | null;
 };
@@ -14,14 +14,14 @@ type State = {
 export const initialState: State = {
   loading: false,
   isModified: false,
-  vehicles: null,
-  vehicle: null,
+  items: null,
+  item: null,
   action: null,
   error: null,
 };
 
-const vehiclesSlice = createSlice({
-  name: 'vehicles_slice',
+const itemsSlice = createSlice({
+  name: 'items_slice',
   initialState: {
     ...initialState,
   },
@@ -43,20 +43,20 @@ const vehiclesSlice = createSlice({
         isModified: true,
       };
     },
-    vehiclesSuccess: (state: State, action: PayloadAction<Vehicle[]>) => {
+    itemsSuccess: (state: State, action: PayloadAction<Item[]>) => {
       const { payload } = action;
       return {
         ...state,
         loading: false,
-        vehicles: payload,
+        items: payload,
       };
     },
-    vehicleSuccess: (state: State, action: PayloadAction<Vehicle>) => {
+    itemSuccess: (state: State, action: PayloadAction<Item>) => {
       const { payload } = action;
       return {
         ...state,
         loading: false,
-        vehicle: payload,
+        item: payload,
       };
     },
     fail: (state: State, action: PayloadAction<{}>) => {
@@ -78,9 +78,9 @@ const vehiclesSlice = createSlice({
   },
 });
 
-export const { start, success, vehicleSuccess, vehiclesSuccess, fail, reset } =
-  vehiclesSlice.actions;
+export const { start, success, itemSuccess, itemsSuccess, fail, reset } =
+  itemsSlice.actions;
 
-export const vehiclesReducer = vehiclesSlice.reducer;
+export const itemsReducer = itemsSlice.reducer;
 
-export default vehiclesSlice;
+export default itemsSlice;

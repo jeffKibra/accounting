@@ -46,7 +46,7 @@ AddItem.propTypes = {
     PropTypes.shape({
       name: PropTypes.string.isRequired,
       variant: PropTypes.string,
-      vehicleId: PropTypes.string.isRequired,
+      itemId: PropTypes.string.isRequired,
       sellingPrice: PropTypes.number.isRequired,
       tax: PropTypes.PropTypes.shape({
         name: PropTypes.string,

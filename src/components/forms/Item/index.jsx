@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-
 import {
   Button,
   Grid,
@@ -8,18 +6,19 @@ import {
   FormLabel,
   Input,
   FormErrorMessage,
-  FormHelperText,
-  Switch,
+  // FormHelperText,
+  // Switch,
   Textarea,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { useForm, FormProvider } from 'react-hook-form';
+//
+import { createSKU } from 'functions';
 
-import { getDirtyFields } from 'utils/functions';
 import { useToasts } from 'hooks';
 
 import NumInput from '../../ui/NumInput';
-import CustomSelect from '../../ui/CustomSelect';
+// import CustomSelect from '../../ui/CustomSelect';
 
 export default function ItemForm(props) {
   // console.log({ props });
@@ -32,52 +31,41 @@ export default function ItemForm(props) {
     mode: 'onChange',
     defaultValues: {
       name: item?.name || '',
-      type: item?.type || '',
-      // variant: item?.variant || '',
-      sku: item?.sku || '',
+      // type: item?.type || '',
       //   skuOption: item?.skuOption || 'barcode',
-      unit: item?.unit || '',
-      costPrice: item?.costPrice || 0,
-      sellingPrice: item?.sellingPrice || 0,
-      salesAccount: item?.salesAccount?.accountId || 'sales',
-      salesTax: item?.salesTax?.taxId || '',
-      pricesIncludeTax: item?.pricesIncludeTax || false,
+      rate: item?.rate || 0,
+      // salesAccount: item?.salesAccount?.accountId || 'sales',
+      // salesTax: item?.salesTax?.taxId || '',
+      // pricesIncludeTax: item?.pricesIncludeTax || false,
       description: item?.description || '',
     },
   });
+
   const {
     handleSubmit,
-    formState: { dirtyFields, errors },
-    watch,
-    setValue,
+    formState: {
+      //  dirtyFields,
+      errors,
+    },
     register,
   } = formMethods;
 
-  const itemType = watch('type');
-  const itemIsVehicle = itemType === 'vehicle';
-
-  useEffect(() => {
-    if (itemIsVehicle) {
-      setValue('salesAccount', 'vehicle_bookings');
-      setValue('unit', 'days');
-    }
-  }, [itemIsVehicle, setValue]);
-
   function onSubmit(data) {
-    console.log({ data });
+    // console.log({ data });
     const {
       salesTax: salesTaxId,
-      salesAccount: formSalesAccountId,
+      // salesAccount: formSalesAccountId,
       ...rest
     } = data;
     let formData = {
       ...rest,
+      unit: 'days',
+      sku: createSKU(data.name),
+      type: 'vehicle',
     };
 
-    const salesAccountId = itemIsVehicle
-      ? 'vehicle_bookings'
-      : formSalesAccountId;
-    console.log({ salesAccountId });
+    const salesAccountId = 'vehicle_bookings';
+    // console.log({ salesAccountId });
     /**
      * if item is vehicle- assign account='', sku=generate, unit='days'
      */
@@ -105,10 +93,12 @@ export default function ItemForm(props) {
       formData.salesTax = { name, rate, taxId };
     }
 
-    if (item) {
-      //the item is being updated. Only submit changed form values
-      formData = getDirtyFields(dirtyFields, formData);
-    }
+    // if (item) {
+    //   //the item is being updated. Only submit changed form values
+    //   formData = getDirtyFields(dirtyFields, formData);
+    // }
+
+    // console.log(formData);
 
     // console.log({ formData });
     handleFormSubmit(formData);
@@ -134,25 +124,25 @@ export default function ItemForm(props) {
             isReadOnly={updating}
             w="full"
             isRequired
-            isInvalid={errors.registration}
+            isInvalid={errors.name}
           >
-            <FormLabel htmlFor="registration">Registration</FormLabel>
+            <FormLabel htmlFor="name">Registration</FormLabel>
             <Input
-              id="registration"
-              {...register('registration', {
+              id="name"
+              {...register('name', {
                 required: { value: true, message: 'Required' },
               })}
             />
 
-            <FormErrorMessage>{errors?.registration?.message}</FormErrorMessage>
+            <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         <GridItem colSpan={[12, 6]}>
-          <FormControl isDisabled={updating} isInvalid={errors.ratePerDay}>
-            <FormLabel htmlFor="ratePerDay">Rate per Day (ksh)</FormLabel>
+          <FormControl isDisabled={updating} isInvalid={errors.rate}>
+            <FormLabel htmlFor="rate">Rate per Day (ksh)</FormLabel>
             <NumInput
-              name="ratePerDay"
+              name="rate"
               min={0}
               size="md"
               rules={{
@@ -164,11 +154,11 @@ export default function ItemForm(props) {
               }}
             />
 
-            <FormErrorMessage>{errors?.ratePerDay?.message}</FormErrorMessage>
+            <FormErrorMessage>{errors?.rate?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
-        <GridItem colSpan={[12, 6]}>
+        {/* <GridItem colSpan={[12, 6]}>
           <FormControl isDisabled={updating} isInvalid={errors.salesTax}>
             <FormLabel htmlFor="salesTax">Tax</FormLabel>
             <CustomSelect
@@ -187,9 +177,9 @@ export default function ItemForm(props) {
             <FormErrorMessage>{errors?.salesTax?.message}</FormErrorMessage>
             <FormHelperText>Add tax to your item</FormHelperText>
           </FormControl>
-        </GridItem>
+        </GridItem> */}
 
-        <GridItem colSpan={[12, 6]}>
+        {/* <GridItem colSpan={[12, 6]}>
           <FormControl
             isDisabled={updating}
             w="full"
@@ -209,7 +199,7 @@ export default function ItemForm(props) {
               {errors?.pricesIncludeTax?.message}
             </FormErrorMessage>
           </FormControl>
-        </GridItem>
+        </GridItem> */}
 
         {/* <GridItem colSpan={12}>
         <FormControl

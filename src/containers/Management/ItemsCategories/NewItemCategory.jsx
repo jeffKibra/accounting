@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import useToasts from '../../../hooks/useToasts';
-import { CREATE_VEHICLE_CATEGORY } from '../../../store/actions/itemsCategoriesActions';
+import { CREATE_ITEM_CATEGORY } from '../../../store/actions/itemsCategoriesActions';
 import { reset } from '../../../store/slices/itemsCategories/modifyItemsCategoriesSlice';
 
 import ItemCategoryForm from '../../../components/forms/ItemsCategories/ItemCategoryForm';
@@ -47,7 +47,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    create: payload => dispatch({ type: CREATE_VEHICLE_CATEGORY, payload }),
+    create: payload => dispatch({ type: CREATE_ITEM_CATEGORY, payload }),
     resetApp: () => dispatch(reset()),
   };
 }

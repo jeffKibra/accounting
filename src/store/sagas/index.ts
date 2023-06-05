@@ -8,10 +8,10 @@ import { watchCreateOrg } from './orgs/createOrgSagas';
 import { watchUpdateOrg } from './orgs/updateOrgSagas';
 import { watchCheckOrg } from './orgs/checkOrgSagas';
 //items
-import { watchCreateVehicle } from './vehicles/createVehicleSagas';
-import { watchGetVehicle, watchGetVehicles } from './vehicles/getVehicleSaga';
-import { watchUpdateVehicle } from './vehicles/updateVehicleSagas';
-import { watchDeleteVehicle } from './vehicles/updateVehicleSagas';
+import { watchCreateItem } from './items/createItemSagas';
+import { watchGetItem, watchGetItems } from './items/getItemSaga';
+import { watchUpdateItem } from './items/updateItemSagas';
+import { watchDeleteItem } from './items/updateItemSagas';
 //taxes
 import { watchCreateTax } from './taxes/createTaxSagas';
 import { watchGetTax, watchGetTaxes } from './taxes/getTaxesSagas';
@@ -99,11 +99,11 @@ export default function* rootSaga() {
     watchCreateOrg(),
     watchUpdateOrg(),
     watchCheckOrg(),
-    watchCreateVehicle(),
-    watchGetVehicle(),
-    watchGetVehicles(),
-    watchUpdateVehicle(),
-    watchDeleteVehicle(),
+    watchCreateItem(),
+    watchGetItem(),
+    watchGetItems(),
+    watchUpdateItem(),
+    watchDeleteItem(),
     watchCreateTax(),
     watchGetTax(),
     watchGetTaxes(),

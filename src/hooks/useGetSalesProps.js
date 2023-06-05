@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { GET_VEHICLES } from 'store/actions/vehiclesActions';
+import { GET_ITEMS } from 'store/actions/itemsActions';
 import { GET_CUSTOMERS } from 'store/actions/customersActions';
 import { GET_PAYMENT_TERMS } from 'store/actions/paymentTermsActions';
 import { GET_TAXES } from 'store/actions/taxesActions';
@@ -12,8 +12,8 @@ export default function useGetSalesProps() {
     loading: loadingItems,
     items,
     action: itemsAction,
-  } = useSelector(state => state.vehiclesReducer);
-  loadingItems = loadingItems && itemsAction === GET_VEHICLES;
+  } = useSelector(state => state.itemsReducer);
+  loadingItems = loadingItems && itemsAction === GET_ITEMS;
 
   let {
     loading: loadingCustomers,
@@ -40,8 +40,8 @@ export default function useGetSalesProps() {
     loadingItems || loadingCustomers || loadingPaymentTerms || loadingTaxes;
 
   useEffect(() => {
-    function getVehicles() {
-      dispatch({ type: GET_VEHICLES });
+    function getItems() {
+      dispatch({ type: GET_ITEMS });
     }
     function getCustomers() {
       dispatch({ type: GET_CUSTOMERS });
@@ -53,7 +53,7 @@ export default function useGetSalesProps() {
       dispatch({ type: GET_TAXES });
     }
 
-    getVehicles();
+    getItems();
     getCustomers();
     getPaymentTerms();
     getTaxes();

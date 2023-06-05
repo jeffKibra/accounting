@@ -22,20 +22,10 @@ function FieldValue({ children }) {
   return <Td>{children}</Td>;
 }
 
-export default function ViewVehicle(props) {
-  //   console.log({ props });
-  const { vehicle } = props;
-  const {
-    type,
-    name,
-    sku,
-    salesAccount,
-    salesTax,
-    sellingPrice,
-    buyingPrice,
-    unit,
-    bookings,
-  } = vehicle;
+export default function ViewItem(props) {
+  // console.log({ props });
+  const { item } = props;
+  const { name, sku, salesAccount, salesTax, rate, unit, description } = item;
 
   //   let startDate = new Date();
   //   let endDate = new Date();
@@ -63,12 +53,12 @@ export default function ViewVehicle(props) {
                 <FieldTitle>Vehicle Name</FieldTitle>
                 <FieldValue>{name}</FieldValue>
               </Tr>
-              <Tr>
+              {/* <Tr>
                 <FieldTitle>Vehicle Type</FieldTitle>
                 <FieldValue>{type}</FieldValue>
-              </Tr>
+              </Tr> */}
               <Tr>
-                <FieldTitle>SKU</FieldTitle>
+                <FieldTitle>Unique Identifier</FieldTitle>
                 <FieldValue>{sku}</FieldValue>
               </Tr>
               <Tr>
@@ -76,13 +66,10 @@ export default function ViewVehicle(props) {
                 <FieldValue>{salesAccount?.name || ''}</FieldValue>
               </Tr>
               <Tr>
-                <FieldTitle>Selling Price</FieldTitle>
-                <FieldValue>{sellingPrice}</FieldValue>
+                <FieldTitle>Rate Per Day</FieldTitle>
+                <FieldValue>{rate}</FieldValue>
               </Tr>
-              <Tr>
-                <FieldTitle>Cost Price</FieldTitle>
-                <FieldValue>{buyingPrice || 0}</FieldValue>
-              </Tr>
+
               <Tr>
                 <FieldTitle>Unit</FieldTitle>
                 <FieldValue>{unit || ''}</FieldValue>
@@ -95,14 +82,18 @@ export default function ViewVehicle(props) {
                     : ''}
                 </FieldValue>
               </Tr>
+              <Tr>
+                <FieldTitle>Description</FieldTitle>
+                <FieldValue>{description || ''}</FieldValue>
+              </Tr>
             </Tbody>
           </Table>
         </TableContainer>
       </Box>
 
-      {Object.keys(bookings).length > 0 ? (
+      {/* {Object.keys(bookings).length > 0 ? (
         <VehicleBookings bookings={bookings} />
-      ) : null}
+      ) : null} */}
     </Box>
   );
 }

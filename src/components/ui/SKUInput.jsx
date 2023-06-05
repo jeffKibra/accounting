@@ -5,6 +5,8 @@ import { useFormContext } from 'react-hook-form';
 import PropTypes from 'prop-types';
 //
 import SKUOptions from './SKUOptions';
+//
+import { createSKU } from 'functions';
 
 //--------------------------------------------------------------------------
 
@@ -25,17 +27,8 @@ export default function SKUInput(props) {
   const sourceValue = watch(sourceField);
 
   useEffect(() => {
-    function refactor(string) {
-      return String(string)
-        .trim()
-        .toLowerCase()
-        .split(' ')
-        .filter(val => val !== '')
-        .join('_');
-    }
-
     if (skuOption === 'auto') {
-      const autoSKU = refactor(sourceValue);
+      const autoSKU = createSKU(sourceValue);
       // console.log({ name, variant, id });
 
       setValue('sku', autoSKU);

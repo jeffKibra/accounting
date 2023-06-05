@@ -5,17 +5,17 @@ import { PayloadAction } from '@reduxjs/toolkit';
 
 import { functions } from '../../../utils/firebase';
 
-import { CREATE_VEHICLE } from '../../actions/vehiclesActions';
-import { start, success, fail } from '../../slices/vehiclesSlice';
+import { CREATE_ITEM } from '../../actions/itemsActions';
+import { start, success, fail } from '../../slices/itemsSlice';
 import {
   success as toastSuccess,
   error as toastError,
 } from '../../slices/toastSlice';
 
-import { RootState, VehicleFormData, Org } from '../../../types';
+import { RootState, ItemFormData, Org } from '../../../types';
 
-function* createVehicle(action: PayloadAction<VehicleFormData>) {
-  yield put(start(CREATE_VEHICLE));
+function* createItem(action: PayloadAction<ItemFormData>) {
+  yield put(start(CREATE_ITEM));
   const { payload: data } = action;
 
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
@@ -23,10 +23,7 @@ function* createVehicle(action: PayloadAction<VehicleFormData>) {
   // console.log({ data });
 
   async function create() {
-    return httpsCallable(
-      functions,
-      'vehicle-create'
-    )({ orgId, itemData: data });
+    return httpsCallable(functions, 'item-create')({ orgId, itemData: data });
   }
 
   try {
@@ -42,6 +39,6 @@ function* createVehicle(action: PayloadAction<VehicleFormData>) {
   }
 }
 
-export function* watchCreateVehicle() {
-  yield takeLatest(CREATE_VEHICLE, createVehicle);
+export function* watchCreateItem() {
+  yield takeLatest(CREATE_ITEM, createItem);
 }

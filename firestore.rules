@@ -140,7 +140,7 @@ service cloud.firestore {
       }
       
 
-      match /items/{vehicleId} {
+      match /items/{itemId} {
         function getFixedValues(){
           return ['createdBy', 'createdAt'];
         }

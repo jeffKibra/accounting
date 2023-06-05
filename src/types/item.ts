@@ -1,7 +1,8 @@
 import { Account, Tax } from '.';
 
 export type ItemType = 'goods' | 'service' | 'vehicle';
-export interface VehicleFormData {
+
+export interface ItemFormData {
   name: string;
   salesAccount: Account;
   sellingPrice: number;
@@ -24,8 +25,8 @@ interface Meta {
   modifiedBy: string;
 }
 
-export interface VehicleFromDb extends VehicleFormData, Meta {}
+export interface ItemFromDb extends ItemFormData, Meta {}
 
-export interface Vehicle extends VehicleFromDb {
-  vehicleId: string;
+export interface Item extends ItemFromDb {
+  itemId: string;
 }

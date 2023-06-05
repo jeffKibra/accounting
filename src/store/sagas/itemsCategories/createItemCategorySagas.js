@@ -2,7 +2,7 @@ import { put, call, takeLatest, select } from 'redux-saga/effects';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 
 import { db } from '../../../utils/firebase';
-import { CREATE_VEHICLE_CATEGORY } from '../../actions/itemsCategoriesActions';
+import { CREATE_ITEM_CATEGORY } from '../../actions/itemsCategoriesActions';
 import {
   start,
   success,
@@ -39,5 +39,5 @@ function* createItemCategory({ data }) {
 }
 
 export function* watchCreateItemCategory() {
-  yield takeLatest(CREATE_VEHICLE_CATEGORY, createItemCategory);
+  yield takeLatest(CREATE_ITEM_CATEGORY, createItemCategory);
 }

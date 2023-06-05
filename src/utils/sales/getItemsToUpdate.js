@@ -1,6 +1,6 @@
 // import { SalesItem, salesItem } from "../../types";
 
-export default function getVehiclesToUpdate(items = [], incomingItems = []) {
+export default function getItemsToUpdate(items = [], incomingItems = []) {
   /**
    * traverse through items array
    * check if current item is in the incoming items array
@@ -38,8 +38,8 @@ export default function getVehiclesToUpdate(items = [], incomingItems = []) {
    */
 
   items1.forEach((item, i) => {
-    const { vehicleId, taxExclusiveAmount } = item;
-    const index = items2.findIndex(item2 => item2.vehicleId === vehicleId);
+    const { itemId, taxExclusiveAmount } = item;
+    const index = items2.findIndex(item2 => item2.itemId === itemId);
     let data = item;
 
     if (index > -1) {

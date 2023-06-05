@@ -50,7 +50,7 @@ function SaleItemFormFields(props) {
   const item = watch('item');
   console.log({ dateRange, item });
 
-  const vehicleId = item?.vehicleId || '';
+  const itemId = item?.itemId || '';
   const itemType = item?.type;
   const itemIsABooking = isItemABooking(itemType);
 
@@ -68,9 +68,9 @@ function SaleItemFormFields(props) {
   }, [dateRange, setValue]);
 
   useEffect(() => {
-    console.log('item has changed', { vehicleId, transactionId });
+    console.log('item has changed', { itemId, transactionId });
 
-    const item = itemsObject[vehicleId];
+    const item = itemsObject[itemId];
     console.log({ item });
 
     if (item) {
@@ -95,10 +95,10 @@ function SaleItemFormFields(props) {
         }
       });
     }
-  }, [vehicleId, transactionId, itemsObject]);
+  }, [itemId, transactionId, itemsObject]);
 
   // useEffect(() => {
-  //   if (vehicleId) {
+  //   if (itemId) {
   //     const selectedItem = getValues('item');
   //     //update form fields based on item fields
   //     const itemRate = selectedItem?.sellingPrice || 0;
@@ -107,7 +107,7 @@ function SaleItemFormFields(props) {
   //       shouldDirty: true,
   //     });
   //   }
-  // }, [vehicleId, getValues, setValue]);
+  // }, [itemId, getValues, setValue]);
 
   function handleItemChange(item) {
     console.log('item has changed', item);
@@ -146,8 +146,8 @@ function SaleItemFormFields(props) {
             }}
             control={control}
             render={({ field: { onBlur, onChange, value } }) => {
-              function handleChange(vehicleId) {
-                const item = itemsObject[vehicleId];
+              function handleChange(itemId) {
+                const item = itemsObject[itemId];
                 onChange(item);
                 handleItemChange(item); //update rate and tax fields
               }
@@ -155,36 +155,32 @@ function SaleItemFormFields(props) {
               return (
                 <ControlledSelect
                   onChange={handleChange}
-                  value={value?.vehicleId || ''}
+                  value={value?.itemId || ''}
                   onBlur={onBlur}
                   isDisabled={loading}
                   placeholder="---select item---"
                   allowClearSelection={false}
                   options={Object.values(itemsObject)
                     .filter(originalItem => {
-                      const { vehicleId } = originalItem;
+                      const { itemId } = originalItem;
                       /**
                        * filter to remove selected items-valid items include:
                        * 1. if there is and itemToEdit and current item is similar to itemToEdit
                        * 2. field is not in the selected items object
                        */
-                      const itemInSelectedItems =
-                        selectedItemsObject[vehicleId];
-                      if (
-                        item?.vehicleId === vehicleId ||
-                        !itemInSelectedItems
-                      ) {
+                      const itemInSelectedItems = selectedItemsObject[itemId];
+                      if (item?.itemId === itemId || !itemInSelectedItems) {
                         return true;
                       } else {
                         return false;
                       }
                     })
                     .map((originalItem, i) => {
-                      const { name, vehicleId } = originalItem;
+                      const { name, itemId } = originalItem;
 
                       return {
                         name,
-                        value: vehicleId,
+                        value: itemId,
                       };
                     })}
                 />
@@ -235,7 +231,7 @@ function SaleItemFormFields(props) {
                   }}
                   min={1}
                   isReadOnly={loading}
-                  isDisabled={!item?.vehicleId}
+                  isDisabled={!item?.itemId}
                 /> */}
 
           <FormErrorMessage>{errors?.rate?.message}</FormErrorMessage>
@@ -371,7 +367,7 @@ function SaleItemFormFields(props) {
                   onBlur={value => updateItemFields('quantity', value, index)}
                   min={1}
                   isReadOnly={loading}
-                  isDisabled={!item?.vehicleId}
+                  isDisabled={!item?.itemId}
                   rules={{
                     required: { value: true, message: '*Required' },
                     min: {

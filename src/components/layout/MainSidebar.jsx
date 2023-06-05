@@ -1,13 +1,13 @@
-import { Divider, Accordion, VStack, Flex } from '@chakra-ui/react';
+import { Divider, Accordion, VStack, Flex, Box } from '@chakra-ui/react';
 import {
   RiDashboardLine,
   RiSettings6Line,
-  RiShoppingBagLine,
   RiContactsLine,
-  RiShoppingCartLine,
   RiCoinsLine,
   RiStore3Line,
   RiBook2Line,
+  RiCarLine,
+  RiCalendarCheckLine,
 } from 'react-icons/ri';
 
 import { isAdmin } from '../../utils/roles';
@@ -58,17 +58,23 @@ function ManagementSidebar(props) {
       <DrawerItem route={routes.DASHBOARD} icon={RiDashboardLine}>
         Dashboard
       </DrawerItem>
-      <DrawerItem route={routes.VEHICLES} icon={RiShoppingBagLine}>
+      <DrawerItem route={routes.ITEMS} icon={RiCarLine}>
         Vehicles
       </DrawerItem>
       <DrawerItem route={routes.CUSTOMERS} icon={RiContactsLine}>
         Customers
       </DrawerItem>
+      <DrawerItem route={routes.INVOICES} icon={RiCalendarCheckLine}>
+        Bookings
+      </DrawerItem>
+      <DrawerItem route={routes.PAYMENTS} icon={RiCoinsLine}>
+        Payments
+      </DrawerItem>
       {/* <DrawerItem route={routes.EXPENSES} icon={RiCoinsLine}>
         Expenses
       </DrawerItem> */}
 
-      <ExpandableDrawerItem
+      {/* <ExpandableDrawerItem
         title="Sales"
         icon={RiShoppingCartLine}
         subRoutes={[
@@ -77,16 +83,18 @@ function ManagementSidebar(props) {
           { title: 'Payments Received', route: routes.PAYMENTS },
           { title: 'Sales Receipts', route: routes.SALE_RECEIPTS },
         ]}
-      />
-      <Divider />
-      <ExpandableDrawerItem
+      /> */}
+      {/* <Divider /> */}
+      {/* <ExpandableDrawerItem
         title="Purchases"
         icon={RiCoinsLine}
         subRoutes={[
           { title: 'Vendors', route: routes.VENDORS },
           { title: 'Expenses', route: routes.EXPENSES },
         ]}
-      />
+      /> */}
+
+      <Box w="full" height="50px"></Box>
       <Divider />
 
       <ExpandableDrawerItem

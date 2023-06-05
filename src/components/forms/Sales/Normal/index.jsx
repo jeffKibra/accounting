@@ -90,15 +90,15 @@ export default function NormalLineItems(props) {
       const fieldId = `selectedItems.${index}`;
       const currentValues = getValues(fieldId);
       const {
-        item: { vehicleId },
+        item: { itemId },
         quantity,
         rate,
         salesTax,
       } = currentValues;
 
-      const originalItem = itemsObject[vehicleId];
+      const originalItem = itemsObject[itemId];
       let selectedItemData = {
-        vehicleId,
+        itemId,
         quantity,
         rate,
         salesTax,
@@ -122,14 +122,14 @@ export default function NormalLineItems(props) {
   );
 
   const handleItemChange = useCallback(
-    (vehicleId, index) => {
-      console.log('item changed', { vehicleId, index });
-      const selectedItem = itemsObject[vehicleId];
+    (itemId, index) => {
+      console.log('item changed', { itemId, index });
+      const selectedItem = itemsObject[itemId];
       const { sellingPrice, salesTax } = selectedItem;
 
       const itemData = getSalesItemData(
-        { vehicleId, quantity: 1, rate: sellingPrice, salesTax },
-        itemsObject[vehicleId]
+        { itemId, quantity: 1, rate: sellingPrice, salesTax },
+        itemsObject[itemId]
       );
 
       console.log({ itemData });

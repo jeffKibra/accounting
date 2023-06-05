@@ -150,7 +150,7 @@ ViewSaleItemsTable.propTypes = {
       item: PropTypes.shape({
         name: PropTypes.string.isRequired,
         variant: PropTypes.string,
-        vehicleId: PropTypes.string.isRequired,
+        itemId: PropTypes.string.isRequired,
       }),
       rate: PropTypes.number.isRequired,
       salesTax: PropTypes.oneOfType([

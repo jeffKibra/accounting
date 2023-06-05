@@ -3,25 +3,25 @@ import { connect } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 //hooks
-import { useVehicleFormProps } from 'hooks';
+import { useItemFormProps } from 'hooks';
 
-import { CREATE_VEHICLE } from '../../../store/actions/vehiclesActions';
-import { reset } from '../../../store/slices/vehiclesSlice';
+import { CREATE_ITEM } from '../../../store/actions/itemsActions';
+import { reset } from '../../../store/slices/itemsSlice';
 
-import { VEHICLES } from '../../../nav/routes';
+import { ITEMS } from '../../../nav/routes';
 
 import PageLayout from '../../../components/layout/PageLayout';
 import SkeletonLoader from 'components/ui/SkeletonLoader';
 import Empty from 'components/ui/Empty';
 
-import VehicleForm from 'components/forms/Vehicle';
+import ItemForm from 'components/forms/Item';
 
 import useSavedLocation from '../../../hooks/useSavedLocation';
 
-function NewVehiclePage(props) {
-  const { isModified, loading, action, createVehicle, resetVehicle } = props;
+function NewItemPage(props) {
+  const { isModified, loading, action, createItem, resetItem } = props;
 
-  const { accounts, taxes, loading: loadingProps } = useVehicleFormProps();
+  const { accounts, taxes, loading: loadingProps } = useItemFormProps();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,28 +29,28 @@ function NewVehiclePage(props) {
 
   useEffect(() => {
     if (isModified) {
-      resetVehicle();
-      navigate(VEHICLES);
+      resetItem();
+      navigate(ITEMS);
     }
-  }, [isModified, resetVehicle, navigate]);
+  }, [isModified, resetItem, navigate]);
 
   return (
     <PageLayout
-      pageTitle="Add New Vehicle"
+      pageTitle="New Vehicle"
       breadcrumbLinks={{
         Dashboard: '/',
-        Vehicles: VEHICLES,
+        Vehicles: ITEMS,
         'New Vehicle': location.pathname,
       }}
     >
       {loadingProps ? (
         <SkeletonLoader />
       ) : accounts && taxes ? (
-        <VehicleForm
-          updating={loading && action === CREATE_VEHICLE}
+        <ItemForm
+          updating={loading && action === CREATE_ITEM}
           accounts={accounts}
           taxes={taxes}
-          handleFormSubmit={createVehicle}
+          handleFormSubmit={createItem}
         />
       ) : (
         <>
@@ -66,16 +66,16 @@ function NewVehiclePage(props) {
 }
 
 function mapStateToProps(state) {
-  const { loading, action, error, isModified } = state.vehiclesReducer;
+  const { loading, action, error, isModified } = state.itemsReducer;
 
   return { loading, action, error, isModified };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    createVehicle: payload => dispatch({ type: CREATE_VEHICLE, payload }),
-    resetVehicle: () => dispatch(reset()),
+    createItem: payload => dispatch({ type: CREATE_ITEM, payload }),
+    resetItem: () => dispatch(reset()),
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewVehiclePage);
+export default connect(mapStateToProps, mapDispatchToProps)(NewItemPage);

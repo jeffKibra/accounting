@@ -7,7 +7,7 @@ import DashboardPage from '../../pages/Management/Dashboard/DashboardPage';
 
 //routes
 import Orgs from './Orgs';
-import Vehicles from './vehicles';
+import Items from './Items';
 import Customers from './Customers';
 import Invoices from './Invoices';
 import Taxes from './Taxes';
@@ -33,7 +33,7 @@ function ManagementRoutes() {
       }
     />,
     ...Orgs(),
-    ...Vehicles(),
+    ...Items(),
     ...Customers(),
     ...Invoices(),
     ...Taxes(),
@@ -46,7 +46,7 @@ function ManagementRoutes() {
     ...ChartOfAccounts(),
     ...ManualJournals(),
 
-    // ...VehiclesCategories(),
+    // ...ItemsCategories(),
   ];
 }
 

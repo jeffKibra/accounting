@@ -196,7 +196,7 @@ function EntryFields(props) {
                   name={`${fieldPrefix}.amount`}
                   min={1}
                   isReadOnly={loading}
-                  // isDisabled={!item?.vehicleId}
+                  // isDisabled={!item?.itemId}
                   size="sm"
                   rules={{
                     required: { value: true, message: '*Required' },

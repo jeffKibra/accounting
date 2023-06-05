@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { GET_VEHICLES } from '../store/actions/itemsActions';
+import { GET_ITEMS } from '../store/actions/itemsActions';
 import { GET_PAYMENT_TERMS } from '../store/actions/paymentTermsActions';
 
 import SkeletonLoader from '../components/ui/SkeletonLoader';
@@ -17,7 +17,7 @@ function SelectItems(props) {
     items,
     loadingItems,
     itemsAction,
-    getVehicles,
+    getItems,
     updating,
     getPaymentTerms,
     paymentTerms,
@@ -27,9 +27,9 @@ function SelectItems(props) {
   // console.log({ invoice, customers, items });
   // console.log({ props });
   useEffect(() => {
-    getVehicles();
+    getItems();
     getPaymentTerms();
-  }, [getVehicles, getPaymentTerms]);
+  }, [getItems, getPaymentTerms]);
 
   const [addedItems, setAddedItems] = useState(
     invoice?.selectedItems ? [...invoice.selectedItems] : []
@@ -39,8 +39,8 @@ function SelectItems(props) {
   const selectedItems = useMemo(() => {
     function deriveData(data) {
       // console.log({ data });
-      const { vehicleId, rate, quantity, discount, discountType } = data;
-      const item = items.find(item => item.vehicleId === vehicleId);
+      const { itemId, rate, quantity, discount, discountType } = data;
+      const item = items.find(item => item.itemId === itemId);
       let itemRate = rate;
       let itemTax = 0;
       let itemDiscount = discount;
@@ -89,7 +89,7 @@ function SelectItems(props) {
       const itemData = {
         ...item,
         ...data,
-        vehicleId,
+        itemId,
         itemRate: +itemRate.toFixed(2),
         itemTax: +itemTax.toFixed(2),
         itemDiscount: +itemDiscount.toFixed(2),
@@ -117,7 +117,7 @@ function SelectItems(props) {
     if (items) {
       remaining = items.filter(item => {
         const addedItem = addedItems.find(
-          ({ vehicleId }) => vehicleId === item.vehicleId
+          ({ itemId }) => itemId === item.itemId
         );
         return !addedItem;
       });
@@ -167,9 +167,9 @@ function SelectItems(props) {
   }, [selectedItems]);
 
   function addItem(itemData) {
-    const { vehicleId } = itemData;
+    const { itemId } = itemData;
     setAddedItems(current => {
-      const index = current.findIndex(item => item.vehicleId === vehicleId);
+      const index = current.findIndex(item => item.itemId === itemId);
       // console.log({ current, index, quantity });
       let newItems = [];
 
@@ -194,10 +194,10 @@ function SelectItems(props) {
     });
   }
 
-  function removeItem(vehicleId) {
-    // console.log({ vehicleId });
+  function removeItem(itemId) {
+    // console.log({ itemId });
     setAddedItems(current => {
-      return current.filter(item => item.vehicleId !== vehicleId);
+      return current.filter(item => item.itemId !== itemId);
     });
   }
 
@@ -214,8 +214,7 @@ function SelectItems(props) {
   // console.log({ selectedItems });
   // console.log({ formValues });
 
-  return (loadingItems && itemsAction === GET_VEHICLES) ||
-    loadingPaymentTerms ? (
+  return (loadingItems && itemsAction === GET_ITEMS) || loadingPaymentTerms ? (
     <SkeletonLoader />
   ) : items?.length > 0 && paymentTerms?.length > 0 ? (
     <InvoiceItemsForm
@@ -250,7 +249,7 @@ SelectItems.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const { loading: loadingItems, items, itemsAction } = state.vehiclesReducer;
+  const { loading: loadingItems, items, itemsAction } = state.itemsReducer;
   const {
     loading: lpt,
     paymentTerms,
@@ -269,7 +268,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getVehicles: () => dispatch({ type: GET_VEHICLES }),
+    getItems: () => dispatch({ type: GET_ITEMS }),
     getPaymentTerms: () => dispatch({ type: GET_PAYMENT_TERMS }),
   };
 }

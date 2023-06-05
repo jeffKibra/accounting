@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { GET_VEHICLES } from '../../../store/actions/vehiclesActions';
+import { GET_ITEMS } from '../../../store/actions/itemsActions';
 import { GET_CUSTOMERS } from '../../../store/actions/customersActions';
 import { GET_PAYMENT_MODES } from '../../../store/actions/paymentModesActions';
 
@@ -117,7 +117,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getVehicles: () => dispatch({ type: GET_VEHICLES }),
+    getItems: () => dispatch({ type: GET_ITEMS }),
     getCustomers: () => dispatch({ type: GET_CUSTOMERS }),
     getPaymentModes: () => dispatch({ type: GET_PAYMENT_MODES }),
   };

@@ -18,8 +18,8 @@ import {
   fail,
 } from '../../slices/itemsCategories/itemsCategoriesSlice';
 import {
-  GET_VEHICLE_CATEGORY,
-  GET_VEHICLES_CATEGORIES,
+  GET_ITEM_CATEGORY,
+  GET_ITEMS_CATEGORIES,
 } from '../../actions/itemsCategoriesActions';
 
 function* getItemCategory({ categoryId }) {
@@ -45,10 +45,10 @@ function* getItemCategory({ categoryId }) {
 }
 
 export function* watchGetItemCategory() {
-  yield takeLatest(GET_VEHICLE_CATEGORY, getItemCategory);
+  yield takeLatest(GET_ITEM_CATEGORY, getItemCategory);
 }
 
-function* getVehiclesCategories() {
+function* getItemsCategories() {
   yield put(start());
   const userProfile = yield select(state => state.authReducer.userProfile);
   const orgId = userProfile.orgs[0]?.orgId;
@@ -81,6 +81,6 @@ function* getVehiclesCategories() {
   }
 }
 
-export function* watchGetVehiclesCategories() {
-  yield takeLatest(GET_VEHICLES_CATEGORIES, getVehiclesCategories);
+export function* watchGetItemsCategories() {
+  yield takeLatest(GET_ITEMS_CATEGORIES, getItemsCategories);
 }

@@ -8,7 +8,7 @@ function useSavedLocation() {
   }
 
   function getLocation() {
-    return JSON.parse(localStorage.getVehicle('location'));
+    return JSON.parse(localStorage.getItem('location'));
   }
 
   return {
