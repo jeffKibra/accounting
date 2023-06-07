@@ -22,18 +22,22 @@ function formatVendorData(vendor: IContact): IContactSummary {
 function formatInvoices(invoices: Invoice[]) {
   return invoices.map(invoice => {
     const {
-      invoiceDate,
+      saleDate,
       dueDate,
-      summary,
+      bookingTotal,
+      transferAmount,
+      total,
       status,
       invoiceId,
       balance,
       transactionType,
     } = invoice;
     return {
-      invoiceDate,
+      saleDate,
       dueDate,
-      summary,
+      bookingTotal,
+      transferAmount,
+      total,
       status,
       invoiceId,
       balance,

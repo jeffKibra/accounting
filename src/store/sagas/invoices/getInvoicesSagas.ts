@@ -46,11 +46,11 @@ interface InvoiceResponse {
 //----------------------------------------------------------------
 
 function formatInvoiceDates(invoice: Invoice) {
-  const { invoiceDate, dueDate, createdAt, modifiedAt } = invoice;
+  const { saleDate, dueDate, createdAt, modifiedAt } = invoice;
 
   return {
     ...invoice,
-    invoiceDate: dateFromTimestamp(invoiceDate),
+    saleDate: dateFromTimestamp(saleDate),
     dueDate: dateFromTimestamp(dueDate),
     createdAt: dateFromTimestamp(createdAt),
     modifiedAt: dateFromTimestamp(modifiedAt),

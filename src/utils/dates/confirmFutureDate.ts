@@ -10,7 +10,7 @@ export default function confirmFutureDate(
   const futureMonth: number = futureDate.getMonth();
   const futureMonthDate: number = futureDate.getDate();
 
-  let isLess: boolean = false;
+  let isLess = false;
 
   if (
     futureYear < referenceYear ||

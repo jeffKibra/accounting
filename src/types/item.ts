@@ -5,16 +5,15 @@ export type ItemType = 'goods' | 'service' | 'vehicle';
 export interface ItemFormData {
   name: string;
   salesAccount: Account;
-  sellingPrice: number;
+  rate: number;
   sku: string;
-  skuOption: string;
+  // skuOption: string;
   type: ItemType;
   unit: string;
-  costPrice?: number;
-  extraDetails?: string;
+  // costPrice?: number;
+  description?: string;
   salesTax?: Tax;
   pricesIncludeTax?: string;
-  variant?: string;
 }
 
 interface Meta {

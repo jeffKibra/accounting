@@ -1,10 +1,10 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
   FormControl,
   FormLabel,
-  Input,
+  // Input,
   Textarea,
-  FormHelperText,
+  // FormHelperText,
   FormErrorMessage,
   Grid,
   GridItem,
@@ -17,7 +17,8 @@ import { deriveDueDate } from '../../../utils/invoices';
 
 import CustomSelect from '../../ui/CustomSelect';
 import CustomDatePicker from '../../ui/CustomDatePicker';
-import { useEffect } from 'react';
+import BookingItemFormFields from '../Sales/BookingItemFormFields';
+//
 
 //---------------------------------------------------------------
 InvoiceDetailsFields.propTypes = {
@@ -28,7 +29,7 @@ InvoiceDetailsFields.propTypes = {
 };
 
 export default function InvoiceDetailsFields(props) {
-  const { customers, paymentTerms, loading, invoiceId } = props;
+  const { customers, paymentTerms, loading, invoiceId, items } = props;
 
   const {
     register,
@@ -39,7 +40,7 @@ export default function InvoiceDetailsFields(props) {
 
   const customerId = watch('customer');
   const paymentTermId = watch('paymentTerm');
-  const invoiceDate = watch('invoiceDate');
+  const saleDate = watch('saleDate');
 
   const getCustomer = useCallback(
     customerId => {
@@ -65,14 +66,40 @@ export default function InvoiceDetailsFields(props) {
       const paymentTerm = paymentTerms.find(
         term => term.value === paymentTermId
       );
-      const dueDate = deriveDueDate(paymentTerm, invoiceDate);
+      const dueDate = deriveDueDate(paymentTerm, saleDate);
       setValue('dueDate', dueDate);
     }
-  }, [paymentTermId, invoiceDate, paymentTerms, setValue, invoiceId]);
+  }, [paymentTermId, saleDate, paymentTerms, setValue, invoiceId]);
 
   return (
     <Box pb={1}>
-      <Grid mb={2} rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
+      <Grid my={2} rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
+        {/* <GridItem colSpan={12}>
+          <FormControl isDisabled={loading} isRequired isInvalid={errors.item}>
+            <FormLabel htmlFor="item">Select Vehicle</FormLabel>
+            <CustomSelect
+              name="item"
+              size="md"
+              placeholder="--select item--"
+              isDisabled={loading}
+              rules={{
+                required: { value: true, message: '*Required!' },
+              }}
+              options={items.map(item => {
+                console.log({ item });
+                const { itemId, name } = item;
+
+                return { name, value: itemId };
+              })}
+            />
+            <FormErrorMessage>{errors.item?.message}</FormErrorMessage>
+          </FormControl>
+        </GridItem> */}
+
+        <GridItem colSpan={12}>
+          <BookingItemFormFields itemsObject={items} />
+        </GridItem>
+
         <GridItem colSpan={[12, 6]}>
           <FormControl
             isDisabled={loading}
@@ -85,7 +112,9 @@ export default function InvoiceDetailsFields(props) {
               size="md"
               placeholder="--select customer--"
               isDisabled={loading}
-              rules={{ required: { value: true, message: '*Required!' } }}
+              rules={{
+                required: { value: true, message: '*Required!' },
+              }}
               options={customers.map(customer => {
                 const { id: customerId, displayName } = customer;
 
@@ -95,6 +124,7 @@ export default function InvoiceDetailsFields(props) {
             <FormErrorMessage>{errors.customer?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
+
         <GridItem colSpan={[12, 6]}>
           <FormControl isDisabled={loading} isInvalid={errors.customerNotes}>
             <FormLabel htmlFor="customerNotes">Customer Notes</FormLabel>
@@ -106,25 +136,16 @@ export default function InvoiceDetailsFields(props) {
             <FormErrorMessage>{errors.customerNotes?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
-      </Grid>
 
-      <Grid
-        rowGap={2}
-        columnGap={4}
-        templateColumns="repeat(12, 1fr)"
-        bg="#f4f6f8"
-        mx={-4}
-        p={4}
-      >
         <GridItem colSpan={[12, 4]}>
           <FormControl
             isDisabled={loading}
             isRequired
-            isInvalid={errors.invoiceDate}
+            isInvalid={errors.saleDate}
           >
-            <FormLabel htmlFor="invoiceDate">Invoice Date</FormLabel>
-            <CustomDatePicker size="md" name="invoiceDate" required />
-            <FormErrorMessage>{errors.invoiceDate?.message}</FormErrorMessage>
+            <FormLabel htmlFor="saleDate">Invoice Date</FormLabel>
+            <CustomDatePicker size="md" name="saleDate" required />
+            <FormErrorMessage>{errors.saleDate?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
@@ -156,7 +177,7 @@ export default function InvoiceDetailsFields(props) {
           </FormControl>
         </GridItem>
 
-        <GridItem colSpan={[12, 6, 4]}>
+        {/* <GridItem colSpan={[12, 6, 4]}>
           <FormControl isDisabled={loading} isInvalid={errors.orderNumber}>
             <FormLabel htmlFor="orderNumber">Order Number</FormLabel>
             <Input id="orderNumber" {...register('orderNumber')} />
@@ -172,7 +193,7 @@ export default function InvoiceDetailsFields(props) {
               Let your customer know what this invoice is for
             </FormHelperText>
           </FormControl>
-        </GridItem>
+        </GridItem> */}
       </Grid>
 
       {/* <Flex justify="space-evenly" mt={4}>

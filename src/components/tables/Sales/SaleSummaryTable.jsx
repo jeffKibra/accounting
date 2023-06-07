@@ -4,82 +4,58 @@ import PropTypes from 'prop-types';
 import { Controller, useFormContext } from 'react-hook-form';
 import BigNumber from 'bignumber.js';
 
-// import RHFPlainNumInput from 'components/ui/RHFPlainNumInput';
-import ControlledNumInput from 'components/ui/ControlledNumInput';
-
 function SaleSummaryTable(props) {
-  const { loading, summary } = props;
-  const { control, getValues, watch, setValue } = useFormContext();
+  const { control, watch, setValue } = useFormContext();
 
-  const taxType = watch('summary.taxType');
+  // const taxType = watch('taxType');
+  const bookingRate = watch('bookingRate');
+  const quantity = watch('quantity');
+  const transferAmount = watch('transferAmount');
+  const saleTax = watch('saleTax');
 
-  const { taxes } = summary;
+  // console.log({ bookingRate, quantity, transferAmount, saleTax });
 
-  function getTotalAmount(subSummary) {
-    // console.log({ subSummary });
-    const subTotal = new BigNumber(subSummary.subTotal || 0);
-    const shipping = new BigNumber(subSummary.shipping || 0);
-    const adjustment = new BigNumber(subSummary.adjustment || 0);
-
-    return subTotal.plus(shipping).plus(adjustment).dp(2).toNumber();
-  }
-
-  const updateSummaryOnFieldBlur = useCallback(
-    (fieldName, value, subSummary) => {
+  const updateTotals = useCallback(
+    (bookingRate, quantity, transferAmount) => {
       //get current values
-      const currentSummary = getValues('summary');
 
-      const { shipping, adjustment } = currentSummary;
-      let { taxes } = subSummary;
-      let subTotal = new BigNumber(subSummary.subTotal);
-      const totalTax = new BigNumber(subSummary.totalTax);
-      const newSubTotal = subTotal.plus(totalTax);
+      // let { taxes } = subSummary;
+      const bookingTotal = new BigNumber(bookingRate).times(quantity);
+      let subTotal = bookingTotal.plus(transferAmount);
 
-      subTotal = taxType === 'taxInclusive' ? newSubTotal : subTotal;
+      // const totalTax = new BigNumber(subSummary.totalTax);
+      // const newbookingTotal = bookingTotal.plus(totalTax);
+      // if (taxType) {
+      //   bookingTotal =
+      //     taxType === 'taxInclusive' ? newbookingTotal : bookingTotal;
+      // }
 
-      const totalAmount = getTotalAmount({
-        subTotal: newSubTotal.dp(2).toNumber(),
-        shipping,
-        adjustment,
-        /**
-         * field name could be either shipping or adjustment
-         * add value at the bottom to override if present
-         */
-        ...(fieldName ? { [fieldName]: value } : {}),
-      });
+      const total = subTotal;
 
       //update whole summary
-      setValue('summary', {
-        ...currentSummary,
-        subTotal: subTotal.dp(2).toNumber(),
-        totalTax: totalTax.dp(2).toNumber(),
-        taxes,
-        totalAmount,
-        ...(fieldName ? { [fieldName]: value } : {}),
-      });
+      setValue('bookingTotal', bookingTotal.dp(2).toNumber());
+      setValue('subTotal', subTotal.dp(2).toNumber());
+      setValue('total', total.dp(2).toNumber());
     },
-    [getValues, setValue, taxType]
+    [setValue]
   );
 
   useEffect(() => {
-    /**
-     * update summary values by calling function with null field values
-     */
-    updateSummaryOnFieldBlur(null, null, summary);
-  }, [summary, updateSummaryOnFieldBlur]);
+    updateTotals(bookingRate, quantity, transferAmount);
+  }, [updateTotals, bookingRate, quantity, transferAmount]);
 
   return (
     <TableContainer>
-      <Table size="sm">
+      <Table>
         <Tbody>
           <Tr>
             <Td>Sub Total</Td>
             <Controller
-              name="summary.subTotal"
+              name="subTotal"
               control={control}
               render={({ field: { value } }) => {
                 return (
-                  <Td w="16%" isNumeric>
+                  <Td w="16%" isNumeric >
                     {value}
                   </Td>
                 );
@@ -87,100 +63,35 @@ function SaleSummaryTable(props) {
             />
           </Tr>
 
-          <Tr>
-            <Td>Shipping Charges </Td>
-            <Th w="16%" isNumeric>
-              <Controller
-                name="summary.shipping"
-                control={control}
-                render={({ field: { ref, onBlur, value } }) => {
-                  return (
-                    <ControlledNumInput
-                      ref={ref}
-                      value={value}
-                      onBlur={onBlur}
-                      mode="onBlur"
-                      onChange={value =>
-                        updateSummaryOnFieldBlur('shipping', value, summary)
-                      }
-                      min={0}
-                      isReadOnly={loading}
-                    />
-                  );
-                }}
-                rules={{
-                  min: { value: 0, message: 'Value must be a positive number' },
-                }}
-              />
-            </Th>
-          </Tr>
-
-          <Tr>
-            <Td>Adjustments </Td>
-            <Th w="16%" isNumeric>
-              <Controller
-                name="summary.adjustment"
-                control={control}
-                render={({ field: { ref, onBlur, value } }) => {
-                  return (
-                    <ControlledNumInput
-                      ref={ref}
-                      value={value}
-                      onBlur={onBlur}
-                      mode="onBlur"
-                      onChange={value =>
-                        updateSummaryOnFieldBlur('adjustment', value, summary)
-                      }
-                      min={0}
-                      isReadOnly={loading}
-                    />
-                  );
-                }}
-                rules={{
-                  min: { value: 0, message: 'Value must be a positive number' },
-                }}
-              />
-            </Th>
-          </Tr>
+          <Controller
+            name="bookingTotal"
+            control={control}
+            render={() => <></>}
+          />
 
           {/**
            * add taxes to form but hide from view-returns nothing
            */}
-          <Controller
-            name="summary.taxes"
-            control={control}
-            render={() => <></>}
-          />
-          {taxes.map((tax, i) => {
-            const { name, rate, totalTax } = tax;
-            return (
-              <Tr key={i}>
-                <Td>
-                  {' '}
-                  {name} ({rate}%)
-                </Td>
-                <Td isNumeric>{totalTax}</Td>
-              </Tr>
-            );
-          })}
 
-          {/**
-           * add totalTax to form but hide from view-returns nothing
-           */}
-          <Controller
-            name="summary.totalTax"
-            control={control}
-            rules={{
-              required: { value: true, message: 'Required' },
-              min: { value: 0, message: 'Value should be a positive number' },
-            }}
-            render={() => <></>}
-          />
+          {saleTax
+            ? (() => {
+                const { name, rate, totalTax } = saleTax;
+                return (
+                  <Tr>
+                    <Td>
+                      {' '}
+                      {name} ({rate}%)
+                    </Td>
+                    <Td isNumeric>{totalTax}</Td>
+                  </Tr>
+                );
+              })()
+            : null}
 
           <Tr>
-            <Th>Total (KES)</Th>
+            <Th fontSize="16px">Total (KES)</Th>
             <Controller
-              name="summary.totalAmount"
+              name="total"
               rules={{
                 required: { value: true, message: 'Required' },
                 min: {
@@ -190,7 +101,7 @@ function SaleSummaryTable(props) {
               }}
               render={({ field: { value } }) => {
                 return (
-                  <Th fontSize="16px" w="16%" py={3} isNumeric>
+                  <Th fontSize="16px" w="16%" isNumeric>
                     {value}
                   </Th>
                 );
@@ -208,7 +119,7 @@ function SaleSummaryTable(props) {
 SaleSummaryTable.propTypes = {
   loading: PropTypes.bool.isRequired,
   summary: PropTypes.shape({
-    subTotal: PropTypes.number,
+    bookingTotal: PropTypes.number,
     taxes: PropTypes.arrayOf(
       PropTypes.shape({
         name: PropTypes.string,

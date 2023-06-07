@@ -85,6 +85,11 @@ import { watchGetMainSummary } from './summaries/getSummariesSagas';
 import { watchFetchAccountTypes } from './accountTypes/fetchAccountTypesSagas';
 //manual journals
 import { watchCreateManualJournal } from './manualJournals/createManualJournalSagas';
+//monthy bookings
+import {
+  watchGetMonthBookings,
+  watchGetMonthlyBookings,
+} from './monthlyBookings/get';
 //categories
 import { watchCreateItemCategory } from './itemsCategories/createItemCategorySagas';
 
@@ -157,6 +162,8 @@ export default function* rootSaga() {
     watchGetMainSummary(),
     watchFetchAccountTypes(),
     watchCreateManualJournal(),
+    watchGetMonthBookings(),
+    watchGetMonthlyBookings(),
     watchCreateItemCategory(),
   ]);
 }

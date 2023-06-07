@@ -10,7 +10,7 @@ import {
 } from 'firebase/firestore';
 
 import { db } from '../firebase';
-import { confirmFutureDate, getDateDetails, isSameDay } from '../dates';
+import { confirmFutureDate, getDateDetails, checkIfIsSameDay } from '../dates';
 
 export default async function createDailySummary(orgId: string) {
   const q = query(
@@ -37,7 +37,7 @@ export default async function createDailySummary(orgId: string) {
     );
   }
 
-  if (isSameDay(docDate, today)) {
+  if (checkIfIsSameDay(docDate, today)) {
     /**
      * this is todays summary.
      * do nothing

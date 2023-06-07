@@ -1,41 +1,41 @@
-import PropTypes from "prop-types";
-import { Text } from "@chakra-ui/react";
+import PropTypes from 'prop-types';
+import { Text } from '@chakra-ui/react';
 
-import { isSameDay } from "../../../utils/dates";
+import { checkIfIsSameDay } from '../../../utils/dates';
 
 function InvoiceDates(props) {
   const { invoice } = props;
   // console.log({ props });
-  const { invoiceDate, dueDate, balance } = invoice;
+  const { saleDate, dueDate, balance } = invoice;
   const today = new Date();
   const overdueDays = Math.floor(
     (today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24)
   );
 
-  const isToday = isSameDay(today, dueDate);
+  const isToday = checkIfIsSameDay(today, dueDate);
   const isOverdue = today.getTime() > dueDate.getTime();
 
   return (
     <>
-      {invoiceDate.toDateString()} <br />{" "}
+      {saleDate.toDateString()} <br />{' '}
       <Text fontSize="xs" color="#1A202C">
         {balance > 0 && isToday ? (
           <>
-            Due Date:{" "}
+            Due Date:{' '}
             <Text color="green" as="span">
               TODAY
             </Text>
           </>
         ) : isOverdue ? (
           <>
-            OVERDUE:{" "}
+            OVERDUE:{' '}
             <Text as="span" color="red" fontSize="xs">
               {overdueDays} days
             </Text>
           </>
         ) : (
           <>Due Date: {dueDate.toDateString()}</>
-        )}{" "}
+        )}{' '}
       </Text>
     </>
   );

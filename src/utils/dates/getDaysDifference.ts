@@ -1,4 +1,4 @@
-import isSameDay from './isSameDay';
+import checkIfIsSameDay from './checkIfIsSameDay';
 import getRemainingDaysInYear from './getRemainingDaysInYear';
 import getYearsArray from './getYearsArray';
 
@@ -6,7 +6,8 @@ export default function getDaysDifference(
   startDate: Date = new Date(),
   lastDate: Date = new Date()
 ) {
-  if (isSameDay(startDate, lastDate)) {
+  const isSameDay = checkIfIsSameDay(startDate, lastDate);
+  if (isSameDay) {
     return 1;
   }
 

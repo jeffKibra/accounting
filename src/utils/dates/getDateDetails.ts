@@ -1,9 +1,3 @@
-/**
- *
- * @param {Date} date
- * @returns {{dateString:"",month:"",year:0,yearMonth:"",yearMonthDay:"",millis:0,date:Date,}}
- */
-
 export default function getDateDetails(date: Date = new Date()) {
   const month = date.toDateString().substring(4, 7);
   const year = date.getFullYear();

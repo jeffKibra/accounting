@@ -22,6 +22,7 @@ import { summariesReducer } from './slices/summariesSlice';
 import { accountTypesReducer } from './slices/accountTypesSlice';
 import { chartOfAccountsReducer } from './slices/chartOfAccountsSlice';
 import { manualJournalsReducer } from './slices/manualJournalsSlice';
+import { monthlyBookingsReducer } from './slices/monthlyBookings';
 
 import { modifyItemsCategoriesReducer } from './slices/itemsCategories/modifyItemsCategoriesSlice';
 
@@ -47,6 +48,7 @@ const appReducer = combineReducers({
   chartOfAccountsReducer,
   manualJournalsReducer,
   modifyItemsCategoriesReducer,
+  monthlyBookingsReducer,
 });
 
 const store = configureStore({

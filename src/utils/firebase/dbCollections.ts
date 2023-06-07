@@ -1,4 +1,4 @@
-import { createCollection } from '.';
+import createCollectionRef from './createCollectionRef';
 
 import {
   IContactFromDb,
@@ -9,21 +9,25 @@ import {
   PaymentReceivedFromDb,
   SaleReceiptFromDb,
   TaxFromDb,
+  IMonthBookings,
 } from '../../types';
 
 export default function dbCollections(orgId: string) {
   const org = `organizations/${orgId}`;
   return {
-    contacts: createCollection<IContactFromDb>(`${org}/contacts`),
-    expenses: createCollection<ExpenseFromDb>(`${org}/expenses`),
-    invoices: createCollection<InvoiceFromDb>(`${org}/invoices`),
-    items: createCollection<ItemFromDb>(`${org}/items`),
-    entries: createCollection<EntryFromDb>(`${org}/journals`),
-    paymentsReceived: createCollection<PaymentReceivedFromDb>(
+    contacts: createCollectionRef<IContactFromDb>(`${org}/contacts`),
+    expenses: createCollectionRef<ExpenseFromDb>(`${org}/expenses`),
+    invoices: createCollectionRef<InvoiceFromDb>(`${org}/invoices`),
+    monthlyBookings: createCollectionRef<IMonthBookings>(
+      `${org}/monthlyBookings`
+    ),
+    items: createCollectionRef<ItemFromDb>(`${org}/items`),
+    entries: createCollectionRef<EntryFromDb>(`${org}/journals`),
+    paymentsReceived: createCollectionRef<PaymentReceivedFromDb>(
       `${org}/payments`
     ),
-    saleReceipts: createCollection<SaleReceiptFromDb>(`${org}/saleReceipts`),
-    taxes: createCollection<TaxFromDb>(`${org}/taxes`),
-    //     customers: createCollection<Customer>(`${org}/customers`),
+    saleReceipts: createCollectionRef<SaleReceiptFromDb>(`${org}/saleReceipts`),
+    taxes: createCollectionRef<TaxFromDb>(`${org}/taxes`),
+    //     customers: createCollectionRef<Customer>(`${org}/customers`),
   };
 }

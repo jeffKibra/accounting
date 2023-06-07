@@ -1,10 +1,10 @@
 import {
   OrgSummary,
-  IContactSummary,
+  // IContactSummary,
   PaymentTerm,
-  SalesItem,
-  SalesSummary,
+  // SalesItem,
   InvoiceTransactionTypes,
+  IBookingSaleForm,
 } from '.';
 import { Timestamp } from 'firebase/firestore';
 
@@ -43,16 +43,12 @@ interface Meta {
   modifiedBy: string;
 }
 
-export interface InvoiceFormData {
-  customer: IContactSummary;
-  customerNotes: string;
+export interface InvoiceFormData extends IBookingSaleForm {
+  // customerNotes: string;
   dueDate: Date;
-  invoiceDate: Date;
-  orderNumber: string;
+  // orderNumber: string;
   paymentTerm: PaymentTerm;
-  subject: string;
-  selectedItems: SalesItem[];
-  summary: SalesSummary;
+  // subject: string;
 }
 
 export interface InvoiceFromDb extends InvoiceFormData, Meta {}
@@ -61,12 +57,17 @@ export interface Invoice extends InvoiceFromDb {
   invoiceId: string;
 }
 
-export interface InvoiceSummary {
-  balance: number;
-  dueDate: Date;
-  invoiceDate: Date;
-  invoiceId: string;
-  status: number;
-  transactionType: string;
-  summary: SalesSummary;
-}
+//eslint-disable-next-line
+export interface InvoiceSummary
+  extends Pick<
+    Invoice,
+    | 'balance'
+    | 'dueDate'
+    | 'saleDate'
+    | 'invoiceId'
+    | 'status'
+    | 'transactionType'
+    | 'bookingTotal'
+    | 'transferAmount'
+    | 'total'
+  > {}

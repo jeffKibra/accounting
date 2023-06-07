@@ -10,7 +10,8 @@ import SkeletonLoader from 'components/ui/SkeletonLoader';
 import Empty from 'components/ui/Empty';
 
 import InvoiceDetailsFields from './DetailsFields';
-import SaleItems from '../Sales/SaleItems';
+
+import ItemsLoader from '../Sales/ItemsLoader';
 
 function InvoiceForm(props) {
   const { invoice, handleFormSubmit, updating } = props;
@@ -22,39 +23,27 @@ function InvoiceForm(props) {
   const formMethods = useForm({
     mode: 'onChange',
     defaultValues: {
+      //booking values
+      dateRange: invoice?.dateRange || [],
+      quantity: invoice?.quantity || 0,
+      bookingRate: invoice?.rate || 0,
+      bookingTotal: invoice?.bookingTotal || 0,
+      transferAmount: invoice?.transferAmount || 0,
+      total: invoice?.total || 0,
+      //  itemTax: 0,
+      //   itemRateTotal: 0,
+      //   itemTaxTotal: 0,
+      //   salesTax: null,
+      // taxType: 'taxExclusive',
+      //
       customer: invoice?.customer?.id || '',
-      orderNumber: invoice?.orderNumber || '',
-      invoiceDate: invoice?.invoiceDate || today,
+      saleDate: invoice?.saleDate || today,
       paymentTerm: invoice?.paymentTerm?.value || 'on_receipt',
       dueDate: invoice?.dueDate || today,
-      subject: invoice?.subject || '',
-      customerNotes: invoice?.customerNotes || '',
-      selectedItems:
-        invoice?.selectedItems ||
-        [
-          // {
-          //   item: null,
-          //   rate: 0,
-          //   startDate: new Date(),
-          //   endDate: new Date(),
-          //   quantity: 0,
-          //   itemRate: 0,
-          //   itemTax: 0,
-          //   itemRateTotal: 0,
-          //   itemTaxTotal: 0,
-          //   salesTax: null,
-          // },
-        ],
-      taxType: 'taxExclusive',
-      summary: invoice?.summary || {
-        adjustment: 0,
-        shipping: 0,
-        subTotal: 0,
-        taxes: [],
-        totalAmount: 0,
-        totalTax: 0,
-      },
-      saleType: invoice?.saleType || 'booking',
+      //
+      // subject: invoice?.subject || '',
+      // orderNumber: invoice?.orderNumber || '',
+      // customerNotes: invoice?.customerNotes || '',
     },
   });
   const { handleSubmit } = formMethods;
@@ -70,20 +59,9 @@ function InvoiceForm(props) {
   function onSubmit(data) {
     console.log({ data });
     const { customer: customerId, paymentTerm: paymentTermId, ...rest } = data;
-    const { invoiceDate, dueDate, selectedItems } = rest;
+    const { saleDate, dueDate } = rest;
     let formValues = { ...rest };
-    /**
-     * check if selected items is not an empty array or
-     * values are not empty objects-item set to null
-     */
 
-    const fieldsValid =
-      (selectedItems && selectedItems.filter(item => item).length > 0) || false;
-    // console.log({ selectedItems });
-
-    if (!fieldsValid) {
-      return toasts.error('Please add atleast one(1) item to proceed!');
-    }
     // if (totalAmount <= 0) {
     //   return toasts.error("Total Sale Amount should be greater than ZERO(0)!");
     // }
@@ -91,9 +69,11 @@ function InvoiceForm(props) {
     /**
      * ensure dueDate is not a past date
      */
-    const dueDateIsFuture = confirmFutureDate(invoiceDate, dueDate);
+    const dueDateIsFuture = confirmFutureDate(saleDate, dueDate);
     if (!dueDateIsFuture) {
-      return toasts.error('Due date cannot be less than invoice date');
+      return toasts.error(
+        'Due date must be either same day or ahead of invoice date'
+      );
     }
 
     const customer = customers.find(customer => customer.id === customerId);
@@ -112,7 +92,7 @@ function InvoiceForm(props) {
     //   //invoice is being updated-submit only the changed values
     //   formValues = getDirtyFields(dirtyFields, formValues);
     // }
-    // console.log({ formValues });
+    console.log({ formValues });
 
     //submit the data
     handleFormSubmit(formValues);
@@ -137,21 +117,31 @@ function InvoiceForm(props) {
           borderColor="gray.200"
           // maxW="container.sm"
         >
-          <InvoiceDetailsFields
-            customers={customers}
-            paymentTerms={paymentTerms}
-            loading={updating}
-            invoiceId={invoice?.invoiceId || ''}
-          />
+          <ItemsLoader items={items} loading={updating} taxes={taxes}>
+            {availableItems => {
+              console.log({ availableItems });
 
-          <SaleItems
+              return (
+                <InvoiceDetailsFields
+                  customers={customers}
+                  paymentTerms={paymentTerms}
+                  loading={updating}
+                  invoiceId={invoice?.invoiceId || ''}
+                  items={availableItems}
+                  taxes={taxes}
+                />
+              );
+            }}
+          </ItemsLoader>
+
+          {/* <SaleItems
             loading={updating}
             items={items}
             taxes={taxes}
             selectSalesType={!Boolean(invoice)}
             transactionId={invoice?.invoiceId}
             transactionType={"invoice"}
-          />
+          /> */}
         </Box>
         <Flex w="full" py={6} justify="flex-end">
           <Button
@@ -187,7 +177,7 @@ InvoiceForm.propTypes = {
     }),
     selectedItems: PropTypes.array,
     customerId: PropTypes.string,
-    invoiceDate: PropTypes.instanceOf(Date),
+    saleDate: PropTypes.instanceOf(Date),
     dueDate: PropTypes.instanceOf(Date),
     subject: PropTypes.string,
     customerNotes: PropTypes.string,
