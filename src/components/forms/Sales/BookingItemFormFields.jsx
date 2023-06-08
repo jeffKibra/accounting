@@ -5,6 +5,8 @@ import {
   FormErrorMessage,
   Grid,
   GridItem,
+  Box,
+  Text,
 } from '@chakra-ui/react';
 import { useFormContext, Controller } from 'react-hook-form';
 import PropTypes from 'prop-types';
@@ -118,7 +120,7 @@ function BookingItemFormFields(props) {
       <Controller
         name="quantity"
         control={control}
-        render={({ field: { ref, value, onBlur, onChange } }) => {
+        render={() => {
           return <></>;
         }}
       />
@@ -158,10 +160,15 @@ function BookingItemFormFields(props) {
                     placeholder="---select vehicle---"
                     allowClearSelection={false}
                     options={itemsArray.map(item => {
-                      const { name, itemId } = item;
+                      const { name, itemId, rate } = item;
 
                       return {
-                        name,
+                        name: (
+                          <Box display="flex">
+                            <Text flexGrow={1}>{name}</Text>
+                            <Text>KES {rate}</Text>
+                          </Box>
+                        ),
                         value: itemId,
                       };
                     })}

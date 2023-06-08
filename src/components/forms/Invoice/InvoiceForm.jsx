@@ -24,9 +24,12 @@ function InvoiceForm(props) {
     mode: 'onChange',
     defaultValues: {
       //booking values
-      dateRange: invoice?.dateRange || [],
+      dateRange: invoice?.dateRange
+        ? [new Date(invoice?.dateRange[0]), new Date(invoice?.dateRange[1])]
+        : [],
+      item: invoice?.item || null,
       quantity: invoice?.quantity || 0,
-      bookingRate: invoice?.rate || 0,
+      bookingRate: invoice?.bookingRate || 0,
       bookingTotal: invoice?.bookingTotal || 0,
       transferAmount: invoice?.transferAmount || 0,
       total: invoice?.total || 0,
@@ -37,9 +40,9 @@ function InvoiceForm(props) {
       // taxType: 'taxExclusive',
       //
       customer: invoice?.customer?.id || '',
-      saleDate: invoice?.saleDate || today,
+      saleDate: new Date(invoice?.saleDate || today),
       paymentTerm: invoice?.paymentTerm?.value || 'on_receipt',
-      dueDate: invoice?.dueDate || today,
+      dueDate: new Date(invoice?.dueDate || today),
       //
       // subject: invoice?.subject || '',
       // orderNumber: invoice?.orderNumber || '',
@@ -117,7 +120,13 @@ function InvoiceForm(props) {
           borderColor="gray.200"
           // maxW="container.sm"
         >
-          <ItemsLoader items={items} loading={updating} taxes={taxes}>
+          <ItemsLoader
+            items={items}
+            loading={updating}
+            taxes={taxes}
+            defaultDateRange={invoice?.dateRange}
+            defaultItemId={invoice?.item?.itemId}
+          >
             {availableItems => {
               console.log({ availableItems });
 

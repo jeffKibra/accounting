@@ -4,7 +4,7 @@ export { default as checkLeapYear } from './checkLeapYear';
 export { default as confirmFutureDate } from './confirmFutureDate';
 export { default as dateFromTimestamp } from './dateFromTimestamp';
 export { default as getDateDetails } from './getDateDetails';
-export { default as getDatesWithinRangeGroupedInMonths } from './getDatesWithinRangeGroupedInMonths';
+export { default as getDatesWithinRange } from './getDatesWithinRange';
 export { default as getDaysDifference } from './getDaysDifference';
 export { default as getFebDays } from './getFebDays';
 export { default as getFutureDate } from './getFutureDate';

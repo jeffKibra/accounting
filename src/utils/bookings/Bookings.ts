@@ -8,7 +8,7 @@ import { dbCollections } from '../../utils/firebase';
 
 //----------------------------------------------------------------
 
-import { getDatesWithinRangeGroupedInMonths } from '../../utils/dates';
+import { getDatesWithinRange } from '../../utils/dates';
 //
 import {
   ItemType,
@@ -18,6 +18,8 @@ import {
 } from '../../types';
 
 //----------------------------------------------------------------
+// type IUngroupedDates = Record<string, string>;
+// type IDatesGroupedInMonths = Record<string, IUngroupedDates>;
 //----------------------------------------------------------------
 
 export default class Bookings {
@@ -79,18 +81,20 @@ export default class Bookings {
   static getItemsNotBooked(
     monthlyBookings: IMonthlyBookings,
     selectedDatesGroupedInMonths: Record<string, Record<string, string>>,
-    items: Item[]
+    items: Item[],
+    defaultItemId?: string,
+    defaultBookingDays?: Record<string, string>
   ) {
     // console.log({ monthlyBookings, selectedDatesGroupedInMonths });
     const months = Object.keys(monthlyBookings);
-
-    const dailyBookings: Record<string, Record<string, string>> = {}; //{date1:{item1:item1,item2:item2}}
 
     const allItems: Record<string, Item> = {};
     items.forEach(item => {
       const { itemId } = item;
       allItems[itemId] = item;
     });
+
+    const dailyBookings: Record<string, Record<string, string>> = {}; //{date1:{item1:item1,item2:item2}}
 
     function updateDayBookings(day: string, itemId: string) {
       const dayBookings = dailyBookings[day];
@@ -112,7 +116,23 @@ export default class Bookings {
           const itemMonthBookings = monthBookings[itemId];
           if (Array.isArray(itemMonthBookings)) {
             itemMonthBookings.forEach(day => {
-              updateDayBookings(day, itemId);
+              let dayIsBeingEdited = false;
+              if (defaultItemId === itemId) {
+                /**
+                 * this is the current booked item
+                 * check if the item booking for the day is the one being edited
+                 * if true, dont add day to booked days.
+                 */
+                if (defaultBookingDays) {
+                  dayIsBeingEdited = Boolean(defaultBookingDays[day]);
+                }
+              }
+
+              console.log({ itemId, defaultItemId, day, dayIsBeingEdited });
+
+              if (!dayIsBeingEdited) {
+                updateDayBookings(day, itemId);
+              }
             });
           }
         });
@@ -127,7 +147,7 @@ export default class Bookings {
     selectedMonths.forEach(selectedMonth => {
       const selectedMonthDates = selectedDatesGroupedInMonths[selectedMonth];
       Object.keys(selectedMonthDates).forEach(selectedDate => {
-        //check if there is an item booked today. delete from liste if booked
+        //check if there is an item booked today. delete from list if booked
         const alreadyBookedItems = dailyBookings[selectedDate];
         // console.log({ selectedDate, alreadyBookedItems });
         if (alreadyBookedItems) {
@@ -147,11 +167,8 @@ export default class Bookings {
   //-----------------------------------------------------------------------
   // static get
 
-  static getBookingDays(dateRange: [string, string] | null) {
-    if (!dateRange) {
-      return {};
-    }
-
+  //------------------------------------------------------------------------------
+  static getBookingDays(dateRange: [string, string]) {
     if (!Array.isArray(dateRange)) {
       throw new TypeError('Booking dateRange must be an array');
     }
@@ -166,14 +183,11 @@ export default class Bookings {
 
     const endDate = new Date(end);
 
-    const datesGroupedInMonths = getDatesWithinRangeGroupedInMonths(
-      startDate,
-      endDate
-    );
+    const datesWithinRange = getDatesWithinRange(startDate, endDate);
 
-    console.log({ datesGroupedInMonths });
+    console.log({ datesWithinRange });
 
-    return datesGroupedInMonths;
+    return datesWithinRange;
   }
 
   //-------------------------------------------------------------------------

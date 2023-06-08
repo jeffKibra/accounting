@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import {
   FormControl,
   FormLabel,
@@ -35,6 +35,8 @@ function ItemsLoader(props) {
     loadingMonthlyBookings,
     monthlyBookings,
     fetchMonthlyBookings,
+    defaultDateRange,
+    defaultItemId,
   } = props;
   console.log({ props });
   console.log({ loadingMonthlyBookings, monthlyBookings });
@@ -48,7 +50,19 @@ function ItemsLoader(props) {
     watch,
     formState: { errors },
     setValue,
+    getValues,
   } = useFormContext();
+
+  const defaultBookingDays = useMemo(() => {
+    if (!defaultDateRange) {
+      return null;
+    }
+
+    const { ungroupedDates } = Bookings.getBookingDays(defaultDateRange);
+
+    return ungroupedDates;
+  }, [defaultDateRange]);
+  console.log({ defaultBookingDays });
 
   const dateRange = watch('dateRange');
   console.log({ dateRange });
@@ -61,44 +75,61 @@ function ItemsLoader(props) {
       console.log({ start, end });
 
       if (start && end) {
-        const daysGroupedInMonths = Bookings.getBookingDays(dateRange);
-        console.log({ daysGroupedInMonths });
+        //update quantity
+        const quantity = getDaysDifference(start, end);
+        console.log({ quantity });
+        setValue('quantity', quantity);
+        //
+        const { datesGroupedInMonths } = Bookings.getBookingDays(dateRange);
+        console.log({ datesGroupedInMonths });
 
         //fetch current bookings from db and filter out items booking in selected dates
-        const months = Object.keys(daysGroupedInMonths);
+        const months = Object.keys(datesGroupedInMonths);
         console.log({ months });
 
         // Bookings.getMonthlyBookings(orgId, months);
         fetchMonthlyBookings(months);
 
-        setSelectedDaysGroupedInMonths(daysGroupedInMonths);
+        setSelectedDaysGroupedInMonths(datesGroupedInMonths);
       }
     }
-  }, [dateRange, fetchMonthlyBookings]);
+  }, [dateRange, fetchMonthlyBookings, setValue]);
 
   useEffect(() => {
     const itemsNotBooked = Bookings.getItemsNotBooked(
       monthlyBookings,
       selectedDaysGroupedInMonths,
-      items
+      items,
+      defaultItemId,
+      defaultBookingDays
     );
-    setAvailableItems(itemsNotBooked);
-  }, [setAvailableItems, monthlyBookings, items, selectedDaysGroupedInMonths]);
 
-  console.log({ selectedDaysGroupedInMonths, availableItems });
+    const currentSelectedItem = getValues('item');
+    const currentSelectedItemId = currentSelectedItem?.itemId;
 
-  useEffect(() => {
-    if (Array.isArray(dateRange)) {
-      const [startDate, endDate] = dateRange;
+    const currentSelectedItemIsAvailable = Boolean(
+      itemsNotBooked[currentSelectedItemId]
+    );
+    // console.log({ currentSelectedItemIsAvailable });
 
-      if (startDate && endDate) {
-        const quantity = getDaysDifference(startDate, endDate);
-        console.log({ quantity });
-
-        setValue('quantity', quantity);
-      }
+    if (!currentSelectedItemIsAvailable) {
+      setValue('item', null);
+      setValue('bookingRate', 0);
     }
-  }, [dateRange, setValue]);
+
+    setAvailableItems(itemsNotBooked);
+  }, [
+    setAvailableItems,
+    monthlyBookings,
+    items,
+    selectedDaysGroupedInMonths,
+    defaultItemId,
+    defaultBookingDays,
+    getValues,
+    setValue,
+  ]);
+
+  // console.log({ selectedDaysGroupedInMonths, availableItems });
 
   return (
     <>

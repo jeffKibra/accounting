@@ -1,16 +1,17 @@
-import getRemainingDatesInMonth from "./getRemainingDatesInMonth";
-import checkIfIsSameMonth from "./checkIfIsSameMonth";
-import getFebDays from "./getFebDays";
+import getRemainingDatesInMonth from './getRemainingDatesInMonth';
+import checkIfIsSameMonth from './checkIfIsSameMonth';
+import getFebDays from './getFebDays';
 
-export default function getDatesWithinRangeGroupedInMonths(
-  start: Date,
-  end: Date
+export default function getDatesWithinRange(
+  start: string | Date,
+  end: string | Date
 ) {
-  if (end.getTime() < start.getTime()) {
-    throw new Error("Booking end date must be after start date!");
-  }
   const startDate = new Date(start);
   const endDate = new Date(end);
+
+  if (endDate.getTime() < startDate.getTime()) {
+    throw new Error('Booking end date must be after start date!');
+  }
 
   const months: { [index: number]: number } = {
     1: 31,
@@ -47,7 +48,8 @@ export default function getDatesWithinRangeGroupedInMonths(
    */
   updateLeapYear(year);
 
-  const monthlyDates: Record<string, Record<string, string>> = {};
+  const datesGroupedInMonths: Record<string, Record<string, string>> = {};
+  let ungroupedDates: Record<string, string> = {};
 
   //eslint-disable-next-line
   while (true) {
@@ -63,7 +65,8 @@ export default function getDatesWithinRangeGroupedInMonths(
 
     const monthDates = getRemainingDatesInMonth(dateToday, lastDayOfTheMonth);
     console.log({ monthDates });
-    monthlyDates[monthDates.month] = monthDates.dates;
+    datesGroupedInMonths[monthDates.month] = monthDates.dates;
+    ungroupedDates = { ...ungroupedDates, ...monthDates.dates };
     /**
      * check if we need to break the loop
      *
@@ -93,7 +96,7 @@ export default function getDatesWithinRangeGroupedInMonths(
     }
   }
 
-  console.log({ monthlyDates });
+  console.log({ datesGroupedInMonths, ungroupedDates });
 
-  return monthlyDates;
+  return { datesGroupedInMonths, ungroupedDates };
 }
