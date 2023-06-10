@@ -19,156 +19,91 @@ function checkIfDateIsValid(date) {
 }
 
 function ViewSaleItemsTable(props) {
-  const { items, taxType } = props;
+  const { invoice } = props;
+
+  const {
+    item: { name },
+    bookingRate,
+    dateRange,
+    quantity,
+    bookingTotal,
+    transferAmount,
+    total,
+    // taxType,
+  } = invoice;
 
   return (
-    <>
-      <TableContainer>
-        <Table wordBreak="break-word" size="sm">
-          <Thead textTransform="capitalize">
-            <Tr bg="gray.100" py={2}>
-              <Th
-                fontSize="sm"
-                w="5%"
-                textTransform="inherit"
-                color="inherit"
-                py={2}
-              >
-                #
-              </Th>
-              <Th fontSize="sm" textTransform="inherit" color="inherit" py={2}>
-                Item
-              </Th>
-              <Th
-                fontSize="sm"
-                w="11%"
-                textTransform="inherit"
-                color="inherit"
-                py={2}
-                isNumeric
-              >
-                Qty
-              </Th>
-              <Th
-                fontSize="sm"
-                w="11%"
-                textTransform="inherit"
-                color="inherit"
-                py={2}
-                isNumeric
-              >
-                Rate
-              </Th>
-
-              <Th
-                fontSize="sm"
-                w="11%"
-                textTransform="inherit"
-                color="inherit"
-                py={2}
-                isNumeric
-              >
-                Amount
-              </Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {items.map((itemDetails, i) => {
-              const {
-                item: { name, type, unit },
-                quantity,
-                itemRate,
-                itemTax,
-                itemRateTotal,
-                itemTaxTotal,
-                dateRange,
-              } = itemDetails;
-
-              let startDate = new Date();
-              let endDate = new Date();
-              if (Array.isArray(dateRange)) {
-                const incomingStartDate = dateRange[0];
-                const incomingEndDate = dateRange[1] || incomingStartDate;
-
-                const startDateIsValid = checkIfDateIsValid(incomingStartDate);
-                const endDateIsValid = checkIfDateIsValid(incomingEndDate);
-                console.log({ startDateIsValid, endDateIsValid });
-
-                if (startDateIsValid && endDateIsValid) {
-                  startDate = new Date(incomingStartDate);
-                  endDate = new Date(incomingEndDate);
-                }
-              }
-
-              const itemIsABooking = isItemABooking(type);
-
-              return (
-                <Tr key={i}>
-                  <Td>{i + 1}</Td>
-                  <Td>
-                    {name} <br />{' '}
-                    {itemIsABooking ? (
-                      <Text fontSize="xs" color="#1A202C">
-                        {/* Booked:{' '} */}
-                        <Text color="green" as="span">
-                          {`${startDate.toDateString()}-${endDate.toDateString()}`}
-                        </Text>
-                      </Text>
-                    ) : (
-                      ''
-                    )}{' '}
-                  </Td>
-                  <Td isNumeric>{`${Number(quantity).toLocaleString()} ${
-                    unit || ''
-                  }`}</Td>
-                  <Td isNumeric>
-                    {Number(
-                      taxType === 'taxInclusive' ? itemRate + itemTax : itemRate
-                    ).toLocaleString()}
-                  </Td>
-
-                  <Td isNumeric>
-                    {Number(
-                      taxType === 'taxInclusive'
-                        ? itemRateTotal + itemTaxTotal
-                        : itemRateTotal
-                    ).toLocaleString()}
-                  </Td>
-                </Tr>
-              );
-            })}
-          </Tbody>
-        </Table>
-      </TableContainer>
-    </>
+    <TableContainer>
+      <Table wordBreak="break-word" size="sm">
+        <Tbody>
+          <Tr>
+            <Th>Registration</Th>
+            <Td textAlign="end">{name}</Td>
+          </Tr>
+          <Tr>
+            <Th>Rate</Th>
+            <Td textAlign="end">KES {Number(bookingRate).toLocaleString()}</Td>
+          </Tr>
+          <Tr>
+            <Th>Start Date</Th>
+            <Td textAlign="end">
+              {new Date(dateRange[0] || Date.now()).toDateString()}
+            </Td>
+          </Tr>
+          <Tr>
+            <Th>End Date</Th>
+            <Td textAlign="end">
+              {new Date(dateRange[1] || Date.now()).toDateString()}
+            </Td>
+          </Tr>
+          <Tr>
+            <Th>Days</Th>
+            <Td textAlign="end">{Number(quantity).toLocaleString()}</Td>
+          </Tr>
+          <Tr>
+            <Th>Booking Total</Th>
+            <Td textAlign="end">
+              KES {Number(bookingTotal).toLocaleString()}
+              {/* {Number(
+                  taxType === 'taxInclusive' ? itemRate + itemTax : itemRate
+                ).toLocaleString()} */}
+            </Td>
+          </Tr>
+          <Tr>
+            <Th>Transfer Amount</Th>
+            <Td textAlign="end">
+              KES {Number(transferAmount).toLocaleString()}
+            </Td>
+          </Tr>
+        </Tbody>
+      </Table>
+    </TableContainer>
   );
 }
 
 ViewSaleItemsTable.propTypes = {
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      item: PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        variant: PropTypes.string,
-        itemId: PropTypes.string.isRequired,
+  invoice: PropTypes.shape({
+    item: PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      itemId: PropTypes.string.isRequired,
+    }),
+    salesTax: PropTypes.oneOfType([
+      PropTypes.shape({
+        name: PropTypes.string,
+        rate: PropTypes.number,
+        taxId: PropTypes.string,
       }),
-      rate: PropTypes.number.isRequired,
-      salesTax: PropTypes.oneOfType([
-        PropTypes.shape({
-          name: PropTypes.string,
-          rate: PropTypes.number,
-          taxId: PropTypes.string,
-        }),
-        PropTypes.string,
-      ]),
-      itemRateTotal: PropTypes.number.isRequired,
-      itemRate: PropTypes.number.isRequired,
-      itemTaxTotal: PropTypes.number.isRequired,
-      itemTax: PropTypes.number.isRequired,
-      quantity: PropTypes.number.isRequired,
-    })
-  ),
-  taxType: PropTypes.string.isRequired,
+      PropTypes.string,
+    ]),
+    bookingRate: PropTypes.number.isRequired,
+    bookingTotal: PropTypes.number.isRequired,
+    transferAmount: PropTypes.number.isRequired,
+    subTotal: PropTypes.number.isRequired,
+    total: PropTypes.number.isRequired,
+    // itemTax: PropTypes.number.isRequired,
+    quantity: PropTypes.number.isRequired,
+    taxType: PropTypes.string,
+  }),
 };
 
 export default ViewSaleItemsTable;

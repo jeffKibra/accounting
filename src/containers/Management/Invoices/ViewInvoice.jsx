@@ -23,14 +23,11 @@ function ViewInvoice(props) {
   const {
     org,
     customer,
-    selectedItems,
     invoiceId,
-    summary,
-    invoiceDate,
+    saleDate,
     dueDate,
     customerNotes,
     balance,
-    paymentsReceived,
   } = invoice;
 
   return (
@@ -94,7 +91,7 @@ function ViewInvoice(props) {
                 <Tr>
                   <Td isNumeric>Invoice Date:</Td>
                   <Td pr="0px !important" isNumeric>
-                    {new Date(invoiceDate).toDateString()}
+                    {new Date(saleDate).toDateString()}
                   </Td>
                 </Tr>
                 <Tr>
@@ -108,17 +105,12 @@ function ViewInvoice(props) {
           </GridItem>
         </Grid>
         <Box w="full" mt="20px!important">
-          <ViewSaleItemsTable taxType={summary.taxType} items={selectedItems} />
+          <ViewSaleItemsTable invoice={invoice} />
         </Box>
         <Grid w="full" columnGap={3} templateColumns="repeat(12, 1fr)">
           <GridItem colSpan={[1, 6]}></GridItem>
           <GridItem colSpan={[11, 6]}>
-            <ViewSaleSummaryTable
-              showBalance
-              balance={balance}
-              summary={summary}
-              payments={paymentsReceived}
-            />
+            <ViewSaleSummaryTable showBalance invoice={invoice} />
           </GridItem>
         </Grid>
         {customerNotes && (
@@ -137,20 +129,28 @@ ViewInvoice.propTypes = {
   invoice: PropTypes.shape({
     customer: PropTypes.object.isRequired,
     org: PropTypes.object.isRequired,
-    summary: PropTypes.shape({
-      shipping: PropTypes.number.isRequired,
-      adjustment: PropTypes.number.isRequired,
-      totalAmount: PropTypes.number.isRequired,
-      subTotal: PropTypes.number.isRequired,
-      totalTax: PropTypes.number.isRequired,
-      taxes: PropTypes.array.isRequired,
-    }),
-    invoiceDate: PropTypes.instanceOf(Date).isRequired,
+    saleDate: PropTypes.instanceOf(Date).isRequired,
     dueDate: PropTypes.instanceOf(Date).isRequired,
     invoiceId: PropTypes.string.isRequired,
     status: PropTypes.number.isRequired,
-    selectedItems: PropTypes.array.isRequired,
+    item: PropTypes.object.isRequired,
     balance: PropTypes.number.isRequired,
+    salesTax: PropTypes.oneOfType([
+      PropTypes.shape({
+        name: PropTypes.string,
+        rate: PropTypes.number,
+        taxId: PropTypes.string,
+      }),
+      PropTypes.string,
+    ]),
+    bookingRate: PropTypes.number.isRequired,
+    bookingTotal: PropTypes.number.isRequired,
+    transferAmount: PropTypes.number.isRequired,
+    subTotal: PropTypes.number.isRequired,
+    total: PropTypes.number.isRequired,
+    // itemTax: PropTypes.number.isRequired,
+    quantity: PropTypes.number.isRequired,
+    taxType: PropTypes.string,
   }),
 };
 
