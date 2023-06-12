@@ -27,7 +27,7 @@ function* createCustomerSaga(action: PayloadAction<IContactForm>) {
   async function create() {
     return httpsCallable(
       functions,
-      'sale-customer-create'
+      'sales-customers-create'
     )({ orgId, formData });
   }
 

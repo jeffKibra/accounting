@@ -32,6 +32,11 @@ export const INVOICES = '/sale/invoices';
 export const NEW_INVOICE = '/sale/invoices/new';
 export const EDIT_INVOICE = '/sale/invoices/:invoiceId/edit';
 export const VIEW_INVOICE = '/sale/invoices/:invoiceId/view';
+//bookings
+export const BOOKINGS = '/sale/bookings';
+export const NEW_BOOKING = '/sale/bookings/new';
+export const EDIT_BOOKING = '/sale/bookings/:bookingId/edit';
+export const VIEW_BOOKING = '/sale/bookings/:bookingId/view';
 //payments received
 export const PAYMENTS = '/sale/payments';
 export const NEW_PAYMENT = '/sale/payments/new';

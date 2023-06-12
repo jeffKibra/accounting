@@ -3,8 +3,8 @@ import { TableContainer, Table, Tbody, Td, Tr } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
 function ViewSaleSummaryTable(props) {
-  const { invoice, showBalance } = props;
-  const { paymentsReceived: payments, total, subTotal, balance } = invoice;
+  const { booking, showBalance } = props;
+  const { paymentsReceived: payments, total, subTotal, balance } = booking;
   console.log({ payments, total, subTotal });
 
   const paymentsTotal = useMemo(() => {
@@ -91,7 +91,7 @@ ViewSaleSummaryTable.defaultProps = {
 };
 
 ViewSaleSummaryTable.propTypes = {
-  invoice: PropTypes.shape({
+  booking: PropTypes.shape({
     salesTax: PropTypes.oneOfType([
       PropTypes.shape({
         name: PropTypes.string,

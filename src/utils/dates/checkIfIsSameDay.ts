@@ -1,10 +1,10 @@
 export default function checkIfIsSameDay(
-  date1: Date = new Date(),
-  date2: Date = new Date()
+  date1: Date | string = new Date(),
+  date2: Date | string = new Date()
 ) {
   return (
-    date1.getDate() === date2.getDate() &&
-    date1.getMonth() === date2.getMonth() &&
-    date1.getFullYear() === date2.getFullYear()
+    new Date(date1).getDate() === new Date(date2).getDate() &&
+    new Date(date1).getMonth() === new Date(date2).getMonth() &&
+    new Date(date1).getFullYear() === new Date(date2).getFullYear()
   );
 }

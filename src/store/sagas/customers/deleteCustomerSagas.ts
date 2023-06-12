@@ -24,7 +24,7 @@ function* deleteCustomer(action: PayloadAction<string>) {
   async function update() {
     return httpsCallable(
       functions,
-      'sale-customer-delete'
+      'sales-customers-delete'
     )({ orgId, customerId });
   }
 

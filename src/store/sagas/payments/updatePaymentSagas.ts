@@ -28,7 +28,7 @@ function* updatePaymentSaga(action: PayloadAction<UpdateData>) {
   async function update() {
     return httpsCallable(
       functions,
-      'sale-paymentReceived-update'
+      'sales-paymentsReceived-update'
     )({ orgId, paymentId, formData });
   }
 

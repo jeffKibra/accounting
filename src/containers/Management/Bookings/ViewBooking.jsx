@@ -14,21 +14,14 @@ import {
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
-import ViewSaleItemTable from '../../../components/tables/Sales/ViewSaleItemTable';
+import ViewSaleItemsTable from '../../../components/tables/Sales/ViewSaleItemTable';
 import ViewSaleSummaryTable from '../../../components/tables/Sales/ViewSaleSummaryTable';
 
-function ViewInvoice(props) {
-  const { invoice } = props;
-  console.log({ invoice });
-  const {
-    org,
-    customer,
-    invoiceId,
-    saleDate,
-    dueDate,
-    customerNotes,
-    balance,
-  } = invoice;
+function ViewBooking(props) {
+  const { booking } = props;
+  console.log({ booking });
+  const { org, customer, id, saleDate, dueDate, customerNotes, balance } =
+    booking;
 
   return (
     <Container
@@ -54,10 +47,10 @@ function ViewInvoice(props) {
           <GridItem colSpan={[12, 6]}>
             <VStack align="flex-end" w="full">
               <Heading as="h1" size="xl">
-                INVOICE
+                booking
               </Heading>
               <Heading color="#333" size="xs">
-                # {invoiceId}
+                # {id}
               </Heading>
               <VStack w="full" mt="20px!important" align="flex-end">
                 <Text fontSize="sm">Balance Due</Text>
@@ -89,7 +82,7 @@ function ViewInvoice(props) {
             <Table size="sm">
               <Tbody>
                 <Tr>
-                  <Td isNumeric>Invoice Date:</Td>
+                  <Td isNumeric>booking Date:</Td>
                   <Td pr="0px !important" isNumeric>
                     {new Date(saleDate).toDateString()}
                   </Td>
@@ -105,12 +98,12 @@ function ViewInvoice(props) {
           </GridItem>
         </Grid>
         <Box w="full" mt="20px!important">
-          <ViewSaleItemTable invoice={invoice} />
+          <ViewSaleItemsTable booking={booking} />
         </Box>
         <Grid w="full" columnGap={3} templateColumns="repeat(12, 1fr)">
           <GridItem colSpan={[1, 6]}></GridItem>
           <GridItem colSpan={[11, 6]}>
-            <ViewSaleSummaryTable showBalance invoice={invoice} />
+            <ViewSaleSummaryTable showBalance booking={booking} />
           </GridItem>
         </Grid>
         {customerNotes && (
@@ -125,13 +118,13 @@ function ViewInvoice(props) {
   );
 }
 
-ViewInvoice.propTypes = {
-  invoice: PropTypes.shape({
+ViewBooking.propTypes = {
+  booking: PropTypes.shape({
     customer: PropTypes.object.isRequired,
     org: PropTypes.object.isRequired,
     saleDate: PropTypes.instanceOf(Date).isRequired,
     dueDate: PropTypes.instanceOf(Date).isRequired,
-    invoiceId: PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired,
     status: PropTypes.number.isRequired,
     item: PropTypes.object.isRequired,
     balance: PropTypes.number.isRequired,
@@ -154,4 +147,4 @@ ViewInvoice.propTypes = {
   }),
 };
 
-export default ViewInvoice;
+export default ViewBooking;

@@ -138,7 +138,7 @@ function ItemsLoader(props) {
         <DateRangePicker
           name="dateRange"
           isReadOnly={loading}
-          // inline
+          inline
           // dateIntervalsToExclude={dateIntervalsToExclude}
         />
         <FormErrorMessage>{errors.dateRange?.message}</FormErrorMessage>

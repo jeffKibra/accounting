@@ -47,12 +47,16 @@ export type {
   IBookingAdjustmentData,
   IBookingDateRange,
   IBookingItem,
-  IBookingSaleForm,
+  IBookingForm,
   IMonthlyBookingUpdateData,
   IMonthlyBookings,
   IItemBookings,
   IMonthBookings,
   IGetMonthBookingSuccessPayload,
+  IBooking,
+  IBookingDownPayment,
+  IBookingFromDb,
+  IBookingPayments,
 } from './bookings';
 export type {
   Invoice,

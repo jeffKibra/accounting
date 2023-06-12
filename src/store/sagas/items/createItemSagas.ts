@@ -23,7 +23,7 @@ function* createItem(action: PayloadAction<ItemFormData>) {
   // console.log({ data });
 
   async function create() {
-    return httpsCallable(functions, 'item-create')({ orgId, itemData: data });
+    return httpsCallable(functions, 'items-create')({ orgId, itemData: data });
   }
 
   try {

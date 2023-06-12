@@ -28,7 +28,7 @@ function* updateItem(action: PayloadAction<UpdateData>) {
     const { itemId, ...formData } = action.payload;
     return httpsCallable(
       functions,
-      'item-update'
+      'items-update'
     )({ orgId, itemId, data: formData });
   }
 
@@ -58,7 +58,7 @@ function* deleteItem(action: PayloadAction<string>) {
   );
 
   async function update() {
-    return httpsCallable(functions, 'item-delete')({ orgId, itemId });
+    return httpsCallable(functions, 'items-delete')({ orgId, itemId });
   }
 
   try {

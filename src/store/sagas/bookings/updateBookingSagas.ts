@@ -4,35 +4,35 @@ import { PayloadAction } from '@reduxjs/toolkit';
 
 import { functions } from '../../../utils/firebase';
 
-import { UPDATE_INVOICE } from '../../actions/invoicesActions';
-import { start, success, fail } from '../../slices/invoicesSlice';
+import { UPDATE_BOOKING } from '../../actions/bookingsActions';
+import { start, success, fail } from '../../slices/bookingsSlice';
 import {
   error as toastError,
   success as toastSuccess,
 } from '../../slices/toastSlice';
 
-import { RootState, InvoiceFormData, Org } from '../../../types';
+import { RootState, IBookingForm, Org } from '../../../types';
 
-interface UpdateData extends InvoiceFormData {
-  invoiceId: string;
+interface UpdateData extends IBookingForm {
+  bookingId: string;
 }
 
-function* updateInvoiceSaga(action: PayloadAction<UpdateData>) {
-  yield put(start(UPDATE_INVOICE));
+function* updateBookingSaga(action: PayloadAction<UpdateData>) {
+  yield put(start(UPDATE_BOOKING));
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;
 
   const {
-    payload: { invoiceId, ...formData },
+    payload: { bookingId, ...formData },
   } = action;
 
   async function update() {
     return httpsCallable(
       functions,
-      'sales-invoices-update'
+      'sales-bookings-update'
     )({
       orgId,
-      invoiceId,
+      bookingId,
       formData,
     });
   }
@@ -41,7 +41,7 @@ function* updateInvoiceSaga(action: PayloadAction<UpdateData>) {
     yield call(update);
 
     yield put(success());
-    yield put(toastSuccess('Invoice updated Sucessfully!'));
+    yield put(toastSuccess('booking updated Sucessfully!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);
@@ -50,6 +50,6 @@ function* updateInvoiceSaga(action: PayloadAction<UpdateData>) {
   }
 }
 
-export function* watchUpdateInvoice() {
-  yield takeLatest(UPDATE_INVOICE, updateInvoiceSaga);
+export function* watchUpdateBooking() {
+  yield takeLatest(UPDATE_BOOKING, updateBookingSaga);
 }

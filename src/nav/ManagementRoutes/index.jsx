@@ -10,6 +10,7 @@ import Orgs from './Orgs';
 import Items from './Items';
 import Customers from './Customers';
 import Invoices from './Invoices';
+import Bookings from './Bookings';
 import Taxes from './Taxes';
 import Payments from './Payments';
 import Estimates from './Estimates';
@@ -36,6 +37,7 @@ function ManagementRoutes() {
     ...Items(),
     ...Customers(),
     ...Invoices(),
+    ...Bookings(),
     ...Taxes(),
     ...Payments(),
     ...Estimates(),

@@ -10,6 +10,7 @@ import {
   SaleReceiptFromDb,
   TaxFromDb,
   IMonthBookings,
+  IBookingFromDb,
 } from '../../types';
 
 export default function dbCollections(orgId: string) {
@@ -18,6 +19,7 @@ export default function dbCollections(orgId: string) {
     contacts: createCollectionRef<IContactFromDb>(`${org}/contacts`),
     expenses: createCollectionRef<ExpenseFromDb>(`${org}/expenses`),
     invoices: createCollectionRef<InvoiceFromDb>(`${org}/invoices`),
+    bookings: createCollectionRef<IBookingFromDb>(`${org}/bookings`),
     monthlyBookings: createCollectionRef<IMonthBookings>(
       `${org}/monthlyBookings`
     ),

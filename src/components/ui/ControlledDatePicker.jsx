@@ -24,6 +24,7 @@ const ControlledDatePicker = forwardRef((props, ref) => {
       showYearDropdown
       showMonthDropdown
       dropdownMode="select"
+      dateFormat="dd-MMM-yyyy"
     />
   );
 });

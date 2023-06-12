@@ -1,11 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { PaymentMode } from '../../types';
+import { IBooking } from '../../types';
+import { GET_BOOKING } from '../actions/bookingsActions';
 
 type State = {
   loading: boolean;
   isModified: boolean;
-  paymentModes: Record<string, PaymentMode> | null;
+  booking: IBooking | null;
+  bookings: IBooking[] | null;
   action: string | null;
   error: { code?: string; message?: string } | null;
 };
@@ -13,13 +15,14 @@ type State = {
 const initialState: State = {
   loading: false,
   isModified: false,
-  paymentModes: null,
+  booking: null,
+  bookings: null,
   action: null,
   error: null,
 };
 
-const paymentModesSlice = createSlice({
-  name: 'paymentModes_slice',
+const bookingsSlice = createSlice({
+  name: 'bookings_slice',
   initialState: {
     ...initialState,
   },
@@ -30,6 +33,8 @@ const paymentModesSlice = createSlice({
         loading: true,
         error: null,
         action: action.payload,
+        ...(action.payload === GET_BOOKING ? { booking: null } : {}),
+        bookings: null,
       };
     },
     success: (state: State) => {
@@ -39,14 +44,21 @@ const paymentModesSlice = createSlice({
         isModified: true,
       };
     },
-    paymentModesSuccess: (
+    bookingSuccess: (state: State, action: PayloadAction<IBooking | null>) => {
+      return {
+        ...state,
+        loading: false,
+        booking: action.payload,
+      };
+    },
+    bookingsSuccess: (
       state: State,
-      action: PayloadAction<Record<string, PaymentMode>>
+      action: PayloadAction<IBooking[] | null>
     ) => {
       return {
         ...state,
         loading: false,
-        paymentModes: action.payload,
+        bookings: action.payload,
       };
     },
     fail: (state: State, action: PayloadAction<{}>) => {
@@ -67,8 +79,8 @@ const paymentModesSlice = createSlice({
   },
 });
 
-export const { start, success, paymentModesSuccess, fail, reset } =
-  paymentModesSlice.actions;
-export const paymentModesReducer = paymentModesSlice.reducer;
+export const { start, success, bookingSuccess, bookingsSuccess, fail, reset } =
+  bookingsSlice.actions;
+export const bookingsReducer = bookingsSlice.reducer;
 
-export default paymentModesSlice;
+export default bookingsSlice;

@@ -11,6 +11,7 @@ import { itemsReducer } from './slices/itemsSlice';
 import { taxesReducer } from './slices/taxesSlice';
 import { customersReducer } from './slices/customersSlice';
 import { invoicesReducer } from './slices/invoicesSlice';
+import { bookingsReducer } from './slices/bookingsSlice';
 import { paymentsReducer } from './slices/paymentsSlice';
 import { accountsReducer } from './slices/accountsSlice';
 import { paymentTermsReducer } from './slices/paymentTermsSlice';
@@ -36,6 +37,7 @@ const appReducer = combineReducers({
   taxesReducer,
   customersReducer,
   invoicesReducer,
+  bookingsReducer,
   paymentsReducer,
   accountsReducer,
   paymentTermsReducer,

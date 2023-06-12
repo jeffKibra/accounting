@@ -37,6 +37,18 @@ import {
 } from './invoices/getInvoicesSagas';
 import { watchUpdateInvoice } from './invoices/updateInvoiceSagas';
 import { watchDeleteInvoice } from './invoices/deleteInvoiceSagas';
+//bookings
+import { watchCreateBooking } from './bookings/createBookingSagas';
+import {
+  watchGetBooking,
+  watchGetBookings,
+  watchGetCustomerBookings,
+  watchGetCustomerUnpaidBookings,
+  watchGetPaymentBookingsToEdit,
+  watchGetPaymentBookings,
+} from './bookings/getBookingsSagas';
+import { watchUpdateBooking } from './bookings/updateBookingSagas';
+import { watchDeleteBooking } from './bookings/deleteBookingSagas';
 //payments
 import { watchCreatePayment } from './payments/createPaymentSagas';
 import {
@@ -120,6 +132,7 @@ export default function* rootSaga() {
     watchGetCustomer(),
     watchGetCustomers(),
     watchUpdateCustomerOpeningBalance(),
+    //invoices
     watchCreateInvoice(),
     watchGetInvoice(),
     watchGetInvoices(),
@@ -129,6 +142,17 @@ export default function* rootSaga() {
     watchGetPaymentInvoices(),
     watchUpdateInvoice(),
     watchDeleteInvoice(),
+    //bookings
+    watchCreateBooking(),
+    watchGetBooking(),
+    watchGetBookings(),
+    watchGetCustomerBookings(),
+    watchGetCustomerUnpaidBookings(),
+    watchGetPaymentBookingsToEdit(),
+    watchGetPaymentBookings(),
+    watchUpdateBooking(),
+    watchDeleteBooking(),
+    //payments
     watchCreatePayment(),
     watchGetCustomerPayments(),
     watchGetPayments(),

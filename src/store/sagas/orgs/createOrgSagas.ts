@@ -48,7 +48,7 @@ function* createOrg(action: PayloadAction<OrgFormData>) {
   const userId = userProfile.uid;
 
   async function saveData() {
-    await httpsCallable(functions, 'org-create')({ ...action.payload });
+    await httpsCallable(functions, 'orgs-create')({ ...action.payload });
 
     const org = await getOrg(userId);
 

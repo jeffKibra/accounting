@@ -1,4 +1,6 @@
-import { IContactSummary, Item } from '.';
+import { Timestamp } from 'firebase/firestore';
+//
+import { IContactSummary, Item, PaymentMode } from '.';
 
 export type IBookingDateRange = [string, string];
 
@@ -22,18 +24,27 @@ export interface IBookingItem
     Item,
     'name' | 'itemId' | 'salesAccount' | 'rate' | 'sku' | 'type' | 'unit'
   > {}
+//eslint-disable-next-line
 
-export interface IBookingSaleForm {
+export interface IBookingDownPayment {
+  paymentMode: PaymentMode;
+  reference: string;
+  amount: number;
+}
+
+export interface IBookingForm {
   customer: IContactSummary;
   item: IBookingItem;
   customerNotes: string;
   dateRange: IBookingDateRange;
   quantity: number;
   saleDate: Date;
+  dueDate: Date | Timestamp;
   bookingRate: number;
   bookingTotal: number;
   transferAmount: number;
   total: number;
+  downPayment: IBookingDownPayment;
   // transactionType: keyof SaleTransactionTypes;
   // paymentTerm: PaymentTerm;
   // preTaxBookingRate: number;
@@ -43,8 +54,49 @@ export interface IBookingSaleForm {
   // saleTax?: Tax;
 }
 
+export interface IBookingPayments {
+  [key: string]: number;
+}
+
+interface Meta {
+  transactionType: 'booking';
+  balance: number;
+  isSent: boolean;
+  isOverdue: boolean;
+  overdueAt?: Timestamp;
+  paymentsCount: number;
+  paymentsIds: string[];
+  paymentsReceived: IBookingPayments;
+  status: number;
+  orgId: string;
+  createdAt: Date | Timestamp;
+  createdBy: string;
+  modifiedAt: Date | Timestamp;
+  modifiedBy: string;
+}
+
+export interface IBookingFromDb extends IBookingForm, Meta {}
+
+export interface IBooking extends IBookingFromDb {
+  id: string;
+}
+
 export interface IMonthlyBookingUpdateData {
   datesToCreate: string[];
   datesToDelete: string[];
   unchangedDates: string[];
 }
+
+export interface IBookingSummary
+  extends Pick<
+    IBooking,
+    | 'balance'
+    | 'dueDate'
+    | 'saleDate'
+    | 'id'
+    | 'status'
+    | 'transactionType'
+    | 'bookingTotal'
+    | 'transferAmount'
+    | 'total'
+  > {}

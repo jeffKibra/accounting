@@ -23,7 +23,7 @@ function* deletePaymentSaga(action: PayloadAction<string>) {
   async function update() {
     return httpsCallable(
       functions,
-      'sale-paymentReceived-delete'
+      'sales-paymentsReceived-delete'
     )({ orgId, paymentId: action.payload });
   }
 

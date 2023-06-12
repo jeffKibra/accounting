@@ -4,36 +4,36 @@ import { httpsCallable } from 'firebase/functions';
 
 import { functions } from '../../../utils/firebase';
 
-import { CREATE_INVOICE } from '../../actions/invoicesActions';
-import { start, success, fail } from '../../slices/invoicesSlice';
+import { CREATE_BOOKING } from '../../actions/bookingsActions';
+import { start, success, fail } from '../../slices/bookingsSlice';
 import {
   error as toastError,
   success as toastSuccess,
 } from '../../slices/toastSlice';
 
-import { RootState, Org, InvoiceFormData } from '../../../types';
+import { RootState, Org, IBookingForm } from '../../../types';
 
-function* createInvoiceSaga(action: PayloadAction<InvoiceFormData>) {
-  yield put(start(CREATE_INVOICE));
+function* createBookingSaga(action: PayloadAction<IBookingForm>) {
+  yield put(start(CREATE_BOOKING));
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;
 
   console.log({ action });
 
-  const invoice = action.payload;
+  const booking = action.payload;
 
   async function create() {
     return httpsCallable(
       functions,
-      'sales-invoices-create'
-    )({ orgId, formData: invoice });
+      'sales-bookings-create'
+    )({ orgId, formData: booking });
   }
 
   try {
     yield call(create);
 
     yield put(success());
-    yield put(toastSuccess('Invoice created Sucessfully!'));
+    yield put(toastSuccess('booking created Sucessfully!'));
   } catch (err) {
     console.log(err);
     const error = err as Error;
@@ -42,6 +42,6 @@ function* createInvoiceSaga(action: PayloadAction<InvoiceFormData>) {
   }
 }
 
-export function* watchCreateInvoice() {
-  yield takeLatest(CREATE_INVOICE, createInvoiceSaga);
+export function* watchCreateBooking() {
+  yield takeLatest(CREATE_BOOKING, createBookingSaga);
 }

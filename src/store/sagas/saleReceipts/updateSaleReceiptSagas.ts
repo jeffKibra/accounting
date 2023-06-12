@@ -26,7 +26,7 @@ function* updateSaleReceiptSaga(action: PayloadAction<UpdateData>) {
   async function update() {
     return httpsCallable(
       functions,
-      'sale-saleReceipt-update'
+      'sales-saleReceipts-update'
     )({ orgId, saleReceiptId, formData });
   }
 

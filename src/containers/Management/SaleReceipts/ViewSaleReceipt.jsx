@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
-import ViewSaleItemsTable from '../../../components/tables/Sales/ViewSaleItemsTable';
+import ViewSaleItemTable from '../../../components/tables/Sales/ViewSaleItemTable';
 import ViewSaleSummaryTable from '../../../components/tables/Sales/ViewSaleSummaryTable';
 function ViewSaleReceipt(props) {
   const { saleReceipt } = props;
@@ -96,7 +96,7 @@ function ViewSaleReceipt(props) {
         </Grid>
 
         <Box w="full" mt="20px!important">
-          <ViewSaleItemsTable taxType={summary.taxType} items={selectedItems} />
+          <ViewSaleItemTable taxType={summary.taxType} items={selectedItems} />
         </Box>
         <Grid w="full" columnGap={3} templateColumns="repeat(12, 1fr)">
           <GridItem colSpan={[1, 6]}></GridItem>

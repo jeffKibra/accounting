@@ -4,7 +4,7 @@ import {
   PaymentTerm,
   // SalesItem,
   InvoiceTransactionTypes,
-  IBookingSaleForm,
+  IBookingForm,
 } from '.';
 import { Timestamp } from 'firebase/firestore';
 
@@ -43,7 +43,7 @@ interface Meta {
   modifiedBy: string;
 }
 
-export interface InvoiceFormData extends IBookingSaleForm {
+export interface InvoiceFormData extends IBookingForm {
   // customerNotes: string;
   dueDate: Date;
   // orderNumber: string;

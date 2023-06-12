@@ -64,9 +64,11 @@ function ManagementSidebar(props) {
       <DrawerItem route={routes.CUSTOMERS} icon={RiContactsLine}>
         Customers
       </DrawerItem>
-      <DrawerItem route={routes.INVOICES} icon={RiCalendarCheckLine}>
+      <DrawerItem route={routes.BOOKINGS} icon={RiCalendarCheckLine}>
         Bookings
       </DrawerItem>
+      
+
       <DrawerItem route={routes.PAYMENTS} icon={RiCoinsLine}>
         Payments
       </DrawerItem>

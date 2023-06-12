@@ -1,25 +1,25 @@
 import {
   TableContainer,
   Table,
-  Thead,
+  // Thead,
   Th,
   Tbody,
   Tr,
   Td,
-  Text,
+  // Text,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
-import { isItemABooking } from 'utils/sales';
+// import { isItemABooking } from 'utils/sales';
 
-function checkIfDateIsValid(date) {
-  const dateIsValid = date && new Date(date).toDateString() !== 'Invalid Date';
-  console.log({ dateIsValid });
+// function checkIfDateIsValid(date) {
+//   const dateIsValid = date && new Date(date).toDateString() !== 'Invalid Date';
+//   console.log({ dateIsValid });
 
-  return dateIsValid;
-}
+//   return dateIsValid;
+// }
 
-function ViewSaleItemsTable(props) {
-  const { invoice } = props;
+function ViewSaleItemTable(props) {
+  const { booking } = props;
 
   const {
     item: { name },
@@ -28,9 +28,11 @@ function ViewSaleItemsTable(props) {
     quantity,
     bookingTotal,
     transferAmount,
-    total,
     // taxType,
-  } = invoice;
+    downPayment: { amount: downPayment, paymentMode, reference },
+  } = booking;
+
+  const imprest = downPayment || 0;
 
   return (
     <TableContainer>
@@ -75,14 +77,26 @@ function ViewSaleItemsTable(props) {
               KES {Number(transferAmount).toLocaleString()}
             </Td>
           </Tr>
+          <Tr>
+            <Th>Imprest Given</Th>
+            <Td textAlign="end">KES {Number(imprest).toLocaleString()}</Td>
+          </Tr>
+          <Tr>
+            <Th>Payment Mode</Th>
+            <Td textAlign="end">{paymentMode?.name || ''}</Td>
+          </Tr>
+          <Tr>
+            <Th>Reference #</Th>
+            <Td textAlign="end">{reference}</Td>
+          </Tr>
         </Tbody>
       </Table>
     </TableContainer>
   );
 }
 
-ViewSaleItemsTable.propTypes = {
-  invoice: PropTypes.shape({
+ViewSaleItemTable.propTypes = {
+  booking: PropTypes.shape({
     item: PropTypes.shape({
       name: PropTypes.string.isRequired,
       itemId: PropTypes.string.isRequired,
@@ -106,4 +120,4 @@ ViewSaleItemsTable.propTypes = {
   }),
 };
 
-export default ViewSaleItemsTable;
+export default ViewSaleItemTable;
