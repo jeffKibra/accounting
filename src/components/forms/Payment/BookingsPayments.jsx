@@ -16,14 +16,15 @@ import {
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
-import { useCustomerInvoices } from 'hooks';
+import { useCustomerBookings } from 'hooks';
 
 import { getPaymentsTotal } from 'utils/payments';
-import { getInvoiceBalance } from 'utils/invoices';
+import { getBookingBalance } from 'utils/bookings';
 
 import Empty from 'components/ui/Empty';
 
-import UnpaidInvoicesTable from './UnpaidInvoicesTable';
+// import UnpaidBookingsTable from './UnpaidBookingsTable';
+import BookingsTable from 'components/tables/Bookings/BookingsTable';
 import PaymentsSummaryTable from '../../tables/Payments/PaymentsSummaryTable';
 
 //custom hooks
@@ -64,15 +65,15 @@ function arePaymentsEqual(newPayments = {}, oldPayments = {}) {
 
 //----------------------------------------------------------------
 
-function InvoicesPayments(props) {
+function BookingsPayments(props) {
   // console.log({ props });
   const { paymentId, formIsDisabled, customerId, defaultPayments } = props;
 
   const { watch, setValue, getValues } = useFormContext();
   const paymentsTotal = usePaymentsTotal();
 
-  const { getInvoices, getInvoicesToEdit, invoices, loading, error } =
-    useCustomerInvoices();
+  const { getBookings, getBookingsToEdit, bookings, loading, error } =
+    useCustomerBookings();
 
   const updatePayments = useCallback(
     values => {
@@ -83,7 +84,7 @@ function InvoicesPayments(props) {
 
   useEffect(() => {
     function getPaymentsResetValues() {
-      if (Array.isArray(invoices) && invoices?.length > 0) {
+      if (Array.isArray(bookings) && bookings?.length > 0) {
         const paymentsFromForm = getValues('payments') || {};
         // console.log({ paymentsFromForm });
         const currentPayments = {
@@ -93,15 +94,13 @@ function InvoicesPayments(props) {
         const paymentsArray = Object.keys(currentPayments);
         // console.log({ paymentsArray });
         if (paymentsArray?.length > 0) {
-          paymentsArray.forEach(invoiceId => {
-            //check if this invoice is in the list of invoices
-            const found = invoices.find(
-              invoice => invoice.invoiceId === invoiceId
-            );
+          paymentsArray.forEach(bookingId => {
+            //check if this booking is in the list of bookings
+            const found = bookings.find(booking => booking.id === bookingId);
 
             if (!found) {
-              //delete the invoice payment if it has not been found
-              delete currentPayments[invoiceId];
+              //delete the booking payment if it has not been found
+              delete currentPayments[bookingId];
             }
           });
 
@@ -124,19 +123,19 @@ function InvoicesPayments(props) {
     if (!paymentsAreEqual) {
       updatePayments(newPayments);
     }
-  }, [invoices, defaultPayments, updatePayments, getValues]);
+  }, [bookings, defaultPayments, updatePayments, getValues]);
 
   useEffect(() => {
     if (customerId) {
       if (paymentId) {
-        // console.log('fetching invoices to edit', { customerId, paymentId });
-        getInvoicesToEdit(customerId, paymentId);
+        // console.log('fetching bookings to edit', { customerId, paymentId });
+        getBookingsToEdit(customerId, paymentId);
       } else {
-        // console.log('fetching customer unpaid invoices', { customerId });
-        getInvoices(customerId);
+        // console.log('fetching customer unpaid bookings', { customerId });
+        getBookings(customerId);
       }
     }
-  }, [customerId, paymentId, getInvoices, getInvoicesToEdit]);
+  }, [customerId, paymentId, getBookings, getBookingsToEdit]);
 
   const amount = watch('amount');
 
@@ -151,25 +150,25 @@ function InvoicesPayments(props) {
   // console.log({ payments, paymentsTotal });
 
   const autoFill = useCallback(
-    (invoices, amount) => {
-      if (invoices?.length > 0) {
+    (bookings, amount) => {
+      if (bookings?.length > 0) {
         let balance = amount;
         const balances = {};
 
-        invoices.forEach(invoice => {
-          const { invoiceId } = invoice;
+        bookings.forEach(booking => {
+          const { id: bookingId } = booking;
           let autoFill = 0;
-          const invoiceBalance = getInvoiceBalance(invoice, paymentId);
-          // console.log({ invoiceBalance });
+          const bookingBalance = getBookingBalance(booking, paymentId);
+          // console.log({ bookingBalance });
 
-          if (invoiceBalance <= balance) {
-            autoFill = invoiceBalance;
-            balance = balance - invoiceBalance;
+          if (bookingBalance <= balance) {
+            autoFill = bookingBalance;
+            balance = balance - bookingBalance;
           } else {
             autoFill = balance;
             balance = balance - balance;
           }
-          balances[invoiceId] = autoFill;
+          balances[bookingId] = autoFill;
         });
 
         return balances;
@@ -184,11 +183,11 @@ function InvoicesPayments(props) {
    */
 
   function clear() {
-    if (invoices?.length > 0) {
+    if (bookings?.length > 0) {
       const values = {};
-      invoices.forEach(invoice => {
-        const { invoiceId } = invoice;
-        values[invoiceId] = 0;
+      bookings.forEach(booking => {
+        const { id: bookingId } = booking;
+        values[bookingId] = 0;
       });
 
       updatePayments(values);
@@ -196,7 +195,7 @@ function InvoicesPayments(props) {
   }
 
   function autoPay() {
-    const values = autoFill(invoices, amount);
+    const values = autoFill(bookings, amount);
     updatePayments(values);
     // reset(values);
   }
@@ -205,7 +204,7 @@ function InvoicesPayments(props) {
     <VStack mt={5} pt={4} w="full">
       <Flex w="full" justify="space-between">
         <Heading as="h3" size="md">
-          Invoices
+          bookings
         </Heading>
         <Flex justify="flex-end" w="full">
           <Button
@@ -240,25 +239,36 @@ function InvoicesPayments(props) {
             py={5}
           >
             <Spinner size="lg" />
-            <Text mt={3}>Loading Invoices...</Text>
+            <Text mt={3}>Loading bookings...</Text>
           </Flex>
         ) : error ? (
           <Alert status="error" flexDirection="column">
             <AlertIcon />
-            <AlertTitle>Error fetching Customer Invoices!</AlertTitle>
+            <AlertTitle>Error fetching Customer bookings!</AlertTitle>
             <AlertDescription>
               {error?.message || 'Unknown error!'}
             </AlertDescription>
           </Alert>
-        ) : Array.isArray(invoices) && invoices?.length > 0 ? (
+        ) : Array.isArray(bookings) && bookings?.length > 0 ? (
           <Grid w="full" gap={2} templateColumns="repeat(12, 1fr)">
             <GridItem colSpan={12}>
-              <UnpaidInvoicesTable
-                invoices={invoices}
+              {/* <UnpaidBookingsTable
+                bookings={bookings}
                 amount={amount}
                 paymentId={paymentId || ''}
                 loading={loading}
                 formIsDisabled={formIsDisabled}
+                // taxDeducted={taxDeducted}
+              /> */}
+
+              <BookingsTable
+                bookings={bookings}
+                paymentTotal={amount}
+                paymentId={paymentId || ''}
+                loading={loading}
+                formIsDisabled={formIsDisabled}
+                isPayment
+                columnsToExclude={['actions', 'imprest', 'paymentAmount']}
                 // taxDeducted={taxDeducted}
               />
             </GridItem>
@@ -268,21 +278,21 @@ function InvoicesPayments(props) {
             </GridItem>
           </Grid>
         ) : (
-          <Empty message="No unpaid invoices found for the customer!" />
+          <Empty message="No unpaid bookings found for the customer!" />
         )
       ) : (
         <Flex w="full" justify="center" py={5}>
-          <Text>Please select a CUSTOMER to display a list of Invoices.</Text>
+          <Text>Please select a CUSTOMER to display a list of bookings.</Text>
         </Flex>
       )}
     </VStack>
   );
 }
 
-InvoicesPayments.propTypes = {
-  invoices: PropTypes.array.isRequired,
+BookingsPayments.propTypes = {
+  bookings: PropTypes.array.isRequired,
   loading: PropTypes.bool.isRequired,
   paymentId: PropTypes.string,
 };
 
-export default InvoicesPayments;
+export default BookingsPayments;

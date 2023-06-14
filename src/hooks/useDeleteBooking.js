@@ -3,10 +3,12 @@ import { Box, Text } from '@chakra-ui/react';
 
 import { DELETE_BOOKING } from '../store/actions/bookingsActions';
 
+import BookingDates from 'components/tables/Bookings/BookingDates';
+
 import { reset } from '../store/slices/bookingsSlice';
 
 export default function useDeleteBooking(booking) {
-  const { customer, bookingId, saleDate, item } = booking;
+  const { customer, id: bookingId, item, dateRange } = booking;
   const {
     loading,
     action,
@@ -15,6 +17,7 @@ export default function useDeleteBooking(booking) {
   const dispatch = useDispatch();
 
   const deleting = loading && action === DELETE_BOOKING;
+  console.log({ loading, action, isDeleted });
 
   function handleDelete() {
     dispatch({ type: DELETE_BOOKING, payload: bookingId });
@@ -28,22 +31,32 @@ export default function useDeleteBooking(booking) {
     isDone: isDeleted,
     title: 'Delete Booking',
     onConfirm: () => handleDelete(bookingId),
-    loading: deleting,
+    // loading: deleting,
+    loading,
     message: (
       <Box>
         <Text>Are you sure you want to delete this Booking</Text>
         <Box p={1} pl={5}>
           <Text>
-            Registration: <b>{item?.name}</b>
+            Car Registration:{' '}
+            <Text as="b" textTransform="uppercase">
+              {item?.name}
+            </Text>
           </Text>
           <Text>
-            BookingId#: <b>{bookingId}</b>
+            Booking Id#: <b>{bookingId}</b>
           </Text>
           <Text>
             Customer Name: <b>{customer.displayName}</b>
           </Text>
+          {/* <Text>
+            Booking Dates :<b>{saleDate.toDateString()}</b>
+          </Text> */}
           <Text>
-            booking Date :<b>{saleDate.toDateString()}</b>
+            Booking Dates :
+            <b>
+              <BookingDates dateRange={dateRange || []} />
+            </b>
           </Text>
         </Box>
         <Text>NOTE:::THIS ACTION CANNOT BE UNDONE!</Text>

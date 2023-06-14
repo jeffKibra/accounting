@@ -60,7 +60,8 @@ function EditPayment(props) {
     <SkeletonLoader />
   ) : accounts?.length > 0 &&
     customers?.length > 0 &&
-    paymentModes?.length > 0 ? (
+    paymentModes &&
+    Object.keys(paymentModes).length > 0 ? (
     <PaymentForm
       {...props}
       handleFormSubmit={saveData}

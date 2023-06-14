@@ -4,12 +4,11 @@ import { Box } from '@chakra-ui/react';
 
 import ControlledSelect from '../../ui/ControlledSelect';
 
-import CustomerInvoices from '../../../containers/Management/Invoices/CustomerInvoices';
+import CustomerBookings from '../../../containers/Management/Bookings/CustomerBookings';
 
 const transactionTypes = [
-  { name: 'Invoices', value: 'invoices' },
+  { name: 'Bookings', value: 'bookings' },
   { name: 'Payments', value: 'payments' },
-  { name: 'Sales Receipts', value: 'SALE_RECEIPTs' },
 ];
 
 function CustomerTransactions(props) {
@@ -17,7 +16,7 @@ function CustomerTransactions(props) {
   const {
     customer: { id: customerId },
   } = props;
-  const [transactionType, setTransactionType] = useState('invoices');
+  const [transactionType, setTransactionType] = useState('bookings');
 
   return (
     <Box w="full">
@@ -32,7 +31,7 @@ function CustomerTransactions(props) {
       </Box>
       {/* <Divider  /> */}
       <Box py={2} w="full">
-        <CustomerInvoices customerId={customerId} />
+        <CustomerBookings customerId={customerId} />
       </Box>
     </Box>
   );

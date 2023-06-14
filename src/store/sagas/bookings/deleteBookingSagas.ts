@@ -14,7 +14,7 @@ import {
 import { RootState, Org } from '../../../types';
 
 function* deleteBookingSaga(action: PayloadAction<string>) {
-  yield put(start(DELETE_BOOKING));
+  yield put(start(action.type));
   const bookingId = action.payload;
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;

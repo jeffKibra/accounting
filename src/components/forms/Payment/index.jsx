@@ -10,8 +10,8 @@ import { getPaymentsTotal } from 'utils/payments';
 import { useToasts } from 'hooks';
 import ControlledDialog from 'components/ui/ControlledDialog';
 
-import InvoicesPayments from 'components/forms/Payment/InvoicesPayments';
-import ReceivePaymentForm from 'components/forms/Payment/FormFields';
+import BookingsPayments from 'components/forms/Payment/BookingsPayments';
+import FormFields from 'components/forms/Payment/FormFields';
 
 const schema = Yup.object().shape({
   customer: Yup.object().required('*Required!').nullable(),
@@ -163,7 +163,7 @@ export default function PaymentForm(props) {
     }
   }
 
-  // console.log({ UnpaidInvoices, ReceivePaymentForm });
+  // console.log({ UnpaidInvoices, FormFields });
 
   const formIsDisabled = updating || false;
 
@@ -187,7 +187,7 @@ export default function PaymentForm(props) {
             border="1px solid"
             borderColor="gray.200"
           >
-            <ReceivePaymentForm
+            <FormFields
               customers={customers}
               loading={updating}
               accounts={accounts}
@@ -197,7 +197,7 @@ export default function PaymentForm(props) {
               customerId={customerId}
               amountReceived={amountReceived}
             />
-            <InvoicesPayments
+            <BookingsPayments
               paymentId={paymentId}
               formIsDisabled={formIsDisabled}
               customerId={customerId}

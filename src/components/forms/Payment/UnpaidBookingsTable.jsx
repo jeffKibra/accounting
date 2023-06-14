@@ -1,20 +1,21 @@
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useFormContext, Controller } from 'react-hook-form';
+import { Text } from '@chakra-ui/react';
 
-import InvoiceDates from 'components/tables/Invoices/InvoiceDates';
+import BookingDates from 'components/tables/Bookings/BookingDates';
 import CustomRawTable from 'components/tables/CustomRawTable';
 import ControlledNumInput from 'components/ui/ControlledNumInput';
 
-import { getInvoiceBalance } from 'utils/invoices';
+import { getBookingBalance } from 'utils/bookings';
 
 // import { RiEdit2Line } from "react-icons/ri";
 // import CustomModal from "../../ui/CustomModal";
-// import EditInvoicePaymentForm from "../../forms/PaymentsReceived/EditInvoicePaymentForm";
+// import EditbookingPaymentForm from "../../forms/PaymentsReceived/EditbookingPaymentForm";
 
-function UnpaidInvoicesTable(props) {
+function UnpaidBookingsTable(props) {
   const {
-    invoices,
+    bookings,
     paymentId,
     amount,
     // loading,
@@ -27,9 +28,11 @@ function UnpaidInvoicesTable(props) {
   const columns = useMemo(() => {
     return [
       // { Header: "", accessor: "actions" },
-      { Header: 'Date', accessor: 'invoiceDate' },
-      { Header: 'Invoice#', accessor: 'invoiceId' },
-      { Header: 'Amount', accessor: 'summary.totalAmount', isNumeric: true },
+      { Header: 'Car', accessor: 'car' },
+      { Header: 'Booking Dates', accessor: 'date' },
+      { Header: 'Days', accessor: 'quantity', isNumeric: true },
+      { Header: 'Booking#', accessor: 'bookingId' },
+      { Header: 'Total', accessor: 'total', isNumeric: true },
       { Header: 'Amount Due', accessor: 'balance', isNumeric: true },
       // ...(taxDeducted === "yes"
       //   ? [{ Header: "Withholding Tax", accessor: "withholdingTax" }]
@@ -44,25 +47,28 @@ function UnpaidInvoicesTable(props) {
   }, []);
 
   const data = useMemo(() => {
-    return invoices.map(invoice => {
-      const { invoiceId, transactionType } = invoice;
-      const balance = getInvoiceBalance(invoice, paymentId);
+    return bookings.map(booking => {
+      const { id, transactionType, total, item } = booking;
+      const balance = getBookingBalance(booking, paymentId);
       const max = Math.min(amount, balance);
       // console.log({
       //   paymentId,
       //   max,
       //   amount,
       //   balance,
-      //   pp: invoice.payments,
+      //   pp: booking.payments,
       // });
 
       return {
-        ...invoice,
-        invoiceId: transactionType === 'invoice' ? invoiceId : transactionType,
-        balance,
+        ...booking,
+        bookingId: transactionType === 'booking' ? id : transactionType,
+        balance: Number(balance).toLocaleString(),
+        total: Number(total).toLocaleString(),
+        date: <BookingDates dateRange={booking?.dateRange || []} />,
+        car: <Text textTransform="uppercase">{item?.name || ''}</Text>,
         payment: (
           <Controller
-            name={`payments.${invoiceId}`}
+            name={`payments.${id}`}
             control={control}
             render={({ field: { ref, onChange, onBlur, value } }) => {
               return (
@@ -80,10 +86,9 @@ function UnpaidInvoicesTable(props) {
             }}
           />
         ),
-        invoiceDate: <InvoiceDates invoice={invoice} />,
       };
     });
-  }, [invoices, paymentId, amount, formIsDisabled, control]);
+  }, [bookings, paymentId, amount, formIsDisabled, control]);
 
   return (
     <CustomRawTable
@@ -94,20 +99,24 @@ function UnpaidInvoicesTable(props) {
   );
 }
 
-UnpaidInvoicesTable.propTypes = {
-  invoices: PropTypes.arrayOf(
+UnpaidBookingsTable.propTypes = {
+  bookings: PropTypes.arrayOf(
     PropTypes.shape({
       customer: PropTypes.shape({
         displayName: PropTypes.string.isRequired,
         companyName: PropTypes.string,
       }),
-      summary: PropTypes.shape({
-        totalAmount: PropTypes.number.isRequired,
-      }),
-      invoiceDate: PropTypes.instanceOf(Date).isRequired,
-      dueDate: PropTypes.instanceOf(Date).isRequired,
+      total: PropTypes.number,
+      saleDate: PropTypes.oneOfType([
+        PropTypes.instanceOf(Date),
+        PropTypes.string,
+      ]).isRequired,
+      dueDate: PropTypes.oneOfType([
+        PropTypes.instanceOf(Date),
+        PropTypes.string,
+      ]).isRequired,
       status: PropTypes.number.isRequired,
-      invoiceId: PropTypes.string.isRequired,
+      id: PropTypes.string.isRequired,
     })
   ),
   paymentId: PropTypes.string,
@@ -116,11 +125,11 @@ UnpaidInvoicesTable.propTypes = {
   // taxDeducted: PropTypes.oneOf(["yes", "no"]),
 };
 
-export default UnpaidInvoicesTable;
+export default UnpaidBookingsTable;
 
 // actions: (
 //   <CustomModal
-//     title={`Payment ${invoiceSlug}`}
+//     title={`Payment ${bookingSlug}`}
 //     closeOnOverlayClick={false}
 //     renderTrigger={(onOpen) => {
 //       return (
@@ -135,10 +144,10 @@ export default UnpaidInvoicesTable;
 //     }}
 //     renderContent={(onClose) => {
 //       return (
-//         <EditInvoicePaymentForm
+//         <EditbookingPaymentForm
 //           onClose={onClose}
 //           handleFormSubmit={editPayment}
-//           invoice={invoice}
+//           booking={booking}
 //           summary={summary}
 //           paymentId={paymentId}
 //           taxDeducted={taxDeducted}

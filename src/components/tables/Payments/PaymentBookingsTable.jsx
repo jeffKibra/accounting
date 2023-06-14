@@ -6,11 +6,13 @@ import {
   Tbody,
   Tr,
   Td,
-} from "@chakra-ui/react";
-import PropTypes from "prop-types";
+} from '@chakra-ui/react';
+import PropTypes from 'prop-types';
+//
+import BookingDates from 'components/tables/Bookings/BookingDates';
 
-function PaymentInvoicesTable(props) {
-  const { payments, invoices } = props;
+function PaymentBookingsTable(props) {
+  const { payments, bookings } = props;
 
   return (
     <>
@@ -25,7 +27,16 @@ function PaymentInvoicesTable(props) {
                 fontSize="inherit"
                 py={2}
               >
-                Invoice#
+                Car
+              </Th>
+
+              <Th
+                fontSize="inherit"
+                textTransform="inherit"
+                color="inherit"
+                py={2}
+              >
+                Booking Dates
               </Th>
               <Th
                 fontSize="inherit"
@@ -33,7 +44,7 @@ function PaymentInvoicesTable(props) {
                 color="inherit"
                 py={2}
               >
-                Invoice Date
+                Days
               </Th>
               <Th
                 w="11%"
@@ -43,7 +54,7 @@ function PaymentInvoicesTable(props) {
                 isNumeric
                 fontSize="inherit"
               >
-                Invoice Amount
+                Total
               </Th>
               <Th
                 w="11%"
@@ -59,25 +70,32 @@ function PaymentInvoicesTable(props) {
           </Thead>
 
           <Tbody>
-            {invoices.map((invoice, i) => {
+            {bookings.map((booking, i) => {
               const {
-                invoiceId,
-                summary: { totalAmount },
-                invoiceDate,
-                transactionType,
-              } = invoice;
+                id: bookingId,
+                item: { name },
+                total,
+                dateRange,
+                quantity,
+                // transactionType,
+              } = booking;
 
               return (
                 <Tr key={i}>
-                  <Td>
-                    {transactionType === "invoice"
-                      ? invoiceId
+                  {/* <Td>
+                    {transactionType === 'booking'
+                      ? bookingId
                       : transactionType}
+                  </Td> */}
+
+                  <Td>{name}</Td>
+                  <Td>
+                    <BookingDates dateRange={dateRange || []} />
                   </Td>
-                  <Td>{new Date(invoiceDate).toDateString()}</Td>
-                  <Td isNumeric>{Number(totalAmount).toLocaleString()}</Td>
+                  <Td>{quantity}</Td>
+                  <Td isNumeric>{Number(total).toLocaleString()}</Td>
                   <Td isNumeric>
-                    {Number(payments[invoiceId]).toLocaleString()}
+                    {Number(payments[bookingId]).toLocaleString()}
                   </Td>
                 </Tr>
               );
@@ -89,17 +107,20 @@ function PaymentInvoicesTable(props) {
   );
 }
 
-PaymentInvoicesTable.propTypes = {
+PaymentBookingsTable.propTypes = {
   payments: PropTypes.object.isRequired,
-  invoices: PropTypes.arrayOf(
+  bookings: PropTypes.arrayOf(
     PropTypes.shape({
-      invoiceId: PropTypes.string.isRequired,
-      invoiceDate: PropTypes.instanceOf(Date).isRequired,
-      summary: PropTypes.shape({
-        totalAmount: PropTypes.number.isRequired,
-      }),
+      id: PropTypes.string.isRequired,
+      bookingDate: PropTypes.oneOfType([
+        PropTypes.instanceOf(Date),
+        PropTypes.string,
+      ]).isRequired,
+      total: PropTypes.number.isRequired,
+      quantity: PropTypes.number.isRequired,
+      bookingTotal: PropTypes.number.isRequired,
     })
   ),
 };
 
-export default PaymentInvoicesTable;
+export default PaymentBookingsTable;

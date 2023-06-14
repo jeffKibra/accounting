@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Container,
   VStack,
@@ -12,15 +12,16 @@ import {
   Tbody,
   Td,
   Tr,
-} from "@chakra-ui/react";
-import PropTypes from "prop-types";
+} from '@chakra-ui/react';
+import PropTypes from 'prop-types';
 
-import { getPaymentsTotal } from "../../../utils/payments";
+import { getPaymentsTotal } from '../../../utils/payments';
 
-import PaymentInvoicesTable from "../../../components/tables/Payments/PaymentInvoicesTable";
+import PaymentBookingsTable from '../../../components/tables/Payments/PaymentBookingsTable';
+import BookingsTable from 'components/tables/Bookings/BookingsTable';
 
 function ViewPayment(props) {
-  const { payment, invoices } = props;
+  const { payment, bookings } = props;
   const {
     org,
     customer,
@@ -42,7 +43,7 @@ function ViewPayment(props) {
       maxW="container.md"
       //   minH="1123px"
       bg="white"
-      px={["20px", "50px"]}
+      px={['20px', '50px']}
       py="70px"
     >
       <VStack color="#333" w="full" h="full">
@@ -110,7 +111,7 @@ function ViewPayment(props) {
           <GridItem
             colSpan={[12, 6]}
             display="flex"
-            justifyContent="flex-end"
+            justifyContent={['center', 'flex-end']}
             alignItems="center"
           >
             <VStack
@@ -137,7 +138,13 @@ function ViewPayment(props) {
         </Flex>
 
         <Box w="full" pt={3}>
-          <PaymentInvoicesTable invoices={invoices} payments={payments} />
+          {/* <PaymentBookingsTable bookings={bookings} payments={payments} /> */}
+          <BookingsTable
+            bookings={bookings}
+            payments={payments}
+            columnsToExclude={['paymentInput', 'actions', 'imprest', 'balance']}
+            paymentId={paymentId}
+          />
         </Box>
 
         <Box w="full" minH="200px" />
@@ -157,7 +164,7 @@ ViewPayment.propTypes = {
     payments: PropTypes.object.isRequired,
     reference: PropTypes.string,
   }),
-  invoices: PropTypes.array.isRequired,
+  bookings: PropTypes.array.isRequired,
 };
 
 export default ViewPayment;

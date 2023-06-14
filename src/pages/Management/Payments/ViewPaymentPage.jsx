@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { GET_PAYMENT } from '../../../store/actions/paymentsActions';
-import { GET_PAYMENT_INVOICES } from '../../../store/actions/invoicesActions';
+import { GET_PAYMENT_BOOKINGS } from '../../../store/actions/bookingsActions';
 import { reset } from '../../../store/slices/paymentsSlice';
 
 import { PAYMENTS } from '../../../nav/routes';
@@ -19,7 +19,7 @@ import Empty from '../../../components/ui/Empty';
 import ViewPayment from '../../../containers/Management/Payments/ViewPayment';
 
 function ViewPaymentPage(props) {
-  const { loading, isModified, payment, invoices, resetPayment, getPayment } =
+  const { loading, isModified, payment, bookings, resetPayment, getPayment } =
     props;
   const { paymentId } = useParams();
   const navigate = useNavigate();
@@ -39,7 +39,7 @@ function ViewPaymentPage(props) {
 
   return (
     <PageLayout
-      pageTitle={payment?.paymentId || 'View Payment'}
+      pageTitle="Payment Details"
       actions={payment && <PaymentOptions payment={payment} edit deletion />}
       breadcrumbLinks={{
         Dashboard: '/',
@@ -50,7 +50,7 @@ function ViewPaymentPage(props) {
       {loading ? (
         <SkeletonLoader />
       ) : payment ? (
-        <ViewPayment payment={payment} invoices={invoices} />
+        <ViewPayment payment={payment} bookings={bookings} />
       ) : (
         <Empty message="payment not found!" />
       )}
@@ -60,18 +60,12 @@ function ViewPaymentPage(props) {
 
 function mapStateToProps(state) {
   let { loading, action, isModified, payment } = state.paymentsReducer;
-  let {
-    invoices,
-    loading: invoicesLoading,
-    action: invoicesAction,
-  } = state.invoicesReducer;
-  loading =
-    (loading && action === GET_PAYMENT) ||
-    (invoicesLoading && invoicesAction === GET_PAYMENT_INVOICES);
+  let { bookings, loading: bookingsLoading } = state.bookingsReducer;
+  loading = (loading && action === GET_PAYMENT) || bookingsLoading;
 
-  console.log({ invoices, payment });
+  console.log({ bookings, payment });
 
-  return { loading, isModified, payment, invoices };
+  return { loading, isModified, payment, bookings };
 }
 
 function mapDispatchToProps(dispatch) {
@@ -79,7 +73,7 @@ function mapDispatchToProps(dispatch) {
     resetPayment: () => dispatch(reset()),
     getPayment: paymentId => {
       dispatch({ type: GET_PAYMENT, payload: paymentId });
-      dispatch({ type: GET_PAYMENT_INVOICES, payload: paymentId });
+      dispatch({ type: GET_PAYMENT_BOOKINGS, payload: paymentId });
     },
   };
 }

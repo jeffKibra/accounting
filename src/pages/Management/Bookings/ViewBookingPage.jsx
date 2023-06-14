@@ -38,7 +38,7 @@ function ViewBookingPage(props) {
 
   return (
     <PageLayout
-      pageTitle="View Booking"
+      pageTitle="Booking Details"
       actions={
         booking && <BookingOptions booking={booking} edit deletion download />
       }

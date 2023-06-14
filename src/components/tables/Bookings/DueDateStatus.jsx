@@ -32,8 +32,12 @@ function DueDateStatus(props) {
 
 DueDateStatus.propTypes = {
   booking: PropTypes.shape({
-    saleDate: PropTypes.instanceOf(Date).isRequired,
-    dueDate: PropTypes.instanceOf(Date).isRequired,
+    saleDate: PropTypes.oneOfType([
+      PropTypes.instanceOf(Date),
+      PropTypes.string,
+    ]).isRequired,
+    dueDate: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string])
+      .isRequired,
     balance: PropTypes.number.isRequired,
   }),
 };

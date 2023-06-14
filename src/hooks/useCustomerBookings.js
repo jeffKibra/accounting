@@ -19,7 +19,7 @@ export default function useCustomerBookings() {
     (action === GET_CUSTOMER_UNPAID_BOOKINGS ||
       action === GET_PAYMENT_BOOKINGS_TO_EDIT);
 
-  const getBooking = useCallback(
+  const getBookings = useCallback(
     customerId => {
       // console.log('fetching bookings');
       dispatch({ type: GET_CUSTOMER_UNPAID_BOOKINGS, payload: customerId });
@@ -27,7 +27,7 @@ export default function useCustomerBookings() {
     [dispatch]
   );
 
-  const getBookingToEdit = useCallback(
+  const getBookingsToEdit = useCallback(
     (customerId, paymentId) => {
       // console.log('fetch bookings to edit');
       dispatch({
@@ -39,8 +39,8 @@ export default function useCustomerBookings() {
   );
 
   return {
-    getBooking,
-    getBookingToEdit,
+    getBookings,
+    getBookingsToEdit,
     loading: loadingBookings,
     action,
     bookings,

@@ -244,7 +244,7 @@ export function* watchGetCustomerBookings() {
 }
 
 function* getCustomerUnpaidBookings(action: PayloadAction<string>) {
-  // console.log({ action });
+  console.log({ action });
   const { type, payload: customerId } = action;
 
   yield put(start(type));

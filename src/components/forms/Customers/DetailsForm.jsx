@@ -206,17 +206,11 @@ function DetailsForm(props) {
           </FormControl>
         </GridItem>
         <GridItem colSpan={[12, 6]}>
-          <FormControl
-            isDisabled={loading}
-            isRequired
-            isInvalid={!!errors.phone}
-          >
+          <FormControl isDisabled={loading} isInvalid={!!errors.phone}>
             <FormLabel htmlFor="phone">Phone</FormLabel>
             <Input
               id="phone"
-              {...register('phone', {
-                required: { value: true, message: '* Required!' },
-              })}
+              {...register('phone')}
             />
             <FormErrorMessage>{errors.phone?.message}</FormErrorMessage>
           </FormControl>

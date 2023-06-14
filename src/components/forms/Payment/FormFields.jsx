@@ -15,6 +15,7 @@ import ControlledNumInput from 'components/ui/ControlledNumInput';
 import RHFSimpleSelect from 'components/ui/hookForm/RHFSimpleSelect';
 import RHFGroupedOptionsSelect from 'components/ui/hookForm/RHFGroupedOptionsSelect';
 import CustomDatePicker from '../../ui/CustomDatePicker';
+import ControlledSelect from 'components/ui/ControlledSelect';
 
 function FormFields(props) {
   const {
@@ -150,11 +151,29 @@ function FormFields(props) {
             isInvalid={errors.paymentMode}
           >
             <FormLabel htmlFor="paymentMode">Payment Mode</FormLabel>
-            <RHFSimpleSelect
+
+            <Controller
               name="paymentMode"
-              placeholder="select payment mode"
-              isDisabled={formDisabled || !customerId}
-              options={paymentModes}
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => {
+                function handleChange(paymentModeId) {
+                  console.log({ paymentModeId });
+                  const paymentMode = paymentModes[paymentModeId];
+                  onChange(paymentMode);
+                }
+
+                return (
+                  <ControlledSelect
+                    onChange={handleChange}
+                    value={value?.value || ''}
+                    allowClearSelection
+                    isDisabled={formDisabled || !customerId}
+                    onBlur={onBlur}
+                    placeholder="select payment mode"
+                    options={Object.values(paymentModes)}
+                  />
+                );
+              }}
             />
 
             <FormErrorMessage>{errors.paymentMode?.message}</FormErrorMessage>
@@ -248,9 +267,9 @@ FormFields.propTypes = {
   formDisabled: PropTypes.bool.isRequired,
   customers: PropTypes.array.isRequired,
   accounts: PropTypes.array.isRequired,
-  paymentModes: PropTypes.array.isRequired,
+  paymentModes: PropTypes.object.isRequired,
   customerId: PropTypes.string,
-  invoices: PropTypes.array,
+  bookings: PropTypes.array,
 };
 
 export default FormFields;

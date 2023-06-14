@@ -24,6 +24,7 @@ import { useDeleteBooking } from 'hooks';
 import { generatePDF } from 'utils/invoices';
 
 function BookingOptions(props) {
+  console.log({ props });
   const { booking, edit, view, deletion, download } = props;
   const { id } = booking;
   const { details, isDeleted, resetBooking } = useDeleteBooking(booking);

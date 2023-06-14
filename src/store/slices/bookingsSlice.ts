@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { IBooking } from '../../types';
-import { GET_BOOKING } from '../actions/bookingsActions';
+import { GET_BOOKING, GET_BOOKINGS } from '../actions/bookingsActions';
 
 type State = {
   loading: boolean;
@@ -34,7 +34,7 @@ const bookingsSlice = createSlice({
         error: null,
         action: action.payload,
         ...(action.payload === GET_BOOKING ? { booking: null } : {}),
-        bookings: null,
+        ...(action.payload === GET_BOOKINGS ? { bookings: null } : {}),
       };
     },
     success: (state: State) => {

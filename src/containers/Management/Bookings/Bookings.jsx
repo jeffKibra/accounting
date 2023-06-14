@@ -37,7 +37,11 @@ function Bookings(props) {
       py={4}
       px={2}
     >
-      <BookingsTable bookings={bookings} showCustomer />
+      <BookingsTable
+        bookings={bookings}
+        showCustomer
+        columnsToExclude={['paymentInput', 'paymentAmount', 'id']}
+      />
     </Box>
   ) : (
     <Empty />
