@@ -14,10 +14,11 @@ import {
   Tr,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
+//
+import { bookingProps, datePropType } from 'propTypes';
 
 import { getPaymentsTotal } from '../../../utils/payments';
 
-import PaymentBookingsTable from '../../../components/tables/Payments/PaymentBookingsTable';
 import BookingsTable from 'components/tables/Bookings/BookingsTable';
 
 function ViewPayment(props) {
@@ -156,15 +157,15 @@ function ViewPayment(props) {
 ViewPayment.propTypes = {
   payment: PropTypes.shape({
     customer: PropTypes.object.isRequired,
-    org: PropTypes.object.isRequired,
+    orgId: PropTypes.string,
     amount: PropTypes.number.isRequired,
-    paymentDate: PropTypes.instanceOf(Date).isRequired,
+    paymentDate: datePropType,
     paymentId: PropTypes.string.isRequired,
-    status: PropTypes.string.isRequired,
+    status: PropTypes.number,
     payments: PropTypes.object.isRequired,
     reference: PropTypes.string,
   }),
-  bookings: PropTypes.array.isRequired,
+  bookings: PropTypes.arrayOf(bookingProps),
 };
 
 export default ViewPayment;

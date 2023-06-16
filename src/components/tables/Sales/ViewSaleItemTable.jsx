@@ -8,8 +8,9 @@ import {
   Td,
   // Text,
 } from '@chakra-ui/react';
-import PropTypes from 'prop-types';
 // import { isItemABooking } from 'utils/sales';
+//
+import { bookingProps } from 'propTypes';
 
 // function checkIfDateIsValid(date) {
 //   const dateIsValid = date && new Date(date).toDateString() !== 'Invalid Date';
@@ -24,7 +25,8 @@ function ViewSaleItemTable(props) {
   const {
     item: { name },
     bookingRate,
-    dateRange,
+    startDate,
+    endDate,
     quantity,
     bookingTotal,
     transferAmount,
@@ -47,16 +49,12 @@ function ViewSaleItemTable(props) {
             <Td textAlign="end">KES {Number(bookingRate).toLocaleString()}</Td>
           </Tr>
           <Tr>
-            <Th>Start Date</Th>
-            <Td textAlign="end">
-              {new Date(dateRange[0] || Date.now()).toDateString()}
-            </Td>
+            <Th>Pickup Date</Th>
+            <Td textAlign="end">{new Date(startDate).toDateString()}</Td>
           </Tr>
           <Tr>
-            <Th>End Date</Th>
-            <Td textAlign="end">
-              {new Date(dateRange[1] || Date.now()).toDateString()}
-            </Td>
+            <Th>Return Date</Th>
+            <Td textAlign="end">{new Date(endDate).toDateString()}</Td>
           </Tr>
           <Tr>
             <Th>Days</Th>
@@ -82,11 +80,11 @@ function ViewSaleItemTable(props) {
             <Td textAlign="end">KES {Number(imprest).toLocaleString()}</Td>
           </Tr>
           <Tr>
-            <Th>Payment Mode</Th>
+            <Th>Imprest Payment Mode</Th>
             <Td textAlign="end">{paymentMode?.name || ''}</Td>
           </Tr>
           <Tr>
-            <Th>Reference #</Th>
+            <Th>Imprest Reference #</Th>
             <Td textAlign="end">{reference}</Td>
           </Tr>
         </Tbody>
@@ -96,28 +94,7 @@ function ViewSaleItemTable(props) {
 }
 
 ViewSaleItemTable.propTypes = {
-  booking: PropTypes.shape({
-    item: PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      itemId: PropTypes.string.isRequired,
-    }),
-    salesTax: PropTypes.oneOfType([
-      PropTypes.shape({
-        name: PropTypes.string,
-        rate: PropTypes.number,
-        taxId: PropTypes.string,
-      }),
-      PropTypes.string,
-    ]),
-    bookingRate: PropTypes.number.isRequired,
-    bookingTotal: PropTypes.number.isRequired,
-    transferAmount: PropTypes.number.isRequired,
-    subTotal: PropTypes.number.isRequired,
-    total: PropTypes.number.isRequired,
-    // itemTax: PropTypes.number.isRequired,
-    quantity: PropTypes.number.isRequired,
-    taxType: PropTypes.string,
-  }),
+  booking: bookingProps,
 };
 
 export default ViewSaleItemTable;

@@ -1,14 +1,22 @@
 import { useMemo } from 'react';
 import { TableContainer, Table, Tbody, Td, Tr } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
+//
+import { bookingProps } from 'propTypes';
 
 function ViewSaleSummaryTable(props) {
   const { booking, showBalance } = props;
-  const { paymentsReceived: payments, total, subTotal, balance } = booking;
-  console.log({ payments, total, subTotal });
+  const {
+    paymentsReceived: payments,
+    total,
+    subTotal,
+    balance,
+    downPayment: { amount: imprest },
+  } = booking;
+  // console.log({ payments, total, subTotal });
 
   const paymentsTotal = useMemo(() => {
-    console.log('payments have changed', payments);
+    // console.log('payments have changed', payments);
 
     let total = 0;
 
@@ -58,10 +66,20 @@ function ViewSaleSummaryTable(props) {
               <b>{Number(total).toLocaleString()}</b>
             </Td>
           </Tr>
+
+          <Tr>
+            <Td isNumeric>
+              <b>Imprest Given</b>
+            </Td>
+            <Td isNumeric>
+              <b>(-) {Number(imprest || 0).toLocaleString()}</b>
+            </Td>
+          </Tr>
+
           {paymentsTotal > 0 && (
             <Tr>
               <Td isNumeric>
-                <b>Payments</b>
+                <b>Other Payments</b>
               </Td>
               <Td isNumeric>
                 <b>(-) {Number(paymentsTotal).toLocaleString()}</b>
@@ -91,24 +109,7 @@ ViewSaleSummaryTable.defaultProps = {
 };
 
 ViewSaleSummaryTable.propTypes = {
-  booking: PropTypes.shape({
-    salesTax: PropTypes.oneOfType([
-      PropTypes.shape({
-        name: PropTypes.string,
-        rate: PropTypes.number,
-        taxId: PropTypes.string,
-      }),
-      PropTypes.string,
-    ]),
-    bookingRate: PropTypes.number.isRequired,
-    bookingTotal: PropTypes.number.isRequired,
-    transferAmount: PropTypes.number.isRequired,
-    subTotal: PropTypes.number.isRequired,
-    total: PropTypes.number.isRequired,
-    // itemTax: PropTypes.number.isRequired,
-    quantity: PropTypes.number.isRequired,
-    taxType: PropTypes.string,
-  }),
+  booking: bookingProps,
   showBalance: PropTypes.bool,
 };
 

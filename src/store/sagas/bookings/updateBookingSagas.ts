@@ -44,7 +44,7 @@ function* updateBookingSaga(action: PayloadAction<UpdateData>) {
     yield put(toastSuccess('booking updated Sucessfully!'));
   } catch (err) {
     const error = err as Error;
-    console.log(error);
+    console.error(error);
     yield put(fail(error));
     yield put(toastError(error.message));
   }

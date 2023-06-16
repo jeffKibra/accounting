@@ -63,7 +63,7 @@ function mapStateToProps(state) {
   let { bookings, loading: bookingsLoading } = state.bookingsReducer;
   loading = (loading && action === GET_PAYMENT) || bookingsLoading;
 
-  console.log({ bookings, payment });
+  // console.log({ bookings, payment });
 
   return { loading, isModified, payment, bookings };
 }

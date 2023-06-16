@@ -33,7 +33,7 @@ function* deleteBookingSaga(action: PayloadAction<string>) {
     yield put(toastSuccess('Booking Sucessfully Deleted!'));
   } catch (err) {
     const error = err as Error;
-    console.log(error);
+    console.error(error);
     yield put(fail(error));
     yield put(toastError(error.message));
   }

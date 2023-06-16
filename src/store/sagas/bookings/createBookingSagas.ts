@@ -18,7 +18,7 @@ function* createBookingSaga(action: PayloadAction<IBookingForm>) {
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;
 
-  console.log({ action });
+  // console.log({ action });
 
   const booking = action.payload;
 
@@ -35,7 +35,7 @@ function* createBookingSaga(action: PayloadAction<IBookingForm>) {
     yield put(success());
     yield put(toastSuccess('booking created Sucessfully!'));
   } catch (err) {
-    console.log(err);
+    console.error(err);
     const error = err as Error;
     yield put(fail(error));
     yield put(toastError(error.message));

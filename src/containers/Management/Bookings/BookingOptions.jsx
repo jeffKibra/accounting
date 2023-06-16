@@ -16,6 +16,8 @@ import {
   MenuItem,
   Box,
 } from '@chakra-ui/react';
+//
+import { bookingProps } from 'propTypes';
 
 import Dialog from 'components/ui/Dialog';
 
@@ -24,7 +26,7 @@ import { useDeleteBooking } from 'hooks';
 import { generatePDF } from 'utils/invoices';
 
 function BookingOptions(props) {
-  console.log({ props });
+  // console.log({ props });
   const { booking, edit, view, deletion, download } = props;
   const { id } = booking;
   const { details, isDeleted, resetBooking } = useDeleteBooking(booking);
@@ -92,7 +94,7 @@ function BookingOptions(props) {
 }
 
 BookingOptions.propTypes = {
-  booking: PropTypes.object.isRequired,
+  booking: bookingProps,
   edit: PropTypes.bool,
   view: PropTypes.bool,
   deletion: PropTypes.bool,

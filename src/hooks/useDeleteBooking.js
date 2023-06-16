@@ -8,7 +8,7 @@ import BookingDates from 'components/tables/Bookings/BookingDates';
 import { reset } from '../store/slices/bookingsSlice';
 
 export default function useDeleteBooking(booking) {
-  const { customer, id: bookingId, item, dateRange } = booking;
+  const { customer, id: bookingId, item, startDate, endDate } = booking;
   const {
     loading,
     action,
@@ -17,7 +17,7 @@ export default function useDeleteBooking(booking) {
   const dispatch = useDispatch();
 
   const deleting = loading && action === DELETE_BOOKING;
-  console.log({ loading, action, isDeleted });
+  // console.log({ loading, action, isDeleted });
 
   function handleDelete() {
     dispatch({ type: DELETE_BOOKING, payload: bookingId });
@@ -55,7 +55,7 @@ export default function useDeleteBooking(booking) {
           <Text>
             Booking Dates :
             <b>
-              <BookingDates dateRange={dateRange || []} />
+              <BookingDates startDate={startDate} endDate={endDate} />
             </b>
           </Text>
         </Box>

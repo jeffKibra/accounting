@@ -39,10 +39,7 @@ export default function getDatesWithinRange(
   let year = startDate.getFullYear();
   let day = startDate.getDate();
   //
-  const endYear = endDate.getFullYear();
-  const endMonth = endDate.getMonth() + 1;
-  const endDay = endDate.getDate();
-  console.log({ endDay, endMonth, endYear });
+
   /**
    * update months before starting loop
    */
@@ -64,7 +61,7 @@ export default function getDatesWithinRange(
       : daysInMonth;
 
     const monthDates = getRemainingDatesInMonth(dateToday, lastDayOfTheMonth);
-    console.log({ monthDates });
+    // console.log({ monthDates });
     datesGroupedInMonths[monthDates.month] = monthDates.dates;
     ungroupedDates = { ...ungroupedDates, ...monthDates.dates };
     /**
@@ -96,7 +93,7 @@ export default function getDatesWithinRange(
     }
   }
 
-  console.log({ datesGroupedInMonths, ungroupedDates });
+  // console.log({ datesGroupedInMonths, ungroupedDates });
 
   return { datesGroupedInMonths, ungroupedDates };
 }

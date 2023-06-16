@@ -5,6 +5,8 @@ import { useForm, FormProvider } from 'react-hook-form';
 import formats from 'utils/formats';
 import { confirmFutureDate } from 'utils/dates';
 import { useToasts, useGetBookingFormProps } from 'hooks';
+//
+import { bookingFormProps } from 'propTypes';
 
 import SkeletonLoader from 'components/ui/SkeletonLoader';
 import Empty from 'components/ui/Empty';
@@ -15,7 +17,7 @@ import ItemsLoader from '../Sales/ItemsLoader';
 
 function BookingForm(props) {
   const { booking, handleFormSubmit, updating } = props;
-  console.log({ booking });
+  // console.log({ booking });
 
   const {
     // accounts,
@@ -32,9 +34,8 @@ function BookingForm(props) {
     mode: 'onChange',
     defaultValues: {
       //booking values
-      dateRange: booking?.dateRange
-        ? [new Date(booking?.dateRange[0]), new Date(booking?.dateRange[1])]
-        : [],
+      startDate: new Date(booking?.startDate || Date.now()),
+      endDate: new Date(booking?.endDate || Date.now()),
       item: booking?.item || null,
       quantity: booking?.quantity || 0,
       bookingRate: booking?.bookingRate || 0,
@@ -73,7 +74,7 @@ function BookingForm(props) {
   // });
 
   function onSubmit(data) {
-    console.log({ data });
+    // console.log({ data });
     const { customer: customerId, paymentTerm: paymentTermId, ...rest } = data;
     const { saleDate, dueDate } = rest;
     let formValues = { ...rest };
@@ -108,7 +109,7 @@ function BookingForm(props) {
     //   //booking is being updated-submit only the changed values
     //   formValues = getDirtyFields(dirtyFields, formValues);
     // }
-    console.log({ formValues });
+    // console.log({ formValues });
 
     //submit the data
     handleFormSubmit(formValues);
@@ -137,11 +138,12 @@ function BookingForm(props) {
             items={items}
             loading={updating}
             taxes={taxes}
-            defaultDateRange={booking?.dateRange}
+            defaultStartDate={booking?.startDate}
+            defaultEndDate={booking?.endDate}
             defaultItemId={booking?.item?.itemId}
           >
             {availableItems => {
-              console.log({ availableItems });
+              // console.log({ availableItems });
 
               return (
                 <DetailsFields
@@ -190,15 +192,7 @@ function BookingForm(props) {
 BookingForm.propTypes = {
   handleFormSubmit: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,
-  booking: PropTypes.shape({
-    selectedItems: PropTypes.array,
-    customerId: PropTypes.string,
-    saleDate: PropTypes.instanceOf(Date),
-    dueDate: PropTypes.instanceOf(Date),
-    subject: PropTypes.string,
-    customerNotes: PropTypes.string,
-    bookingId: PropTypes.string,
-  }),
+  booking: bookingFormProps,
 };
 
 export default BookingForm;

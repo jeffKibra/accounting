@@ -1,4 +1,4 @@
-import getMonthString from "./getMonthString";
+import getMonthString from './getMonthString';
 
 export default function getRemainingDatesInMonth(
   start: Date,
@@ -9,7 +9,7 @@ export default function getRemainingDatesInMonth(
   const year = startDate.getFullYear();
 
   const monthString = getMonthString(startDate);
-  console.log({ monthString });
+  // console.log({ monthString });
 
   const dates: Record<string, string> = {};
 
@@ -18,7 +18,7 @@ export default function getRemainingDatesInMonth(
     dates[currentDate] = currentDate;
   }
 
-  console.log({ dates });
+  // console.log({ dates });
 
   return {
     month: `${year}-${monthString}`,

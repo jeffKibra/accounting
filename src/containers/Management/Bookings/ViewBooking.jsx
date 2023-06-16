@@ -12,9 +12,10 @@ import {
   Td,
   Tr,
 } from '@chakra-ui/react';
-import PropTypes from 'prop-types';
-
-import ViewSaleItemsTable from '../../../components/tables/Sales/ViewSaleItemTable';
+//
+import { bookingProps } from 'propTypes';
+//
+import ViewSaleItemTable from '../../../components/tables/Sales/ViewSaleItemTable';
 import ViewSaleSummaryTable from '../../../components/tables/Sales/ViewSaleSummaryTable';
 
 function ViewBooking(props) {
@@ -98,7 +99,7 @@ function ViewBooking(props) {
           </GridItem>
         </Grid>
         <Box w="full" mt="20px!important">
-          <ViewSaleItemsTable booking={booking} />
+          <ViewSaleItemTable booking={booking} />
         </Box>
         <Grid w="full" columnGap={3} templateColumns="repeat(12, 1fr)">
           <GridItem colSpan={[1, 6]}></GridItem>
@@ -119,32 +120,7 @@ function ViewBooking(props) {
 }
 
 ViewBooking.propTypes = {
-  booking: PropTypes.shape({
-    customer: PropTypes.object.isRequired,
-    org: PropTypes.object.isRequired,
-    saleDate: PropTypes.instanceOf(Date).isRequired,
-    dueDate: PropTypes.instanceOf(Date).isRequired,
-    id: PropTypes.string.isRequired,
-    status: PropTypes.number.isRequired,
-    item: PropTypes.object.isRequired,
-    balance: PropTypes.number.isRequired,
-    salesTax: PropTypes.oneOfType([
-      PropTypes.shape({
-        name: PropTypes.string,
-        rate: PropTypes.number,
-        taxId: PropTypes.string,
-      }),
-      PropTypes.string,
-    ]),
-    bookingRate: PropTypes.number.isRequired,
-    bookingTotal: PropTypes.number.isRequired,
-    transferAmount: PropTypes.number.isRequired,
-    subTotal: PropTypes.number.isRequired,
-    total: PropTypes.number.isRequired,
-    // itemTax: PropTypes.number.isRequired,
-    quantity: PropTypes.number.isRequired,
-    taxType: PropTypes.string,
-  }),
+  booking: bookingProps,
 };
 
 export default ViewBooking;

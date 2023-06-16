@@ -22,7 +22,7 @@ function* getMonthBookings(action: PayloadAction<string>) {
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer?.org?.orgId
   );
-  console.log({ monthId, orgId });
+  // console.log({ monthId, orgId });
 
   try {
     const bookings: IMonthBookings = yield call(
@@ -30,7 +30,7 @@ function* getMonthBookings(action: PayloadAction<string>) {
       orgId,
       monthId
     );
-    console.log({ bookings });
+    // console.log({ bookings });
 
     yield put(success({ [monthId]: bookings }));
   } catch (err) {
@@ -49,14 +49,14 @@ export function* watchGetMonthBookings() {
 
 function* getMonthlyBookings(action: PayloadAction<string[]>) {
   const months = action.payload;
-  console.log('fetching monthly bookings', months);
+  // console.log('fetching monthly bookings', months);
 
   yield put(start(months));
 
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer?.org?.orgId
   );
-  console.log({ months, orgId });
+  // console.log({ months, orgId });
 
   try {
     const monthlyBookings: IMonthlyBookings = yield call(
@@ -64,7 +64,7 @@ function* getMonthlyBookings(action: PayloadAction<string[]>) {
       orgId,
       months
     );
-    console.log({ monthlyBookings });
+    // console.log({ monthlyBookings });
 
     yield put(success(monthlyBookings));
   } catch (err) {

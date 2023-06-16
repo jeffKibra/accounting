@@ -92,7 +92,7 @@ function* getBooking(action: PayloadAction<string>) {
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
-  console.log({ bookingId });
+  // console.log({ bookingId });
 
   async function get() {
     try {
@@ -122,7 +122,7 @@ function* getBooking(action: PayloadAction<string>) {
     yield put(bookingSuccess(booking));
   } catch (err) {
     const error = err as Error;
-    console.log(error);
+    console.error(error);
     yield put(fail(error));
     yield put(toastError(error.message));
   }
@@ -172,12 +172,12 @@ function* getBookings() {
       throw error;
     }
 
-    console.log({ bookings });
+    // console.log({ bookings });
 
     yield put(bookingsSuccess(bookings));
   } catch (err) {
     const error = err as Error;
-    console.log(error);
+    console.error(error);
     yield put(fail(error));
     yield put(toastError(error.message));
   }
@@ -233,7 +233,7 @@ function* getCustomerBookings(action: PayloadAction<string>) {
     yield put(bookingsSuccess(bookings));
   } catch (err) {
     const error = err as Error;
-    console.log(error);
+    console.error(error);
     yield put(fail(error));
     yield put(toastError(error.message));
   }
@@ -244,7 +244,7 @@ export function* watchGetCustomerBookings() {
 }
 
 function* getCustomerUnpaidBookings(action: PayloadAction<string>) {
-  console.log({ action });
+  // console.log({ action });
   const { type, payload: customerId } = action;
 
   yield put(start(type));
@@ -296,7 +296,7 @@ function* getCustomerUnpaidBookings(action: PayloadAction<string>) {
     yield put(bookingsSuccess(bookings));
   } catch (err) {
     const error = err as Error;
-    console.log(error);
+    console.error(error);
     yield put(fail(error));
     yield put(toastError(error.message));
   }
@@ -317,7 +317,7 @@ function* getPaymentBookingsToEdit(action: PayloadAction<Details>) {
     payload: { paymentId, customerId },
   } = action;
   yield put(start(type));
-  console.log('fetching bookings to edit');
+  // console.log('fetching bookings to edit');
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
@@ -366,7 +366,7 @@ function* getPaymentBookingsToEdit(action: PayloadAction<Details>) {
        */
       bookings1.sort(sortByDateAsc);
       bookings2.sort(sortByDateAsc);
-      console.log({ bookings1, bookings2 });
+      // console.log({ bookings1, bookings2 });
 
       return { bookings: [...bookings1, ...bookings2] };
     } catch (error) {
@@ -385,7 +385,7 @@ function* getPaymentBookingsToEdit(action: PayloadAction<Details>) {
     yield put(bookingsSuccess(bookings));
   } catch (err) {
     const error = err as Error;
-    console.log(error);
+    console.error(error);
     yield put(fail(error));
     yield put(toastError(error.message));
   }
@@ -398,7 +398,7 @@ export function* watchGetPaymentBookingsToEdit() {
 function* getPaymentBookings(action: PayloadAction<Details>) {
   const { type, payload: paymentId } = action;
   yield put(start(type));
-  console.log('fetching payment bookings');
+  // console.log('fetching payment bookings');
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
@@ -443,7 +443,7 @@ function* getPaymentBookings(action: PayloadAction<Details>) {
     yield put(bookingsSuccess(bookings));
   } catch (err) {
     const error = err as Error;
-    console.log(error);
+    console.error(error);
     yield put(fail(error));
     yield put(toastError(error.message));
   }

@@ -48,7 +48,7 @@ export default function PaymentForm(props) {
     updating,
     paymentModes,
   } = props;
-  console.log({ accounts });
+  // console.log({ accounts });
 
   const [balance, setBalance] = useState(0);
 
@@ -110,7 +110,7 @@ export default function PaymentForm(props) {
       payments,
     };
 
-    console.log({ formData });
+    // console.log({ formData });
 
     // console.log({ allData });
     handleFormSubmit(formData);

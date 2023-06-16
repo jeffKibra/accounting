@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import {
   FormControl,
   FormLabel,
@@ -22,55 +22,18 @@ function BookingItemFormFields(props) {
     itemsObject,
     // taxesObject,
     loading,
-    transactionId,
+    // transactionId,
   } = props;
-  console.log({ itemsObject });
+  // console.log({ itemsObject });
 
-  const [dateIntervalsToExclude, setDateIntervalsToExclude] = useState([]);
+  // const [dateIntervalsToExclude, setDateIntervalsToExclude] = useState([]);
 
   const {
     formState: { errors },
-    watch,
     control,
     setValue,
   } = useFormContext();
-  console.log({ errors });
-
-  const dateRange = watch('dateRange');
-  const item = watch('item');
-  console.log({ dateRange, item });
-
-  const itemId = item?.itemId || '';
-
-  useEffect(() => {
-    console.log('item has changed', { itemId, transactionId });
-
-    const item = itemsObject[itemId];
-    console.log({ item });
-
-    if (item) {
-      //update dateIntervalsToExclude based on already booked dates
-
-      const bookings = item?.bookings || {};
-      console.log({ bookings });
-
-      Object.keys(bookings).forEach(tId => {
-        if (tId !== transactionId) {
-          const dateRange = bookings[tId];
-          console.log({ dateRange });
-
-          const interval = {
-            start: new Date(dateRange[0]),
-            end: new Date(dateRange[1]),
-          };
-
-          setDateIntervalsToExclude(current => {
-            return [...current, interval];
-          });
-        }
-      });
-    }
-  }, [itemId, transactionId, itemsObject]);
+  // console.log({ errors });
 
   // useEffect(() => {
   //   if (itemId) {

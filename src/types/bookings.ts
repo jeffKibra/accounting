@@ -36,7 +36,9 @@ export interface IBookingForm {
   customer: IContactSummary;
   item: IBookingItem;
   customerNotes: string;
-  dateRange: IBookingDateRange;
+  // dateRange: IBookingDateRange;
+  startDate: Date | string;
+  endDate: Date | string;
   quantity: number;
   saleDate: Date;
   dueDate: Date | Timestamp;

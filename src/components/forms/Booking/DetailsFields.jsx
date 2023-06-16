@@ -16,7 +16,7 @@ import PropTypes from 'prop-types';
 import { deriveDueDate } from '../../../utils/invoices';
 
 import CustomSelect from '../../ui/CustomSelect';
-import CustomDatePicker from '../../ui/CustomDatePicker';
+// import CustomDatePicker from '../../ui/CustomDatePicker';
 import ControlledNumInput from 'components/ui/ControlledNumInput';
 import ControlledSelect from 'components/ui/ControlledSelect';
 //
@@ -24,16 +24,16 @@ import BookingItemFormFields from '../Sales/BookingItemFormFields';
 //
 
 //---------------------------------------------------------------
-InvoiceDetailsFields.propTypes = {
+DetailsFields.propTypes = {
   customers: PropTypes.array.isRequired,
   loading: PropTypes.bool.isRequired,
   paymentTerms: PropTypes.array.isRequired,
-  paymentModes: PropTypes.array.isRequired,
-  invoiceId: PropTypes.string,
+  paymentModes: PropTypes.object.isRequired,
+  bookingId: PropTypes.string,
 };
 
-export default function InvoiceDetailsFields(props) {
-  const { customers, paymentTerms, loading, invoiceId, items, paymentModes } =
+export default function DetailsFields(props) {
+  const { customers, paymentTerms, loading, bookingId, items, paymentModes } =
     props;
 
   const {
@@ -43,7 +43,7 @@ export default function InvoiceDetailsFields(props) {
     watch,
     control,
   } = useFormContext();
-  console.log({ errors });
+  // console.log({ errors });
 
   const customerId = watch('customer');
   const paymentTermId = watch('paymentTerm');
@@ -69,14 +69,14 @@ export default function InvoiceDetailsFields(props) {
    * update due date according to the selected payment term
    */
   useEffect(() => {
-    if (!invoiceId && paymentTermId) {
+    if (!bookingId && paymentTermId) {
       const paymentTerm = paymentTerms.find(
         term => term.value === paymentTermId
       );
       const dueDate = deriveDueDate(paymentTerm, saleDate);
       setValue('dueDate', dueDate);
     }
-  }, [paymentTermId, saleDate, paymentTerms, setValue, invoiceId]);
+  }, [paymentTermId, saleDate, paymentTerms, setValue, bookingId]);
 
   return (
     <Box>
@@ -144,19 +144,19 @@ export default function InvoiceDetailsFields(props) {
           </FormControl>
         </GridItem>
 
-        <GridItem colSpan={[12, 4]}>
+        {/* <GridItem colSpan={[12, 4]}>
           <FormControl
             isDisabled={loading}
             isRequired
             isInvalid={errors.saleDate}
           >
-            <FormLabel htmlFor="saleDate">Invoice Date</FormLabel>
+            <FormLabel htmlFor="saleDate">Booking Date</FormLabel>
             <CustomDatePicker size="md" name="saleDate" required />
             <FormErrorMessage>{errors.saleDate?.message}</FormErrorMessage>
           </FormControl>
-        </GridItem>
+        </GridItem> */}
 
-        <GridItem colSpan={[12, 4]}>
+        {/* <GridItem colSpan={[12, 4]}>
           <FormControl
             isDisabled={loading}
             isRequired
@@ -170,9 +170,9 @@ export default function InvoiceDetailsFields(props) {
             />
             <FormErrorMessage>{errors.paymentTerm?.message}</FormErrorMessage>
           </FormControl>
-        </GridItem>
+        </GridItem> */}
 
-        <GridItem colSpan={[12, 4]}>
+        {/* <GridItem colSpan={[12, 4]}>
           <FormControl
             isDisabled={loading}
             isRequired
@@ -182,7 +182,7 @@ export default function InvoiceDetailsFields(props) {
             <CustomDatePicker name="dueDate" required />
             <FormErrorMessage>{errors.dueDate?.message}</FormErrorMessage>
           </FormControl>
-        </GridItem>
+        </GridItem> */}
 
         {/* <GridItem colSpan={[12, 6, 4]}>
           <FormControl isDisabled={loading} isInvalid={errors.orderNumber}>

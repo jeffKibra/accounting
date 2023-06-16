@@ -12,7 +12,7 @@ import { getDatesWithinRange } from '../../utils/dates';
 //
 import {
   ItemType,
-  IBookingDateRange,
+  // IBookingDateRange,
   IMonthlyBookings,
   Item,
 } from '../../types';
@@ -85,7 +85,12 @@ export default class Bookings {
     defaultItemId?: string,
     defaultBookingDays?: Record<string, string>
   ) {
-    // console.log({ monthlyBookings, selectedDatesGroupedInMonths });
+    // console.log({
+    //   monthlyBookings,
+    //   selectedDatesGroupedInMonths,
+    //   defaultItemId,
+    //   defaultBookingDays,
+    // });
     const months = Object.keys(monthlyBookings);
 
     const allItems: Record<string, Item> = {};
@@ -128,7 +133,7 @@ export default class Bookings {
                 }
               }
 
-              console.log({ itemId, defaultItemId, day, dayIsBeingEdited });
+              // console.log({ itemId, defaultItemId, day, dayIsBeingEdited });
 
               if (!dayIsBeingEdited) {
                 updateDayBookings(day, itemId);
@@ -168,24 +173,20 @@ export default class Bookings {
   // static get
 
   //------------------------------------------------------------------------------
-  static getBookingDays(dateRange: [string, string]) {
-    if (!Array.isArray(dateRange)) {
-      throw new TypeError('Booking dateRange must be an array');
-    }
-
-    const start = dateRange[0];
-    const end = dateRange[1] || start; //incase end date is null
-
+  static getBookingDays(start: string | Date, end: string | Date) {
     const startDate = new Date(start);
     if (startDate.toDateString() === 'Invalid Date') {
       throw new TypeError('Invalid Booking start date');
     }
 
     const endDate = new Date(end);
+    if (endDate.toDateString() === 'Invalid Date') {
+      throw new TypeError('Invalid Booking End date');
+    }
 
     const datesWithinRange = getDatesWithinRange(startDate, endDate);
 
-    console.log({ datesWithinRange });
+    // console.log({ datesWithinRange });
 
     return datesWithinRange;
   }
@@ -196,64 +197,10 @@ export default class Bookings {
     return itemType === 'vehicle'; // append other or types if necessary
   }
   //----------------------------------------------------------------
-  static generateAccurateBookingDateRange(
-    formDateRange: IBookingDateRange | null,
-    itemType: ItemType,
-    itemName: string
-  ) {
-    const itemIsABooking = Bookings.isItemABooking(itemType);
-
-    if (!itemIsABooking) {
-      return null;
-    }
-
-    if (!Array.isArray(formDateRange)) {
-      throw new Error(`Invalid Date Range for booking item: ${itemName}`);
-    }
-
-    const formStartDate = formDateRange[0];
-    const formEndDate = formDateRange[1] || formStartDate;
-
-    Bookings.checkIfDateIsValid(formStartDate, itemName, true);
-    Bookings.checkIfDateIsValid(formEndDate, itemName);
-
-    const startDate = Bookings.generateAccurateStartDate(
-      new Date(formStartDate)
-    );
-    const endDate = Bookings.generateAccurateEndDate(new Date(formEndDate));
-
-    const dateRange: IBookingDateRange = [
-      startDate.toDateString(),
-      endDate.toDateString(),
-    ];
-
-    return dateRange;
-  }
-  //----------------------------------------------------------------
-  static generateAccurateStartDate(date: Date, gmt = '+3') {
-    const dateString = new Date(date).toDateString();
-    const midnightTimeString = '00:00:00:000'; //GMT+0300
-
-    const accurateStartDate = new Date(
-      `${dateString} ${midnightTimeString} GMT${gmt || ''}`
-    );
-    // console.log({ accurateStartDate });
-
-    return accurateStartDate;
-  }
 
   //----------------------------------------------------------------
-  static generateAccurateEndDate(date: Date, gmt = '+3') {
-    const dateString = new Date(date).toDateString();
-    const beforeMidnightTimeString = '23:59:59:999'; //GMT+0300
 
-    const accurateEndDate = new Date(
-      `${dateString} ${beforeMidnightTimeString} GMT${gmt || ''}`
-    );
-    // console.log({ accurateEndDate });
-
-    return accurateEndDate;
-  }
+  //----------------------------------------------------------------
 
   //----------------------------------------------------------------
 

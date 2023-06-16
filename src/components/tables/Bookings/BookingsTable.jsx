@@ -14,6 +14,8 @@ import DueDateStatus from './DueDateStatus';
 import BookingPaymentInput from './BookingPaymentInput';
 //
 import { getBookingBalance } from 'utils/bookings';
+//
+import { bookingProps } from 'propTypes';
 
 function BookingsTable(props) {
   const { bookings, showCustomer, paymentTotal, paymentId, columnsToExclude } =
@@ -63,7 +65,8 @@ function BookingsTable(props) {
 
   const data = useMemo(() => {
     return bookings.map(booking => {
-      const { total, downPayment, item, paymentsReceived } = booking;
+      const { total, downPayment, item, paymentsReceived, startDate, endDate } =
+        booking;
       const imprest = downPayment?.amount || 0;
 
       let balance = booking?.balance || 0;
@@ -80,7 +83,7 @@ function BookingsTable(props) {
         balance: Number(balance).toLocaleString(),
         imprest: Number(imprest).toLocaleString(),
         dueDate: <DueDateStatus booking={booking || {}} />,
-        date: <BookingDates dateRange={booking?.dateRange || []} />,
+        date: <BookingDates startDate={startDate} endDate={endDate} />,
         // date: <bookingDates booking={booking} />,
         paymentAmount: Number(paymentAmount).toLocaleString(),
         paymentInput: (
@@ -116,26 +119,7 @@ function BookingsTable(props) {
 }
 
 BookingsTable.propTypes = {
-  bookings: PropTypes.arrayOf(
-    PropTypes.shape({
-      customer: PropTypes.shape({
-        displayName: PropTypes.string.isRequired,
-        companyName: PropTypes.string,
-      }),
-      balance: PropTypes.number,
-      total: PropTypes.number,
-      saleDate: PropTypes.oneOfType([
-        PropTypes.instanceOf(Date),
-        PropTypes.string,
-      ]).isRequired,
-      dueDate: PropTypes.oneOfType([
-        PropTypes.instanceOf(Date),
-        PropTypes.string,
-      ]).isRequired,
-      status: PropTypes.number.isRequired,
-      id: PropTypes.string.isRequired,
-    })
-  ),
+  bookings: PropTypes.arrayOf(bookingProps),
   showCustomer: PropTypes.bool,
   paymentTotal: PropTypes.number,
   paymentId: PropTypes.string,

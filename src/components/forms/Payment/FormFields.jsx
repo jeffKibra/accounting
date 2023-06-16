@@ -81,7 +81,7 @@ function FormFields(props) {
             required
             isInvalid={errors.amount}
           >
-            <FormLabel htmlFor="amount">Amount</FormLabel>
+            <FormLabel htmlFor="amount">Amount Received</FormLabel>
             <Controller
               name="amount"
               control={control}
