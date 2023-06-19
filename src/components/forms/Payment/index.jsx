@@ -12,6 +12,9 @@ import ControlledDialog from 'components/ui/ControlledDialog';
 
 import BookingsPayments from 'components/forms/Payment/BookingsPayments';
 import FormFields from 'components/forms/Payment/FormFields';
+//
+const DEFAULT_ACCOUNT_ID = 'undeposited_funds';
+//
 
 const schema = Yup.object().shape({
   customer: Yup.object().required('*Required!').nullable(),
@@ -63,6 +66,26 @@ export default function PaymentForm(props) {
 
   // console.log({ invoices, loadingInvoices });
 
+  const paymentAccount = useMemo(() => {
+    const accountId = payment?.account?.accountId || DEFAULT_ACCOUNT_ID;
+    let account = null;
+
+    if (Array.isArray(accounts)) {
+      account = accounts.find(account => account.accountId === accountId);
+      if (!account) {
+        const errorMsg = 'Payment Account not found!';
+        console.error(errorMsg);
+        toasts.error(errorMsg);
+      }
+    }
+
+    console.log(account);
+
+    return account;
+  }, [accounts, payment?.account, toasts]);
+
+  // console.log({ paymentAccount, accounts });
+
   const formMethods = useForm({
     mode: 'onChange',
     resolver: yupResolver(schema),
@@ -70,7 +93,7 @@ export default function PaymentForm(props) {
       customer: payment?.customer || null,
       paymentDate: payment?.paymentDate || new Date(),
       amount: payment?.amount || 0,
-      account: payment?.account || null,
+      account: paymentAccount,
       paymentMode: payment?.paymentMode || null,
       reference: payment?.reference || '',
       payments: payment?.payments || {},
@@ -86,8 +109,8 @@ export default function PaymentForm(props) {
   // const form = watch();
   // console.log({ form });
 
-  const watchedFields = watch(['customer', 'amount']);
-  // console.log({ watchedFields });
+  const watchedFields = watch(['customer', 'amount', 'account']);
+  console.log({ watchedFields });
   const customer = watchedFields[0];
   const customerId = customer?.id || '';
 
@@ -96,7 +119,7 @@ export default function PaymentForm(props) {
   function onSubmit(data) {
     const { payments } = data;
     //update form values so that incase saving fails, data is not lost
-    // console.log({ data });
+    console.log({ data });
 
     Object.keys(payments).forEach(key => {
       const amount = Number(payments[key]);

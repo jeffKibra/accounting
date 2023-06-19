@@ -6,20 +6,18 @@ import {
   GridItem,
   FormHelperText,
   Switch,
-  Input,
-  Box,
 } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import PropTypes from 'prop-types';
 
-import NumInput from '../../ui/NumInput';
+// import NumInput from '../../ui/NumInput';
 import CustomSelect from '../../ui/CustomSelect';
 
 //----------------------------------------------------------------
 
 function SaleDetails(props) {
   // console.log({ props });
-  const { loading, taxes, itemIsVehicle } = props;
+  const { loading, taxes } = props;
 
   const {
     register,

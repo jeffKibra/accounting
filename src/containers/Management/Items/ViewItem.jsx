@@ -12,7 +12,7 @@ import {} from 'react-datepicker';
 import ControlledDatePicker from 'components/ui/ControlledDatePicker';
 
 //
-import './datePicker.css';
+// import './datePicker.css';
 
 function FieldTitle({ children }) {
   return <Td color="#777777">{children}</Td>;

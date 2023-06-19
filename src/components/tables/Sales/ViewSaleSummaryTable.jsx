@@ -87,7 +87,7 @@ function ViewSaleSummaryTable(props) {
             </Tr>
           )}
           {/* "#f5f4f3" */}
-          {showBalance && balance > 0 && (
+          {showBalance && (
             <Tr bg="gray.100">
               <Td isNumeric>
                 <b>Balance Due</b>

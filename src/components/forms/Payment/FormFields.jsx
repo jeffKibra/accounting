@@ -13,14 +13,15 @@ import PropTypes from 'prop-types';
 import ControlledNumInput from 'components/ui/ControlledNumInput';
 // import RadioInput from "../../ui/RadioInput";
 import RHFSimpleSelect from 'components/ui/hookForm/RHFSimpleSelect';
-import RHFGroupedOptionsSelect from 'components/ui/hookForm/RHFGroupedOptionsSelect';
+// import RHFGroupedOptionsSelect from 'components/ui/hookForm/RHFGroupedOptionsSelect';
 import CustomDatePicker from '../../ui/CustomDatePicker';
 import ControlledSelect from 'components/ui/ControlledSelect';
+//
 
 function FormFields(props) {
   const {
     customers: rawCustomers,
-    accounts,
+    // accounts,
     paymentModes,
     customerId,
     formDisabled,
@@ -48,7 +49,7 @@ function FormFields(props) {
     control,
     // watch,
   } = useFormContext();
-  // console.log({ errors });
+  console.log({ errors });
 
   return (
     <>
@@ -75,7 +76,7 @@ function FormFields(props) {
         </GridItem>
         <GridItem colSpan={[0, 6]}></GridItem>
 
-        <GridItem colSpan={[12, 4]}>
+        <GridItem colSpan={[12, 6]}>
           <FormControl
             isDisabled={formDisabled || !customerId}
             required
@@ -108,7 +109,7 @@ function FormFields(props) {
           </FormControl>
         </GridItem>
 
-        <GridItem colSpan={[12, 4]}>
+        <GridItem colSpan={[12, 6]}>
           <FormControl
             isDisabled={formDisabled || !customerId}
             required
@@ -120,7 +121,9 @@ function FormFields(props) {
           </FormControl>
         </GridItem>
 
-        <GridItem colSpan={[12, 4]}>
+        <Controller name="account" control={control} render={() => <></>} />
+
+        {/* <GridItem colSpan={[12, 4]}>
           <FormControl
             isDisabled={formDisabled || !customerId}
             required
@@ -142,7 +145,7 @@ function FormFields(props) {
 
             <FormErrorMessage>{errors.account?.message}</FormErrorMessage>
           </FormControl>
-        </GridItem>
+        </GridItem> */}
 
         <GridItem colSpan={[12, 6]}>
           <FormControl

@@ -28,7 +28,10 @@ function CustomerBookings(props) {
   return loading && action === GET_CUSTOMER_BOOKINGS ? (
     <CustomSpinner />
   ) : bookings?.length > 0 ? (
-    <BookingsTable bookings={bookings} />
+    <BookingsTable
+      columnsToExclude={['paymentAmount', 'paymentInput']}
+      bookings={bookings}
+    />
   ) : (
     <Empty />
   );

@@ -15,7 +15,6 @@ const ControlledDatePicker = forwardRef((props, ref) => {
 
   return (
     <DatePicker
-      {...extraProps}
       onBlur={onBlur}
       ref={ref}
       selected={selected}
@@ -25,6 +24,8 @@ const ControlledDatePicker = forwardRef((props, ref) => {
       showMonthDropdown
       dropdownMode="select"
       dateFormat="dd-MMM-yyyy"
+      showIcon
+      {...extraProps}
     />
   );
 });
