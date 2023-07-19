@@ -17,6 +17,7 @@ import Estimates from './Estimates';
 import Expenses from './Expenses';
 import SaleReceipts from './SaleReceipts';
 import Vendors from './Vendors';
+import CarModels from './CarModels';
 //
 import ChartOfAccounts from './ChartOfAccounts';
 import ManualJournals from './ManualJournals';
@@ -44,6 +45,7 @@ function ManagementRoutes() {
     ...Expenses(),
     ...SaleReceipts(),
     ...Vendors(),
+    ...CarModels(),
 
     ...ChartOfAccounts(),
     ...ManualJournals(),

@@ -22,6 +22,7 @@ export { default as useChartOfAccounts } from './useChartOfAccounts';
 export { default as useItemFormProps } from './useItemFormProps';
 export { default as usePaymentModes } from './usePaymentModes';
 export { default as useSaleReceiptFormProps } from './useSaleReceiptFormProps';
+export { default as useDeleteCarModel } from './useDeleteCarModel';
 //bookings
 export { default as useDeleteBooking } from './useDeleteBooking';
 export { default as useCustomerBookings } from './useCustomerBookings';

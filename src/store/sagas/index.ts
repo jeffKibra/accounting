@@ -104,6 +104,11 @@ import {
 } from './monthlyBookings/get';
 //categories
 import { watchCreateItemCategory } from './itemsCategories/createItemCategorySagas';
+//car models
+import { watchCreateCarModel } from './carModels/create';
+import { watchGetCarModel, watchGetCarModels } from './carModels/get';
+import { watchUpdateCarModel } from './carModels/update';
+import { watchDeleteCarModel } from './carModels/delete';
 
 export default function* rootSaga() {
   yield all([
@@ -189,5 +194,11 @@ export default function* rootSaga() {
     watchGetMonthBookings(),
     watchGetMonthlyBookings(),
     watchCreateItemCategory(),
+    //car models
+    watchGetCarModel(),
+    watchGetCarModels(),
+    watchCreateCarModel(),
+    watchUpdateCarModel(),
+    watchDeleteCarModel(),
   ]);
 }
