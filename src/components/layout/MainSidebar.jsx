@@ -58,16 +58,23 @@ function ManagementSidebar(props) {
       <DrawerItem route={routes.DASHBOARD} icon={RiDashboardLine}>
         Dashboard
       </DrawerItem>
-      <DrawerItem route={routes.ITEMS} icon={RiCarLine}>
-        Vehicles
-      </DrawerItem>
+
+      <ExpandableDrawerItem
+        title="Vehicles"
+        icon={RiCarLine}
+        subRoutes={[
+          { title: 'Vehicles', route: routes.ITEMS },
+          { title: 'Make and Model', route: routes.ITEMS_CATEGORIES },
+        ]}
+      />
+      <Divider />
+
       <DrawerItem route={routes.CUSTOMERS} icon={RiContactsLine}>
         Customers
       </DrawerItem>
       <DrawerItem route={routes.BOOKINGS} icon={RiCalendarCheckLine}>
         Bookings
       </DrawerItem>
-      
 
       <DrawerItem route={routes.PAYMENTS} icon={RiCoinsLine}>
         Payments

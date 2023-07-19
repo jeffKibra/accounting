@@ -24,6 +24,7 @@ export default function dbCollections(orgId: string) {
       `${org}/monthlyBookings`
     ),
     items: createCollectionRef<ItemFromDb>(`${org}/items`),
+    orgDetails: createCollectionRef<unknown>(`${org}/orgDetails`),
     entries: createCollectionRef<EntryFromDb>(`${org}/journals`),
     paymentsReceived: createCollectionRef<PaymentReceivedFromDb>(
       `${org}/payments`

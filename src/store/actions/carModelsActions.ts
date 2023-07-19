@@ -1,0 +1,5 @@
+export const CREATE_CAR_MODEL = 'CREATE_CAR_MODEL';
+export const GET_CAR_MODELS = 'GET_CAR_MODELS';
+export const GET_CAR_MODEL = 'GET_CAR_MODEL';
+export const UPDATE_CAR_MODEL = 'UPDATE_CAR_MODEL';
+export const DELETE_CAR_MODEL = 'DELETE_CAR_MODEL';
