@@ -7,7 +7,6 @@ import ManagementRoute from '../ManagementRoute';
 import CarModelsPage from 'pages/Management/CarModels/CarModelsPage';
 import NewCarModelPage from 'pages/Management/CarModels/NewCarModelPage';
 import EditCarModelPage from 'pages/Management/CarModels/EditCarModelPage';
-import ViewCarModelPage from 'pages/Management/CarModels/ViewCarModelPage';
 
 function CarModels() {
   return [
@@ -38,16 +37,6 @@ function CarModels() {
       element={
         <ManagementRoute>
           <EditCarModelPage />
-        </ManagementRoute>
-      }
-    />,
-    <Route
-      path={routes.VIEW_CAR_MODEL}
-      key={routes.VIEW_CAR_MODEL}
-      exact
-      element={
-        <ManagementRoute>
-          <ViewCarModelPage />
         </ManagementRoute>
       }
     />,

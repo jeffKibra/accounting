@@ -11,6 +11,7 @@ import MenuOptions from '../../../components/ui/MenuOptions';
 function CarModelOptions(props) {
   const { carModel, edit, view, deletion } = props;
   const { id: modelId } = carModel;
+
   const { details, isDeleted, resetCarModel } = useDeleteCarModel(carModel);
 
   useEffect(() => {

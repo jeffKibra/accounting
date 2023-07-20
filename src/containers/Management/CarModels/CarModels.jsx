@@ -50,13 +50,13 @@ class CarModels extends Component {
 
 function mapStateToProps(state) {
   const carModelsState = state.carModelsReducer;
-  console.log({ state, carModelsState });
+  // console.log({ state, carModelsState });
   const { loading, error, carModels, action, isModified } = carModelsState;
 
   return {
     loading,
     error,
-    carModels: Object.values(carModels),
+    carModels: carModels ? Object.values(carModels) : carModels,
     action,
     isModified,
   };

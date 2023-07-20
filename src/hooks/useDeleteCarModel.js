@@ -5,8 +5,8 @@ import { DELETE_CAR_MODEL } from '../store/actions/carModelsActions';
 
 import { reset } from '../store/slices/carModelsSlice';
 
-export default function useDeleteCarModel(item) {
-  const { id: modelId, make, model, year } = item;
+export default function useDeleteCarModel(carModel) {
+  const { id: modelId, make, model, year } = carModel;
   const {
     loading,
     action,

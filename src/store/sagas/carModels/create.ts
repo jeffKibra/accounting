@@ -1,9 +1,9 @@
 import { put, call, takeLatest, select } from 'redux-saga/effects';
 
-import { httpsCallable } from 'firebase/functions';
+import { updateDoc, doc } from 'firebase/firestore';
 import { PayloadAction } from '@reduxjs/toolkit';
 
-import { functions } from '../../../utils/firebase';
+import { dbCollections } from '../../../utils/firebase';
 
 import { CREATE_CAR_MODEL } from '../../actions/carModelsActions';
 import { start, success, fail } from '../../slices/carModelsSlice';
@@ -17,16 +17,24 @@ import { RootState, ICarModelForm, Org } from '../../../types';
 function* createCarModel(action: PayloadAction<ICarModelForm>) {
   yield put(start(CREATE_CAR_MODEL));
   const { payload: data } = action;
+  console.log({ data });
 
   const org: Org = yield select((state: RootState) => state.orgsReducer.org);
   const { orgId } = org;
-  console.log({ data });
 
   async function create() {
-    return httpsCallable(
-      functions,
-      'items-car_models'
-    )({ orgId, carModelData: data });
+    const collectionRef = dbCollections(orgId).orgDetails;
+    const carModelsDocRef = doc(collectionRef, 'carModels');
+
+    const fieldId = doc(collectionRef).id;
+    console.log({ fieldId });
+
+    await updateDoc(carModelsDocRef, {
+      [fieldId]: {
+        ...data,
+        id: fieldId,
+      },
+    });
   }
 
   try {

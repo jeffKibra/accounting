@@ -1,8 +1,8 @@
 import { put, call, takeLatest, select } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { httpsCallable } from 'firebase/functions';
+import { doc, updateDoc } from 'firebase/firestore';
 
-import { functions } from '../../../utils/firebase';
+import { dbCollections } from '../../../utils/firebase';
 
 import { UPDATE_CAR_MODEL } from '../../actions/carModelsActions';
 import { start, success, fail } from '../../slices/carModelsSlice';
@@ -14,22 +14,29 @@ import {
 import { ICarModelForm, RootState } from '../../../types';
 
 interface UpdateData extends Partial<ICarModelForm> {
-  itemId: string;
+  modelId: string;
 }
 
 function* updateCarModel(action: PayloadAction<UpdateData>) {
   yield put(start(UPDATE_CAR_MODEL));
+  console.log({ action });
 
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
 
   async function update() {
-    const { itemId, ...formData } = action.payload;
-    return httpsCallable(
-      functions,
-      'items-update'
-    )({ orgId, itemId, data: formData });
+    const { modelId, ...formData } = action.payload;
+
+    const collectionRef = dbCollections(orgId).orgDetails;
+    const carModelsDocRef = doc(collectionRef, 'carModels');
+
+    await updateDoc(carModelsDocRef, {
+      [modelId]: {
+        ...formData,
+        id: modelId,
+      },
+    });
   }
 
   try {

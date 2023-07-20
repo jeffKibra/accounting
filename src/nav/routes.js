@@ -22,8 +22,8 @@ export const VIEW_ITEM = '/items/:itemId/view';
 //car models
 export const CAR_MODELS = '/car_models';
 export const NEW_CAR_MODEL = '/car_models/new';
-export const EDIT_CAR_MODEL = '/car_models/:itemId/edit';
-export const VIEW_CAR_MODEL = '/car_models/:itemId/view';
+export const EDIT_CAR_MODEL = '/car_models/:modelId/edit';
+export const VIEW_CAR_MODEL = '/car_models/:modelId/view';
 
 //customers
 export const CUSTOMERS = '/customers';

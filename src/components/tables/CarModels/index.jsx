@@ -22,7 +22,7 @@ function CarModelsTable(props) {
     return carModels.map(carModel => {
       return {
         ...carModel,
-        actions: <CarModelOptions carModel={carModel} edit view deletion />,
+        actions: <CarModelOptions carModel={carModel} edit deletion />,
       };
     });
   }, [carModels]);

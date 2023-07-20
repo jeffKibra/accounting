@@ -38,6 +38,7 @@ function* getCarModel(action: PayloadAction<string>) {
   yield put(start(GET_CAR_MODEL));
 
   const modelId = action.payload;
+  // console.log({ modelId });
 
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
@@ -45,9 +46,9 @@ function* getCarModel(action: PayloadAction<string>) {
 
   async function get() {
     const allModels = await getAllModels(orgId);
-    console.log({ allModels });
+    // console.log({ allModels });
     const modelData = allModels[modelId];
-    console.log({ modelData });
+    // console.log({ modelData });
 
     return {
       ...modelData,
@@ -80,7 +81,7 @@ function* getCarModels() {
 
   try {
     const carModels: ICarModels = yield call(getAllModels, orgId);
-    console.log({ carModels });
+    // console.log({ carModels });
 
     yield put(carModelsSuccess(carModels));
   } catch (err) {

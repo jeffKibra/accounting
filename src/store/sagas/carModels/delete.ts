@@ -1,8 +1,8 @@
 import { put, call, takeLatest, select } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { httpsCallable } from 'firebase/functions';
+import { doc, updateDoc, deleteField } from 'firebase/firestore';
 
-import { functions } from '../../../utils/firebase';
+import { dbCollections } from '../../../utils/firebase';
 
 import { DELETE_CAR_MODEL } from '../../actions/carModelsActions';
 import { start, success, fail } from '../../slices/carModelsSlice';
@@ -15,14 +15,20 @@ import { RootState } from '../../../types';
 
 function* deleteCarModel(action: PayloadAction<string>) {
   yield put(start(DELETE_CAR_MODEL));
-  const itemId = action.payload;
+  const modelId = action.payload;
+  // console.log({ modelId });
 
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
   );
 
   async function update() {
-    return httpsCallable(functions, 'items-delete')({ orgId, itemId });
+    const collectionRef = dbCollections(orgId).orgDetails;
+    const carModelsDocRef = doc(collectionRef, 'carModels');
+
+    updateDoc(carModelsDocRef, {
+      [modelId]: deleteField(),
+    });
   }
 
   try {

@@ -20,7 +20,7 @@ import SkeletonLoader from '../../../components/ui/SkeletonLoader';
 import Empty from '../../../components/ui/Empty';
 
 function EditCarModelPage(props) {
-  console.log({ props });
+  // console.log({ props });
   const {
     getCarModel,
     updateCarModel,
