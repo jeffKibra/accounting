@@ -1,5 +1,9 @@
 {
   "projects": {
-    "default": "bracketaccounts"
-  }
+    "default": "lehi-76a0d",
+    "lehi": "lehi-76a0d",
+    "prod": "bracketaccounts"
+  },
+  "targets": {},
+  "etags": {}
 }

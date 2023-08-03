@@ -15,10 +15,12 @@ function ItemsTable(props) {
 
   const columns = useMemo(() => {
     return [
-      { Header: 'Name', accessor: 'name' },
-      { Header: 'Unique Identifier', accessor: 'sku' },
-      // { Header: 'Type', accessor: 'type' },
+      { Header: 'Registration', accessor: 'name' },
+      // { Header: 'Unique Identifier', accessor: 'sku' },
+      { Header: 'Make', accessor: 'carMake' },
+      { Header: 'Model', accessor: 'carModel' },
       { Header: 'Rate', accessor: 'rate', isNumeric: true },
+      // { Header: 'Type', accessor: 'type' },
       // { Header: 'Cost', accessor: 'costPrice', isNumeric: true },
       // { Header: 'Tax', accessor: 'tax' },
       { Header: '', accessor: 'actions', isNumeric: true, width: '1%' },
@@ -27,8 +29,12 @@ function ItemsTable(props) {
 
   const data = useMemo(() => {
     return items.map(item => {
+      const { model: modelDetails, year } = item;
+      const { make, model } = modelDetails;
       return {
         ...item,
+        carModel: `${model} (${year})`,
+        carMake: make,
         tax: createTaxDisplay(item?.salesTax),
         actions: <ItemsOptions item={item} edit view deletion />,
       };

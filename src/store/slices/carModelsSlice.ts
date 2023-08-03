@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { ICarModel } from '../../types';
+import { ICarModel, ICarModels } from '../../types';
 //
-type ICarModels = Record<string, ICarModel>;
 
 type State = {
   loading: boolean;
   isModified: boolean;
+  carMakes: string[] | null;
   carModels: ICarModels | null;
   carModel: ICarModel | null;
   action: string | null;
@@ -16,6 +16,7 @@ type State = {
 export const initialState: State = {
   loading: false,
   isModified: false,
+  carMakes: null,
   carModels: null,
   carModel: null,
   action: null,
@@ -43,6 +44,14 @@ const carModelsSlice = createSlice({
         ...state,
         loading: false,
         isModified: true,
+      };
+    },
+    carMakesSuccess: (state: State, action: PayloadAction<string[]>) => {
+      const { payload } = action;
+      return {
+        ...state,
+        loading: false,
+        carMakes: payload,
       };
     },
     carModelsSuccess: (state: State, action: PayloadAction<ICarModels>) => {
@@ -83,6 +92,7 @@ const carModelsSlice = createSlice({
 export const {
   start,
   success,
+  carMakesSuccess,
   carModelSuccess,
   carModelsSuccess,
   fail,

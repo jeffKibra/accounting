@@ -63,8 +63,8 @@ function ManagementSidebar(props) {
         title="Vehicles"
         icon={RiCarLine}
         subRoutes={[
-          { title: 'Vehicles', route: routes.ITEMS },
-          { title: 'Make and Model', route: routes.CAR_MODELS },
+          { title: 'Cars', route: routes.ITEMS },
+          { title: 'Car Models', route: routes.CAR_MODELS },
         ]}
       />
       <Divider />

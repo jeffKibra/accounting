@@ -1,12 +1,13 @@
 export interface ICarModelForm {
+  [x: string]: unknown;
   make: string;
   model: string;
-  year: number;
+  type: string;
+  years: number[];
 }
 
-export interface ICarModel {
-  make: string;
-  model: string;
-  year: number;
+export interface ICarModel extends ICarModelForm {
   id: string;
 }
+
+export type ICarModels = Record<string, Record<string, ICarModel>>;

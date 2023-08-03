@@ -1,6 +1,6 @@
 import { put, call, takeLatest, select } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 
 import { dbCollections } from '../../../utils/firebase';
 
@@ -31,11 +31,17 @@ function* updateCarModel(action: PayloadAction<UpdateData>) {
     const collectionRef = dbCollections(orgId).orgDetails;
     const carModelsDocRef = doc(collectionRef, 'carModels');
 
+    const fieldsUpdates: Record<string, unknown> = {
+      [`${modelId}.id`]: modelId,
+      [`${modelId}.modifiedAt`]: serverTimestamp(),
+    };
+    Object.keys(formData).forEach(fieldName => {
+      const fieldValue: unknown = formData[fieldName];
+      fieldsUpdates[`${modelId}.${fieldName}`] = fieldValue || '';
+    });
+
     await updateDoc(carModelsDocRef, {
-      [modelId]: {
-        ...formData,
-        id: modelId,
-      },
+      ...fieldsUpdates,
     });
   }
 

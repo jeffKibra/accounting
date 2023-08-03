@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-import CarModelOptions from '../../../containers/Management/CarModels/CarModelOptions';
+// import CarModelOptions from '../../../containers/Management/CarModels/CarModelOptions';
 
 import CustomTable from '../CustomTable';
 
@@ -13,21 +13,22 @@ function CarModelsTable(props) {
     return [
       { Header: 'Make', accessor: 'make' },
       { Header: 'Model', accessor: 'model' },
-      { Header: 'Year', accessor: 'year', isNumeric: true },
+      { Header: 'Type', accessor: 'type' },
+      // { Header: 'Year', accessor: 'year', isNumeric: true },
       { Header: '', accessor: 'actions', isNumeric: true, width: '1%' },
     ];
   }, []);
 
-  const data = useMemo(() => {
-    return carModels.map(carModel => {
-      return {
-        ...carModel,
-        actions: <CarModelOptions carModel={carModel} edit deletion />,
-      };
-    });
-  }, [carModels]);
+  // const data = useMemo(() => {
+  //   return carModels.map(carModel => {
+  //     return {
+  //       ...carModel,
+  //       actions: <CarModelOptions carModel={carModel} edit deletion />,
+  //     };
+  //   });
+  // }, [carModels]);
 
-  return <CustomTable data={data} columns={columns} />;
+  return <CustomTable data={Object.values(carModels)} columns={columns} />;
 }
 
 CarModelsTable.propTypes = {

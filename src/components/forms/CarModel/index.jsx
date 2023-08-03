@@ -7,6 +7,7 @@ import {
   Input,
   FormErrorMessage,
   FormHelperText,
+  Box,
   // Switch,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
@@ -40,92 +41,94 @@ export default function CarModelForm(props) {
   } = formMethods;
 
   return (
-    <FormProvider {...formMethods}>
-      <Grid
-        borderRadius="md"
-        shadow="xl"
-        border="1px solid #f2f2f2"
-        p={6}
-        rowGap={6}
-        columnGap={6}
-        templateColumns="repeat(12, 1fr)"
-        w="full"
-        as="form"
-        role="form"
-        onSubmit={handleSubmit(handleFormSubmit)}
-      >
-        <GridItem colSpan={[12, 6]}>
-          <FormControl
-            isReadOnly={updating}
-            w="full"
-            isRequired
-            isInvalid={errors.make}
-          >
-            <FormLabel htmlFor="make">Car Make</FormLabel>
-            <Input
-              id="make"
-              {...register('make', {
-                required: { value: true, message: 'Required' },
-              })}
-            />
+    <Box w="full">
+      <FormProvider {...formMethods}>
+        <Grid
+          borderRadius="md"
+          shadow="xl"
+          border="1px solid #f2f2f2"
+          p={6}
+          rowGap={6}
+          columnGap={6}
+          templateColumns="repeat(12, 1fr)"
+          w="full"
+          as="form"
+          role="form"
+          onSubmit={handleSubmit(handleFormSubmit)}
+        >
+          <GridItem colSpan={[12, 6]}>
+            <FormControl
+              isReadOnly={updating}
+              w="full"
+              isRequired
+              isInvalid={errors.make}
+            >
+              <FormLabel htmlFor="make">Car Make</FormLabel>
+              <Input
+                id="make"
+                {...register('make', {
+                  required: { value: true, message: 'Required' },
+                })}
+              />
 
-            <FormErrorMessage>{errors?.make?.message}</FormErrorMessage>
-            <FormHelperText>Car Manufacturer e.g Toyota</FormHelperText>
-          </FormControl>
-        </GridItem>
+              <FormErrorMessage>{errors?.make?.message}</FormErrorMessage>
+              <FormHelperText>Car Manufacturer e.g Toyota</FormHelperText>
+            </FormControl>
+          </GridItem>
 
-        <GridItem colSpan={[12, 6]}>
-          <FormControl
-            isReadOnly={updating}
-            w="full"
-            isRequired
-            isInvalid={errors.model}
-          >
-            <FormLabel htmlFor="model">Car Model</FormLabel>
-            <Input
-              id="model"
-              {...register('model', {
-                required: { value: true, message: 'Required' },
-              })}
-            />
+          <GridItem colSpan={[12, 6]}>
+            <FormControl
+              isReadOnly={updating}
+              w="full"
+              isRequired
+              isInvalid={errors.model}
+            >
+              <FormLabel htmlFor="model">Car Model</FormLabel>
+              <Input
+                id="model"
+                {...register('model', {
+                  required: { value: true, message: 'Required' },
+                })}
+              />
 
-            <FormErrorMessage>{errors?.model?.message}</FormErrorMessage>
-            <FormHelperText>E.g Corolla</FormHelperText>
-          </FormControl>
-        </GridItem>
+              <FormErrorMessage>{errors?.model?.message}</FormErrorMessage>
+              <FormHelperText>E.g Corolla</FormHelperText>
+            </FormControl>
+          </GridItem>
 
-        <GridItem colSpan={[12, 6]}>
-          <FormControl isDisabled={updating} isInvalid={errors.year}>
-            <FormLabel htmlFor="year">Year</FormLabel>
-            <NumInput
-              name="year"
-              min={0}
-              size="md"
-              rules={{
-                // required: { value: true, message: '*Required!' },
-                min: {
-                  value: 0,
-                  message: 'Value should be a positive integer!',
-                },
-              }}
-            />
+          <GridItem colSpan={[12, 6]}>
+            <FormControl isDisabled={updating} isInvalid={errors.year}>
+              <FormLabel htmlFor="year">Year</FormLabel>
+              <NumInput
+                name="year"
+                min={0}
+                size="md"
+                rules={{
+                  // required: { value: true, message: '*Required!' },
+                  min: {
+                    value: 0,
+                    message: 'Value should be a positive integer!',
+                  },
+                }}
+              />
 
-            <FormErrorMessage>{errors?.year?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
+              <FormErrorMessage>{errors?.year?.message}</FormErrorMessage>
+            </FormControl>
+          </GridItem>
 
-        <GridItem colSpan={12} display="flex" justifyContent="flex-end">
-          <Button
-            size="lg"
-            colorScheme="cyan"
-            type="submit"
-            isLoading={updating}
-          >
-            save
-          </Button>
-        </GridItem>
-      </Grid>
-    </FormProvider>
+          <GridItem colSpan={12} display="flex" justifyContent="flex-end">
+            <Button
+              size="lg"
+              colorScheme="cyan"
+              type="submit"
+              isLoading={updating}
+            >
+              save
+            </Button>
+          </GridItem>
+        </Grid>
+      </FormProvider>
+    </Box>
   );
 }
 

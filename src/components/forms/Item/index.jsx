@@ -1,24 +1,19 @@
-import {
-  Button,
-  Grid,
-  GridItem,
-  FormControl,
-  FormLabel,
-  Input,
-  FormErrorMessage,
-  // FormHelperText,
-  // Switch,
-  Textarea,
-} from '@chakra-ui/react';
 import PropTypes from 'prop-types';
-import { useForm, FormProvider } from 'react-hook-form';
+import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+} from '@chakra-ui/react';
 //
 import { createSKU } from 'functions';
 //
-import { useToasts } from 'hooks';
+import { useToasts, useCarModels } from 'hooks';
 //
-import NumInput from '../../ui/NumInput';
-// import CustomSelect from '../../ui/CustomSelect';
+import SkeletonLoader from 'components/ui/SkeletonLoader';
+import Empty from 'components/ui/Empty';
+//
+import Form from './Form';
 
 export default function ItemForm(props) {
   // console.log({ props });
@@ -27,28 +22,8 @@ export default function ItemForm(props) {
   // console.log({ accounts });
   const toasts = useToasts();
 
-  const formMethods = useForm({
-    mode: 'onChange',
-    defaultValues: {
-      name: item?.name || '',
-      // type: item?.type || '',
-      //   skuOption: item?.skuOption || 'barcode',
-      rate: item?.rate || 0,
-      // salesAccount: item?.salesAccount?.accountId || 'sales',
-      // salesTax: item?.salesTax?.taxId || '',
-      // pricesIncludeTax: item?.pricesIncludeTax || false,
-      description: item?.description || '',
-    },
-  });
-
-  const {
-    handleSubmit,
-    formState: {
-      //  dirtyFields,
-      errors,
-    },
-    register,
-  } = formMethods;
+  const { carModels, carMakes, loading: loadingModels, error } = useCarModels();
+  // console.log({ carModels, loadingModels, error });
 
   function onSubmit(data) {
     // console.log({ data });
@@ -105,147 +80,30 @@ export default function ItemForm(props) {
   }
 
   return (
-    <FormProvider {...formMethods}>
-      <Grid
-        borderRadius="md"
-        shadow="xl"
-        border="1px solid #f2f2f2"
-        p={6}
-        rowGap={6}
-        columnGap={6}
-        templateColumns="repeat(12, 1fr)"
-        w="full"
-        as="form"
-        role="form"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <GridItem colSpan={[12, 6]}>
-          <FormControl
-            isReadOnly={updating}
-            w="full"
-            isRequired
-            isInvalid={errors.name}
-          >
-            <FormLabel htmlFor="name">Registration</FormLabel>
-            <Input
-              id="name"
-              {...register('name', {
-                required: { value: true, message: 'Required' },
-              })}
-            />
-
-            <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
-
-        <GridItem colSpan={[12, 6]}>
-          <FormControl isDisabled={updating} isInvalid={errors.rate}>
-            <FormLabel htmlFor="rate">Rate per Day (ksh)</FormLabel>
-            <NumInput
-              name="rate"
-              min={0}
-              size="md"
-              rules={{
-                // required: { value: true, message: '*Required!' },
-                min: {
-                  value: 0,
-                  message: 'Value should be a positive integer!',
-                },
-              }}
-            />
-
-            <FormErrorMessage>{errors?.rate?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
-
-        {/* <GridItem colSpan={[12, 6]}>
-          <FormControl isDisabled={updating} isInvalid={errors.salesTax}>
-            <FormLabel htmlFor="salesTax">Tax</FormLabel>
-            <CustomSelect
-              name="salesTax"
-              placeholder="sales tax"
-              isDisabled={updating}
-              options={taxes.map((tax, i) => {
-                const { name, rate, taxId } = tax;
-
-                return {
-                  name: `${name} - ${rate}%`,
-                  value: taxId,
-                };
-              })}
-            />
-            <FormErrorMessage>{errors?.salesTax?.message}</FormErrorMessage>
-            <FormHelperText>Add tax to your item</FormHelperText>
-          </FormControl>
-        </GridItem> */}
-
-        {/* <GridItem colSpan={[12, 6]}>
-          <FormControl
-            isDisabled={updating}
-            w="full"
-            // isRequired={salesTax}
-            isInvalid={errors.pricesIncludeTax}
-          >
-            <FormLabel htmlFor="pricesIncludeTax">
-              Prices Include Tax?
-            </FormLabel>
-            <Switch
-              {...register('pricesIncludeTax')}
-              id="pricesIncludeTax"
-              isDisabled={updating}
-            />
-
-            <FormErrorMessage>
-              {errors?.pricesIncludeTax?.message}
-            </FormErrorMessage>
-          </FormControl>
-        </GridItem> */}
-
-        {/* <GridItem colSpan={12}>
-        <FormControl
-          isDisabled={updating}
-          isRequired
-          isInvalid={errors.salesAccount}
-          display={itemIsVehicle ? 'none' : 'block'}
-        >
-          <FormLabel htmlFor="salesAccount">Account</FormLabel>
-          <CustomSelect
-            name="salesAccount"
-            placeholder="sales account"
-            isDisabled={updating}
-            rules={{ required: { value: true, message: 'Required' } }}
-            options={accounts.map((account, i) => {
-              const { name, accountId } = account;
-              return {
-                name,
-                value: accountId,
-              };
-            })}
-          />
-          <FormErrorMessage>{errors?.salesAccount?.message}</FormErrorMessage>
-        </FormControl>
-      </GridItem> */}
-
-        <GridItem colSpan={12}>
-          <FormControl isDisabled={updating} isInvalid={errors.description}>
-            <FormLabel htmlFor="description">Description</FormLabel>
-            <Textarea id="description" {...register('description')} />
-            <FormErrorMessage>{errors?.description?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
-
-        <GridItem colSpan={12} display="flex" justifyContent="flex-end">
-          <Button
-            size="lg"
-            colorScheme="cyan"
-            type="submit"
-            isLoading={updating}
-          >
-            save
-          </Button>
-        </GridItem>
-      </Grid>
-    </FormProvider>
+    <>
+      {loadingModels ? (
+        <SkeletonLoader />
+      ) : error ? (
+        <Alert status="error">
+          <AlertIcon />
+          <AlertTitle>Error Fetching Car Models!</AlertTitle>
+          <AlertDescription>
+            {error?.message || 'Unknown error.'}
+          </AlertDescription>
+        </Alert>
+      ) : carMakes && carModels ? (
+        <Form
+          accounts={accounts}
+          handleFormSubmit={onSubmit}
+          updating={updating}
+          item={item || {}}
+          carModels={carModels}
+          carMakes={carMakes}
+        />
+      ) : (
+        <Empty message="Car models not found. Try adding some car models before proceeding." />
+      )}
+    </>
   );
 }
 

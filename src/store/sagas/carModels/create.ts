@@ -1,6 +1,6 @@
 import { put, call, takeLatest, select } from 'redux-saga/effects';
 
-import { updateDoc, doc } from 'firebase/firestore';
+import { updateDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { PayloadAction } from '@reduxjs/toolkit';
 
 import { dbCollections } from '../../../utils/firebase';
@@ -33,6 +33,8 @@ function* createCarModel(action: PayloadAction<ICarModelForm>) {
       [fieldId]: {
         ...data,
         id: fieldId,
+        createdAt: serverTimestamp(),
+        modifiedAt: serverTimestamp(),
       },
     });
   }

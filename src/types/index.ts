@@ -43,7 +43,7 @@ export type { ExpenseItem } from './expenseItem';
 export type { PaymentMode } from './paymentMode';
 export type { PaymentTerm } from './paymentTerm';
 export type { Item, ItemFormData, ItemFromDb, ItemType } from './item';
-export type { ICarModel, ICarModelForm } from './carModels';
+export type { ICarModel, ICarModelForm, ICarModels } from './carModels';
 export type {
   IBookingAdjustmentData,
   IBookingDateRange,

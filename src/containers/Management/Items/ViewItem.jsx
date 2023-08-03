@@ -25,7 +25,18 @@ function FieldValue({ children }) {
 export default function ViewItem(props) {
   // console.log({ props });
   const { item } = props;
-  const { name, sku, salesAccount, salesTax, rate, unit, description } = item;
+  const {
+    name,
+    sku,
+    model: modelData,
+    year,
+    rate,
+    // salesAccount,
+    // salesTax,
+    // unit,
+    description,
+  } = item;
+  const { model, make, type } = modelData;
 
   //   let startDate = new Date();
   //   let endDate = new Date();
@@ -61,16 +72,30 @@ export default function ViewItem(props) {
                 <FieldTitle>Unique Identifier</FieldTitle>
                 <FieldValue>{sku}</FieldValue>
               </Tr>
+
               <Tr>
+                <FieldTitle>Make</FieldTitle>
+                <FieldValue>{make}</FieldValue>
+              </Tr>
+              <Tr>
+                <FieldTitle>Model</FieldTitle>
+                <FieldValue>{`${model} (${year})`}</FieldValue>
+              </Tr>
+              <Tr>
+                <FieldTitle>Type</FieldTitle>
+                <FieldValue>{type}</FieldValue>
+              </Tr>
+
+              {/* <Tr>
                 <FieldTitle>Sales Account</FieldTitle>
                 <FieldValue>{salesAccount?.name || ''}</FieldValue>
-              </Tr>
+              </Tr> */}
               <Tr>
                 <FieldTitle>Rate Per Day</FieldTitle>
                 <FieldValue>{rate}</FieldValue>
               </Tr>
 
-              <Tr>
+              {/* <Tr>
                 <FieldTitle>Unit</FieldTitle>
                 <FieldValue>{unit || ''}</FieldValue>
               </Tr>
@@ -81,7 +106,7 @@ export default function ViewItem(props) {
                     ? `${salesTax?.name} (${salesTax?.rate || ''}%)`
                     : ''}
                 </FieldValue>
-              </Tr>
+              </Tr> */}
               <Tr>
                 <FieldTitle>Description</FieldTitle>
                 <FieldValue>{description || ''}</FieldValue>

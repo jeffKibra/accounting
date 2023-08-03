@@ -3,6 +3,6 @@ export default function createSKU(string: string) {
     .trim()
     .toLowerCase()
     .split(' ')
-    .filter(val => val !== '')
-    .join('_');
+    .filter(val => val !== ' ')
+    .join('');
 }

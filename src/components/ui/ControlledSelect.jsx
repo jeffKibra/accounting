@@ -98,8 +98,13 @@ function Normal(props) {
     return sortStrings(optionA, optionB);
   });
 
+  function handleChange(iv) {
+    console.log({ iv });
+    onChange(iv);
+  }
+
   return (
-    <MenuOptionGroup onChange={onChange} value={value} type="radio">
+    <MenuOptionGroup onChange={handleChange} value={value} type="radio">
       {allowClearSelection && (
         <MenuItemOption py={1} value="">
           <Text fontSize="sm">clear selection</Text>
