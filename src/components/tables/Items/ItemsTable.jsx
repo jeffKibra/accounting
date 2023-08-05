@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import ItemsOptions from '../../../containers/Management/Items/ItemOptions';
 
 import CustomTable from '../CustomTable';
+import AdvancedTable from 'components/ui/Table/AdvancedTable';
 
 function createTaxDisplay(tax) {
   return tax?.name ? `${tax?.name} (${tax?.rate}%)` : '';
@@ -41,7 +42,8 @@ function ItemsTable(props) {
     });
   }, [items]);
 
-  return <CustomTable data={data} columns={columns} />;
+  return <AdvancedTable data={data} columns={columns} />;
+  //  return <CustomTable data={data} columns={columns} />;
 }
 
 ItemsTable.propTypes = {

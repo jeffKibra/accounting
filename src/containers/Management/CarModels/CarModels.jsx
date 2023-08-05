@@ -30,7 +30,7 @@ class CarModels extends Component {
   updateSelectedCarMake = carMake => {
     const carModels = this.props.carModels || {};
     const selectedCarModels = carModels[carMake] || [];
-    console.log({ selectedCarModels: selectedCarModels });
+    // console.log({ selectedCarModels: selectedCarModels });
 
     this.setState({
       selectedCarMake: carMake,
@@ -55,13 +55,13 @@ class CarModels extends Component {
   }
 
   handleCarMakeChange(incomingValue) {
-    console.log({ incomingValue: incomingValue });
+    // console.log({ incomingValue: incomingValue });
 
     this.updateSelectedCarMake(incomingValue);
   }
 
   render() {
-    console.log({ state: this.state });
+    // console.log({ state: this.state });
     const { selectedCarModels, selectedCarMake } = this.state;
     const { loading, carMakes, carModels, action, isModified, deleteCarModel } =
       this.props;
@@ -95,7 +95,7 @@ class CarModels extends Component {
 
 function mapStateToProps(state) {
   const carModelsState = state.carModelsReducer;
-  console.log({ state, carModelsState });
+  // console.log({ state, carModelsState });
   const { loading, error, carModels, carMakes, action, isModified } =
     carModelsState;
 

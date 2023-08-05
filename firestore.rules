@@ -77,6 +77,12 @@ service cloud.firestore {
         return request.auth.uid == getOrgData().createdBy
       }
 
+
+      match /{document=**} {
+        allow read: if isOwner();
+      }
+    
+
       match /summaries/{summaryId} {
         function verifyCountersData(){
           let req1=["invoices", "deletedInvoices", "payments","deletedPayments", "items", "customers"];
@@ -314,6 +320,11 @@ service cloud.firestore {
           // (allowContactUpdate() || updateOpeningBalance())
       }
 
+      match /bookings/{bookingId} {
+      }
+
+      match /monthlyBookings/{monthId} {
+      }
       
 
       match /invoices/{invoiceId} {
