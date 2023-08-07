@@ -51,7 +51,7 @@ function ArrowIcon(props) {
   const { isSorted, direction } = props;
   return (
     <Icon
-      as={direction === 'desc' ? RiArrowUpLine : RiArrowDownLine}
+      as={direction === 'desc' ? RiArrowDownLine : RiArrowUpLine}
       mr={1}
       display={isSorted ? 'block' : 'none'}
       _groupHover={{

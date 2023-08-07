@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Box, IconButton, Text } from '@chakra-ui/react';
 import {
   // RiArrowRightSLine,
@@ -12,48 +13,58 @@ import ControlledSelect from 'components/ui/ControlledSelect';
 //----------------------------------------------------------------
 Pagination.propTypes = {
   rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number).isRequired,
-  itemsCount: PropTypes.number.isRequired,
+  count: PropTypes.number.isRequired,
   rowsPerPage: PropTypes.number.isRequired,
+  page: PropTypes.number.isRequired,
   onPageChange: PropTypes.func.isRequired,
   onRowsPerPageChange: PropTypes.func.isRequired,
-  canNextPage: PropTypes.bool,
-  canPreviousPage: PropTypes.bool,
-  gotoPage: PropTypes.func.isRequired,
-  nextPage: PropTypes.func.isRequired,
-  previousPage: PropTypes.func.isRequired,
-  totalPages: PropTypes.number.isRequired,
-  pageNumber: PropTypes.number.isRequired,
 };
 
-// Pagination.defaultProps = {
-
-// };
+Pagination.defaultProps = {
+  rowsPerPage: 5,
+  rowsPerPageOptions: [5, 10, 15],
+  page: 1,
+  onPageChange: () => {},
+  onRowsPerPageChange: () => {},
+};
 
 export default function Pagination(props) {
-  // console.log({ props });
+  console.log({ props });
   const {
     rowsPerPage,
     rowsPerPageOptions,
+    page,
+    count,
+    onPageChange,
     onRowsPerPageChange,
-    itemsCount,
-    canNextPage,
-    canPreviousPage,
-    nextPage,
-    previousPage,
-    pageNumber,
-    // gotoPage,
   } = props;
 
-  const prevPage = pageNumber - 1;
-  const virtualFirstItem = prevPage * rowsPerPage + 1;
-  const firstItem = Math.min(virtualFirstItem, itemsCount);
+  const numberOfPages = useMemo(() => {
+    return count > 0 ? Math.ceil(count / rowsPerPage) : 1;
+  }, [count, rowsPerPage]);
 
-  const virtualLastItem = pageNumber * rowsPerPage;
-  const lastItem = Math.min(virtualLastItem, itemsCount);
+  const prevPage = page - 1;
+  const virtualFirstItem = prevPage * rowsPerPage + 1;
+  const firstItem = Math.min(virtualFirstItem, count);
+
+  const virtualLastItem = page * rowsPerPage;
+  const lastItem = Math.min(virtualLastItem, count);
+
+  function next() {
+    if (page < numberOfPages) {
+      onPageChange(page + 1);
+    }
+  }
+
+  function prev() {
+    if (page > 1) {
+      onPageChange(page - 1);
+    }
+  }
 
   function handleRowsPerPageChange(incoming) {
-    // console.log({ incoming });
-    onRowsPerPageChange(Number(incoming));
+    console.log({ incoming });
+    onRowsPerPageChange(incoming);
   }
 
   return (
@@ -83,40 +94,40 @@ export default function Pagination(props) {
       </Box>
 
       <Text fontSize="14px">
-        {firstItem}-{lastItem} of {itemsCount}
+        {firstItem}-{lastItem} of {count}
       </Text>
 
       <Box ml={4}>
         {/* <IconButton
-          disabled={!canPreviousPage}
+          disabled={page === 1}
           // size="sm"
           variant="ghost"
           icon={<RiArrowLeftSLine />}
-          onClick={() => gotoPage(1)}
+          onClick={()=>onPageChange(1)}
           fontSize="24px"
         /> */}
         <IconButton
-          disabled={!canPreviousPage}
+          disabled={page <= 1}
           // size="sm"
           variant="ghost"
           icon={<RiArrowDropLeftLine />}
-          onClick={previousPage}
+          onClick={prev}
           fontSize="24px"
         />
         <IconButton
-          disabled={!canNextPage}
+          disabled={page >= numberOfPages}
           // size="sm"
           variant="ghost"
           icon={<RiArrowDropRightLine />}
-          onClick={nextPage}
+          onClick={next}
           fontSize="24px"
         />
         {/* <IconButton
-          disabled={!canNextPage}
+          disabled={page === numberOfPages}
           // size="sm"
           variant="ghost"
           icon={<RiArrowRightSLine />}
-          onClick={() => gotoPage(numberOfPages)}
+          onClick={()=>onPageChange(numberOfPages)}
           fontSize="24px"
         /> */}
       </Box>
