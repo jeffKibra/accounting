@@ -1,6 +1,14 @@
-import { useTable, useFilters, useSortBy, usePagination } from 'react-table';
-import { TableCaption, Box } from '@chakra-ui/react';
+import {
+  useTable,
+  useFilters,
+  useGlobalFilter,
+  useSortBy,
+  usePagination,
+} from 'react-table';
+import { TableCaption, Box, Input } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
+
+//
 
 //
 import Table from './Table';
@@ -20,6 +28,7 @@ function AdvancedTable(props) {
   const instance = useTable(
     { columns, data, initialState },
     useFilters,
+    useGlobalFilter,
     useSortBy,
     usePagination
   );
@@ -30,7 +39,7 @@ function AdvancedTable(props) {
     getTableBodyProps,
     headerGroups,
     prepareRow,
-    state: { pageIndex, pageSize },
+    state: { pageIndex, pageSize, globalFilter },
     page,
     canNextPage,
     canPreviousPage,
@@ -40,12 +49,30 @@ function AdvancedTable(props) {
     nextPage,
     previousPage,
     setPageSize,
+    setGlobalFilter,
   } = instance;
 
+  console.log({ globalFilter, setGlobalFilter });
   // console.log({ pageIndex, pageCount, pageOptions });
+
+  function handleGlobalFilterInputChange(e) {
+    const searchValue = e.target.value;
+    console.log({ searchValue });
+    setGlobalFilter(searchValue);
+  }
 
   return (
     <Box w="full">
+      <Box mb={3} px={4}>
+        <Input
+          placeholder="Search..."
+          size="sm"
+          value={globalFilter}
+          id="global-filter-input"
+          onChange={handleGlobalFilterInputChange}
+        />
+      </Box>
+
       <Table {...getTableProps()} minW="650px" variant="simple" size="sm">
         <THead headerGroups={headerGroups} />
 
