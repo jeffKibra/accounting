@@ -13,7 +13,7 @@ import Empty from 'components/ui/Empty';
 
 import DetailsFields from './DetailsFields';
 
-import ItemsLoader from '../Sales/ItemsLoader';
+import ItemsLoader from './ItemsLoader';
 
 function BookingForm(props) {
   const { booking, handleFormSubmit, updating } = props;

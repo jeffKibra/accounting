@@ -10,7 +10,7 @@ import { reset } from '../../../store/slices/bookingsSlice';
 import useSavedLocation from '../../../hooks/useSavedLocation';
 
 import PageLayout from '../../../components/layout/PageLayout';
-import BookingForm from 'components/forms/Booking/BookingForm';
+import NewBooking from 'containers/Management/Bookings/NewBooking';
 
 function NewBookingPage(props) {
   const { loading, action, isModified, createBooking, resetBooking } = props;
@@ -34,7 +34,7 @@ function NewBookingPage(props) {
         'New Booking': location.pathname,
       }}
     >
-      <BookingForm
+      <NewBooking
         updating={loading && action === CREATE_BOOKING}
         handleFormSubmit={createBooking}
       />

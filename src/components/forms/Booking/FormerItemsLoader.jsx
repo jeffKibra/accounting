@@ -13,7 +13,7 @@ import { getDaysDifference, confirmFutureDate } from 'utils/dates';
 //
 // import DateRangePicker from 'components/ui/DateRangePicker';
 import SkeletonLoader from 'components/ui/SkeletonLoader';
-import BookingDaysSelector from 'components/ui/BookingDaysSelector';
+import BookingDaysSelector from 'components/forms/Booking/Components/BookingDaysSelector';
 
 //---------------------------------------------------------------
 ItemsLoader.propTypes = {

@@ -10,11 +10,13 @@ import {
 } from '@chakra-ui/react';
 import { useFormContext, Controller } from 'react-hook-form';
 import PropTypes from 'prop-types';
-
+//
 import ControlledSelect from 'components/ui/ControlledSelect';
 // import RHFPlainNumInput from 'components/ui/RHFPlainNumInput';
 import ControlledNumInput from 'components/ui/ControlledNumInput';
+// import ControlledRangeSlider from 'components/ui/ControlledRangeSlider';
 // import ControlledDatePicker from 'components/ui/ControlledDatePicker';
+//
 import SaleSummaryTable from 'components/tables/Sales/SaleSummaryTable';
 
 function BookingItemFormFields(props) {
@@ -97,9 +99,31 @@ function BookingItemFormFields(props) {
         p={4}
         bg="#f4f6f8"
       >
+        {/* <GridItem colSpan={12}>
+          <FormControl isRequired isInvalid={!!errors?.item}>
+            <FormLabel htmlFor="priceRangeFilter">Price Range</FormLabel>
+            <Controller
+              name="priceRangeFilter"
+              id="priceRangeFilter"
+              render={({ field: { onBlur, onChange, value } }) => {
+                return (
+                  <ControlledRangeSlider
+                    onChange={onChange}
+                    value={value}
+                    onBlur={onBlur}
+                  />
+                );
+              }}
+            />
+            <FormErrorMessage>
+              {errors?.priceRangeFilter?.message}
+            </FormErrorMessage>
+          </FormControl>
+        </GridItem> */}
+
         <GridItem colSpan={[12]}>
           <FormControl isRequired isInvalid={!!errors?.item}>
-            <FormLabel htmlFor="item">Select Vehicle</FormLabel>
+            <FormLabel htmlFor="item">Vehicle</FormLabel>
 
             <Controller
               name="item"

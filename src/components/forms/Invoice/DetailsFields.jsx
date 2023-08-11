@@ -17,7 +17,7 @@ import { deriveDueDate } from '../../../utils/invoices';
 
 import CustomSelect from '../../ui/CustomSelect';
 import CustomDatePicker from '../../ui/CustomDatePicker';
-import BookingItemFormFields from '../Sales/BookingItemFormFields';
+import BookingItemFormFields from '../Booking/BookingItemFormFields';
 //
 
 //---------------------------------------------------------------

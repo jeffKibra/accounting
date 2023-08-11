@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from 'react';
 import {
   FormControl,
   FormLabel,
@@ -6,11 +7,14 @@ import {
   Grid,
   GridItem,
 } from '@chakra-ui/react';
-import { useFormContext, Controller } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
+
 //
+import { getDaysDifference, confirmFutureDate } from 'utils/dates';
+
 //
 // import DateRangePicker from './DateRangePicker';
-import ControlledDatePicker from './ControlledDatePicker';
+import RHFDatePicker from 'components/ui/hookForm/RHFDatePicker';
 // import CustomDatePicker from './CustomDatePicker';
 
 export default function BookingDaysSelector(props) {
@@ -18,13 +22,53 @@ export default function BookingDaysSelector(props) {
 
   const {
     formState: { errors },
-    control,
     watch,
+    clearErrors,
+    setError,
+    setValue,
   } = useFormContext();
 
   const startDate = watch('startDate');
   const endDate = watch('endDate');
-  const days = watch('quantity');
+
+  useEffect(() => {
+    //validate fields
+    try {
+      if (startDate && endDate) {
+        const endDateIsFutureDate = confirmFutureDate(startDate, endDate);
+        if (endDateIsFutureDate) {
+          clearErrors('endDate');
+        } else {
+          return setError('endDate', {
+            type: 'validate',
+            message: 'Date of return cannot be in the past!',
+          });
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }, [startDate, endDate, setValue, setError, clearErrors]);
+
+  const days = useMemo(() => {
+    //calculate days difference between start and end dates
+    console.log('calculating number of days...');
+
+    let daysDifference = 0;
+
+    try {
+      if (startDate && endDate) {
+        //update quantity
+        daysDifference = getDaysDifference(startDate, endDate);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    return daysDifference;
+  }, [startDate, endDate]);
+
+  console.log({ days });
 
   return (
     <Grid my={2} rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
@@ -35,28 +79,16 @@ export default function BookingDaysSelector(props) {
           isInvalid={errors.startDate}
         >
           <FormLabel htmlFor="startDate">Pickup Date</FormLabel>
-          <Controller
+
+          <RHFDatePicker
             name="startDate"
-            control={control}
-            rules={{
-              required: { value: true, message: '*Required!' },
-            }}
-            render={({ field: { name, onBlur, onChange, value, ref } }) => {
-              return (
-                <ControlledDatePicker
-                  name={name}
-                  onBlur={onBlur}
-                  ref={ref}
-                  selected={value}
-                  onChange={onChange}
-                  isReadOnly={loading}
-                  selectsStart
-                  startDate={startDate}
-                  endDate={endDate}
-                />
-              );
-            }}
+            required
+            isReadOnly={loading}
+            selectsStart
+            startDate={startDate}
+            endDate={endDate}
           />
+
           <FormErrorMessage>{errors.startDate?.message}</FormErrorMessage>
         </FormControl>
       </GridItem>
@@ -64,32 +96,19 @@ export default function BookingDaysSelector(props) {
       <GridItem colSpan={[12, 6]}>
         <FormControl isDisabled={loading} isRequired isInvalid={errors.endDate}>
           <FormLabel htmlFor="endDate">Return Date</FormLabel>
-          <Controller
+          <RHFDatePicker
             name="endDate"
-            control={control}
-            rules={{
-              required: { value: true, message: '*Required!' },
-            }}
-            render={({ field: { name, onBlur, onChange, value, ref } }) => {
-              return (
-                <ControlledDatePicker
-                  name={name}
-                  onBlur={onBlur}
-                  ref={ref}
-                  selected={value}
-                  onChange={onChange}
-                  isReadOnly={loading}
-                  selectsEnd
-                  startDate={startDate}
-                  endDate={endDate}
-                  minDate={startDate}
-                />
-              );
-            }}
+            required
+            isReadOnly={loading}
+            selectsEnd
+            startDate={startDate}
+            endDate={endDate}
+            minDate={startDate}
           />
+
           <FormErrorMessage>{errors.endDate?.message}</FormErrorMessage>
           <FormHelperText>{`${days || ''} ${
-            days ? 'days selected' : ''
+            days ? `day${days > 1 ? 's' : ''} selected` : ''
           }`}</FormHelperText>
         </FormControl>
       </GridItem>

@@ -23,6 +23,7 @@ export { default as useItemFormProps } from './useItemFormProps';
 export { default as usePaymentModes } from './usePaymentModes';
 export { default as useSaleReceiptFormProps } from './useSaleReceiptFormProps';
 export { default as useDeleteCarModel } from './useDeleteCarModel';
+export { default as useURLSearchParamsQuery } from './useURLSearchParamsQuery';
 //bookings
 export { default as useDeleteBooking } from './useDeleteBooking';
 export { default as useCustomerBookings } from './useCustomerBookings';

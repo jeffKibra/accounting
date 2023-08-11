@@ -11,7 +11,7 @@ import Empty from 'components/ui/Empty';
 
 import InvoiceDetailsFields from './DetailsFields';
 
-import ItemsLoader from '../Sales/ItemsLoader';
+import ItemsLoader from '../Booking/ItemsLoader';
 
 function InvoiceForm(props) {
   const { invoice, handleFormSubmit, updating } = props;

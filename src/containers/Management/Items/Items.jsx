@@ -26,20 +26,33 @@ class ItemsList extends Component {
   }
 
   render() {
-    const { loading, items, action, isModified, deleteItem } = this.props;
+    const { loading, items, action, isModified, error, deleteItem } =
+      this.props;
     // console.log({ items, loading, error });
 
-    return loading && action === GET_ITEMS ? (
-      <SkeletonLoader loading={loading} />
-    ) : items && items.length > 0 ? (
+    // return loading && action === GET_ITEMS ? (
+    //   <SkeletonLoader loading={loading} />
+    // ) : items && items.length > 0 ? (
+    //   <ItemsTable
+    //     isDeleted={isModified}
+    //     handleDelete={deleteItem}
+    //     deleting={loading && action === DELETE_ITEM}
+    //     items={items}
+    //     loading={}
+    //   />
+    // ) : (
+    //   <Empty />
+    // );
+
+    return (
       <ItemsTable
         isDeleted={isModified}
         handleDelete={deleteItem}
         deleting={loading && action === DELETE_ITEM}
-        items={items}
+        items={items || []}
+        loading={loading && action === GET_ITEMS}
+        error={error}
       />
-    ) : (
-      <Empty />
     );
   }
 }

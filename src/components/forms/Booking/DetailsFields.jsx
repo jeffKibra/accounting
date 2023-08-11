@@ -20,7 +20,7 @@ import CustomSelect from '../../ui/CustomSelect';
 import ControlledNumInput from 'components/ui/ControlledNumInput';
 import ControlledSelect from 'components/ui/ControlledSelect';
 //
-import BookingItemFormFields from '../Sales/BookingItemFormFields';
+import BookingItemFormFields from './BookingItemFormFields';
 //
 
 //---------------------------------------------------------------

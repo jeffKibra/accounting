@@ -19,7 +19,7 @@ function BookingsPage() {
       actions={
         <Link to={NEW_BOOKING}>
           <Button leftIcon={<RiAddLine />} colorScheme="cyan" size="sm">
-            New Booking
+            New
           </Button>
         </Link>
       }

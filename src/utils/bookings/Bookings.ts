@@ -1,4 +1,11 @@
-import { doc, getDoc } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  documentId,
+  where,
+  query,
+  getDocs,
+} from 'firebase/firestore';
 
 //
 
@@ -26,6 +33,31 @@ export default class Bookings {
   //   ------------------------------------------------------------------
   //   Static methods
   //   -------------------------------------------------------------------
+
+  static async getMM(orgId: string) {
+    const collectionRef = dbCollections(orgId).items;
+    const q = query(
+      collectionRef,
+      where(documentId(), 'in', [
+        'zFWpm7xxpoYGlNWzWO0t',
+        'DabUC0NnyLPysnK7bkW6',
+      ])
+    );
+
+    const snap = await getDocs(q);
+
+    const items: { id: string }[] = [];
+    snap.docs.forEach(docSnap => {
+      const data = docSnap.data();
+      const docId = docSnap.id;
+      items.push({
+        ...data,
+        id: docId,
+      });
+    });
+
+    console.log({ items });
+  }
 
   static async getMonthBookings(orgId: string, monthId: string) {
     try {
@@ -231,3 +263,6 @@ export default class Bookings {
   }
   //----------------------------------------------------------------
 }
+
+///
+Bookings.getMM('FQG4k6QyXKbFuI8hnw0d');

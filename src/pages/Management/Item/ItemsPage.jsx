@@ -17,7 +17,7 @@ function ItemsPage() {
       actions={
         <Link to={`${location.pathname}/new`}>
           <Button leftIcon={<RiAddLine />} colorScheme="cyan" size="sm">
-            New Vehicle
+            New
           </Button>
         </Link>
       }
