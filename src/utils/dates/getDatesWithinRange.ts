@@ -45,8 +45,8 @@ export default function getDatesWithinRange(
    */
   updateLeapYear(year);
 
-  const datesGroupedInMonths: Record<string, Record<string, string>> = {};
-  let ungroupedDates: Record<string, string> = {};
+  const datesGroupedInMonths: Record<string, string[]> = {};
+  const ungroupedDates: string[] = [];
 
   //eslint-disable-next-line
   while (true) {
@@ -63,7 +63,7 @@ export default function getDatesWithinRange(
     const monthDates = getRemainingDatesInMonth(dateToday, lastDayOfTheMonth);
     // console.log({ monthDates });
     datesGroupedInMonths[monthDates.month] = monthDates.dates;
-    ungroupedDates = { ...ungroupedDates, ...monthDates.dates };
+    ungroupedDates.push(...monthDates.dates);
     /**
      * check if we need to break the loop
      *

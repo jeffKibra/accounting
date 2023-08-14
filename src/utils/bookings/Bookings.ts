@@ -21,6 +21,7 @@ import {
   ItemType,
   // IBookingDateRange,
   IMonthlyBookings,
+  IMonthBookings,
   Item,
 } from '../../types';
 
@@ -106,6 +107,123 @@ export default class Bookings {
     );
 
     return monthlyBookings;
+  }
+  //-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+
+  //-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+
+  static async getIdsForItemsAlreadyBooked(
+    orgId: string,
+    selectedDatesGroupedInMonths: Record<string, string[]>
+  ) {
+    const months = Object.keys(selectedDatesGroupedInMonths);
+    //fetch months from firestore
+
+    const currentMonthlyBookings: IMonthlyBookings = {};
+
+    const monthlyBookingsData = await Promise.all(
+      months.map(async monthId => {
+        const collectionRef = dbCollections(orgId).monthlyBookings;
+        const docRef = doc(collectionRef, monthId);
+
+        const snap = await getDoc(docRef);
+        let docData: IMonthBookings = {};
+        const docExists = snap.exists();
+        console.log({ docExists });
+        if (docExists) {
+          docData = snap.data();
+        }
+
+        currentMonthlyBookings[monthId] = docData;
+
+        return {
+          monthId,
+          data: docData,
+        };
+      })
+    );
+
+    const idsForBookedItemsCurrentlySelected: string[] = [];
+
+    //retrieve items already booked on the selectedDays
+    monthlyBookingsData.forEach(monthlyBookingData => {
+      const { data, monthId } = monthlyBookingData;
+      const selectedDatesForMonth = selectedDatesGroupedInMonths[monthId];
+      console.log({ selectedDatesForMonth });
+
+      /**
+       * loop through itemsIds booked in this month
+       * For each itemId, loop through its booked days for the month.
+       * For each booked date, check if it is contained in the current selected days.
+       * If it is, add it already booked items list.
+       */
+      const bookedItemsIds = Object.keys(data);
+      //use filter
+      const idsForBookedItemsCurrentlySelectedForMonth = bookedItemsIds.filter(
+        bookedItemId => {
+          const itemBookedDates = data[bookedItemId];
+
+          //check if even one selected day is already booked.
+          const selectedDateAlreadyBooked = selectedDatesForMonth.find(
+            selectedDate => {
+              let isBooked = false;
+
+              if (itemBookedDates) {
+                const itemBookedDate = itemBookedDates.find(
+                  bookedDate => bookedDate === selectedDate
+                );
+                console.log({ itemBookedDate });
+                isBooked = Boolean(itemBookedDate);
+              }
+
+              return isBooked;
+            }
+          );
+
+          const itemIsBooked = Boolean(selectedDateAlreadyBooked);
+
+          console.log({ itemIsBooked, bookedItemId });
+
+          return itemIsBooked;
+        }
+      );
+
+      console.log({
+        idsForBookedItemsCurrentlySelectedForMonth,
+        bookedItemsIds,
+      });
+
+      idsForBookedItemsCurrentlySelected.push(
+        ...idsForBookedItemsCurrentlySelectedForMonth
+      );
+
+      // bookedItemsIds.forEach(bookedItemId => {
+      //   const bookedDates = data[bookedItemId];
+
+      // if (bookedDates) {
+      //   bookedDates.forEach(bookedDate => {
+      //     console.log({ bookedDate, selectedDaysForMonth });
+      //     const isSelected = Boolean(selectedDaysForMonth[bookedDate]);
+
+      //     if (isSelected) {
+      //       idsForAlreadyBookedItems[bookedItemId] = bookedItemId;
+      //       /**
+      //        * if one date matches, exit loop. we are looking for just one
+      //        * appearance
+      //        */
+      //     } else {
+      //       //do nothing
+      //     }
+      //   });
+      // }
+      // });
+    });
+
+    console.log({ idsForBookedItemsCurrentlySelected });
+
+    return idsForBookedItemsCurrentlySelected;
   }
   //-----------------------------------------------------------------------
   //-----------------------------------------------------------------------

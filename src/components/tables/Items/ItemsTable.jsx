@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Box } from '@chakra-ui/react';
 // import PropTypes from 'prop-types';
 
 import ItemsOptions from '../../../containers/Management/Items/ItemOptions';
@@ -32,14 +33,16 @@ function ItemsTable(props) {
   }, [items]);
 
   return (
-    <AdvancedTable
-      data={data}
-      columns={columns}
-      onRowClick={() => {}}
-      includeGlobalFilter
-      loading={loading}
-      error={error}
-    />
+    <Box w="full" bg="white" borderRadius="md" shadow="md" py={4}>
+      <AdvancedTable
+        data={data}
+        columns={columns}
+        onRowClick={() => {}}
+        includeGlobalFilter
+        loading={loading}
+        error={error}
+      />
+    </Box>
   );
 }
 

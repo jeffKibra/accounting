@@ -9,7 +9,11 @@ import { watchUpdateOrg } from './orgs/updateOrgSagas';
 import { watchCheckOrg } from './orgs/checkOrgSagas';
 //items
 import { watchCreateItem } from './items/createItemSagas';
-import { watchGetItem, watchGetItems } from './items/getItemSaga';
+import {
+  watchGetItem,
+  watchGetItems,
+  watchGetItemsNotBooked,
+} from './items/getItemSaga';
 import { watchUpdateItem } from './items/updateItemSagas';
 import { watchDeleteItem } from './items/updateItemSagas';
 //taxes
@@ -124,6 +128,7 @@ export default function* rootSaga() {
     watchCreateItem(),
     watchGetItem(),
     watchGetItems(),
+    watchGetItemsNotBooked(),
     watchUpdateItem(),
     watchDeleteItem(),
     watchCreateTax(),

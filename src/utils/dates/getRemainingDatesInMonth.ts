@@ -11,11 +11,11 @@ export default function getRemainingDatesInMonth(
   const monthString = getMonthString(startDate);
   // console.log({ monthString });
 
-  const dates: Record<string, string> = {};
+  const dates: string[] = [];
 
   for (let day = startDay; day <= lastDayOfTheMonth; day++) {
     const currentDate = `${year}-${monthString}-${day}`;
-    dates[currentDate] = currentDate;
+    dates.push(currentDate);
   }
 
   // console.log({ dates });

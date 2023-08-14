@@ -7,7 +7,7 @@ import {
   Grid,
   GridItem,
 } from '@chakra-ui/react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, Controller } from 'react-hook-form';
 
 //
 import { getDaysDifference, confirmFutureDate } from 'utils/dates';
@@ -26,6 +26,7 @@ export default function BookingDaysSelector(props) {
     clearErrors,
     setError,
     setValue,
+    control,
   } = useFormContext();
 
   const startDate = watch('startDate');
@@ -71,49 +72,62 @@ export default function BookingDaysSelector(props) {
   console.log({ days });
 
   return (
-    <Grid my={2} rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
-      <GridItem colSpan={[12, 6]}>
-        <FormControl
-          isDisabled={loading}
-          isRequired
-          isInvalid={errors.startDate}
-        >
-          <FormLabel htmlFor="startDate">Pickup Date</FormLabel>
+    <>
+      <Controller
+        name="quantity"
+        control={control}
+        render={() => {
+          return <></>;
+        }}
+      />
 
-          <RHFDatePicker
-            name="startDate"
-            required
-            isReadOnly={loading}
-            selectsStart
-            startDate={startDate}
-            endDate={endDate}
-          />
+      <Grid my={2} rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
+        <GridItem colSpan={6}>
+          <FormControl
+            isDisabled={loading}
+            isRequired
+            isInvalid={errors.startDate}
+          >
+            <FormLabel htmlFor="startDate">Pickup Date</FormLabel>
 
-          <FormErrorMessage>{errors.startDate?.message}</FormErrorMessage>
-        </FormControl>
-      </GridItem>
+            <RHFDatePicker
+              name="startDate"
+              required
+              isReadOnly={loading}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+            />
 
-      <GridItem colSpan={[12, 6]}>
-        <FormControl isDisabled={loading} isRequired isInvalid={errors.endDate}>
-          <FormLabel htmlFor="endDate">Return Date</FormLabel>
-          <RHFDatePicker
-            name="endDate"
-            required
-            isReadOnly={loading}
-            selectsEnd
-            startDate={startDate}
-            endDate={endDate}
-            minDate={startDate}
-          />
+            <FormErrorMessage>{errors.startDate?.message}</FormErrorMessage>
+          </FormControl>
+        </GridItem>
 
-          <FormErrorMessage>{errors.endDate?.message}</FormErrorMessage>
-          <FormHelperText>{`${days || ''} ${
-            days ? `day${days > 1 ? 's' : ''} selected` : ''
-          }`}</FormHelperText>
-        </FormControl>
-      </GridItem>
+        <GridItem colSpan={6}>
+          <FormControl
+            isDisabled={loading}
+            isRequired
+            isInvalid={errors.endDate}
+          >
+            <FormLabel htmlFor="endDate">Return Date</FormLabel>
+            <RHFDatePicker
+              name="endDate"
+              required
+              isReadOnly={loading}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+            />
 
-      {/* <GridItem colSpan={12}>
+            <FormErrorMessage>{errors.endDate?.message}</FormErrorMessage>
+            <FormHelperText>{`${days || ''} ${
+              days ? `day${days > 1 ? 's' : ''} selected` : ''
+            }`}</FormHelperText>
+          </FormControl>
+        </GridItem>
+
+        {/* <GridItem colSpan={12}>
           <FormControl
             isDisabled={loading}
             isRequired
@@ -130,6 +144,7 @@ export default function BookingDaysSelector(props) {
             <FormErrorMessage>{errors.dateRange?.message}</FormErrorMessage>
           </FormControl>
         </GridItem> */}
-    </Grid>
+      </Grid>
+    </>
   );
 }

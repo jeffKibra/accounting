@@ -6,12 +6,17 @@ import {
   orderBy,
   doc,
   getDoc,
+  documentId,
 } from 'firebase/firestore';
 import { PayloadAction } from '@reduxjs/toolkit';
 
 import { db, dbCollections } from '../../../utils/firebase';
 
-import { GET_ITEMS, GET_ITEM } from '../../actions/itemsActions';
+import {
+  GET_ITEMS,
+  GET_ITEM,
+  GET_ITEMS_NOT_BOOKED,
+} from '../../actions/itemsActions';
 import {
   start,
   itemSuccess,
@@ -64,6 +69,63 @@ function* getItems() {
 export function* watchGetItems() {
   yield takeLatest(GET_ITEMS, getItems);
 }
+
+//----------------------------------------------------------------
+
+function* getItemsNotBooked(action: PayloadAction<string[]>) {
+  yield put(start(GET_ITEMS_NOT_BOOKED));
+
+  const { payload } = action;
+  const idsForItemsToExclude = payload || [];
+
+  const orgId: string = yield select(
+    (state: RootState) => state.orgsReducer.org?.orgId
+  );
+  // const {orgId} = org;
+
+  async function get() {
+    const itemsCollection = dbCollections(orgId).items;
+    const q = query(
+      itemsCollection,
+      orderBy('createdAt', 'desc'),
+      where('status', '==', 0),
+      ...[
+        ...(idsForItemsToExclude?.length > 0
+          ? [where(documentId(), 'not-in', idsForItemsToExclude)]
+          : []),
+      ]
+    );
+    const snap = await getDocs(q);
+    const items = snap.docs.map(itemDoc => {
+      return {
+        ...itemDoc.data(),
+        itemId: itemDoc.id,
+      };
+    });
+
+    console.log({ items });
+
+    return items;
+  }
+
+  try {
+    const items: Item[] = yield call(get);
+    // console.log({ items });
+
+    yield put(itemsSuccess(items));
+  } catch (err) {
+    const error = err as Error;
+    console.log(error);
+    yield put(fail(error));
+    yield put(toastError(error.message));
+  }
+}
+
+export function* watchGetItemsNotBooked() {
+  yield takeLatest(GET_ITEMS_NOT_BOOKED, getItemsNotBooked);
+}
+
+//----------------------------------------------------------------
 
 function* getItem(action: PayloadAction<string>) {
   yield put(start(GET_ITEM));

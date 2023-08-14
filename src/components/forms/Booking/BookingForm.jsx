@@ -1,6 +1,6 @@
 import { Box, Flex, Button } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm, FormProvider, Controller } from 'react-hook-form';
 
 import formats from 'utils/formats';
 import { confirmFutureDate } from 'utils/dates';
@@ -14,6 +14,8 @@ import Empty from 'components/ui/Empty';
 import DetailsFields from './DetailsFields';
 
 import ItemsLoader from './ItemsLoader';
+//
+import BookingDaysSelector from './Components/BookingDaysSelector';
 
 function BookingForm(props) {
   const { booking, handleFormSubmit, updating } = props;
@@ -63,9 +65,14 @@ function BookingForm(props) {
       // customerNotes: booking?.customerNotes || '',
     },
   });
-  const { handleSubmit } = formMethods;
 
   const toasts = useToasts();
+
+  const { handleSubmit, watch, control } = formMethods;
+
+  const startDate = watch('startDate');
+  const endDate = watch('endDate');
+  const selectedItem = watch('item');
 
   // console.log({
   //   dirtyFields,
@@ -122,63 +129,94 @@ function BookingForm(props) {
   ) : customers?.length > 0 && items?.length > 0 && paymentTerms?.length > 0 ? (
     <FormProvider {...formMethods}>
       <Box as="form" role="form" onSubmit={handleSubmit(onSubmit)} w="full">
-        <Box
-          // h="full"
-          mt={2}
-          p={4}
-          pb={6}
-          bg="white"
-          borderRadius="lg"
-          shadow="lg"
-          border="1px solid"
-          borderColor="gray.200"
-          // maxW="container.sm"
-        >
-          <ItemsLoader
-            items={items}
-            loading={updating}
-            taxes={taxes}
-            defaultStartDate={booking?.startDate}
-            defaultEndDate={booking?.endDate}
-            defaultItemId={booking?.item?.itemId}
-          >
-            {availableItems => {
-              // console.log({ availableItems });
-
-              return (
+        <Box w="full" rowGap={4}>
+          {selectedItem ? (
+            <>
+              <Box
+                w="full"
+                mt={2}
+                p={4}
+                pb={4}
+                bg="white"
+                borderRadius="lg"
+                shadow="lg"
+                border="1px solid"
+                borderColor="gray.200"
+              >
                 <DetailsFields
                   customers={customers}
                   paymentTerms={paymentTerms}
                   loading={updating}
                   bookingId={booking?.id || ''}
-                  items={availableItems}
                   taxes={taxes}
+                  item={selectedItem}
                   paymentModes={paymentModes}
                 />
-              );
-            }}
-          </ItemsLoader>
+              </Box>
 
-          {/* <SaleItems
-            loading={updating}
-            items={items}
-            taxes={taxes}
-            selectSalesType={!Boolean(booking)}
-            transactionId={booking?.bookingId}
-            transactionType={"booking"}
-          /> */}
+              <Flex w="full" py={6} justify="flex-end">
+                <Button
+                  size="lg"
+                  type="submit"
+                  isLoading={updating}
+                  colorScheme="cyan"
+                >
+                  save
+                </Button>
+              </Flex>
+            </>
+          ) : (
+            <>
+              <Box
+                w="full"
+                mt={2}
+                p={4}
+                pb={4}
+                bg="white"
+                borderRadius="lg"
+                shadow="lg"
+                border="1px solid"
+                borderColor="gray.200"
+              >
+                <BookingDaysSelector />
+
+                {/* <Flex justify="flex-end">
+                  <Button
+                    type="button"
+                    colorScheme="cyan"
+                    textTransform="uppercase"
+                  >
+                    search
+                  </Button>
+                </Flex> */}
+              </Box>
+
+              <Box mt={4}>
+                {startDate && endDate ? (
+                  <Controller
+                    name="item"
+                    control={control}
+                    render={({ field: { onChange, value } }) => {
+                      function handleChange(item) {
+                        console.log({ item });
+                        onChange(item);
+                      }
+
+                      return (
+                        <ItemsLoader
+                          startDate={startDate}
+                          endDate={endDate}
+                          onItemSelect={handleChange}
+                          selectedItem={value}
+                        />
+                      );
+                    }}
+                  />
+                ) : null}
+              </Box>
+            </>
+          )}
         </Box>
-
-        <Flex w="full" py={6} justify="flex-end">
-          <Button
-            size="lg"
-            type="submit"
-            isLoading={updating}
-            colorScheme="cyan"
-          >
-            save
-          </Button>
-        </Flex>
       </Box>
     </FormProvider>
   ) : items?.length === 0 ? (

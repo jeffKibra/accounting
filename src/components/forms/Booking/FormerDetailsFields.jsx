@@ -80,7 +80,7 @@ export default function DetailsFields(props) {
 
   return (
     <Box>
-      <Grid mb={2} rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
+      <Grid my={2} rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
         {/* <GridItem colSpan={12}>
           <FormControl isDisabled={loading} isRequired isInvalid={errors.item}>
             <FormLabel htmlFor="item">Select Vehicle</FormLabel>
@@ -104,23 +104,9 @@ export default function DetailsFields(props) {
         </GridItem> */}
 
         <GridItem colSpan={12}>
-          <BookingItemFormFields />
+          <BookingItemFormFields itemsObject={items} />
         </GridItem>
-      </Grid>
 
-      <Grid
-        borderBottomLeftRadius="lg"
-        borderBottomRightRadius="lg"
-        mt={6}
-        mx={-4}
-        mb={-8}
-        p={4}
-        pb={8}
-        bg="#f4f6f8"
-        rowGap={2}
-        columnGap={4}
-        templateColumns="repeat(12, 1fr)"
-      >
         <GridItem colSpan={[12, 6]}>
           <FormControl
             isDisabled={loading}
@@ -158,6 +144,78 @@ export default function DetailsFields(props) {
           </FormControl>
         </GridItem>
 
+        {/* <GridItem colSpan={[12, 4]}>
+          <FormControl
+            isDisabled={loading}
+            isRequired
+            isInvalid={errors.saleDate}
+          >
+            <FormLabel htmlFor="saleDate">Booking Date</FormLabel>
+            <CustomDatePicker size="md" name="saleDate" required />
+            <FormErrorMessage>{errors.saleDate?.message}</FormErrorMessage>
+          </FormControl>
+        </GridItem> */}
+
+        {/* <GridItem colSpan={[12, 4]}>
+          <FormControl
+            isDisabled={loading}
+            isRequired
+            isInvalid={errors.paymentTerm}
+          >
+            <FormLabel htmlFor="paymentTerm">Terms</FormLabel>
+            <CustomSelect
+              name="paymentTerm"
+              options={paymentTerms || []}
+              isDisabled={!customerId || loading}
+            />
+            <FormErrorMessage>{errors.paymentTerm?.message}</FormErrorMessage>
+          </FormControl>
+        </GridItem> */}
+
+        {/* <GridItem colSpan={[12, 4]}>
+          <FormControl
+            isDisabled={loading}
+            isRequired
+            isInvalid={errors.dueDate}
+          >
+            <FormLabel htmlFor="dueDate">Due Date</FormLabel>
+            <CustomDatePicker name="dueDate" required />
+            <FormErrorMessage>{errors.dueDate?.message}</FormErrorMessage>
+          </FormControl>
+        </GridItem> */}
+
+        {/* <GridItem colSpan={[12, 6, 4]}>
+          <FormControl isDisabled={loading} isInvalid={errors.orderNumber}>
+            <FormLabel htmlFor="orderNumber">Order Number</FormLabel>
+            <Input id="orderNumber" {...register('orderNumber')} />
+          </FormControl>
+        </GridItem>
+
+        <GridItem colSpan={[12, 6, 4]}>
+          <FormControl isDisabled={loading} isInvalid={errors.subject}>
+            <FormLabel htmlFor="subject">Subject</FormLabel>
+            <Input size="md" {...register('subject')} />
+            <FormErrorMessage>{errors.subject?.message}</FormErrorMessage>
+            <FormHelperText>
+              Let your customer know what this invoice is for
+            </FormHelperText>
+          </FormControl>
+        </GridItem> */}
+      </Grid>
+
+      <Grid
+        borderBottomLeftRadius="lg"
+        borderBottomRightRadius="lg"
+        mt={6}
+        mx={-4}
+        mb={-8}
+        p={4}
+        pb={8}
+        bg="#f4f6f8"
+        rowGap={2}
+        columnGap={4}
+        templateColumns="repeat(12, 1fr)"
+      >
         <GridItem colSpan={[12, 4]}>
           <FormControl
             isDisabled={loading}

@@ -35,7 +35,7 @@ function BookingDaysSelectorForm(props) {
         onSubmit={handleSubmit(onSubmit)}
         mt={2}
         p={4}
-        pb={6}
+        pb={4}
         bg="white"
         borderRadius="lg"
         shadow="lg"
@@ -44,7 +44,7 @@ function BookingDaysSelectorForm(props) {
       >
         <BookingDaysSelector />
         <Flex justify="flex-end">
-          <Button size="lg" type="submit" colorScheme="cyan">
+          <Button type="submit" colorScheme="cyan" textTransform="uppercase">
             search
           </Button>
         </Flex>

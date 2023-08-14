@@ -1,9 +1,12 @@
+import { useMemo } from 'react';
 import {
   FormControl,
   FormLabel,
   FormErrorMessage,
   Grid,
   GridItem,
+  Box,
+  Text,
 } from '@chakra-ui/react';
 import { useFormContext, Controller } from 'react-hook-form';
 import PropTypes from 'prop-types';
@@ -18,6 +21,7 @@ import SaleSummaryTable from 'components/tables/Sales/SaleSummaryTable';
 
 function BookingItemFormFields(props) {
   const {
+    itemsObject,
     // taxesObject,
     loading,
     // transactionId,
@@ -44,6 +48,33 @@ function BookingItemFormFields(props) {
   //     });
   //   }
   // }, [itemId, getValues, setValue]);
+
+  function handleItemChange(item) {
+    console.log('item has changed', item);
+    if (item) {
+      const { salesTax, rate } = item;
+      setValue('bookingRate', rate, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      setValue('salesTax', salesTax, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  }
+
+  const itemsArray = useMemo(() => {
+    const array = Object.values(itemsObject);
+    if (array.length === 0) {
+      array.push({
+        name: 'There are no available vehicles for the selected date range!',
+        value: '',
+      });
+    }
+
+    return array;
+  }, [itemsObject]);
 
   // console.log({ itemIsABooking });
 
@@ -89,6 +120,53 @@ function BookingItemFormFields(props) {
             </FormErrorMessage>
           </FormControl>
         </GridItem> */}
+
+        <GridItem colSpan={[12]}>
+          <FormControl isRequired isInvalid={!!errors?.item}>
+            <FormLabel htmlFor="item">Vehicle</FormLabel>
+
+            <Controller
+              name="item"
+              rules={{
+                required: { value: true, message: '* Required!' },
+              }}
+              control={control}
+              render={({ field: { onBlur, onChange, value } }) => {
+                function handleChange(itemId) {
+                  const item = itemsObject[itemId];
+                  onChange(item);
+                  handleItemChange(item); //update rate and tax fields
+                }
+
+                return (
+                  <ControlledSelect
+                    onChange={handleChange}
+                    value={value?.itemId || ''}
+                    onBlur={onBlur}
+                    isDisabled={loading}
+                    placeholder="---select vehicle---"
+                    allowClearSelection={false}
+                    options={itemsArray.map(item => {
+                      const { name, itemId, rate } = item;
+
+                      return {
+                        name: (
+                          <Box display="flex">
+                            <Text flexGrow={1}>{name}</Text>
+                            <Text>KES {rate}</Text>
+                          </Box>
+                        ),
+                        value: itemId,
+                      };
+                    })}
+                  />
+                );
+              }}
+            />
+
+            <FormErrorMessage>{errors?.item?.message}</FormErrorMessage>
+          </FormControl>
+        </GridItem>
 
         <GridItem colSpan={[12, 6]}>
           <FormControl isInvalid={errors?.bookingRate}>
