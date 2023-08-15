@@ -32,7 +32,6 @@ function ItemsLoader(props) {
     items,
     loadingItems,
     itemsError,
-    // loading,
     fetchItemsNotBooked,
     startDate,
     endDate,
@@ -40,9 +39,6 @@ function ItemsLoader(props) {
     orgId,
     onItemSelect,
   } = props;
-  // console.log({ props });
-  // console.log({ loadingMonthlyBookings, monthlyBookings });
-  // const [dateRange, setDateRange] = useState(null);
 
   const [idsForItemsAlreadyBooked, setIdsForItemsAlreadyBooked] = useState([]);
 

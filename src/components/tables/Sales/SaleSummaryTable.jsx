@@ -13,10 +13,17 @@ function SaleSummaryTable(props) {
   const transferAmount = watch('transferAmount');
   const saleTax = watch('saleTax');
 
+  console.log({ bookingRate, quantity, transferAmount, saleTax });
+
   // console.log({ bookingRate, quantity, transferAmount, saleTax });
 
   const updateTotals = useCallback(
     (bookingRate, quantity, transferAmount) => {
+      console.log('caculating totals', {
+        bookingRate,
+        quantity,
+        transferAmount,
+      });
       //get current values
 
       // let { taxes } = subSummary;
@@ -32,6 +39,12 @@ function SaleSummaryTable(props) {
 
       const total = subTotal;
 
+      console.log({
+        bookingTotal: bookingTotal.dp(2).toNumber(),
+        subTotal,
+        total,
+      });
+
       //update whole summary
       setValue('bookingTotal', bookingTotal.dp(2).toNumber());
       setValue('subTotal', subTotal.dp(2).toNumber());
@@ -39,6 +52,9 @@ function SaleSummaryTable(props) {
     },
     [setValue]
   );
+
+  const bookingTotal = watch('bookingTotal');
+  console.log({ bookingTotal });
 
   useEffect(() => {
     updateTotals(bookingRate, quantity, transferAmount);
@@ -55,7 +71,7 @@ function SaleSummaryTable(props) {
               control={control}
               render={({ field: { value } }) => {
                 return (
-                  <Td w="16%" isNumeric >
+                  <Td w="16%" isNumeric>
                     {value}
                   </Td>
                 );

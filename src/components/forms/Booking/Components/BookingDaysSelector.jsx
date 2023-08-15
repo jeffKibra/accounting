@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import {
   FormControl,
   FormLabel,
@@ -7,18 +7,28 @@ import {
   Grid,
   GridItem,
 } from '@chakra-ui/react';
-import { useFormContext, Controller } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
+import PropTypes from 'prop-types';
+//
+import { Bookings } from 'utils/bookings';
 
 //
-import { getDaysDifference, confirmFutureDate } from 'utils/dates';
+import { confirmFutureDate } from 'utils/dates';
 
 //
 // import DateRangePicker from './DateRangePicker';
 import RHFDatePicker from 'components/ui/hookForm/RHFDatePicker';
 // import CustomDatePicker from './CustomDatePicker';
 
+//----------------------------------------------------------------
+
+BookingDaysSelector.propTypes = {
+  loading: PropTypes.bool,
+  children: PropTypes.func,
+};
+
 export default function BookingDaysSelector(props) {
-  const { loading } = props;
+  const { loading, children } = props;
 
   const {
     formState: { errors },
@@ -26,11 +36,11 @@ export default function BookingDaysSelector(props) {
     clearErrors,
     setError,
     setValue,
-    control,
   } = useFormContext();
 
   const startDate = watch('startDate');
   const endDate = watch('endDate');
+  const selectedDates = watch('selectedDates');
 
   useEffect(() => {
     //validate fields
@@ -51,37 +61,60 @@ export default function BookingDaysSelector(props) {
     }
   }, [startDate, endDate, setValue, setError, clearErrors]);
 
-  const days = useMemo(() => {
-    //calculate days difference between start and end dates
-    console.log('calculating number of days...');
+  // const days = useMemo(() => {
+  //   //calculate days difference between start and end dates
+  //   console.log('calculating number of days...');
 
-    let daysDifference = 0;
+  //   let daysDifference = 0;
 
-    try {
-      if (startDate && endDate) {
-        //update quantity
-        daysDifference = getDaysDifference(startDate, endDate);
-      }
-    } catch (error) {
-      console.error(error);
+  //   try {
+  //     if (startDate && endDate) {
+  //       //update quantity
+  //       daysDifference = getDaysDifference(startDate, endDate);
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+
+  //   return daysDifference;
+  // }, [startDate, endDate]);
+
+  const [selectedDatesGroupedInMonths, setSelectedDatesGroupedInMonths] =
+    useState({});
+
+  useEffect(() => {
+    //derives all selected dates from startDate and endDate
+    if (startDate && endDate) {
+      const bookingDays = Bookings.getBookingDays(startDate, endDate);
+      console.log({ bookingDays });
+      const { ungroupedDates, datesGroupedInMonths } = bookingDays;
+
+      //update fields
+      setValue('selectedDates', ungroupedDates);
+
+      setSelectedDatesGroupedInMonths(datesGroupedInMonths);
     }
+  }, [startDate, endDate, setValue]);
 
-    return daysDifference;
-  }, [startDate, endDate]);
-
-  console.log({ days });
+  const days = selectedDates?.length;
 
   return (
     <>
-      <Controller
-        name="quantity"
-        control={control}
-        render={() => {
-          return <></>;
-        }}
-      />
-
-      <Grid my={2} rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
+      <Grid
+        my={2}
+        rowGap={2}
+        columnGap={4}
+        templateColumns="repeat(12, 1fr)"
+        w="full"
+        mt={2}
+        p={4}
+        pb={4}
+        bg="white"
+        borderRadius="lg"
+        shadow="lg"
+        border="1px solid"
+        borderColor="gray.200"
+      >
         <GridItem colSpan={6}>
           <FormControl
             isDisabled={loading}
@@ -145,6 +178,8 @@ export default function BookingDaysSelector(props) {
           </FormControl>
         </GridItem> */}
       </Grid>
+
+      {typeof children === 'function' && children(selectedDatesGroupedInMonths)}
     </>
   );
 }

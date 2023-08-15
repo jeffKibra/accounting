@@ -4,9 +4,16 @@ import {
   FormErrorMessage,
   Grid,
   GridItem,
+  Box,
+  Text,
+  Heading,
+  IconButton,
+  Flex,
+  Stack,
 } from '@chakra-ui/react';
 import { useFormContext, Controller } from 'react-hook-form';
 import PropTypes from 'prop-types';
+import { RiEditLine } from 'react-icons/ri';
 //
 import ControlledSelect from 'components/ui/ControlledSelect';
 // import RHFPlainNumInput from 'components/ui/RHFPlainNumInput';
@@ -15,6 +22,14 @@ import ControlledNumInput from 'components/ui/ControlledNumInput';
 // import ControlledDatePicker from 'components/ui/ControlledDatePicker';
 //
 import SaleSummaryTable from 'components/tables/Sales/SaleSummaryTable';
+//
+import Editable from './Components/Editable';
+//
+import {
+  SelectedDatesDisplay,
+  NumberDisplay,
+} from './Components/CustomDisplays';
+import EditBookingPricing from './Components/EditBookingPricing';
 
 function BookingItemFormFields(props) {
   const {
@@ -30,18 +45,27 @@ function BookingItemFormFields(props) {
     formState: { errors },
     control,
     setValue,
+    watch,
   } = useFormContext();
   // console.log({ errors });
+
+  const item = watch('item');
+  const startDate = watch('startDate');
+  const endDate = watch('endDate');
+  const bookingRate = watch('bookingRate');
+  const transferAmount = watch('transferAmount');
+  const selectedDates = watch('selectedDates');
+  const bookingTotal = watch('bookingTotal');
 
   // useEffect(() => {
   //   if (itemId) {
   //     const selectedItem = getValues('item');
   //     //update form fields based on item fields
   //     const itemRate = selectedItem?.sellingPrice || 0;
-  //     setValue('rate', itemRate, {
-  //       shouldValidate: true,
-  //       shouldDirty: true,
-  //     });
+  // setValue('rate', itemRate, {
+  //   shouldValidate: true,
+  //   shouldDirty: true,
+  // });
   //   }
   // }, [itemId, getValues, setValue]);
 
@@ -49,25 +73,60 @@ function BookingItemFormFields(props) {
 
   // const errors = errors?.selectedItems && errors?.selectedItems[index];
 
+  const carModel = item?.model || {};
+
   return (
     <>
-      <Controller
-        name="quantity"
-        control={control}
-        render={() => {
-          return <></>;
-        }}
-      />
       <Grid
         rowGap={2}
         columnGap={2}
         templateColumns="repeat(12, 1fr)"
         flexGrow={1}
-        mx={-4}
-        my={4}
-        p={4}
-        bg="#f4f6f8"
+        // mx={-4}
+        // my={4}
+        // p={4}
+        // bg="#f4f6f8"
       >
+        <GridItem colSpan={12}>
+          <Editable>
+            <Heading mt={-4} textTransform="uppercase">
+              {item?.name || ''}
+            </Heading>
+            <Text>{`${carModel?.make} ${carModel?.model} (${item?.year})`}</Text>
+          </Editable>
+        </GridItem>
+
+        <GridItem colSpan={[12, 6]} mt={-4}>
+          <SelectedDatesDisplay startDate={startDate} endDate={endDate} />
+        </GridItem>
+
+        <GridItem colSpan={[12, 6]} mt={-4}>
+          <EditBookingPricing>
+            {onOpen => {
+              return (
+                <Editable onButtonClick={onOpen}>
+                  <NumberDisplay
+                    title="Rate Per Day"
+                    value={Number(bookingRate).toLocaleString()}
+                  />
+                  <NumberDisplay
+                    title="Days Count"
+                    value={selectedDates?.length || 0}
+                  />
+                  <NumberDisplay
+                    title="Booking Total"
+                    value={Number(bookingTotal || 0).toLocaleString()}
+                  />
+                  <NumberDisplay
+                    title="Transfer Amount"
+                    value={Number(transferAmount).toLocaleString()}
+                  />
+                </Editable>
+              );
+            }}
+          </EditBookingPricing>
+        </GridItem>
+
         {/* <GridItem colSpan={12}>
           <FormControl isRequired isInvalid={!!errors?.item}>
             <FormLabel htmlFor="priceRangeFilter">Price Range</FormLabel>
@@ -89,68 +148,6 @@ function BookingItemFormFields(props) {
             </FormErrorMessage>
           </FormControl>
         </GridItem> */}
-
-        <GridItem colSpan={[12, 6]}>
-          <FormControl isInvalid={errors?.bookingRate}>
-            <FormLabel htmlFor="bookingRate">Rate</FormLabel>
-            {/* <TableNumInput onBlur={() => } /> */}
-            <Controller
-              name="bookingRate"
-              rules={{
-                required: { value: true, message: '* Required!' },
-              }}
-              control={control}
-              render={({ field: { value, ref, onBlur, onChange } }) => {
-                return (
-                  <ControlledNumInput
-                    ref={ref}
-                    updateFieldMode="onBlur"
-                    value={value}
-                    mode="onBlur"
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    min={1}
-                    isReadOnly={loading}
-                  />
-                );
-              }}
-            />
-
-            <FormErrorMessage>{errors?.bookingRate?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
-
-        <GridItem colSpan={[12, 6]}>
-          <FormControl isInvalid={errors?.transferAmount}>
-            <FormLabel htmlFor="transferAmount">Transfer Amount</FormLabel>
-            {/* <TableNumInput onBlur={() => } /> */}
-            <Controller
-              name="transferAmount"
-              rules={{
-                required: { value: true, message: '* Required!' },
-              }}
-              control={control}
-              render={({ field: { value, ref, onBlur, onChange } }) => {
-                return (
-                  <ControlledNumInput
-                    ref={ref}
-                    updateFieldMode="onBlur"
-                    value={value}
-                    mode="onBlur"
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    min={1}
-                    isReadOnly={loading}
-                  />
-                );
-              }}
-            />
-
-            <FormErrorMessage>
-              {errors?.transferAmount?.message}
-            </FormErrorMessage>
-          </FormControl>
-        </GridItem>
 
         {/* <GridItem colSpan={[12, 6]}>
         <FormControl isInvalid={errors?.salesTax}>

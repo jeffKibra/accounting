@@ -6,14 +6,20 @@ import {
   ModalHeader,
   ModalBody,
   ModalCloseButton,
-  // ModalFooter,
+  ModalFooter,
   // Button,
   useDisclosure,
-} from "@chakra-ui/react";
-import PropTypes from "prop-types";
+} from '@chakra-ui/react';
+import PropTypes from 'prop-types';
 
 function CustomModal(props) {
-  const { title, renderTrigger, renderContent, closeOnOverlayClick } = props;
+  const {
+    title,
+    renderTrigger,
+    renderContent,
+    renderFooter,
+    closeOnOverlayClick,
+  } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   // const btnRef = useRef();
@@ -33,9 +39,10 @@ function CustomModal(props) {
           <ModalHeader>{title}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>{renderContent(onClose)}</ModalBody>
-          {/* <ModalFooter>
-            <Button onClick={onClose}>Close</Button>
-          </ModalFooter> */}
+
+          {typeof renderFooter === 'function' ? (
+            <ModalFooter>{renderFooter(onClose)}</ModalFooter>
+          ) : null}
         </ModalContent>
       </Modal>
     </>
@@ -50,6 +57,7 @@ CustomModal.propTypes = {
   title: PropTypes.string.isRequired,
   renderTrigger: PropTypes.func.isRequired,
   renderContent: PropTypes.func.isRequired,
+  renderFooter: PropTypes.func,
   closeOnOverlayClick: PropTypes.bool.isRequired,
 };
 

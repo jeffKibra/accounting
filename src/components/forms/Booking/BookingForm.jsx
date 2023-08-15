@@ -38,6 +38,7 @@ function BookingForm(props) {
       //booking values
       startDate: new Date(booking?.startDate || Date.now()),
       endDate: new Date(booking?.endDate || Date.now()),
+      selectedDays: booking?.selectedDays || [],
       item: booking?.item || null,
       quantity: booking?.quantity || 0,
       bookingRate: booking?.bookingRate || 0,
@@ -68,7 +69,7 @@ function BookingForm(props) {
 
   const toasts = useToasts();
 
-  const { handleSubmit, watch, control } = formMethods;
+  const { handleSubmit, watch, control, setValue } = formMethods;
 
   const startDate = watch('startDate');
   const endDate = watch('endDate');
@@ -167,53 +168,42 @@ function BookingForm(props) {
             </>
           ) : (
             <>
-              <Box
-                w="full"
-                mt={2}
-                p={4}
-                pb={4}
-                bg="white"
-                borderRadius="lg"
-                shadow="lg"
-                border="1px solid"
-                borderColor="gray.200"
-              >
-                <BookingDaysSelector />
+              <BookingDaysSelector>
+                {() => {
+                  return (
+                    <Box mt={4}>
+                      {startDate && endDate ? (
+                        <Controller
+                          name="item"
+                          control={control}
+                          render={({ field: { onChange, value } }) => {
+                            function handleChange(item) {
+                              console.log({ item });
+                              onChange(item);
+                              const itemRate = item?.rate || 0;
 
-                {/* <Flex justify="flex-end">
-                  <Button
-                    type="button"
-                    colorScheme="cyan"
-                    textTransform="uppercase"
-                  >
-                    search
-                  </Button>
-                </Flex> */}
-              </Box>
+                              //update rate and reset transfer rate
+                              setValue('bookingRate', itemRate, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              });
+                            }
 
-              <Box mt={4}>
-                {startDate && endDate ? (
-                  <Controller
-                    name="item"
-                    control={control}
-                    render={({ field: { onChange, value } }) => {
-                      function handleChange(item) {
-                        console.log({ item });
-                        onChange(item);
-                      }
-
-                      return (
-                        <ItemsLoader
-                          startDate={startDate}
-                          endDate={endDate}
-                          onItemSelect={handleChange}
-                          selectedItem={value}
+                            return (
+                              <ItemsLoader
+                                startDate={startDate}
+                                endDate={endDate}
+                                onItemSelect={handleChange}
+                                selectedItem={value}
+                              />
+                            );
+                          }}
                         />
-                      );
-                    }}
-                  />
-                ) : null}
-              </Box>
+                      ) : null}
+                    </Box>
+                  );
+                }}
+              </BookingDaysSelector>
             </>
           )}
         </Box>
