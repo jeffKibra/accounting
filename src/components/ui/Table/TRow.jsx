@@ -2,7 +2,7 @@ import TR, { TRProps } from './TR';
 import TD from './TD';
 
 export default function TRow(props) {
-  console.log({ TRowProps: props });
+  // console.log({ TRowProps: props });
 
   return (
     <TR {...props}>

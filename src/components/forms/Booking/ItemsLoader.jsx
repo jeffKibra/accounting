@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -7,6 +7,7 @@ import { GET_MONTHLY_BOOKINGS } from 'store/actions/monthlyBookings';
 import { GET_ITEMS_NOT_BOOKED } from 'store/actions/itemsActions';
 //
 import { Bookings } from 'utils/bookings';
+import { groupDatesByMonths } from 'utils/dates';
 
 //
 // import DateRangePicker from 'components/ui/DateRangePicker';
@@ -33,33 +34,27 @@ function ItemsLoader(props) {
     loadingItems,
     itemsError,
     fetchItemsNotBooked,
-    startDate,
-    endDate,
     // defaultItemId,
     orgId,
     onItemSelect,
+    selectedDates,
   } = props;
 
   const [idsForItemsAlreadyBooked, setIdsForItemsAlreadyBooked] = useState([]);
 
-  const defaultBookingDays = useMemo(() => {
-    if (!startDate || !endDate) {
-      return null;
+  useEffect(() => {
+    if (selectedDates?.length > 0) {
+      const datesGroupedInMonths = groupDatesByMonths(selectedDates);
+      // console.log({ datesGroupedInMonths, selectedDates });
+
+      Bookings.getIdsForItemsAlreadyBooked(orgId, datesGroupedInMonths).then(
+        itemsIds => {
+          setIdsForItemsAlreadyBooked(itemsIds);
+        }
+      );
     }
-
-    const bookingDays = Bookings.getBookingDays(startDate, endDate);
-    console.log({ bookingDays });
-    const { ungroupedDates, datesGroupedInMonths } = bookingDays;
-
-    Bookings.getIdsForItemsAlreadyBooked(orgId, datesGroupedInMonths).then(
-      itemsIds => {
-        setIdsForItemsAlreadyBooked(itemsIds);
-      }
-    );
-
-    return ungroupedDates;
-  }, [startDate, endDate, orgId]);
-  console.log({ defaultBookingDays, idsForItemsAlreadyBooked });
+  }, [selectedDates, orgId]);
+  console.log({ idsForItemsAlreadyBooked });
 
   useEffect(() => {
     fetchItemsNotBooked(idsForItemsAlreadyBooked);

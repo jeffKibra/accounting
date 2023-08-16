@@ -15,23 +15,15 @@ import PropTypes from 'prop-types';
 import RHFDatePicker from 'components/ui/hookForm/RHFDatePicker';
 // import CustomDatePicker from './CustomDatePicker';
 
-import { DateDisplay } from './CustomDisplays';
-
 //----------------------------------------------------------------
 
 BookingDaysSelector.propTypes = {
   loading: PropTypes.bool,
   useInlineCalenders: PropTypes.bool,
-  colSpan: PropTypes.number.isRequired,
-  isEditing: PropTypes.bool,
-};
-
-BookingDaysSelector.defaultProps = {
-  colSpan: 6,
 };
 
 export default function BookingDaysSelector(props) {
-  const { isEditing, loading, useInlineCalenders, colSpan } = props;
+  const { loading, useInlineCalenders } = props;
 
   const {
     formState: { errors },
@@ -42,7 +34,27 @@ export default function BookingDaysSelector(props) {
   const endDate = watch('endDate');
   const selectedDates = watch('selectedDates');
 
+  // const days = useMemo(() => {
+  //   //calculate days difference between start and end dates
+  //   console.log('calculating number of days...');
+
+  //   let daysDifference = 0;
+
+  //   try {
+  //     if (startDate && endDate) {
+  //       //update quantity
+  //       daysDifference = getDaysDifference(startDate, endDate);
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+
+  //   return daysDifference;
+  // }, [startDate, endDate]);
+
   const days = selectedDates?.length;
+
+  const colSpan = useInlineCalenders ? 12 : 6;
 
   return (
     <>
@@ -59,31 +71,22 @@ export default function BookingDaysSelector(props) {
             isRequired
             isInvalid={errors.startDate}
           >
+            <FormLabel htmlFor="startDate">Pickup Date</FormLabel>
             {useInlineCalenders ? (
               <FormHelperText>
                 Click on a date to set it as the Pick up Date
               </FormHelperText>
             ) : null}
 
-            {isEditing ? (
-              <>
-                <FormLabel fontSize="14px" htmlFor="startDate">
-                  Pickup Date
-                </FormLabel>
-
-                <RHFDatePicker
-                  name="startDate"
-                  required
-                  isReadOnly={loading}
-                  selectsStart
-                  startDate={startDate}
-                  endDate={endDate}
-                  inline={useInlineCalenders}
-                />
-              </>
-            ) : (
-              <DateDisplay title="Pickup Date" value={startDate} />
-            )}
+            <RHFDatePicker
+              name="startDate"
+              required
+              isReadOnly={loading}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              inline={useInlineCalenders}
+            />
 
             <FormErrorMessage>{errors.startDate?.message}</FormErrorMessage>
           </FormControl>
@@ -95,31 +98,24 @@ export default function BookingDaysSelector(props) {
             isRequired
             isInvalid={errors.endDate}
           >
+            <FormLabel htmlFor="endDate">Return Date</FormLabel>
+
             {useInlineCalenders ? (
               <FormHelperText>
                 Click on a date to set it as the Return Date
               </FormHelperText>
             ) : null}
 
-            {isEditing ? (
-              <>
-                <FormLabel fontSize="14px" htmlFor="endDate">
-                  Return Date
-                </FormLabel>
-                <RHFDatePicker
-                  name="endDate"
-                  required
-                  isReadOnly={loading}
-                  selectsEnd
-                  startDate={startDate}
-                  endDate={endDate}
-                  minDate={startDate}
-                  inline={useInlineCalenders}
-                />
-              </>
-            ) : (
-              <DateDisplay title="Return Date" value={endDate} />
-            )}
+            <RHFDatePicker
+              name="endDate"
+              required
+              isReadOnly={loading}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              inline={useInlineCalenders}
+            />
 
             <FormErrorMessage>{errors.endDate?.message}</FormErrorMessage>
             <FormHelperText>{`${days || ''} ${

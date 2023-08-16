@@ -71,7 +71,7 @@ function Table(props) {
 
   function handleGlobalFilterInputChange(e) {
     const searchValue = e.target.value;
-    console.log({ searchValue });
+    // console.log({ searchValue });
     setGlobalFilter(searchValue);
   }
 

@@ -2,10 +2,10 @@ import { Td } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
 export default function TD(props) {
-  console.log({ props });
+  // console.log({ props });
   const { cell, onClick, ...cellProps } = props;
 
-  console.log({ cell });
+  // console.log({ cell });
 
   const { getCellProps, render, column, original } = cell;
 

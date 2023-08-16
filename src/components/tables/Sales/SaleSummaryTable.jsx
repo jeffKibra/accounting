@@ -9,11 +9,13 @@ function SaleSummaryTable(props) {
 
   // const taxType = watch('taxType');
   const bookingRate = watch('bookingRate');
-  const quantity = watch('quantity');
   const transferAmount = watch('transferAmount');
   const saleTax = watch('saleTax');
 
-  console.log({ bookingRate, quantity, transferAmount, saleTax });
+  const selectedDates = watch('selectedDates');
+  const quantity = selectedDates?.length;
+
+  // console.log({ bookingRate, quantity, transferAmount, saleTax });
 
   // console.log({ bookingRate, quantity, transferAmount, saleTax });
 
@@ -39,11 +41,11 @@ function SaleSummaryTable(props) {
 
       const total = subTotal;
 
-      console.log({
-        bookingTotal: bookingTotal.dp(2).toNumber(),
-        subTotal,
-        total,
-      });
+      // console.log({
+      //   bookingTotal: bookingTotal.dp(2).toNumber(),
+      //   subTotal,
+      //   total,
+      // });
 
       //update whole summary
       setValue('bookingTotal', bookingTotal.dp(2).toNumber());
@@ -53,8 +55,8 @@ function SaleSummaryTable(props) {
     [setValue]
   );
 
-  const bookingTotal = watch('bookingTotal');
-  console.log({ bookingTotal });
+  // const bookingTotal = watch('bookingTotal');
+  // console.log({ bookingTotal });
 
   useEffect(() => {
     updateTotals(bookingRate, quantity, transferAmount);

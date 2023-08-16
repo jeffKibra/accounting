@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import TRow from './TRow';
 
 export default function TBody(props) {
-  console.log({ TBodyProps: props });
+  // console.log({ TBodyProps: props });
   const { tableBodyProps, rows, prepareRow, onRowClick, rowProps } = props;
 
   return (

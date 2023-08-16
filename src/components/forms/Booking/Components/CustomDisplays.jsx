@@ -1,30 +1,6 @@
-import { Stack, Heading, Text, Box, IconButton } from '@chakra-ui/react';
-import { RiEditLine } from 'react-icons/ri';
+import { Stack, Heading, Text } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 //
-
-//----------------------------------------------------------------
-SelectedDatesDisplay.propTypes = {
-  startDate: PropTypes.string,
-  endDate: PropTypes.string,
-};
-
-export function SelectedDatesDisplay(props) {
-  const { startDate, endDate } = props;
-
-  return (
-    <Editable>
-      <DateDisplay
-        title="Pick up Date"
-        value={new Date(startDate).toDateString()}
-      />
-      <DateDisplay
-        title="Return Date"
-        value={new Date(endDate).toDateString()}
-      />
-    </Editable>
-  );
-}
 
 //----------------------------------------------------------------
 
@@ -53,7 +29,12 @@ export function CustomDisplay(props) {
 //----------------------------------------------------------------
 
 DateDisplay.propTypes = {
-  ...CustomDisplayProps,
+  title: PropTypes.string,
+  value: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.string,
+    PropTypes.instanceOf(Date),
+  ]),
 };
 
 DateDisplay.defaultProps = {
@@ -62,7 +43,10 @@ DateDisplay.defaultProps = {
 };
 
 export function DateDisplay(props) {
-  return <CustomDisplay {...props} />;
+  const { value, ...moreProps } = props;
+  return (
+    <CustomDisplay {...moreProps} value={new Date(value).toDateString()} />
+  );
 }
 
 //----------------------------------------------------------------
@@ -78,26 +62,4 @@ NumberDisplay.defaultProps = {
 
 export function NumberDisplay(props) {
   return <CustomDisplay {...props} />;
-}
-//----------------------------------------------------------------
-
-Editable.propTypes = {
-  children: PropTypes.node.isRequired,
-};
-
-export function Editable(props) {
-  const { children } = props;
-  return (
-    <Box my={4} position="relative">
-      <IconButton
-        position="absolute"
-        right={0}
-        top={0}
-        variant="ghost"
-        icon={<RiEditLine />}
-      />
-
-      {children}
-    </Box>
-  );
 }

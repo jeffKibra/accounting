@@ -14,3 +14,4 @@ export { default as getMonthString } from './getMonthString';
 export { default as getRemainingDatesInMonth } from './getRemainingDatesInMonth';
 export { default as getRemainingDaysInYear } from './getRemainingDaysInYear';
 export { default as getYearsArray } from './getYearsArray';
+export { default as groupDatesByMonths } from './groupDatesByMonths';

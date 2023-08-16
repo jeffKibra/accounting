@@ -24,6 +24,7 @@ function CNInput(props, ref) {
     onBlur,
     inputFieldProps,
     showButtons,
+    ...moreProps
   } = props;
   // console.log({ value });
 
@@ -78,6 +79,7 @@ function CNInput(props, ref) {
       isReadOnly={isReadOnly}
       isDisabled={isDisabled}
       {...(ref ? { ref } : {})}
+      {...moreProps}
     >
       <NumberInputField
         minW="90px"

@@ -2,10 +2,10 @@ import { Tr } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
 export default function TR(props) {
-  console.log({ TRProps: props });
+  // console.log({ TRProps: props });
   const { row, onClick, children, ...rowProps } = props;
-  console.log({ rowProps });
-  console.log({ row });
+  // console.log({ rowProps });
+  // console.log({ row });
 
   const { getRowProps, cells, original } = row;
 
