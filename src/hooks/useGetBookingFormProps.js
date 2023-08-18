@@ -14,7 +14,7 @@ export default function useGetBookingFormProps() {
 
   const {
     customers,
-    items,
+    // items,
     taxes,
     loading: loadingSaleProps,
     paymentTerms,
@@ -54,7 +54,7 @@ export default function useGetBookingFormProps() {
     loading,
     refresh,
     customers,
-    items,
+    // items,
     taxes,
   };
 }

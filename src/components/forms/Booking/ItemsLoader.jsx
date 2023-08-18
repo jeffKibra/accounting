@@ -72,6 +72,7 @@ function ItemsLoader(props) {
   return (
     <>
       <SelectBookingItemTable
+        emptyMessage="No Vehicle is available for booking on the selected Dates!"
         loading={loadingItems}
         items={items || []}
         error={itemsError}

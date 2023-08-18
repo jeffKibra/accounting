@@ -33,7 +33,7 @@ function BookingForm(props) {
     paymentModes,
     paymentTerms,
     customers,
-    items,
+    // items,
     taxes,
     loading,
   } = useGetBookingFormProps();
@@ -185,7 +185,7 @@ function BookingForm(props) {
 
   return loading ? (
     <SkeletonLoader />
-  ) : customers?.length > 0 && items?.length > 0 && paymentTerms?.length > 0 ? (
+  ) : customers?.length > 0 && paymentTerms?.length > 0 ? (
     <FormProvider {...formMethods}>
       <Box as="form" role="form" onSubmit={handleSubmit(onSubmit)} w="full">
         <Box w="full" rowGap={4}>
@@ -274,9 +274,10 @@ function BookingForm(props) {
         </Box>
       </Box>
     </FormProvider>
-  ) : items?.length === 0 ? (
-    <Empty message="Please add atleast one ITEM to continue or reload the page" />
-  ) : customers?.length === 0 ? (
+  ) : // : items?.length === 0 ? (
+  //   <Empty message="Please add atleast one ITEM to continue or reload the page" />
+  // )
+  customers?.length === 0 ? (
     <Empty message="Please add atleast one CUSTOMER to continue or reload the page" />
   ) : (
     <Empty message="Payment Terms not Found. Try Reloading the page" />

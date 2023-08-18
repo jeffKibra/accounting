@@ -1,19 +1,19 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { GET_ITEMS } from 'store/actions/itemsActions';
+// import { GET_ITEMS } from 'store/actions/itemsActions';
 import { GET_CUSTOMERS } from 'store/actions/customersActions';
 import { GET_PAYMENT_TERMS } from 'store/actions/paymentTermsActions';
 import { GET_TAXES } from 'store/actions/taxesActions';
 
 export default function useGetSalesProps() {
   const dispatch = useDispatch();
-  let {
-    loading: loadingItems,
-    items,
-    action: itemsAction,
-  } = useSelector(state => state.itemsReducer);
-  loadingItems = loadingItems && itemsAction === GET_ITEMS;
+  // let {
+  //   // loading: loadingItems,
+  //   // items,
+  //   // action: itemsAction,
+  // } = useSelector(state => state.itemsReducer);
+  // loadingItems = loadingItems && itemsAction === GET_ITEMS;
 
   let {
     loading: loadingCustomers,
@@ -36,13 +36,12 @@ export default function useGetSalesProps() {
   } = useSelector(state => state.taxesReducer);
   loadingTaxes = loadingTaxes && taxesAction === GET_TAXES;
 
-  const loading =
-    loadingItems || loadingCustomers || loadingPaymentTerms || loadingTaxes;
+  const loading = loadingCustomers || loadingPaymentTerms || loadingTaxes;
 
   useEffect(() => {
-    function getItems() {
-      dispatch({ type: GET_ITEMS });
-    }
+    // function getItems() {
+    //   dispatch({ type: GET_ITEMS });
+    // }
     function getCustomers() {
       dispatch({ type: GET_CUSTOMERS });
     }
@@ -53,7 +52,7 @@ export default function useGetSalesProps() {
       dispatch({ type: GET_TAXES });
     }
 
-    getItems();
+    // getItems();
     getCustomers();
     getPaymentTerms();
     getTaxes();
@@ -61,7 +60,7 @@ export default function useGetSalesProps() {
 
   return {
     loading,
-    items,
+    // items,
     customers,
     paymentTerms,
     taxes,

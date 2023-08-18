@@ -16,6 +16,7 @@ const tableProps = {
   ),
   loading: PropTypes.bool,
   error: PropTypes.object,
+  emptyMessage: PropTypes.string,
 };
 
 export default tableProps;

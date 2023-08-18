@@ -87,7 +87,7 @@ function* getItemsNotBooked(action: PayloadAction<string[]>) {
     const itemsCollection = dbCollections(orgId).items;
     const q = query(
       itemsCollection,
-      orderBy('createdAt', 'desc'),
+      orderBy(documentId(), 'desc'),
       where('status', '==', 0),
       ...[
         ...(idsForItemsToExclude?.length > 0
@@ -95,6 +95,16 @@ function* getItemsNotBooked(action: PayloadAction<string[]>) {
           : []),
       ]
     );
+    // const q = query(
+    //   itemsCollection,
+    //   orderBy('createdAt', 'desc'),
+    //   where('status', '==', 0),
+    //   ...[
+    //     ...(idsForItemsToExclude?.length > 0
+    //       ? [where(documentId(), 'not-in', idsForItemsToExclude)]
+    //       : []),
+    //   ]
+    // );
     const snap = await getDocs(q);
     const items = snap.docs.map(itemDoc => {
       return {

@@ -13,7 +13,7 @@ import Empty from '../Empty';
 import Table, { TableProps } from './Table';
 
 function AdvancedTable(props) {
-  const { loading, error, ...tableProps } = props;
+  const { loading, error, emptyMessage, ...tableProps } = props;
   const { data } = tableProps;
   // console.log({ bodyRowProps });
 
@@ -30,7 +30,7 @@ function AdvancedTable(props) {
       }`}</AlertDescription>
     </Alert>
   ) : (
-    <Empty />
+    <Empty {...(emptyMessage ? { message: emptyMessage } : {})} />
   );
 }
 
@@ -38,6 +38,7 @@ export const AdvancedTableProps = {
   ...TableProps,
   loading: PropTypes.bool,
   error: PropTypes.object,
+  emptyMessage: PropTypes.string,
 };
 
 AdvancedTable.propTypes = {

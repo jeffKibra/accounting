@@ -15,7 +15,7 @@ import { dbCollections } from '../../utils/firebase';
 
 //----------------------------------------------------------------
 
-import { getDatesWithinRange } from '../../utils/dates';
+import { getDatesWithinRange, checkIfDateIsValid } from '../../utils/dates';
 //
 import {
   ItemType,
@@ -26,39 +26,17 @@ import {
 } from '../../types';
 
 //----------------------------------------------------------------
-// type IUngroupedDates = Record<string, string>;
-// type IDatesGroupedInMonths = Record<string, IUngroupedDates>;
+//types
+type IDatesWithinRangeResult = ReturnType<typeof getDatesWithinRange>;
+type IUngroupedDates = IDatesWithinRangeResult['ungroupedDates'];
+type IDatesGroupedInMonths = IDatesWithinRangeResult['datesGroupedInMonths'];
+
 //----------------------------------------------------------------
 
 export default class Bookings {
   //   ------------------------------------------------------------------
   //   Static methods
   //   -------------------------------------------------------------------
-
-  static async getMM(orgId: string) {
-    const collectionRef = dbCollections(orgId).items;
-    const q = query(
-      collectionRef,
-      where(documentId(), 'in', [
-        'zFWpm7xxpoYGlNWzWO0t',
-        'DabUC0NnyLPysnK7bkW6',
-      ])
-    );
-
-    const snap = await getDocs(q);
-
-    const items: { id: string }[] = [];
-    snap.docs.forEach(docSnap => {
-      const data = docSnap.data();
-      const docId = docSnap.id;
-      items.push({
-        ...data,
-        id: docId,
-      });
-    });
-
-    console.log({ items });
-  }
 
   static async getMonthBookings(orgId: string, monthId: string) {
     try {
@@ -110,6 +88,150 @@ export default class Bookings {
   }
   //-----------------------------------------------------------------------
   //-----------------------------------------------------------------------
+  static checkIfDateRangeIsValid(startDate: string, endDate: string): boolean {
+    const startDateIsValid = checkIfDateIsValid(startDate);
+    const endDateIsValid = checkIfDateIsValid(endDate);
+
+    return startDateIsValid && endDateIsValid;
+  }
+  //-----------------------------------------------------------------------
+
+  static convertStringArrayToObject(array: string[]) {
+    const object: Record<string, string> = {};
+
+    array.forEach(val => {
+      object[val] = val;
+    });
+
+    return object;
+  }
+
+  //-----------------------------------------------------------------------
+
+  static getDatesFromRange(dateRange: string, spliter: string = '_') {
+    console.log({ dateRange });
+    let startDate: string = '';
+    let endDate: string = '';
+
+    if (dateRange) {
+      //split string to substring array
+      const dateRangeArray = String(dateRange)
+        .split(spliter)
+        .filter(value => Boolean(value))
+        .map(value => String(value).trim());
+      console.log({ dateRangeArray });
+
+      //update startDate and endDate variables
+      startDate = dateRangeArray[0] || '';
+      endDate = dateRangeArray[1] || '';
+
+      const dateRangeIsValid = this.checkIfDateRangeIsValid(startDate, endDate);
+      console.log({ dateRangeIsValid });
+
+      if (!dateRangeIsValid) {
+        throw new Error('Invalid  DateRange!');
+      }
+    }
+
+    let ungroupedDates: IUngroupedDates = [];
+    let datesGroupedInMonths: IDatesGroupedInMonths = {};
+
+    if (startDate && endDate) {
+      const datesRangeResult = getDatesWithinRange(startDate, endDate);
+      ungroupedDates = datesRangeResult.ungroupedDates;
+      datesGroupedInMonths = datesRangeResult.datesGroupedInMonths;
+    }
+    console.log({ datesGroupedInMonths, ungroupedDates });
+
+    const ungroupedDatesObject =
+      this.convertStringArrayToObject(ungroupedDates);
+
+    return {
+      startDate,
+      endDate,
+      ungroupedDates,
+      ungroupedDatesObject,
+      datesGroupedInMonths,
+    };
+  }
+
+  //-----------------------------------------------------------------------
+
+  static async checkItemAvailabilityForSelectedDates(
+    orgId: string,
+    itemId: string,
+    incomingDateRange: string,
+    currentDateRange: string
+  ) {
+    const incomingDatesResult = this.getDatesFromRange(incomingDateRange); //function checks if date range is valid
+    const {
+      startDate: incomingStartDate,
+      endDate: incomingEndDate,
+      datesGroupedInMonths: incomingDatesGroupedInMonths,
+      ungroupedDatesObject: incomingUngroupedDatesObject,
+    } = incomingDatesResult;
+
+    const currentDatesResult = this.getDatesFromRange(currentDateRange);
+    const {
+      startDate: currentStartDate,
+      endDate: currentEndDate,
+      datesGroupedInMonths: currentDatesGroupedInMonths,
+      ungroupedDatesObject: currentUngroupedDatesObject,
+    } = currentDatesResult;
+
+    //check id dates are the same-terminate function if they are the same
+    if (
+      incomingStartDate === currentStartDate &&
+      incomingEndDate === currentEndDate
+    ) {
+      return null; //update later
+    }
+
+    //create list of months to retrieve bookings for
+    const combinedDatesGroupedInMonths = {
+      ...incomingDatesGroupedInMonths,
+      ...currentDatesGroupedInMonths,
+    };
+    const months = Object.keys(combinedDatesGroupedInMonths);
+    console.log({ months });
+
+    const monthlyBookings = await this.getMonthlyBookings(orgId, months);
+
+    //get Item bookings for each month and combine into one
+    const itemBookedDates: string[] = [];
+    Object.keys(monthlyBookings).forEach(month => {
+      const monthBookings = monthlyBookings[month] || {};
+      const itemMonthlyBookedDates = monthBookings[itemId] || [];
+
+      console.log({ itemMonthlyBookedDates });
+
+      itemBookedDates.push(...itemMonthlyBookedDates);
+    });
+
+    console.log({ itemBookedDates });
+    /**
+     * exclude current booked dates from the item booked dates-for editing purposes
+     */
+
+    const alreadyBookedDate = itemBookedDates.find(bookedDate => {
+      const currentIsBooked = Boolean(currentUngroupedDatesObject[bookedDate]);
+      const incomingIsBooked = Boolean(
+        incomingUngroupedDatesObject[bookedDate]
+      );
+      console.log({ bookedDate, currentIsBooked, incomingIsBooked });
+
+      //check for item that is not booked but selected
+      return currentIsBooked
+        ? currentIsBooked && incomingIsBooked
+        : incomingIsBooked;
+    });
+
+    const atleastOneDateIsAlreadyBooked = Boolean(alreadyBookedDate);
+
+    console.log({ alreadyBookedDate, atleastOneDateIsAlreadyBooked });
+
+    return !atleastOneDateIsAlreadyBooked;
+  }
 
   //-----------------------------------------------------------------------
   //-----------------------------------------------------------------------
@@ -383,4 +505,3 @@ export default class Bookings {
 }
 
 ///
-Bookings.getMM('FQG4k6QyXKbFuI8hnw0d');

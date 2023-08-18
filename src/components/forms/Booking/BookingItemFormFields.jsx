@@ -1,30 +1,15 @@
-import { Grid, GridItem, Text, Heading } from '@chakra-ui/react';
-import { useFormContext } from 'react-hook-form';
+import { Grid, GridItem } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 //
 
 import SaleSummaryTable from 'components/tables/Sales/SaleSummaryTable';
 //
-import Editable from './Components/Editable';
-//
-import { DateDisplay, NumberDisplay } from './Components/CustomDisplays';
 import EditBookingPricing from './Components/EditBookingPricing';
 import EditBookingDates from './Components/EditBookingDates';
+import EditSelectedItem from './Components/EditSelectedItem';
 
 function BookingItemFormFields(props) {
   const { loading } = props;
-
-  const { watch } = useFormContext();
-
-  const item = watch('item');
-  const startDate = watch('startDate');
-  const endDate = watch('endDate');
-  const bookingRate = watch('bookingRate');
-  const transferAmount = watch('transferAmount');
-  const selectedDates = watch('selectedDates');
-  const bookingTotal = watch('bookingTotal');
-
-  const carModel = item?.model || {};
 
   return (
     <>
@@ -43,52 +28,15 @@ function BookingItemFormFields(props) {
           borderTopLeftRadius="lg"
           borderTopRightRadius="lg"
         >
-          <EditBookingDates>
-            {onOpen => {
-              return (
-                <Editable onEditToggle={onOpen}>
-                  <DateDisplay title="Pick up Date" value={startDate} />
-                  <DateDisplay title="Return Date" value={endDate} />
-                </Editable>
-              );
-            }}
-          </EditBookingDates>
+          <EditBookingDates loading={loading} />
         </GridItem>
 
         <GridItem colSpan={[12, 6]} mt={4}>
-          <Editable>
-            <Heading mt={-4} textTransform="uppercase">
-              {item?.name || ''}
-            </Heading>
-            <Text>{`${carModel?.make} ${carModel?.model} (${item?.year})`}</Text>
-          </Editable>
+          <EditSelectedItem loading={loading} />
         </GridItem>
 
         <GridItem colSpan={[12, 6]} mt={-4}>
-          <EditBookingPricing>
-            {onOpen => {
-              return (
-                <Editable onEditToggle={onOpen}>
-                  <NumberDisplay
-                    title="Transfer Amount"
-                    value={Number(transferAmount).toLocaleString()}
-                  />
-                  <NumberDisplay
-                    title="Rate Per Day"
-                    value={Number(bookingRate).toLocaleString()}
-                  />
-                  <NumberDisplay
-                    title="Days Count"
-                    value={selectedDates?.length || 0}
-                  />
-                  <NumberDisplay
-                    title="Booking Total"
-                    value={Number(bookingTotal || 0).toLocaleString()}
-                  />
-                </Editable>
-              );
-            }}
-          </EditBookingPricing>
+          <EditBookingPricing loading={loading} />
         </GridItem>
 
         <GridItem colSpan={[0, 4, 6]}></GridItem>

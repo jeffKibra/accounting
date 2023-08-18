@@ -21,7 +21,7 @@ export default function Editable(props) {
         top={0}
         zIndex={100}
         variant="ghost"
-        colorScheme={isEditing ? 'red' : ''}
+        {...(isEditing ? { colorScheme: 'red' } : {})}
         icon={isEditing ? <RiCloseLine /> : <RiEditLine />}
         onClick={onEditToggle}
       />

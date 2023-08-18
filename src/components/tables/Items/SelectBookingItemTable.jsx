@@ -9,7 +9,7 @@ import tableColumns from './tableColumns';
 import tableProps from './tableProps';
 
 function SelectBookingItemTable(props) {
-  const { items, loading, error, onRowClick } = props;
+  const { items, loading, error, onRowClick, ...moreProps } = props;
   // console.log({ items });
 
   const columns = useMemo(() => tableColumns, []);
@@ -32,6 +32,7 @@ function SelectBookingItemTable(props) {
         includeGlobalFilter
         loading={loading}
         error={error}
+        {...moreProps}
         bodyRowProps={{
           cursor: 'pointer',
           transition: 'all 100ms ease-in-out',
