@@ -19,7 +19,6 @@ function BookingRate(props) {
     isEditing,
     // transactionId,
   } = props;
- 
 
   const {
     formState: { errors },
@@ -80,7 +79,7 @@ function BookingRate(props) {
 }
 
 BookingRate.propTypes = {
-  loading: PropTypes.bool.isRequired,
+  loading: PropTypes.bool,
   isEditing: PropTypes.bool,
 };
 

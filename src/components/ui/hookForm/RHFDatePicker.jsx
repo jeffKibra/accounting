@@ -17,6 +17,7 @@ function RHFDatePicker(props) {
       rules={{
         required: { value: required, message: '*Required!' },
       }}
+      {...controllerProps}
       render={({ field: { name, onBlur, onChange, value, ref } }) => {
         return (
           <ControlledDatePicker

@@ -49,14 +49,14 @@ function BookingItemFormFields(props) {
 }
 
 BookingItemFormFields.propTypes = {
-  itemsObject: PropTypes.object.isRequired,
-  selectedItemsObject: PropTypes.object.isRequired,
-  updateItemFields: PropTypes.func.isRequired,
-  handleItemChange: PropTypes.func.isRequired,
-  removeItem: PropTypes.func.isRequired,
-  field: PropTypes.object.isRequired,
-  index: PropTypes.number.isRequired,
-  taxesObject: PropTypes.object.isRequired,
+  // itemsObject: PropTypes.object,
+  // selectedItemsObject: PropTypes.object.isRequired,
+  // updateItemFields: PropTypes.func.isRequired,
+  // handleItemChange: PropTypes.func.isRequired,
+  // removeItem: PropTypes.func.isRequired,
+  // field: PropTypes.object.isRequired,
+  // index: PropTypes.number.isRequired,
+  taxesObject: PropTypes.object,
   loading: PropTypes.bool.isRequired,
 };
 

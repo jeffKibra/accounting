@@ -53,7 +53,7 @@ function TransferAmount(props) {
 }
 
 TransferAmount.propTypes = {
-  loading: PropTypes.bool.isRequired,
+  loading: PropTypes.bool,
   isEditing: PropTypes.bool,
 };
 

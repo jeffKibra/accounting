@@ -7,6 +7,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 //----------------------------------------------------------------
 
 const DateInput = forwardRef((props, ref) => {
+  // console.log({ props, ref });
   const { onClick, onChange, value, ...extraProps } = props;
   //   console.log({ value, extraProps });
 
@@ -25,6 +26,15 @@ DateInput.propTypes = {
   onChange: PropTypes.func.isRequired,
   onClick: PropTypes.func.isRequired,
   value: PropTypes.any,
+};
+
+DateInput.defaultProps = {
+  onChange: () => {
+    console.log('default onChange fn!');
+  },
+  onClick: () => {
+    console.log('default onClick fn!');
+  },
 };
 
 export default DateInput;

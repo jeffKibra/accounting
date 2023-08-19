@@ -6,7 +6,6 @@ import { Bookings } from 'utils/bookings';
 
 function useCheckItemAvailability() {
   const orgId = useSelector(state => state?.orgsReducer?.org?.orgId);
-  console.log({ orgId });
 
   const [loading, setLoading] = useState(false);
   const [itemIsAvailable, setItemIsAvailable] = useState(false);
@@ -26,10 +25,10 @@ function useCheckItemAvailability() {
             ''
           );
 
-          console.log({ status });
+          //   console.log({ status });
           setItemIsAvailable(status);
         } else {
-          console.error('Invalid orgId: ', orgId);
+          throw new Error(`Invalid orgId: ${orgId}`);
         }
       } catch (error) {
         console.error(error);
@@ -40,7 +39,7 @@ function useCheckItemAvailability() {
     [orgId]
   );
 
-  console.log({ itemIsAvailable });
+  //   console.log({ itemIsAvailable });
 
   useEffect(() => {
     console.log('check item availability function recreated!');

@@ -14,7 +14,6 @@ Pagination.propTypes = {
   rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number).isRequired,
   itemsCount: PropTypes.number.isRequired,
   rowsPerPage: PropTypes.number.isRequired,
-  onPageChange: PropTypes.func.isRequired,
   onRowsPerPageChange: PropTypes.func.isRequired,
   canNextPage: PropTypes.bool,
   canPreviousPage: PropTypes.bool,

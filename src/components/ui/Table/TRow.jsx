@@ -7,8 +7,8 @@ export default function TRow(props) {
   return (
     <TR {...props}>
       {cells => {
-        return cells.map(cell => {
-          return <TD cell={cell} />;
+        return cells.map((cell, i) => {
+          return <TD key={i} cell={cell} />;
         });
       }}
     </TR>

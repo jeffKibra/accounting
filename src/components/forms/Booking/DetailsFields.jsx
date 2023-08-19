@@ -104,7 +104,7 @@ export default function DetailsFields(props) {
         </GridItem> */}
 
         <GridItem colSpan={12}>
-          <BookingItemFormFields />
+          <BookingItemFormFields loading={loading} />
         </GridItem>
       </Grid>
 

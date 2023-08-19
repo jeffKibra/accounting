@@ -21,11 +21,11 @@ function SaleSummaryTable(props) {
 
   const updateTotals = useCallback(
     (bookingRate, quantity, transferAmount) => {
-      console.log('caculating totals', {
-        bookingRate,
-        quantity,
-        transferAmount,
-      });
+      // console.log('caculating totals', {
+      //   bookingRate,
+      //   quantity,
+      //   transferAmount,
+      // });
       //get current values
 
       // let { taxes } = subSummary;
@@ -135,7 +135,7 @@ function SaleSummaryTable(props) {
 }
 
 SaleSummaryTable.propTypes = {
-  loading: PropTypes.bool.isRequired,
+  loading: PropTypes.bool,
   summary: PropTypes.shape({
     bookingTotal: PropTypes.number,
     taxes: PropTypes.arrayOf(

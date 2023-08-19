@@ -84,7 +84,7 @@ function BookingForm(props) {
   const selectedItem = watch('item');
   const selectedDates = watch('selectedDates');
 
-  console.log({ selectedDates });
+  // console.log({ selectedDates });
 
   const setFutureDateError = useCallback(() => {
     setError('endDate', {

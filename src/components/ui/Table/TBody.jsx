@@ -9,12 +9,13 @@ export default function TBody(props) {
 
   return (
     <Tbody {...(tableBodyProps ? tableBodyProps : {})}>
-      {rows.map(row => {
+      {rows.map((row, i) => {
         prepareRow(row);
         // console.log({ row });
 
         return (
           <TRow
+            key={i}
             row={row}
             onClick={onRowClick}
             {...(rowProps ? rowProps : {})}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { Heading, Text, Spinner, Box } from '@chakra-ui/react';
+import { Heading, Text, Spinner, Flex } from '@chakra-ui/react';
 
 //
 import { useCheckItemAvailability } from '../hooks';
@@ -26,7 +26,7 @@ function EditSelectedItem(props) {
   const { itemIsAvailable, loading, checkItemAvailability } =
     useCheckItemAvailability();
 
-  console.log({ loading, itemIsAvailable });
+  //   console.log({ loading, itemIsAvailable });
 
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -38,7 +38,7 @@ function EditSelectedItem(props) {
   }, [item?.name, getValues]);
 
   useEffect(() => {
-    console.log('booking dates have changed');
+    // console.log('booking dates have changed');
 
     const currentSelectedItem = getValues('item');
     // console.log({ currentSelectedItem });
@@ -46,7 +46,7 @@ function EditSelectedItem(props) {
 
     const dateRange = `${startDateString}_${endDateString}`;
     if (itemId) {
-      checkItemAvailability(itemId, dateRange);
+      //   checkItemAvailability(itemId, dateRange);
     }
   }, [startDateString, endDateString, getValues, checkItemAvailability]);
 
@@ -57,10 +57,10 @@ function EditSelectedItem(props) {
   return (
     <Editable>
       {loading ? (
-        <Box>
-          <Spinner />
-          <Text>Loading...</Text>
-        </Box>
+        <Flex direction="column" justify="center" alignItems="center">
+          <Spinner size="lg" color="cyan" />
+          <Text mt={3}>Checking Car Schedule...</Text>
+        </Flex>
       ) : (
         <>
           <Heading mt={-4} textTransform="uppercase">

@@ -16,19 +16,20 @@ import SelectBookingItemTable from 'components/tables/Items/SelectBookingItemTab
 
 //---------------------------------------------------------------
 ItemsLoader.propTypes = {
-  loading: PropTypes.bool.isRequired,
-  childrem: PropTypes.node.isRequired,
+  // loading: PropTypes.bool.isRequired,
+  // children: PropTypes.node.isRequired,
   items: PropTypes.array,
   loadingItems: PropTypes.bool,
-  startDate: PropTypes.string.isRequired,
-  endDate: PropTypes.string.isRequired,
   onItemSelect: PropTypes.func,
+  selectedDates: PropTypes.arrayOf(PropTypes.string),
+  // startDate: PropTypes.string.isRequired,
+  // endDate: PropTypes.string.isRequired,
 };
 
 //------------------------------------------------------------------------------
 
 function ItemsLoader(props) {
-  console.log({ props });
+  // console.log({ props });
   const {
     items,
     loadingItems,
@@ -54,7 +55,7 @@ function ItemsLoader(props) {
       );
     }
   }, [selectedDates, orgId]);
-  console.log({ idsForItemsAlreadyBooked });
+  // console.log({ idsForItemsAlreadyBooked });
 
   useEffect(() => {
     fetchItemsNotBooked(idsForItemsAlreadyBooked);

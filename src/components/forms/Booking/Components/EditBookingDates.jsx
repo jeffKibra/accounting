@@ -1,13 +1,11 @@
 import { useState } from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 //
 import BookingDaysSelector from './BookingDaysSelector';
 import Editable from './Editable';
 
 //----------------------------------------------------------------
-EditBookingDates.propTypes = {
-  children: PropTypes.node.isRequired,
-};
+EditBookingDates.propTypes = {};
 
 function EditBookingDates(props) {
   const [isEditing, setIsEditing] = useState(false);
