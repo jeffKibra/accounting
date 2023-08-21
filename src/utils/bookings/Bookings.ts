@@ -86,6 +86,24 @@ export default class Bookings {
 
     return monthlyBookings;
   }
+
+  //-----------------------------------------------------------------------
+  //-----------------------------------------------------------------------
+  static async getItemMonthSchedule(
+    orgId: string,
+    itemId: string,
+    monthId: string
+  ) {
+    const monthBookings = await this.getMonthBookings(orgId, monthId);
+
+    let itemBookingsForTheMonth: string[] = [];
+
+    if (monthBookings) {
+      itemBookingsForTheMonth = monthBookings[itemId] || [];
+    }
+
+    return itemBookingsForTheMonth;
+  }
   //-----------------------------------------------------------------------
   //-----------------------------------------------------------------------
   static checkIfDateRangeIsValid(startDate: string, endDate: string): boolean {

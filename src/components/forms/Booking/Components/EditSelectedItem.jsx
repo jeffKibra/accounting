@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { Heading, Text, Spinner, Flex } from '@chakra-ui/react';
+import { Heading, Text, Spinner, Flex, } from '@chakra-ui/react';
 
 //
 import { useCheckItemAvailability } from '../hooks';
@@ -46,13 +46,15 @@ function EditSelectedItem(props) {
 
     const dateRange = `${startDateString}_${endDateString}`;
     if (itemId) {
-      //   checkItemAvailability(itemId, dateRange);
+      checkItemAvailability(itemId, dateRange);
     }
   }, [startDateString, endDateString, getValues, checkItemAvailability]);
 
   //   console.log({ selectedItem });
 
   const carModel = item?.model || {};
+
+  console.log({ loading });
 
   return (
     <Editable>

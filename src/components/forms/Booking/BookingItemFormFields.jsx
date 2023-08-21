@@ -1,4 +1,4 @@
-import { Grid, GridItem } from '@chakra-ui/react';
+import { Grid, GridItem, Box } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 //
 
@@ -15,11 +15,11 @@ function BookingItemFormFields(props) {
     <>
       <Grid
         rowGap={2}
-        columnGap={2}
+        columnGap={4}
         templateColumns="repeat(12, 1fr)"
         flexGrow={1}
       >
-        <GridItem
+        {/* <GridItem
           colSpan={12}
           mt={-4}
           mx={-4}
@@ -29,20 +29,23 @@ function BookingItemFormFields(props) {
           borderTopRightRadius="lg"
         >
           <EditBookingDates loading={loading} />
-        </GridItem>
+        </GridItem> */}
 
         <GridItem colSpan={[12, 6]} mt={4}>
           <EditSelectedItem loading={loading} />
+
+          <Box w="full" py={4}>
+            <EditBookingDates loading={loading} />
+          </Box>
         </GridItem>
 
         <GridItem colSpan={[12, 6]} mt={-4}>
           <EditBookingPricing loading={loading} />
-        </GridItem>
-
-        <GridItem colSpan={[0, 4, 6]}></GridItem>
-        <GridItem colSpan={[12, 8, 6]} mr={-5}>
           <SaleSummaryTable loading={loading} />
         </GridItem>
+
+        {/* <GridItem colSpan={[0, 4, 6]}></GridItem>
+        <GridItem colSpan={[12, 8, 6]} mr={-5}></GridItem> */}
       </Grid>
     </>
   );

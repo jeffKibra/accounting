@@ -1,6 +1,7 @@
 import getRemainingDatesInMonth from './getRemainingDatesInMonth';
 import checkIfIsSameMonth from './checkIfIsSameMonth';
 import getFebDays from './getFebDays';
+import confirmFutureDate from './confirmFutureDate';
 
 export default function getDatesWithinRange(
   start: string | Date,
@@ -9,7 +10,9 @@ export default function getDatesWithinRange(
   const startDate = new Date(start);
   const endDate = new Date(end);
 
-  if (endDate.getTime() < startDate.getTime()) {
+  const endDateIsValid = confirmFutureDate(startDate, endDate);
+
+  if (!endDateIsValid) {
     throw new Error('Booking end date must be after start date!');
   }
 

@@ -19,7 +19,7 @@ export default function Editable(props) {
         position="absolute"
         right={0}
         top={0}
-        zIndex={100}
+        zIndex={1}
         variant="ghost"
         {...(isEditing ? { colorScheme: 'red' } : {})}
         icon={isEditing ? <RiCloseLine /> : <RiEditLine />}
