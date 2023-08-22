@@ -28,4 +28,6 @@ export { default as useURLSearchParamsQuery } from './useURLSearchParamsQuery';
 export { default as useDeleteBooking } from './useDeleteBooking';
 export { default as useCustomerBookings } from './useCustomerBookings';
 export { default as useGetBookingFormProps } from './useGetBookingFormProps';
+export { default as useGetBookingsForMonth } from './useGetBookingsForMonth';
+//
 export { default as useCarModels } from './useCarModels';

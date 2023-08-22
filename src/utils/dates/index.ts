@@ -16,3 +16,4 @@ export { default as getRemainingDaysInYear } from './getRemainingDaysInYear';
 export { default as getYearsArray } from './getYearsArray';
 export { default as groupDatesByMonths } from './groupDatesByMonths';
 export { default as checkIfDateIsValid } from './checkIfDateIsValid';
+export { default as wait } from './wait';

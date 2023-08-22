@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import {
   FormControl,
   FormLabel,
@@ -5,14 +6,18 @@ import {
   FormHelperText,
   Grid,
   GridItem,
+  Flex,
+  Spinner,
+  Text,
+  Box,
 } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 import PropTypes from 'prop-types';
 //
-
 //
 // import DateRangePicker from './DateRangePicker';
 import RHFDatePicker from 'components/ui/hookForm/RHFDatePicker';
+import RHFDatePickerWithScheduleLoader from 'components/ui/hookForm/RHFDatePickerWithScheduleLoader';
 // import CustomDatePicker from './CustomDatePicker';
 
 import { DateDisplay } from './CustomDisplays';
@@ -30,6 +35,14 @@ BookingDaysSelector.defaultProps = {
   colSpan: 6,
 };
 
+function wait(ms) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(ms);
+    }, ms);
+  });
+}
+
 export default function BookingDaysSelector(props) {
   const { isEditing, loading, useInlineCalenders, colSpan } = props;
 
@@ -41,8 +54,29 @@ export default function BookingDaysSelector(props) {
   const startDate = watch('startDate');
   const endDate = watch('endDate');
   const selectedDates = watch('selectedDates');
-
   const days = selectedDates?.length;
+
+  useEffect(() => {
+    const monthDiv = document.getElementById('div.react-datepicker__month');
+    console.log({ monthDiv });
+  }, []);
+
+  const startDateRef = useRef(null);
+
+  console.log({ startDateRef });
+
+  function handleStartDateOpen(event) {
+    console.log(event);
+    const dateRef = startDateRef.current;
+    if (dateRef) {
+      const monthSelector = dateRef.querySelector('.react-datepicker__month');
+      console.log({ monthSelector });
+
+      if (monthSelector) {
+        monthSelector.innerHTML = null;
+      }
+    }
+  }
 
   return (
     <>
@@ -58,6 +92,7 @@ export default function BookingDaysSelector(props) {
             isDisabled={loading}
             isRequired
             isInvalid={errors.startDate}
+            ref={startDateRef}
           >
             {useInlineCalenders ? (
               <FormHelperText>
@@ -71,7 +106,7 @@ export default function BookingDaysSelector(props) {
                   Pickup Date
                 </FormLabel>
 
-                <RHFDatePicker
+                <RHFDatePickerWithScheduleLoader
                   name="startDate"
                   required
                   isReadOnly={loading}
@@ -79,7 +114,27 @@ export default function BookingDaysSelector(props) {
                   startDate={startDate}
                   endDate={endDate}
                   inline={useInlineCalenders}
+                  // onCalendarOpen={handleStartDateOpen}
                 />
+                {/* <RHFDatePicker
+                    name="startDate"
+                    required
+                    isReadOnly={loading}
+                    selectsStart
+                    startDate={startDate}
+                    endDate={endDate}
+                    inline={useInlineCalenders}
+                    onCalendarOpen={handleStartDateOpen}
+                    // renderDayContents={(day, date) => {
+                    //   console.log({ day, date });
+                    //   return day === 13 ? (
+                    //     <Flex direction="column" alignItems="center">
+                    //       <Spinner />
+                    //       <Text>Loading Month Schedule...</Text>
+                    //     </Flex>
+                    //   ) : null;
+                    // }}
+                  /> */}
               </>
             ) : (
               <DateDisplay title="Pickup Date" value={startDate} />
@@ -147,5 +202,14 @@ export default function BookingDaysSelector(props) {
         </GridItem> */}
       </Grid>
     </>
+  );
+}
+
+function LoadingSpinner() {
+  return (
+    <Flex direction="column" alignItems="center">
+      <Spinner />
+      <Text>Loading Month Schedule...</Text>
+    </Flex>
   );
 }
