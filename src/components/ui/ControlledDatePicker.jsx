@@ -11,13 +11,14 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 const ControlledDatePicker = forwardRef((props, ref) => {
   // console.log({ props });
-  const { name, onChange, selected, onBlur, ...extraProps } = props;
+  const { name, onChange, value, onBlur, ...extraProps } = props;
+  console.log({ extraProps });
 
   return (
     <DatePicker
       onBlur={onBlur}
       ref={ref}
-      selected={selected}
+      selected={value}
       onChange={onChange}
       customInput={<DateInput name={name} />}
       showYearDropdown
@@ -33,7 +34,7 @@ const ControlledDatePicker = forwardRef((props, ref) => {
 ControlledDatePicker.propTypes = {
   name: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
-  selected: PropTypes.instanceOf(Date).isRequired,
+  value: PropTypes.instanceOf(Date).isRequired,
   onBlur: PropTypes.func,
 };
 

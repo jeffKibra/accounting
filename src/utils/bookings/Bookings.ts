@@ -56,7 +56,7 @@ export default class Bookings {
       };
     } catch (err) {
       const error = err as Error;
-      console.error(`Error fetching month: ${monthId} bookings: `, error);
+      console.error(`Error fetching month ${monthId} bookings: `, error);
 
       throw error;
     }

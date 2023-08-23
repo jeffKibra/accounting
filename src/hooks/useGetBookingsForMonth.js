@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 //
 import { success } from 'store/slices/monthlyBookings';
@@ -14,27 +15,44 @@ export default function useGetBookingsForMonth() {
   console.log({ monthlyBookingsState, orgId });
   const monthlyBookings = monthlyBookingsState?.monthlyBookings;
 
-  function setMonthBookings(monthId, bookings) {
-    dispatch(success({ [monthId]: bookings }));
-  }
+  const setMonthBookings = useCallback(
+    (monthId, bookings) => {
+      dispatch(success({ [monthId]: bookings }));
+    },
+    [dispatch]
+  );
 
-  function resetMonth(monthId) {
-    setMonthBookings(monthId, null);
-  }
+  const resetMonth = useCallback(
+    monthId => {
+      setMonthBookings(monthId, null);
+    },
+    [setMonthBookings]
+  );
 
-  async function getMonthBookings(monthId) {
-    let monthBookings = {};
-    try {
-      resetMonth(monthId);
+  const getMonthBookings = useCallback(
+    async monthId => {
+      let monthBookings = {};
+      try {
+        //reset month bookings
+        setMonthBookings(monthId, null);
 
-      monthBookings = await Bookings.getMonthBookings(orgId, monthId);
-    } catch (error) {
-      console.error(error);
-      monthBookings = { error };
-    }
+        monthBookings = await Bookings.getMonthBookings(orgId, monthId);
 
-    setMonthBookings(monthId, monthBookings);
-  }
+        if (!monthBookings) {
+          //if no data, set monthBookings to an empty object to stop ui loading
+          monthBookings = {};
+        }
+      } catch (error) {
+        console.error(error);
+        monthBookings = { error };
+      }
+
+      console.log({ monthId, monthBookings });
+
+      setMonthBookings(monthId, monthBookings);
+    },
+    [setMonthBookings, orgId]
+  );
 
   return { monthlyBookings, setMonthBookings, resetMonth, getMonthBookings };
 }

@@ -21,7 +21,10 @@ RHFDatePickerWithScheduleLoader.defaultProps = {
 export default function RHFDatePickerWithScheduleLoader(props) {
   const { name, isReadOnly, controllerProps, ...moreProps } = props;
 
-  const { control } = useFormContext();
+  const { control, watch } = useFormContext();
+
+  const item = watch('item');
+  const itemId = item?.itemId;
 
   return (
     <Controller
@@ -40,6 +43,7 @@ export default function RHFDatePickerWithScheduleLoader(props) {
             onBlur={onBlur}
             value={value}
             isReadOnly={isReadOnly}
+            itemId={itemId}
             {...moreProps}
           />
         );
