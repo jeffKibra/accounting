@@ -11,8 +11,9 @@ import {
   Spinner,
   Text,
   Box,
+  Input,
 } from '@chakra-ui/react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, Controller } from 'react-hook-form';
 import PropTypes from 'prop-types';
 //
 import { getDateDetails } from 'utils/dates';
@@ -57,6 +58,7 @@ export default function BookingDaysSelector(props) {
     watch,
     setError,
     clearErrors,
+    control,
   } = useFormContext();
 
   const startDate = watch('startDate');
@@ -69,7 +71,7 @@ export default function BookingDaysSelector(props) {
     if (Array.isArray(selectedDates) && monthlyBookings) {
       const itemMonthlyBookings = {};
 
-      selectedDates.forEach(selectedDate => {
+      const alreadyBookedDate = selectedDates.find(selectedDate => {
         const { yearMonth, yearMonthDay } = getDateDetails(
           new Date(selectedDate)
         );
@@ -99,12 +101,23 @@ export default function BookingDaysSelector(props) {
         const dateIsAlreadyBooked = Boolean(itemBookingsForMonth[yearMonthDay]);
         console.log({ dateIsAlreadyBooked, yearMonthDay });
 
-        if (dateIsAlreadyBooked) {
-          //update form Errors
-        }
+        return dateIsAlreadyBooked;
       });
+
+      console.log({ alreadyBookedDate });
+
+      if (alreadyBookedDate) {
+        //update form Errors
+        setError('endDate', {
+          type: 'validate',
+          message: 'Some of the selected dates have already been booked!',
+        });
+      } else {
+        //clear any date range errors
+        clearErrors('endDate');
+      }
     }
-  }, [selectedDates, monthlyBookings, itemId]);
+  }, [selectedDates, monthlyBookings, itemId, setError, clearErrors]);
 
   const startDateRef = useRef(null);
 
@@ -214,6 +227,46 @@ export default function BookingDaysSelector(props) {
             <FormHelperText>{`${days || ''} ${
               days ? `day${days > 1 ? 's' : ''} selected` : ''
             }`}</FormHelperText>
+          </FormControl>
+        </GridItem>
+
+        <GridItem colSpan={12}>
+          <FormControl
+            isDisabled={loading}
+            isRequired
+            isInvalid={errors?.selectedDates}
+          >
+            <Controller
+              name="selectedDates"
+              control={control}
+              rules={{
+                validate: val => {
+                  console.log({ val });
+
+                  return false;
+                },
+              }}
+              render={({ field: { name, onBlur, onChange, ref, value } }) => {
+                console.log({ value });
+
+                function handleChange(e) {
+                  const inValue = e?.target?.value;
+                  console.log({ inValue });
+
+                  onChange(e);
+                }
+
+                return (
+                  <>
+                    <Input onChange={handleChange} value={value} />
+                    {JSON.stringify(value)}
+                    <FormErrorMessage>
+                      {errors?.selectedDates?.message}
+                    </FormErrorMessage>
+                  </>
+                );
+              }}
+            />
           </FormControl>
         </GridItem>
 
