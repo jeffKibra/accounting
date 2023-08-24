@@ -15,7 +15,11 @@ import { dbCollections } from '../../utils/firebase';
 
 //----------------------------------------------------------------
 
-import { getDatesWithinRange, checkIfDateIsValid } from '../../utils/dates';
+import {
+  getDatesWithinRange,
+  checkIfDateIsValid,
+  getDateDetails,
+} from '../../utils/dates';
 //
 import {
   ItemType,
@@ -37,6 +41,79 @@ export default class Bookings {
   //   ------------------------------------------------------------------
   //   Static methods
   //   -------------------------------------------------------------------
+
+  static getItemBookingsForMonth(
+    monthlyBookings: IMonthlyBookings,
+    yearMonth: string,
+    itemId: string
+  ) {
+    const monthBookings = monthlyBookings[yearMonth];
+    const itemBookingsForMonthArray = monthBookings
+      ? monthBookings[itemId] || []
+      : [];
+
+    const itemBookingsForMonth = itemBookingsForMonthArray.reduce(
+      (acc: Record<string, string>, date) => {
+        return {
+          ...acc,
+          [date]: date,
+        };
+      },
+      {}
+    );
+
+    return {
+      array: itemBookingsForMonthArray,
+      object: itemBookingsForMonth,
+    };
+  }
+
+  //   -------------------------------------------------------------------
+  static checkIfAnAlreadyBookedDateIsInRange(
+    selectedDates: string[],
+    monthlyBookings: IMonthlyBookings,
+    itemId: string
+  ) {
+    let atleastOneDateIsInRange = false;
+
+    if (Array.isArray(selectedDates) && monthlyBookings) {
+      const itemMonthlyBookings: Record<string, Record<string, string>> = {};
+
+      const alreadyBookedDate = selectedDates.find(selectedDate => {
+        const { yearMonth, yearMonthDay } = getDateDetails(
+          new Date(selectedDate)
+        );
+
+        let itemBookingsForMonth = itemMonthlyBookings[yearMonth];
+
+        if (!itemBookingsForMonth) {
+          const itemBookingsForMonthResult = this.getItemBookingsForMonth(
+            monthlyBookings,
+            yearMonth,
+            itemId
+          );
+
+          itemBookingsForMonth = itemBookingsForMonthResult.object;
+        }
+        // console.log({ itemBookingsForMonth });
+
+        const dateIsAlreadyBooked = Boolean(itemBookingsForMonth[yearMonthDay]);
+        // console.log({ dateIsAlreadyBooked, yearMonthDay });
+
+        return dateIsAlreadyBooked;
+      });
+
+      // console.log({ alreadyBookedDate });
+
+      atleastOneDateIsInRange = Boolean(alreadyBookedDate);
+    }
+
+    // console.log({ atleastOneDateIsInRange });
+
+    return atleastOneDateIsInRange;
+  }
+
+  //----------------------------------------------------------------
 
   static async getMonthBookings(orgId: string, monthId: string) {
     try {

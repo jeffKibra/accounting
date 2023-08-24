@@ -9,13 +9,13 @@ import { getDateDetails } from 'utils/dates';
 //
 // import DateRangePicker from './DateRangePicker';
 // import RHFDatePicker from 'components/ui/hookForm/RHFDatePicker';
-import ControlledDatePicker from 'components/ui/ControlledDatePicker';
+import ControlledDefaultDatePicker from 'components/ui/ControlledDefaultDatePicker';
 // import CustomDatePicker from './CustomDatePicker';
 
 //----------------------------------------------------------------
 
 const ControlledDatePickerWithScheduleLoader = forwardRef((props, ref) => {
-  console.log({ props, ref });
+  // console.log({ props, ref });
   const { value, onChange, onBlur, name, isReadOnly, itemId, ...moreProps } =
     props;
 
@@ -28,12 +28,12 @@ const ControlledDatePickerWithScheduleLoader = forwardRef((props, ref) => {
   useEffect(() => {
     //fetch schedule for month if not downloaded already
     if (activeMonth) {
-      const currentMonthBookings = monthlyBookings[activeMonth];
-      console.log({ currentMonthBookings });
-      console.log('fetching month schedule...', {
-        activeMonth,
-        currentMonthBookings,
-      });
+      // const currentMonthBookings = monthlyBookings[activeMonth];
+      // console.log({ currentMonthBookings });
+      // console.log('fetching month schedule...', {
+      //   activeMonth,
+      //   currentMonthBookings,
+      // });
 
       // const items = currentMonthBookings
       //   ? Object.keys(currentMonthBookings)
@@ -72,11 +72,11 @@ const ControlledDatePickerWithScheduleLoader = forwardRef((props, ref) => {
 
   const loadingSchedule = !Boolean(monthBookings);
 
-  console.log({ activeMonth, monthBookings, loadingSchedule });
+  // console.log({ activeMonth, monthBookings, loadingSchedule });
 
   const itemBookingsForMonth = monthBookings ? monthBookings[itemId] || [] : [];
 
-  console.log({ itemBookingsForMonth, monthBookings, itemId });
+  // console.log({ itemBookingsForMonth, monthBookings, itemId });
 
   const alreadyBookedDates = itemBookingsForMonth.map(
     dateString => new Date(dateString)
@@ -99,7 +99,7 @@ const ControlledDatePickerWithScheduleLoader = forwardRef((props, ref) => {
         },
       }}
     >
-      <ControlledDatePicker
+      <ControlledDefaultDatePicker
         name={name}
         onBlur={onBlur}
         ref={ref}
@@ -129,7 +129,7 @@ const ControlledDatePickerWithScheduleLoader = forwardRef((props, ref) => {
             Already Booked Dates
           </Text>
         )}
-      </ControlledDatePicker>{' '}
+      </ControlledDefaultDatePicker>{' '}
     </Box>
   );
 });

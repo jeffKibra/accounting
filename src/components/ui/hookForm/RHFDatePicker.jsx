@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 
 //
 import ControlledDatePicker from '../ControlledDatePicker';
-import ControlledDatePickerWithScheduleLoader from '../ControlledDatePickerWithScheduleLoader';
 
 function RHFDatePicker(props) {
   const {
@@ -27,24 +26,17 @@ function RHFDatePicker(props) {
       }}
       {...controllerProps}
       render={({ field: { name, onBlur, onChange, value, ref } }) => {
-        const controlledDatePickerProps = {
-          ref,
-          name,
-          onChange,
-          onBlur,
-          value,
-          isReadOnly,
-          itemId,
-          ...datePickerProps,
-        };
-
-        return loadSchedules && itemId ? (
-          <ControlledDatePickerWithScheduleLoader
+        return (
+          <ControlledDatePicker
+            ref={ref}
+            name={name}
+            onChange={onChange}
+            onBlur={onBlur}
+            value={value}
+            isReadOnly={isReadOnly}
             itemId={itemId}
-            {...controlledDatePickerProps}
+            {...datePickerProps}
           />
-        ) : (
-          <ControlledDatePicker {...controlledDatePickerProps} />
         );
       }}
     />

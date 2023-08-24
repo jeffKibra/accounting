@@ -65,8 +65,15 @@ function BookingsTable(props) {
 
   const data = useMemo(() => {
     return bookings.map(booking => {
-      const { total, downPayment, item, paymentsReceived, startDate, endDate } =
-        booking;
+      const {
+        total,
+        downPayment,
+        item,
+        paymentsReceived,
+        startDate,
+        endDate,
+        selectedDates,
+      } = booking;
       const imprest = downPayment?.amount || 0;
 
       let balance = booking?.balance || 0;
@@ -86,6 +93,7 @@ function BookingsTable(props) {
         date: <BookingDates startDate={startDate} endDate={endDate} />,
         // date: <bookingDates booking={booking} />,
         paymentAmount: Number(paymentAmount).toLocaleString(),
+        quantity: selectedDates?.length || 0,
         paymentInput: (
           <BookingPaymentInput
             booking={booking}

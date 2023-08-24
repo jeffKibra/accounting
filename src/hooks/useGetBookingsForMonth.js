@@ -12,7 +12,7 @@ export default function useGetBookingsForMonth() {
     state => state?.monthlyBookingsReducer
   );
   const orgId = useSelector(state => state?.orgsReducer?.org?.orgId);
-  console.log({ monthlyBookingsState, orgId });
+  // console.log({ monthlyBookingsState, orgId });
   const monthlyBookings = monthlyBookingsState?.monthlyBookings;
 
   const setMonthBookings = useCallback(
@@ -47,7 +47,7 @@ export default function useGetBookingsForMonth() {
         monthBookings = { error };
       }
 
-      console.log({ monthId, monthBookings });
+      // console.log({ monthId, monthBookings });
 
       setMonthBookings(monthId, monthBookings);
     },

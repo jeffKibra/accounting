@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Box } from '@chakra-ui/react';
 //
 import AdvancedTable from 'components/ui/Table/AdvancedTable';
 //
@@ -24,27 +23,25 @@ function SelectBookingItemTable(props) {
   }
 
   return (
-    <Box w="full" bg="white" borderRadius="md" shadow="md" py={4}>
-      <AdvancedTable
-        data={data}
-        columns={columns}
-        onRowClick={handleRowClick}
-        includeGlobalFilter
-        loading={loading}
-        error={error}
-        {...moreProps}
-        bodyRowProps={{
-          cursor: 'pointer',
-          transition: 'all 100ms ease-in-out',
-          _hover: {
-            backgroundColor: 'cyan.50',
-          },
-          _active: {
-            backgroundColor: 'cyan.100',
-          },
-        }}
-      />
-    </Box>
+    <AdvancedTable
+      data={data}
+      columns={columns}
+      onRowClick={handleRowClick}
+      includeGlobalFilter
+      loading={loading}
+      error={error}
+      {...moreProps}
+      bodyRowProps={{
+        cursor: 'pointer',
+        transition: 'all 100ms ease-in-out',
+        _hover: {
+          backgroundColor: 'cyan.50',
+        },
+        _active: {
+          backgroundColor: 'cyan.100',
+        },
+      }}
+    />
   );
 }
 

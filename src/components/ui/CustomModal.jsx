@@ -19,6 +19,7 @@ function CustomModal(props) {
     renderContent,
     renderFooter,
     closeOnOverlayClick,
+    ...moreProps
   } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -33,6 +34,7 @@ function CustomModal(props) {
         isOpen={isOpen}
         scrollBehavior="inside"
         closeOnOverlayClick={closeOnOverlayClick}
+        {...moreProps}
       >
         <ModalOverlay />
         <ModalContent>
