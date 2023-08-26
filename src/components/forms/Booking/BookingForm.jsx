@@ -209,6 +209,7 @@ function BookingForm(props) {
                   taxes={taxes}
                   item={selectedItem}
                   paymentModes={paymentModes}
+                  currentBookingDetails={booking || null}
                 />
               </Box>
 

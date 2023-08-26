@@ -19,13 +19,20 @@ EndDateSelector.propTypes = {
   isEditing: PropTypes.bool,
   loadSchedules: PropTypes.bool,
   itemId: PropTypes.string,
+  preselectedDates: PropTypes.array,
 };
 
 EndDateSelector.defaultProps = {};
 
 export default function EndDateSelector(props) {
-  const { isEditing, loading, itemId, loadSchedules, ...datePickerProps } =
-    props;
+  const {
+    isEditing,
+    loading,
+    itemId,
+    loadSchedules,
+    preselectedDates,
+    ...datePickerProps
+  } = props;
 
   const {
     formState: { errors },
@@ -83,6 +90,7 @@ export default function EndDateSelector(props) {
                 minDate={startDate}
                 itemId={itemId}
                 loadSchedules={loadSchedules}
+                preselectedDates={preselectedDates}
                 {...datePickerProps}
               />
             </>

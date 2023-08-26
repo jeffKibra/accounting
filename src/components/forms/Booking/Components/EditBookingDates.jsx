@@ -8,10 +8,11 @@ import Editable from './Editable';
 //----------------------------------------------------------------
 EditBookingDates.propTypes = {
   loading: PropTypes.bool,
+  currentBookingDetails: PropTypes.array,
 };
 
 function EditBookingDates(props) {
-  const { loading } = props;
+  const { loading, currentBookingDetails } = props;
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -19,6 +20,11 @@ function EditBookingDates(props) {
 
   const item = watch('item');
   const itemId = item?.itemId;
+  //
+  let preselectedDates = currentBookingDetails?.selectedDates || [];
+  const currentSelectedItemId = currentBookingDetails?.item?.itemId || '';
+
+  preselectedDates = currentSelectedItemId === itemId ? preselectedDates : [];
 
   function toggleEditing() {
     setIsEditing(currentState => !currentState);
@@ -32,6 +38,7 @@ function EditBookingDates(props) {
         itemId={itemId}
         isEditing={isEditing}
         colSpan={6}
+        preselectedDates={preselectedDates}
       />
     </Editable>
   );

@@ -43,9 +43,10 @@ export default class Bookings {
   //   -------------------------------------------------------------------
 
   static getItemBookingsForMonth(
-    monthlyBookings: IMonthlyBookings,
+    itemId: string,
     yearMonth: string,
-    itemId: string
+    monthlyBookings: IMonthlyBookings,
+    datesToExclude: Record<string, string> = {}
   ) {
     const monthBookings = monthlyBookings[yearMonth];
     const itemBookingsForMonthArray = monthBookings
@@ -54,9 +55,12 @@ export default class Bookings {
 
     const itemBookingsForMonth = itemBookingsForMonthArray.reduce(
       (acc: Record<string, string>, date) => {
+        const shouldExclude = Boolean(datesToExclude[date]);
+        console.log({ date, shouldExclude });
+
         return {
           ...acc,
-          [date]: date,
+          ...(shouldExclude ? {} : { [date]: date }),
         };
       },
       {}
@@ -70,11 +74,21 @@ export default class Bookings {
 
   //   -------------------------------------------------------------------
   static checkIfAnAlreadyBookedDateIsInRange(
+    itemId: string,
     selectedDates: string[],
     monthlyBookings: IMonthlyBookings,
-    itemId: string
+    datesToExclude: string[] = []
   ) {
+    console.log({ datesToExclude });
     let atleastOneDateIsInRange = false;
+
+    const datesToExcludeObject: Record<string, string> = {};
+
+    if (Array.isArray(datesToExclude)) {
+      datesToExclude.forEach(dateString => {
+        datesToExcludeObject[dateString] = dateString;
+      });
+    }
 
     if (Array.isArray(selectedDates) && monthlyBookings) {
       const itemMonthlyBookings: Record<string, Record<string, string>> = {};
@@ -88,14 +102,15 @@ export default class Bookings {
 
         if (!itemBookingsForMonth) {
           const itemBookingsForMonthResult = this.getItemBookingsForMonth(
-            monthlyBookings,
+            itemId,
             yearMonth,
-            itemId
+            monthlyBookings,
+            datesToExcludeObject
           );
 
           itemBookingsForMonth = itemBookingsForMonthResult.object;
         }
-        // console.log({ itemBookingsForMonth });
+        console.log({ itemBookingsForMonth });
 
         const dateIsAlreadyBooked = Boolean(itemBookingsForMonth[yearMonthDay]);
         // console.log({ dateIsAlreadyBooked, yearMonthDay });

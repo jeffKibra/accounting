@@ -10,10 +10,15 @@ import { Bookings } from 'utils/bookings';
 SelectedDates.propTypes = {
   loading: PropTypes.bool,
   itemId: PropTypes.string,
+  preselectedDates: PropTypes.array,
+};
+
+SelectedDates.defaultProps = {
+  preselectedDates: [],
 };
 
 export default function SelectedDates(props) {
-  const { loading, itemId } = props;
+  const { loading, itemId, preselectedDates } = props;
 
   const monthlyBookings = useSelector(
     state => state?.monthlyBookingsReducer?.monthlyBookings
@@ -41,12 +46,13 @@ export default function SelectedDates(props) {
 
             const atleastOneDateIsInRange =
               Bookings.checkIfAnAlreadyBookedDateIsInRange(
+                itemId,
                 val,
                 monthlyBookings,
-                itemId
+                preselectedDates
               );
 
-            // console.log({ atleastOneDateIsInRange });
+            console.log({ atleastOneDateIsInRange });
 
             return (
               !atleastOneDateIsInRange ||

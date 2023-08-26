@@ -16,11 +16,18 @@ StartDateSelector.propTypes = {
   isEditing: PropTypes.bool,
   loadSchedules: PropTypes.bool,
   itemId: PropTypes.string,
+  preselectedDates: PropTypes.array,
 };
 
 export default function StartDateSelector(props) {
-  const { isEditing, loading, itemId, loadSchedules, ...datePickerProps } =
-    props;
+  const {
+    isEditing,
+    loading,
+    itemId,
+    loadSchedules,
+    preselectedDates,
+    ...datePickerProps
+  } = props;
 
   const {
     formState: { errors },
@@ -86,6 +93,7 @@ export default function StartDateSelector(props) {
                 endDate={endDate}
                 itemId={itemId}
                 loadSchedules={loadSchedules}
+                preselectedDates={preselectedDates}
                 {...datePickerProps}
                 // renderDayContents={(day, date) => {
                 //   console.log({ day, date });

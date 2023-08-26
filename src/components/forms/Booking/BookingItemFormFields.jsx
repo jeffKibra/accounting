@@ -9,7 +9,8 @@ import EditBookingDates from './Components/EditBookingDates';
 import EditSelectedItem from './Components/EditSelectedItem';
 
 function BookingItemFormFields(props) {
-  const { loading } = props;
+  const { loading, currentBookingDetails } = props;
+  console.log({ currentBookingDetails });
 
   return (
     <>
@@ -35,7 +36,10 @@ function BookingItemFormFields(props) {
           <EditSelectedItem loading={loading} />
 
           <Box w="full" py={4}>
-            <EditBookingDates loading={loading} />
+            <EditBookingDates
+              loading={loading}
+              currentBookingDetails={currentBookingDetails}
+            />
           </Box>
         </GridItem>
 
@@ -61,6 +65,7 @@ BookingItemFormFields.propTypes = {
   // index: PropTypes.number.isRequired,
   taxesObject: PropTypes.object,
   loading: PropTypes.bool.isRequired,
+  currentBookingDetails: PropTypes.object,
 };
 
 export default BookingItemFormFields;

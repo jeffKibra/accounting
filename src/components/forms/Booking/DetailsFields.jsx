@@ -30,11 +30,19 @@ DetailsFields.propTypes = {
   paymentTerms: PropTypes.array.isRequired,
   paymentModes: PropTypes.object.isRequired,
   bookingId: PropTypes.string,
+  currentBookingDetails: PropTypes.object,
 };
 
 export default function DetailsFields(props) {
-  const { customers, paymentTerms, loading, bookingId, items, paymentModes } =
-    props;
+  const {
+    customers,
+    paymentTerms,
+    loading,
+    bookingId,
+    // items,
+    paymentModes,
+    currentBookingDetails,
+  } = props;
 
   const {
     register,
@@ -104,7 +112,10 @@ export default function DetailsFields(props) {
         </GridItem> */}
 
         <GridItem colSpan={12}>
-          <BookingItemFormFields loading={loading} />
+          <BookingItemFormFields
+            loading={loading}
+            currentBookingDetails={currentBookingDetails}
+          />
         </GridItem>
       </Grid>
 

@@ -1,4 +1,4 @@
-import { forwardRef, useState, useEffect } from 'react';
+import { forwardRef, useState, useEffect, useMemo } from 'react';
 import { Spinner, Text, Box } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 //
@@ -16,8 +16,27 @@ import ControlledDefaultDatePicker from 'components/ui/ControlledDefaultDatePick
 
 const ControlledDatePickerWithScheduleLoader = forwardRef((props, ref) => {
   // console.log({ props, ref });
-  const { value, onChange, onBlur, name, isReadOnly, itemId, ...moreProps } =
-    props;
+  const {
+    value,
+    onChange,
+    onBlur,
+    name,
+    isReadOnly,
+    itemId,
+    preselectedDates,
+    ...moreProps
+  } = props;
+
+  const preselectedDatesObject = useMemo(() => {
+    const map = {};
+    if (Array.isArray(preselectedDates)) {
+      preselectedDates.forEach(dateString => {
+        map[dateString] = dateString;
+      });
+    }
+
+    return map;
+  }, [preselectedDates]);
 
   const activeDate = new Date(value || Date.now());
 
@@ -78,9 +97,17 @@ const ControlledDatePickerWithScheduleLoader = forwardRef((props, ref) => {
 
   // console.log({ itemBookingsForMonth, monthBookings, itemId });
 
-  const alreadyBookedDates = itemBookingsForMonth.map(
-    dateString => new Date(dateString)
-  );
+  const alreadyBookedDates = [];
+  itemBookingsForMonth.forEach(dateString => {
+    const dateToExclude = preselectedDatesObject[dateString];
+
+    const isAlreadyBooked = !Boolean(dateToExclude);
+    console.log({ dateToExclude, isAlreadyBooked });
+
+    if (isAlreadyBooked) {
+      alreadyBookedDates.push(new Date(dateString));
+    }
+  });
 
   return (
     <Box
@@ -141,6 +168,7 @@ ControlledDatePickerWithScheduleLoader.propTypes = {
   onBlur: PropTypes.func,
   name: PropTypes.string,
   itemId: PropTypes.string.isRequired,
+  preselectedDates: PropTypes.array,
 };
 
 export default ControlledDatePickerWithScheduleLoader;

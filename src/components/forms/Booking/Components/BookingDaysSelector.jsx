@@ -15,14 +15,23 @@ BookingDaysSelector.propTypes = {
   isEditing: PropTypes.bool,
   loadSchedules: PropTypes.bool,
   itemId: PropTypes.string,
+  preselectedDates: PropTypes.array,
 };
 
 BookingDaysSelector.defaultProps = {
   colSpan: 6,
+  preselectedDates: [],
 };
 
 export default function BookingDaysSelector(props) {
-  const { isEditing, loading, colSpan, itemId, loadSchedules } = props;
+  const {
+    isEditing,
+    loading,
+    colSpan,
+    itemId,
+    loadSchedules,
+    preselectedDates,
+  } = props;
 
   return (
     <>
@@ -39,6 +48,7 @@ export default function BookingDaysSelector(props) {
             itemId={itemId}
             loadSchedules={loadSchedules}
             loading={loading}
+            preselectedDates={preselectedDates || []}
           />
         </GridItem>
 
@@ -48,11 +58,16 @@ export default function BookingDaysSelector(props) {
             itemId={itemId}
             loadSchedules={loadSchedules}
             loading={loading}
+            preselectedDates={preselectedDates || []}
           />
         </GridItem>
 
         <GridItem colSpan={12} mt={-3}>
-          <SelectedDates />
+          <SelectedDates
+            loading={loading}
+            itemId={itemId}
+            preselectedDates={preselectedDates || []}
+          />
         </GridItem>
       </Grid>
     </>

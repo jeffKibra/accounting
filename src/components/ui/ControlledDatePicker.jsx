@@ -8,12 +8,13 @@ import ControlledDatePickerWithScheduleLoader from './ControlledDatePickerWithSc
 
 const ControlledDatePicker = forwardRef((props, ref) => {
   // console.log({ props });
-  const { loadSchedules, itemId, ...datePickerProps } = props;
+  const { loadSchedules, itemId, preselectedDates, ...datePickerProps } = props;
 
   return loadSchedules && itemId ? (
     <ControlledDatePickerWithScheduleLoader
       itemId={itemId}
       ref={ref}
+      preselectedDates={preselectedDates || []}
       {...datePickerProps}
     />
   ) : (
@@ -28,6 +29,7 @@ ControlledDatePicker.propTypes = {
   onBlur: PropTypes.func,
   loadSchedules: PropTypes.bool,
   itemId: PropTypes.string,
+  preselectedDates: PropTypes.array,
 };
 
 export default ControlledDatePicker;
