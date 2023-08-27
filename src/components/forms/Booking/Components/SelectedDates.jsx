@@ -19,6 +19,7 @@ SelectedDates.defaultProps = {
 
 export default function SelectedDates(props) {
   const { loading, itemId, preselectedDates } = props;
+  console.log({})
 
   const monthlyBookings = useSelector(
     state => state?.monthlyBookingsReducer?.monthlyBookings

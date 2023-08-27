@@ -1,5 +1,5 @@
-import React from 'react';
 import { Flex, Button, Box } from '@chakra-ui/react';
+import PropTypes from 'prop-types';
 
 //
 import CustomModal from 'components/ui/CustomModal';
@@ -8,8 +8,20 @@ import CustomModal from 'components/ui/CustomModal';
 import SelectItem from './SelectItem';
 import BookingDaysSelector from './BookingDaysSelector';
 
+//----------------------------------------------------------------
+ItemSelectorModal.propTypes = {
+  preselectedItemId: PropTypes.string,
+  preselectedDates: PropTypes.array,
+  children: PropTypes.func.isRequired,
+};
+
+ItemSelectorModal.defaultProps = {
+  preselectedItemId: '',
+  preselectedDates: [],
+};
+
 function ItemSelectorModal(props) {
-  const { children } = props;
+  const { children, preselectedItemId, preselectedDates } = props;
 
   return (
     <CustomModal
@@ -24,7 +36,11 @@ function ItemSelectorModal(props) {
               <BookingDaysSelector isEditing />
             </Box>
 
-            <SelectItem onSelect={onClose} />
+            <SelectItem
+              onSelect={onClose}
+              preselectedItemId={preselectedItemId}
+              preselectedDates={preselectedDates}
+            />
           </>
         );
       }}

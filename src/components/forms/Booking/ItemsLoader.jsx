@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -8,6 +8,8 @@ import { GET_ITEMS_NOT_BOOKED } from 'store/actions/itemsActions';
 //
 import { Bookings } from 'utils/bookings';
 import { groupDatesByMonths } from 'utils/dates';
+//
+import BookingFormContext from 'contexts/BookingFormContext';
 
 //
 // import DateRangePicker from 'components/ui/DateRangePicker';
@@ -24,6 +26,11 @@ ItemsLoader.propTypes = {
   selectedDates: PropTypes.arrayOf(PropTypes.string),
   // startDate: PropTypes.string.isRequired,
   // endDate: PropTypes.string.isRequired,
+};
+
+ItemsLoader.defaultProps = {
+  preselectedItemId: '',
+  preselectedDates: [],
 };
 
 //------------------------------------------------------------------------------
@@ -43,18 +50,30 @@ function ItemsLoader(props) {
 
   const [idsForItemsAlreadyBooked, setIdsForItemsAlreadyBooked] = useState([]);
 
+  const { savedData } = useContext(BookingFormContext);
+
+  const { preselectedDates, preselectedItemId } = useMemo(() => {
+    const preselectedDates = savedData?.selectedDates || [];
+    const preselectedItemId = savedData?.item?.itemId || '';
+
+    return { preselectedItemId, preselectedDates };
+  }, [savedData]);
+
   useEffect(() => {
     if (selectedDates?.length > 0) {
       const datesGroupedInMonths = groupDatesByMonths(selectedDates);
       // console.log({ datesGroupedInMonths, selectedDates });
 
-      Bookings.getIdsForItemsAlreadyBooked(orgId, datesGroupedInMonths).then(
-        itemsIds => {
-          setIdsForItemsAlreadyBooked(itemsIds);
-        }
-      );
+      Bookings.getIdsForItemsAlreadyBooked(
+        orgId,
+        datesGroupedInMonths,
+        preselectedItemId,
+        preselectedDates
+      ).then(itemsIds => {
+        setIdsForItemsAlreadyBooked(itemsIds);
+      });
     }
-  }, [selectedDates, orgId]);
+  }, [selectedDates, orgId, preselectedItemId, preselectedDates]);
   // console.log({ idsForItemsAlreadyBooked });
 
   useEffect(() => {

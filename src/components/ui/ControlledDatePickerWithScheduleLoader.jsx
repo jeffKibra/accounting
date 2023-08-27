@@ -93,21 +93,26 @@ const ControlledDatePickerWithScheduleLoader = forwardRef((props, ref) => {
 
   // console.log({ activeMonth, monthBookings, loadingSchedule });
 
-  const itemBookingsForMonth = monthBookings ? monthBookings[itemId] || [] : [];
+  const itemBookingsForMonth = useMemo(() => {
+    return monthBookings ? monthBookings[itemId] || [] : [];
+  }, [monthBookings, itemId]);
 
   // console.log({ itemBookingsForMonth, monthBookings, itemId });
 
-  const alreadyBookedDates = [];
-  itemBookingsForMonth.forEach(dateString => {
-    const dateToExclude = preselectedDatesObject[dateString];
+  const alreadyBookedDates = useMemo(() => {
+    const alreadyBooked = [];
 
-    const isAlreadyBooked = !Boolean(dateToExclude);
-    console.log({ dateToExclude, isAlreadyBooked });
+    itemBookingsForMonth.forEach(dateString => {
+      const dateToExclude = preselectedDatesObject[dateString];
 
-    if (isAlreadyBooked) {
-      alreadyBookedDates.push(new Date(dateString));
-    }
-  });
+      const isAlreadyBooked = !Boolean(dateToExclude);
+      // console.log({ dateToExclude, isAlreadyBooked });
+
+      if (isAlreadyBooked) {
+        alreadyBooked.push(new Date(dateString));
+      }
+    });
+  }, [itemBookingsForMonth, preselectedDatesObject]);
 
   return (
     <Box

@@ -348,14 +348,26 @@ export default class Bookings {
 
   static async getIdsForItemsAlreadyBooked(
     orgId: string,
-    selectedDatesGroupedInMonths: Record<string, string[]>
+    selectedDatesGroupedInMonths: Record<string, string[]>,
+    preselectedItemId: string = '',
+    preselectedDates: string[] = []
   ) {
+    // console.log({ selectedDatesGroupedInMonths });
+    //create preselectedDates object for quick lookups
+    let preselectedDatesObject: Record<string, string> = {};
+
+    if (Array.isArray(preselectedDates)) {
+      preselectedDates.forEach(dateString => {
+        preselectedDatesObject[dateString] = dateString;
+      });
+    }
+
     const months = Object.keys(selectedDatesGroupedInMonths);
     //fetch months from firestore
 
     const currentMonthlyBookings: IMonthlyBookings = {};
 
-    const monthlyBookingsData = await Promise.all(
+    const currentMonthlyBookingsArray = await Promise.all(
       months.map(async monthId => {
         const collectionRef = dbCollections(orgId).monthlyBookings;
         const docRef = doc(collectionRef, monthId);
@@ -363,7 +375,7 @@ export default class Bookings {
         const snap = await getDoc(docRef);
         let docData: IMonthBookings = {};
         const docExists = snap.exists();
-        console.log({ docExists });
+        // console.log({ docExists });
         if (docExists) {
           docData = snap.data();
         }
@@ -377,13 +389,13 @@ export default class Bookings {
       })
     );
 
-    const idsForBookedItemsCurrentlySelected: string[] = [];
+    const idsForItemsAlreadyBookedInSelectedDates: string[] = [];
 
     //retrieve items already booked on the selectedDays
-    monthlyBookingsData.forEach(monthlyBookingData => {
+    currentMonthlyBookingsArray.forEach(monthlyBookingData => {
       const { data, monthId } = monthlyBookingData;
       const selectedDatesForMonth = selectedDatesGroupedInMonths[monthId];
-      console.log({ selectedDatesForMonth });
+      // console.log({ selectedDatesForMonth });
 
       /**
        * loop through itemsIds booked in this month
@@ -393,12 +405,12 @@ export default class Bookings {
        */
       const bookedItemsIds = Object.keys(data);
       //use filter
-      const idsForBookedItemsCurrentlySelectedForMonth = bookedItemsIds.filter(
-        bookedItemId => {
+      const idsForItemsAlreadyBookedInSelectedDatesForMonth =
+        bookedItemsIds.filter(bookedItemId => {
           const itemBookedDates = data[bookedItemId];
 
           //check if even one selected day is already booked.
-          const selectedDateAlreadyBooked = selectedDatesForMonth.find(
+          const alreadyBookedSelectedDate = selectedDatesForMonth.find(
             selectedDate => {
               let isBooked = false;
 
@@ -406,29 +418,45 @@ export default class Bookings {
                 const itemBookedDate = itemBookedDates.find(
                   bookedDate => bookedDate === selectedDate
                 );
-                console.log({ itemBookedDate });
-                isBooked = Boolean(itemBookedDate);
+                // console.log({ itemBookedDate });
+
+                const selectedDateIsPreselected = Boolean(
+                  preselectedDatesObject[selectedDate]
+                );
+
+                const shouldExcludePreselectedDate =
+                  preselectedItemId === bookedItemId &&
+                  selectedDateIsPreselected;
+
+                if (!shouldExcludePreselectedDate) {
+                  isBooked = Boolean(itemBookedDate);
+                }
+
+                // console.log({
+                //   selectedDateIsPreselected,
+                //   selectedDate,
+                //   isBooked,
+                // });
               }
 
               return isBooked;
             }
           );
 
-          const itemIsBooked = Boolean(selectedDateAlreadyBooked);
+          const itemIsBooked = Boolean(alreadyBookedSelectedDate);
 
-          console.log({ itemIsBooked, bookedItemId });
+          // console.log({ itemIsBooked, bookedItemId });
 
           return itemIsBooked;
-        }
-      );
+        });
 
-      console.log({
-        idsForBookedItemsCurrentlySelectedForMonth,
-        bookedItemsIds,
-      });
+      // console.log({
+      //   idsForItemsAlreadyBookedInSelectedDatesForMonth,
+      //   bookedItemsIds,
+      // });
 
-      idsForBookedItemsCurrentlySelected.push(
-        ...idsForBookedItemsCurrentlySelectedForMonth
+      idsForItemsAlreadyBookedInSelectedDates.push(
+        ...idsForItemsAlreadyBookedInSelectedDatesForMonth
       );
 
       // bookedItemsIds.forEach(bookedItemId => {
@@ -453,9 +481,9 @@ export default class Bookings {
       // });
     });
 
-    console.log({ idsForBookedItemsCurrentlySelected });
+    console.log({ idsForItemsAlreadyBookedInSelectedDates });
 
-    return idsForBookedItemsCurrentlySelected;
+    return idsForItemsAlreadyBookedInSelectedDates;
   }
   //-----------------------------------------------------------------------
   //-----------------------------------------------------------------------

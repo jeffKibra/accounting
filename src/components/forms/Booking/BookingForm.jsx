@@ -11,6 +11,7 @@ import { useToasts, useGetBookingFormProps } from 'hooks';
 //
 import { bookingFormProps } from 'propTypes';
 //
+import { BookingFormContextProvider } from 'contexts/BookingFormContext';
 //
 
 import SkeletonLoader from 'components/ui/SkeletonLoader';
@@ -186,77 +187,79 @@ function BookingForm(props) {
     <SkeletonLoader />
   ) : customers?.length > 0 && paymentTerms?.length > 0 ? (
     <FormProvider {...formMethods}>
-      <Box as="form" role="form" onSubmit={handleSubmit(onSubmit)} w="full">
-        <Box w="full" rowGap={4}>
-          {selectedItem ? (
-            <>
-              <Box
-                w="full"
-                mt={2}
-                p={4}
-                pb={4}
-                bg="white"
-                borderRadius="lg"
-                shadow="lg"
-                border="1px solid"
-                borderColor="gray.200"
-              >
-                <DetailsFields
-                  customers={customers}
-                  paymentTerms={paymentTerms}
-                  loading={updating}
-                  bookingId={booking?.id || ''}
-                  taxes={taxes}
-                  item={selectedItem}
-                  paymentModes={paymentModes}
-                  currentBookingDetails={booking || null}
-                />
-              </Box>
-
-              <Flex w="full" py={6} justify="flex-end">
-                <Button
-                  size="lg"
-                  type="submit"
-                  isLoading={updating}
-                  colorScheme="cyan"
-                >
-                  save
-                </Button>
-              </Flex>
-            </>
-          ) : (
-            <>
-              <Box
-                w="full"
-                mt={2}
-                p={4}
-                pb={4}
-                bg="white"
-                borderRadius="lg"
-                shadow="lg"
-                border="1px solid"
-                borderColor="gray.200"
-              >
+      <BookingFormContextProvider savedData={booking}>
+        <Box as="form" role="form" onSubmit={handleSubmit(onSubmit)} w="full">
+          <Box w="full" rowGap={4}>
+            {selectedItem ? (
+              <>
                 <Box
-                  bg="#f4f6f8"
-                  mx={-4}
-                  mt={-4}
-                  px={4}
-                  pt={4}
-                  borderTopLeftRadius="lg"
-                  borderTopRightRadius="lg"
+                  w="full"
+                  mt={2}
+                  p={4}
+                  pb={4}
+                  bg="white"
+                  borderRadius="lg"
+                  shadow="lg"
+                  border="1px solid"
+                  borderColor="gray.200"
                 >
-                  <BookingDaysSelector isEditing />
+                  <DetailsFields
+                    customers={customers}
+                    paymentTerms={paymentTerms}
+                    loading={updating}
+                    bookingId={booking?.id || ''}
+                    taxes={taxes}
+                    item={selectedItem}
+                    paymentModes={paymentModes}
+                    currentBookingDetails={booking || null}
+                  />
                 </Box>
 
-                <Box pt={4}>
-                  <SelectItem selectedDates={selectedDates} />
+                <Flex w="full" py={6} justify="flex-end">
+                  <Button
+                    size="lg"
+                    type="submit"
+                    isLoading={updating}
+                    colorScheme="cyan"
+                  >
+                    save
+                  </Button>
+                </Flex>
+              </>
+            ) : (
+              <>
+                <Box
+                  w="full"
+                  mt={2}
+                  p={4}
+                  pb={4}
+                  bg="white"
+                  borderRadius="lg"
+                  shadow="lg"
+                  border="1px solid"
+                  borderColor="gray.200"
+                >
+                  <Box
+                    bg="#f4f6f8"
+                    mx={-4}
+                    mt={-4}
+                    px={4}
+                    pt={4}
+                    borderTopLeftRadius="lg"
+                    borderTopRightRadius="lg"
+                  >
+                    <BookingDaysSelector isEditing />
+                  </Box>
+
+                  <Box pt={4}>
+                    <SelectItem selectedDates={selectedDates} />
+                  </Box>
                 </Box>
-              </Box>
-            </>
-          )}
+              </>
+            )}
+          </Box>
         </Box>
-      </Box>
+      </BookingFormContextProvider>
     </FormProvider>
   ) : // : items?.length === 0 ? (
   //   <Empty message="Please add atleast one ITEM to continue or reload the page" />

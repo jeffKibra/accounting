@@ -11,7 +11,7 @@ import PropTypes from 'prop-types';
 import ItemsLoader from '../ItemsLoader';
 
 function SelectItem(props) {
-  const { onSelect } = props;
+  const { onSelect, preselectedItemId, preselectedDates } = props;
 
   const { control, setValue, watch } = useFormContext();
 
@@ -43,6 +43,8 @@ function SelectItem(props) {
               onItemSelect={handleChange}
               selectedItem={value}
               selectedDates={selectedDates}
+              preselectedItemId={preselectedItemId}
+              preselectedDates={preselectedDates}
             />
           </Box>
         ) : (
@@ -62,10 +64,14 @@ function SelectItem(props) {
 
 SelectItem.propTypes = {
   onSelect: PropTypes.func,
+  preselectedItemId: PropTypes.string,
+  preselectedDates: PropTypes.array,
 };
 
 SelectItem.defaultProps = {
   onSelect: () => {},
+  preselectedItemId: '',
+  preselectedDates: [],
 };
 
 export default SelectItem;
