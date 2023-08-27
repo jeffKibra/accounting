@@ -8,7 +8,8 @@ import tableColumns from './tableColumns';
 import tableProps from './tableProps';
 
 function SelectBookingItemTable(props) {
-  const { items, loading, error, onRowClick, ...moreProps } = props;
+  const { items, loading, error, onRowClick, selectedItemId, ...moreProps } =
+    props;
   // console.log({ items });
 
   const columns = useMemo(() => tableColumns, []);
@@ -32,6 +33,9 @@ function SelectBookingItemTable(props) {
       error={error}
       {...moreProps}
       bodyRowProps={{
+        backgroundColor: theme => {
+          console.log('changing bg color', theme);
+        },
         cursor: 'pointer',
         transition: 'all 100ms ease-in-out',
         _hover: {
@@ -48,6 +52,7 @@ function SelectBookingItemTable(props) {
 SelectBookingItemTable.propTypes = {
   ...tableProps,
   onRowClick: PropTypes.func,
+  selectedItemId: PropTypes.string,
 };
 
 export default SelectBookingItemTable;

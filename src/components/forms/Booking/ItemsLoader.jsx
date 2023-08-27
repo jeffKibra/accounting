@@ -1,6 +1,7 @@
 import { useEffect, useState, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { useFormContext } from 'react-hook-form';
 
 //
 import { GET_MONTHLY_BOOKINGS } from 'store/actions/monthlyBookings';
@@ -50,6 +51,9 @@ function ItemsLoader(props) {
 
   const [idsForItemsAlreadyBooked, setIdsForItemsAlreadyBooked] = useState([]);
 
+  const { watch } = useFormContext();
+  const itemId = watch('item')?.itemId || '';
+
   const { savedData } = useContext(BookingFormContext);
 
   const { preselectedDates, preselectedItemId } = useMemo(() => {
@@ -66,9 +70,9 @@ function ItemsLoader(props) {
 
       Bookings.getIdsForItemsAlreadyBooked(
         orgId,
-        datesGroupedInMonths,
-        preselectedItemId,
-        preselectedDates
+        datesGroupedInMonths
+        // preselectedItemId,
+        // preselectedDates
       ).then(itemsIds => {
         setIdsForItemsAlreadyBooked(itemsIds);
       });
@@ -97,6 +101,7 @@ function ItemsLoader(props) {
         items={items || []}
         error={itemsError}
         onRowClick={handleItemClick}
+        selectedItemId={itemId}
       />
     </>
   );

@@ -1,6 +1,11 @@
-import { Flex, Button, Box } from '@chakra-ui/react';
+import { useContext } from 'react';
+import { Button, Box, HStack } from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
 import PropTypes from 'prop-types';
+import { RiRestartLine, RiCloseLine } from 'react-icons/ri';
 
+//
+import BookingFormContext from 'contexts/BookingFormContext';
 //
 import CustomModal from 'components/ui/CustomModal';
 
@@ -22,6 +27,19 @@ ItemSelectorModal.defaultProps = {
 
 function ItemSelectorModal(props) {
   const { children, preselectedItemId, preselectedDates } = props;
+
+  const { watch, resetField } = useFormContext();
+  const item = watch('item');
+  const itemId = item?.itemId;
+
+  const { savedData } = useContext(BookingFormContext);
+  const savedItemId = savedData?.item?.itemId;
+
+  const itemHasChanged = savedItemId ? savedItemId !== itemId : false;
+
+  function resetSelectedItem() {
+    resetField('item');
+  }
 
   return (
     <CustomModal
@@ -46,11 +64,30 @@ function ItemSelectorModal(props) {
       }}
       renderFooter={onClose => {
         return (
-          <Flex justify="flex-end">
-            <Button colorScheme="red" onClick={onClose}>
-              Cancel
+          <HStack spacing={4} w="full" justifyContent="flex-end">
+            {itemHasChanged ? (
+              <Button
+                rightIcon={<RiRestartLine />}
+                type="button"
+                colorScheme="cyan"
+                onClick={() => {
+                  resetSelectedItem();
+                  onClose();
+                }}
+              >
+                Reset Selected Item
+              </Button>
+            ) : null}
+
+            <Button
+              rightIcon={<RiCloseLine />}
+              type="button"
+              colorScheme="red"
+              onClick={onClose}
+            >
+              Close
             </Button>
-          </Flex>
+          </HStack>
         );
       }}
     />

@@ -102,16 +102,20 @@ const ControlledDatePickerWithScheduleLoader = forwardRef((props, ref) => {
   const alreadyBookedDates = useMemo(() => {
     const alreadyBooked = [];
 
-    itemBookingsForMonth.forEach(dateString => {
-      const dateToExclude = preselectedDatesObject[dateString];
+    if (Array.isArray(itemBookingsForMonth)) {
+      itemBookingsForMonth.forEach(dateString => {
+        const dateToExclude = preselectedDatesObject[dateString];
 
-      const isAlreadyBooked = !Boolean(dateToExclude);
-      // console.log({ dateToExclude, isAlreadyBooked });
+        const isAlreadyBooked = !Boolean(dateToExclude);
+        // console.log({ dateToExclude, isAlreadyBooked });
 
-      if (isAlreadyBooked) {
-        alreadyBooked.push(new Date(dateString));
-      }
-    });
+        if (isAlreadyBooked) {
+          alreadyBooked.push(new Date(dateString));
+        }
+      });
+    }
+
+    return alreadyBooked;
   }, [itemBookingsForMonth, preselectedDatesObject]);
 
   return (
