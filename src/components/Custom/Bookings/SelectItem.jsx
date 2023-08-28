@@ -8,7 +8,7 @@ import {
 import { useFormContext, Controller } from 'react-hook-form';
 import PropTypes from 'prop-types';
 //
-import ItemsLoader from '../ItemsLoader';
+import ItemsLoader from 'components/forms/Booking/ItemsLoader';
 
 function SelectItem(props) {
   const { onSelect, preselectedItemId, preselectedDates } = props;

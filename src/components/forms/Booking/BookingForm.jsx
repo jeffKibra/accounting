@@ -16,12 +16,11 @@ import { BookingFormContextProvider } from 'contexts/BookingFormContext';
 
 import SkeletonLoader from 'components/ui/SkeletonLoader';
 import Empty from 'components/ui/Empty';
-
-import DetailsFields from './DetailsFields';
-
 //
-import BookingDaysSelector from './Components/BookingDaysSelector';
-import SelectItem from './Components/SelectItem';
+import BookingDaysSelector from 'components/Custom/Bookings/BookingDaysSelector';
+import SelectItem from 'components/Custom/Bookings/SelectItem';
+//
+import DetailsFields from './DetailsFields';
 
 function convertDateToString(date) {
   return date ? new Date(date).toDateString() : '';

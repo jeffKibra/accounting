@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 
 import SaleSummaryTable from 'components/tables/Sales/SaleSummaryTable';
 //
-import EditBookingPricing from './Components/EditBookingPricing';
-import EditBookingDates from './Components/EditBookingDates';
-import EditSelectedItem from './Components/EditSelectedItem';
+import EditBookingPricing from 'components/Custom/Bookings/EditBookingPricing';
+import EditBookingDates from 'components/Custom/Bookings/EditBookingDates';
+import EditSelectedItem from 'components/Custom/Bookings/EditSelectedItem';
 
 function BookingItemFormFields(props) {
   const { loading, currentBookingDetails } = props;
