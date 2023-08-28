@@ -27,7 +27,7 @@ function ItemsTable(props) {
 
       return {
         ...itemTableData,
-        actions: <ItemsOptions item={item} edit view deletion />,
+        actions: <ItemsOptions item={item} edit view deletion schedule />,
       };
     });
   }, [items]);

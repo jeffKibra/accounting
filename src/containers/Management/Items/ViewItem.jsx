@@ -27,10 +27,11 @@ export default function ViewItem(props) {
   const { item } = props;
   const {
     name,
-    sku,
     model: modelData,
     year,
     rate,
+    color,
+    // sku,
     // salesAccount,
     // salesTax,
     // unit,
@@ -61,17 +62,13 @@ export default function ViewItem(props) {
           <Table wordBreak="break-word">
             <Tbody>
               <Tr>
-                <FieldTitle>Vehicle Name</FieldTitle>
+                <FieldTitle>Registration</FieldTitle>
                 <FieldValue>{name}</FieldValue>
               </Tr>
               {/* <Tr>
                 <FieldTitle>Vehicle Type</FieldTitle>
                 <FieldValue>{type}</FieldValue>
               </Tr> */}
-              <Tr>
-                <FieldTitle>Unique Identifier</FieldTitle>
-                <FieldValue>{sku}</FieldValue>
-              </Tr>
 
               <Tr>
                 <FieldTitle>Make</FieldTitle>
@@ -80,6 +77,10 @@ export default function ViewItem(props) {
               <Tr>
                 <FieldTitle>Model</FieldTitle>
                 <FieldValue>{`${model} (${year})`}</FieldValue>
+              </Tr>
+              <Tr>
+                <FieldTitle>Color</FieldTitle>
+                <FieldValue>{color}</FieldValue>
               </Tr>
               <Tr>
                 <FieldTitle>Type</FieldTitle>

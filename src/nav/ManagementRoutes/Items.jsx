@@ -8,6 +8,7 @@ import ItemsPage from 'pages/Management/Item/ItemsPage';
 import NewItemPage from 'pages/Management/Item/NewItemPage';
 import EditItemPage from 'pages/Management/Item/EditItemPage';
 import ViewItemPage from 'pages/Management/Item/ViewItemPage';
+import ViewItemSchedulePage from 'pages/Management/Item/ViewItemSchedulePage';
 
 function Items() {
   return [
@@ -48,6 +49,16 @@ function Items() {
       element={
         <ManagementRoute>
           <ViewItemPage />
+        </ManagementRoute>
+      }
+    />,
+    <Route
+      path={routes.VIEW_ITEM_SCHEDULE}
+      key={routes.VIEW_ITEM_SCHEDULE}
+      exact
+      element={
+        <ManagementRoute>
+          <ViewItemSchedulePage />
         </ManagementRoute>
       }
     />,

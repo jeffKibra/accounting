@@ -19,6 +19,8 @@ export const ITEMS = '/items';
 export const NEW_ITEM = '/items/new';
 export const EDIT_ITEM = '/items/:itemId/edit';
 export const VIEW_ITEM = '/items/:itemId/view';
+export const VIEW_ITEM_SCHEDULE = '/items/:itemId/schedule';
+
 //car models
 export const CAR_MODELS = '/car_models';
 export const NEW_CAR_MODEL = '/car_models/new';

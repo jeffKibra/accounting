@@ -30,10 +30,11 @@ export default function Form(props) {
     mode: 'onChange',
     defaultValues: {
       name: item?.name || '',
+      rate: item?.rate || 0,
       make: item?.make || '',
       model: item?.model || null,
       year: item?.year || '',
-      rate: item?.rate || 0,
+      color: item?.color || '',
       description: item?.description || '',
       // type: item?.type || '',
       //   skuOption: item?.skuOption || 'barcode',
@@ -65,7 +66,7 @@ export default function Form(props) {
       const carMakeData = carModels[carMake] || {};
       const carModelData = carMakeData[selectedModelData?.model || ''];
 
-      console.log({ carModelData });
+      // console.log({ carModelData });
 
       if (!carModelData) {
         setValue('model', null);
@@ -81,7 +82,7 @@ export default function Form(props) {
 
   const selectedModelYears = carModel?.years || [];
 
-  console.log({ selectedCarModels, selectedModelYears });
+  // console.log({ selectedCarModels, selectedModelYears });
 
   return (
     <FormProvider {...formMethods}>
@@ -106,11 +107,27 @@ export default function Form(props) {
             isInvalid={errors.name}
           >
             <FormLabel htmlFor="name">Registration</FormLabel>
-            <Input
-              id="name"
-              {...register('name', {
-                required: { value: true, message: 'Required' },
-              })}
+            <Controller
+              name="name"
+              control={control}
+              rules={{ required: { value: true, message: '* Required!' } }}
+              render={({ field: { name, onBlur, onChange, ref, value } }) => {
+                function handleChange(e) {
+                  const inValue = e?.target?.value || '';
+                  onChange(String(inValue).toUpperCase());
+                }
+
+                return (
+                  <Input
+                    ref={ref}
+                    id={name}
+                    name={name}
+                    onBlur={onBlur}
+                    onChange={handleChange}
+                    value={String(value).toUpperCase()}
+                  />
+                );
+              }}
             />
 
             <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
@@ -118,7 +135,7 @@ export default function Form(props) {
         </GridItem>
 
         <GridItem colSpan={[12, 6]}>
-          <FormControl isDisabled={updating} isInvalid={errors.rate}>
+          <FormControl isReadOnly={updating} isInvalid={errors.rate}>
             <FormLabel htmlFor="rate">Rate per Day (ksh)</FormLabel>
             <NumInput
               name="rate"
@@ -138,12 +155,15 @@ export default function Form(props) {
         </GridItem>
 
         <GridItem colSpan={[12, 6]}>
-          <FormControl isDisabled={updating} isInvalid={errors.make}>
+          <FormControl isRequired isReadOnly={updating} isInvalid={errors.make}>
             <FormLabel htmlFor="make">Car Make</FormLabel>
             <CustomSelect
               name="make"
               placeholder="Car Make"
               isDisabled={updating}
+              rules={{
+                required: { value: true, message: 'Required * ' },
+              }}
               options={carMakes.map(make => ({
                 name: make,
                 value: make,
@@ -154,15 +174,23 @@ export default function Form(props) {
         </GridItem>
 
         <GridItem colSpan={[12, 6]}>
-          <FormControl isDisabled={updating} isInvalid={errors.model}>
+          <FormControl
+            isRequired
+            isReadOnly={updating}
+            isInvalid={errors.model}
+          >
             <FormLabel htmlFor="model">Model</FormLabel>
 
             <Controller
               name="model"
               control={control}
+              rules={{
+                required: { value: true, message: 'Required * ' },
+              }}
               render={({ field: { name, onChange, onBlur, value } }) => {
                 return (
                   <ControlledGroupedOptionsSelect
+                    isDisabled={updating}
                     placeholder="Select Car Model"
                     selectedValue={value}
                     onChange={onChange}
@@ -174,7 +202,7 @@ export default function Form(props) {
                         : [
                             {
                               make: '',
-                              model: 'No Car Make Selected!',
+                              model: 'Select a valid Car Make first!',
                               year: '',
                               id: '',
                             },
@@ -195,7 +223,7 @@ export default function Form(props) {
         </GridItem>
 
         <GridItem colSpan={[12, 6]}>
-          <FormControl isDisabled={updating} isInvalid={errors.year}>
+          <FormControl isReadOnly={updating} isInvalid={errors.year}>
             <FormLabel htmlFor="year">Year</FormLabel>
 
             <CustomSelect
@@ -209,6 +237,25 @@ export default function Form(props) {
             />
             <FormErrorMessage>{errors?.year?.message}</FormErrorMessage>
             <FormHelperText>Year of Manufacture</FormHelperText>
+          </FormControl>
+        </GridItem>
+
+        <GridItem colSpan={[12, 6]}>
+          <FormControl
+            w="full"
+            isRequired
+            isReadOnly={updating}
+            isInvalid={errors.color}
+          >
+            <FormLabel htmlFor="color">Color</FormLabel>
+            <Input
+              id="color"
+              {...register('color', {
+                required: { value: true, message: 'Required' },
+              })}
+            />
+
+            <FormErrorMessage>{errors?.color?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
