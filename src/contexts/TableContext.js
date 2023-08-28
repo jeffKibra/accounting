@@ -11,15 +11,20 @@ const TableContext = createContext(defaultValues);
 export default TableContext;
 
 //----------------------------------------------------------------
-TableContextProvider.propTypes = {
-  children: PropTypes.node.isRequired,
+
+export const TableContextProviderPropTypes = {
   rowFieldToUseAsIdForHighlighting: PropTypes.string,
   highlightedRowBGColor: PropTypes.string,
   rowIdToHighlight: PropTypes.string,
 };
 
+TableContextProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+  ...TableContextProviderPropTypes,
+};
+
 export function TableContextProvider(props) {
-  console.log({ props });
+  // console.log({ props });
 
   const {
     children,

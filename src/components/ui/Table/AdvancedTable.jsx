@@ -15,7 +15,7 @@ import Table, { TableProps } from './Table';
 function AdvancedTable(props) {
   const { loading, error, emptyMessage, ...tableProps } = props;
   const { data } = tableProps;
-  // console.log({ bodyRowProps });
+  // console.log({ tableProps });
 
   return loading ? (
     <SkeletonLoader />

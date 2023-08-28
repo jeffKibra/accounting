@@ -32,17 +32,17 @@ function SelectBookingItemTable(props) {
       loading={loading}
       error={error}
       {...moreProps}
+      rowIdToHighlight={selectedItemId}
+      rowFieldToUseAsIdForHighlighting="itemId"
+      highlightedRowBGColor="cyan.50"
       bodyRowProps={{
-        backgroundColor: theme => {
-          console.log('changing bg color', theme);
-        },
         cursor: 'pointer',
         transition: 'all 100ms ease-in-out',
         _hover: {
-          backgroundColor: 'cyan.50',
+          backgroundColor: 'cyan.100',
         },
         _active: {
-          backgroundColor: 'cyan.100',
+          backgroundColor: 'cyan.200',
         },
       }}
     />
