@@ -1,5 +1,4 @@
 import { forwardRef, useState, useEffect, useMemo } from 'react';
-import { Spinner, Text, Box } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 //
 import { useGetBookingsForMonth } from 'hooks';
@@ -9,7 +8,7 @@ import { getDateDetails } from 'utils/dates';
 //
 // import DateRangePicker from './DateRangePicker';
 // import RHFDatePicker from 'components/ui/hookForm/RHFDatePicker';
-import ControlledDefaultDatePicker from 'components/ui/ControlledDefaultDatePicker';
+import ControlledBookingDatePicker from 'components/ui/ControlledBookingDatePicker';
 // import CustomDatePicker from './CustomDatePicker';
 
 //----------------------------------------------------------------
@@ -119,54 +118,22 @@ const ControlledDatePickerWithScheduleLoader = forwardRef((props, ref) => {
   }, [itemBookingsForMonth, preselectedDatesObject]);
 
   return (
-    <Box
-      w="full"
-      __css={{
-        ...(loadingSchedule
-          ? {
-              '& div.react-datepicker__month': {
-                display: 'none',
-              },
-            }
-          : {}),
-        '& div.react-datepicker__day--highlighted': {
-          borderBottom: '2px solid red',
-          backgroundColor: 'transparent',
-        },
-      }}
-    >
-      <ControlledDefaultDatePicker
-        name={name}
-        onBlur={onBlur}
-        ref={ref}
-        selected={value}
-        onChange={onChange}
-        isReadOnly={isReadOnly}
-        onCalendarOpen={handleCalendarOpen}
-        onCalendarClose={handleCalendarClose}
-        onMonthChange={updateActiveMonth}
-        highlightDates={alreadyBookedDates}
-        excludeDates={alreadyBookedDates}
-        {...moreProps}
-      >
-        {loadingSchedule ? (
-          <Box
-            w="full"
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-          >
-            <Spinner my={2} />
-            <Text mb={2}>Loading Month Schedule...</Text>
-          </Box>
-        ) : (
-          <Text pl={4} py={2}>
-            <Text color="red">Red Highlight = </Text>
-            Already Booked Dates
-          </Text>
-        )}
-      </ControlledDefaultDatePicker>{' '}
-    </Box>
+    <ControlledBookingDatePicker
+      loading={loadingSchedule}
+      name={name}
+      onBlur={onBlur}
+      ref={ref}
+      value={value}
+      onChange={onChange}
+      isReadOnly={isReadOnly}
+      onCalendarOpen={handleCalendarOpen}
+      onCalendarClose={handleCalendarClose}
+      onMonthChange={updateActiveMonth}
+      highlightDates={alreadyBookedDates}
+      excludeDates={alreadyBookedDates}
+      showFooter
+      {...moreProps}
+    />
   );
 });
 
