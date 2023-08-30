@@ -1,11 +1,4 @@
 import {
-  useTable,
-  useFilters,
-  useGlobalFilter,
-  useSortBy,
-  usePagination,
-} from 'react-table';
-import {
   TableCaption,
   TableContainer,
   Table as ChakraTable,
@@ -26,16 +19,8 @@ import Pagination from './Pagination';
 
 const rowsPerPageOptions = [2, 4, 10, 15];
 
-const initialState = {
-  pageSize: rowsPerPageOptions[0],
-  pageIndex: 0,
-  onRowClick: () => {},
-};
-
 function Table(props) {
   const {
-    columns,
-    data,
     caption,
     includeGlobalFilter,
     onRowClick,
@@ -43,43 +28,29 @@ function Table(props) {
     rowFieldToUseAsIdForHighlighting,
     highlightedRowBGColor,
     rowIdToHighlight,
-  } = props;
-  // console.log({ bodyRowProps });
-
-  const instance = useTable(
-    { columns, data, initialState },
-    useFilters,
-    useGlobalFilter,
-    useSortBy,
-    usePagination
-  );
-  // console.log({ instance });
-  const {
-    rows,
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    prepareRow,
-    state: { pageIndex, pageSize, globalFilter },
-    page,
+    //
+    tableProps,
+    tableBodyProps,
+    headers,
+    prepareRow, //required for react-table table
+    globalFilter,
+    pageIndex,
+    pageSize,
+    page, //active page data
     canNextPage,
     canPreviousPage,
     pageOptions,
-    // pageCount,
     gotoPage,
     nextPage,
     previousPage,
     setPageSize,
     setGlobalFilter,
-  } = instance;
+    // pageCount,
+    itemsCount,
+  } = props;
+  // console.log({ bodyRowProps });
 
   // console.log({ pageIndex, pageCount, pageOptions });
-
-  function handleGlobalFilterInputChange(e) {
-    const searchValue = e.target.value;
-    // console.log({ searchValue });
-    setGlobalFilter(searchValue);
-  }
 
   return (
     <Box w="full">
@@ -97,22 +68,17 @@ function Table(props) {
               size="sm"
               value={globalFilter}
               id="global-filter-input"
-              onChange={handleGlobalFilterInputChange}
+              onChange={setGlobalFilter}
             />
           </Box>
         ) : null}
 
         <TableContainer w="full">
-          <ChakraTable
-            minW="650px"
-            variant="simple"
-            size="sm"
-            {...getTableProps()}
-          >
-            <THead headerGroups={headerGroups} />
+          <ChakraTable minW="650px" variant="simple" size="sm" {...tableProps}>
+            <THead headers={headers} />
 
             <TBody
-              tableBodyProps={getTableBodyProps()}
+              tableBodyProps={tableBodyProps}
               rows={page}
               prepareRow={prepareRow}
               onRowClick={onRowClick}
@@ -135,7 +101,7 @@ function Table(props) {
             rowsPerPage={Number(pageSize)}
             onRowsPerPageChange={setPageSize}
             rowsPerPageOptions={rowsPerPageOptions}
-            itemsCount={rows?.length || 0}
+            itemsCount={Number(itemsCount) || 0}
           />
         </Box>
       </TableContextProvider>
@@ -143,18 +109,36 @@ function Table(props) {
   );
 }
 
-export const TableProps = {
-  data: PropTypes.array.isRequired,
-  columns: PropTypes.array.isRequired,
+export const TablePropTypes = {
   caption: PropTypes.string,
   includeGlobalFilter: PropTypes.bool,
   onRowClick: PropTypes.func,
   bodyRowProps: PropTypes.object,
+  //
+  tableProps: PropTypes.object,
+  tableBodyProps: PropTypes.object,
+  headers: PropTypes.array,
+  prepareRow: PropTypes.func, //required for react-table table
+  globalFilter: PropTypes.string,
+  pageIndex: PropTypes.number,
+  pageSize: PropTypes.number,
+  page: PropTypes.array.isRequired, //active page data
+  canNextPage: PropTypes.bool,
+  canPreviousPage: PropTypes.bool,
+  pageOptions: PropTypes.array,
+  gotoPage: PropTypes.func,
+  nextPage: PropTypes.func,
+  previousPage: PropTypes.func,
+  setPageSize: PropTypes.func,
+  setGlobalFilter: PropTypes.func,
+  // pageCount:PropTypes.number,
+  //
+  itemsCount: PropTypes.number,
   ...TableContextProviderPropTypes,
 };
 
 Table.propTypes = {
-  ...TableProps,
+  ...TablePropTypes,
 };
 
 export default Table;

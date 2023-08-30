@@ -3,12 +3,14 @@ function createTaxDisplay(tax) {
 }
 
 export default function getItemTableData(item) {
-  console.log({ item });
-  const { model: modelDetails, year } = item;
+  // console.log({ item });
+  const { year } = item;
+  const modelDetails = item?.model || {};
+
   const { make, model, type } = modelDetails;
   return {
     ...item,
-    carModel: `${model} (${year})`,
+    carModel: `${model || ''} (${year || ''})`,
     type,
     carMake: make,
     tax: createTaxDisplay(item?.salesTax),

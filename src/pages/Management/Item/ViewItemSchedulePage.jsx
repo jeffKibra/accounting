@@ -10,13 +10,14 @@ import { ITEMS } from 'nav/routes';
 import PageLayout from 'components/layout/PageLayout';
 import SkeletonLoader from 'components/ui/SkeletonLoader';
 import Empty from 'components/ui/Empty';
+import CustomAlert from 'components/ui/CustomAlert';
 //
 import useSavedLocation from '../../../hooks/useSavedLocation';
 //
 import ViewItemSchedule from 'containers/Management/Items/ViewItemSchedule';
 
 function ViewItemSchedulePage(props) {
-  const { getItem, loading, item } = props;
+  const { getItem, loading, item, error } = props;
 
   const { itemId } = useParams();
 
@@ -45,6 +46,12 @@ function ViewItemSchedulePage(props) {
     >
       {loading ? (
         <SkeletonLoader />
+      ) : error ? (
+        <CustomAlert
+          status="error"
+          title="Error fetching Car Data"
+          description={error?.message || 'Unknown Error!'}
+        />
       ) : item ? (
         <ViewItemSchedule item={item} />
       ) : (
@@ -55,9 +62,9 @@ function ViewItemSchedulePage(props) {
 }
 
 function mapStateToProps(state) {
-  const { loading, isModified, action, item } = state.itemsReducer;
+  const { loading, isModified, action, item, error } = state.itemsReducer;
 
-  return { loading, isModified, action, item };
+  return { loading, isModified, action, item, error };
 }
 
 function mapDispatchToProps(dispatch) {

@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import SkeletonLoader from '../SkeletonLoader';
 import Empty from '../Empty';
 //
-import Table, { TableProps } from './Table';
+import RTTable, { RTTablePropTypes } from './RTTable';
 
 function AdvancedTable(props) {
   const { loading, error, emptyMessage, ...tableProps } = props;
@@ -20,7 +20,7 @@ function AdvancedTable(props) {
   return loading ? (
     <SkeletonLoader />
   ) : data?.length > 0 ? (
-    <Table {...tableProps} />
+    <RTTable {...tableProps} />
   ) : error ? (
     <Alert>
       <AlertIcon />
@@ -35,7 +35,7 @@ function AdvancedTable(props) {
 }
 
 export const AdvancedTableProps = {
-  ...TableProps,
+  ...RTTablePropTypes,
   loading: PropTypes.bool,
   error: PropTypes.object,
   emptyMessage: PropTypes.string,

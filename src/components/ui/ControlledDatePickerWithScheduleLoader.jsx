@@ -132,6 +132,8 @@ const ControlledDatePickerWithScheduleLoader = forwardRef((props, ref) => {
       highlightDates={alreadyBookedDates}
       excludeDates={alreadyBookedDates}
       showFooter
+      bookedDates={alreadyBookedDates}
+      error={monthBookings?.error || null}
       {...moreProps}
     />
   );

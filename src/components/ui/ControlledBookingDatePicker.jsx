@@ -3,6 +3,8 @@ import { Box, Spinner, Text } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
 //
+import CustomAlert from './CustomAlert';
+//
 import ControlledDefaultDatePicker, {
   ControlledDefaultDatePickerPropTypes,
 } from './ControlledDefaultDatePicker';
@@ -11,8 +13,15 @@ import ControlledDefaultDatePicker, {
 
 const ControlledBookingDatePicker = forwardRef((props, ref) => {
   // console.log({ props });
-  const { loading, showFooter, wrapperCSS, ...datePickerProps } = props;
-  console.log({ datePickerProps });
+  const {
+    loading,
+    error,
+    showFooter,
+    wrapperCSS,
+    bookedDates,
+    ...datePickerProps
+  } = props;
+  // console.log({ datePickerProps });
 
   return (
     <Box
@@ -43,12 +52,27 @@ const ControlledBookingDatePicker = forwardRef((props, ref) => {
             <Spinner my={2} />
             <Text mb={2}>Loading Month Schedule...</Text>
           </Box>
-        ) : showFooter ? (
-          <Text pl={4} py={2}>
-            <Text color="red">Red Highlight = </Text>
-            Already Booked Dates
-          </Text>
-        ) : null}
+        ) : (
+          <Box maxW="250px">
+            <CustomAlert
+              status={error ? 'error' : 'info'}
+              title={
+                error
+                  ? 'Error Fetching Schedule'
+                  : bookedDates?.length > 0
+                  ? 'Red Highlight:'
+                  : ''
+              }
+              description={
+                error
+                  ? error?.message || 'Unknown error!'
+                  : bookedDates?.length > 0
+                  ? 'Booked Dates'
+                  : 'Item is not scheduled for the month!'
+              }
+            />
+          </Box>
+        )}
       </ControlledDefaultDatePicker>
     </Box>
   );
@@ -57,8 +81,10 @@ const ControlledBookingDatePicker = forwardRef((props, ref) => {
 export const ControlledBookingDatePickerPropTypes = {
   ...ControlledDefaultDatePickerPropTypes,
   loading: PropTypes.bool,
+  error: PropTypes.object,
   showFooter: PropTypes.bool,
   wrapperCSS: PropTypes.object,
+  bookedDates: PropTypes.array,
 };
 
 ControlledBookingDatePicker.propTypes = {

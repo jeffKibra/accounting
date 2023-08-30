@@ -51,13 +51,13 @@ export default function ViewItemSchedule(props) {
     setActiveMonth(yearMonth);
   }
 
-  console.log({
-    activeMonth,
-    monthlyBookings,
-    monthBookings,
-    itemBookingsForMonth,
-    loadingMonthlyBookings,
-  });
+  // console.log({
+  //   activeMonth,
+  //   monthlyBookings,
+  //   monthBookings,
+  //   itemBookingsForMonth,
+  //   loadingMonthlyBookings,
+  // });
 
   function disableAllDates(date) {
     return false;
@@ -74,41 +74,36 @@ export default function ViewItemSchedule(props) {
         <Heading>{String(name).toUpperCase()}</Heading>
         <Text>{`${make} ${model} (${year})`}</Text>
       </VStack>
-      {/* <Box
-        py={4}
-        __css={{
-          
-        }}
-      > */}
-      <ControlledBookingDatePicker
-        name=""
-        onChange={() => {}}
-        value={null}
-        ref={null}
-        loading={loadingMonthlyBookings}
-        // loading
-        inline
-        disabled
-        onMonthChange={handleMonthChange}
-        highlightDates={itemBookingsForMonth}
-        filterDate={disableAllDates}
-        renderDayContents={renderDayContents}
-        wrapperCSS={{
-          '& > div': {
-            display: 'flex',
-            justifyContent: 'center',
-          },
-          '& div.react-datepicker': {
-            display: 'flex',
-            flexDirection: 'column',
-          },
-        }}
-        // {...extraProps}
-      />{' '}
-      {/* </Box> */}
-      {/* {Object.keys(bookings).length > 0 ? (
-        <VehicleBookings bookings={bookings} />
-      ) : null} */}
+
+      <Box py={4}>
+        <ControlledBookingDatePicker
+          name=""
+          onChange={() => {}}
+          value={null}
+          ref={null}
+          loading={loadingMonthlyBookings}
+          // loading
+          inline
+          disabled
+          onMonthChange={handleMonthChange}
+          highlightDates={itemBookingsForMonth}
+          bookedDates={itemBookingsForMonth}
+          filterDate={disableAllDates}
+          renderDayContents={renderDayContents}
+          error={monthBookings?.error || null}
+          wrapperCSS={{
+            '& > div': {
+              display: 'flex',
+              justifyContent: 'center',
+            },
+            '& div.react-datepicker': {
+              display: 'flex',
+              flexDirection: 'column',
+            },
+          }}
+          // {...extraProps}
+        />
+      </Box>
     </Box>
   );
 }
