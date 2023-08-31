@@ -1,4 +1,4 @@
-import { useState, useMemo,  useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import algoliasearch from 'algoliasearch';
 
@@ -26,6 +26,35 @@ const itemsIndex = client.initIndex('items');
 
 //   return string;
 // }
+
+function createObjectIdsToExcludeFilterFromArray(stringsArray = []) {
+  function getStringFilter(itemId) {
+    return `NOT objectID:${itemId}`;
+  }
+
+  let combinedString = '';
+
+  const firstString = stringsArray[0];
+  if (firstString) {
+    combinedString = getStringFilter(firstString);
+  }
+
+  if (Array.isArray(stringsArray) && stringsArray.length > 0) {
+    stringsArray.forEach((string, i) => {
+      //skip first string as it is used for initialization
+      if (i === 0) {
+        return;
+      }
+
+      // console.log({ i });
+      combinedString += ` AND ${getStringFilter(string)}`;
+    });
+  }
+
+  // console.log({ combinedString, stringsArray });
+
+  return String(combinedString).trim();
+}
 
 export default function useSearchItems() {
   const [result, setResult] = useState(null);
@@ -82,11 +111,22 @@ export default function useSearchItems() {
   }, [setError]);
 
   const searchItems = useCallback(
-    async (string, page) => {
+    async (string, options = {}) => {
       try {
         console.log('searching algolia ...', string);
         reset();
         setLoadingStatus(true);
+
+        let filtersString = '';
+
+        const { page, idsForItemsToExclude } = options;
+        // const idsForItemsToExcludeCombined =
+        //   createObjectIdsToExcludeFilterFromArray(idsForItemsToExclude);
+        const objectIdsToExcludeFilter =
+          createObjectIdsToExcludeFilterFromArray(idsForItemsToExclude || []);
+        console.log({ objectIdsToExcludeFilter });
+
+        filtersString = String(filtersString).concat(objectIdsToExcludeFilter);
 
         setSearchValue(string);
 
@@ -94,19 +134,25 @@ export default function useSearchItems() {
           !isNaN(page) && typeof page === 'number' && page >= 0;
         //   console.log({ pageNumberIsValid, page });
 
-        if (string) {
-          const searchResult = await itemsIndex.search(string, {
-            hitsPerPage,
-            ...(pageNumberIsValid ? { page } : {}),
-          });
-          console.log('algolia search result', { searchResult });
+        console.log({ filtersString });
 
-          setResult(searchResult);
+        const searchResult = await itemsIndex.search(string, {
+          hitsPerPage,
+          ...(filtersString ? { filters: filtersString } : {}),
+          ...(pageNumberIsValid ? { page } : {}),
+        });
+        console.log('algolia search result', { searchResult });
 
-          const hits = searchResult?.hits || [];
+        setResult(searchResult);
 
-          dispatch(itemsSuccess(hits));
-        }
+        const hits = searchResult?.hits || [];
+
+        const items = hits.map(hit => {
+          const itemId = hit?.objectID;
+          return { ...hit, itemId };
+        });
+
+        dispatch(itemsSuccess(items));
       } catch (error) {
         console.error(error);
         setError(error);

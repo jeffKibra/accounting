@@ -15,20 +15,27 @@ function useGetItems() {
 
   // console.log({ loading, list, items });
 
-  const fetchFromFirestore = useCallback(() => {
-    console.log('fetching from firestore...');
-    dispatch({ type: GET_ITEMS });
-  }, [dispatch]);
+  const fetchFromFirestore = useCallback(
+    idsForItemsToExclude => {
+      console.log('fetching from firestore...');
+      dispatch({ type: GET_ITEMS, payload: { idsForItemsToExclude } });
+    },
+    [dispatch]
+  );
 
   const getItems = useCallback(
-    valueToSearch => {
-      if (valueToSearch) {
-        console.log('searching algolia...', valueToSearch);
-        searchItems(valueToSearch);
-      } else {
-        fetchFromFirestore();
-      }
+    (valueToSearch, idsForItemsToExclude) => {
+      // if (valueToSearch) {
+      //   console.log('searching algolia...', valueToSearch);
+      //   searchItems('');
+
+      //   // searchItems(valueToSearch, idsForItemsToExclude);
+      // } else {
+      //   fetchFromFirestore(idsForItemsToExclude);
+      // }
+      searchItems('');
     },
+
     [fetchFromFirestore, searchItems]
   );
 

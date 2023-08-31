@@ -16,7 +16,6 @@ function ItemsTable(props) {
   const { items, loading, error, enableOptions, onRowClick } = props;
   // console.log({ items });
 
-  const rowsAreSelectable = typeof onRowClick === 'function';
 
   const columns = useMemo(() => {
     return [

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-
+import PropTypes from 'prop-types';
 //
 import { useGetItems } from 'hooks';
 //
@@ -8,9 +8,9 @@ import ItemsDisplayTable from './ItemsDisplayTable';
 //
 
 function AlgoliaItemsTable(props) {
-  const { onRowClick } = props;
+  const { onRowClick, idsForItemsToExclude } = props;
 
-  const { loading, error, items, getItems } = useGetItems();
+  const { loading, error, items, getItems } = useGetItems(idsForItemsToExclude);
 
   useEffect(() => {
     console.log('fetching items onmount...');
@@ -32,5 +32,15 @@ function AlgoliaItemsTable(props) {
     />
   );
 }
+
+AlgoliaItemsTable.propTypes = {
+  idsForItemsToExclude: PropTypes.array,
+  onRowClick: PropTypes.func,
+};
+
+AlgoliaItemsTable.defaultProps = {
+  idsForItemsToExclude: [],
+  onRowClick: () => {},
+};
 
 export default AlgoliaItemsTable;
