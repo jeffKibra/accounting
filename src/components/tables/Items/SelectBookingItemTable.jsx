@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 //
 import AdvancedTable from 'components/ui/Table/AdvancedTable';
+import AlgoliaItemsTable from './AlgoliaItemsTable';
 //
 import getItemTableData from './getItemTableData';
 import tableColumns from './tableColumns';
@@ -24,7 +25,7 @@ function SelectBookingItemTable(props) {
   }
 
   return (
-    <AdvancedTable
+    <AlgoliaItemsTable
       data={data}
       columns={columns}
       onRowClick={handleRowClick}

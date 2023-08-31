@@ -17,6 +17,8 @@ const tableProps = {
   loading: PropTypes.bool,
   error: PropTypes.object,
   emptyMessage: PropTypes.string,
+  onRowClick: PropTypes.func,
+  enableOptions: PropTypes.bool,
 };
 
 export default tableProps;

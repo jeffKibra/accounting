@@ -3,23 +3,29 @@ import { Box } from '@chakra-ui/react';
 // import PropTypes from 'prop-types';
 
 import ItemsOptions from '../../../containers/Management/Items/ItemOptions';
-
+//
 import AdvancedTable from 'components/ui/Table/AdvancedTable';
+import AlgoliaItemsTable from './AlgoliaItemsTable';
+//
 //
 import getItemTableData from './getItemTableData';
 import tableColumns from './tableColumns';
 import tableProps from './tableProps';
 
 function ItemsTable(props) {
-  const { items, loading, error } = props;
+  const { items, loading, error, enableOptions, onRowClick } = props;
   // console.log({ items });
+
+  const rowsAreSelectable = typeof onRowClick === 'function';
 
   const columns = useMemo(() => {
     return [
       ...tableColumns,
-      { Header: '', accessor: 'actions', isNumeric: true, width: '1%' },
+      ...(enableOptions
+        ? [{ Header: '', accessor: 'actions', isNumeric: true, width: '1%' }]
+        : []),
     ];
-  }, []);
+  }, [enableOptions]);
 
   const data = useMemo(() => {
     return items.map(item => {
@@ -34,14 +40,15 @@ function ItemsTable(props) {
 
   return (
     <Box w="full" bg="white" borderRadius="md" shadow="md" py={4}>
-      <AdvancedTable
+      <AlgoliaItemsTable onRowClick={onRowClick} />
+      {/* <AdvancedTable
         data={data}
         columns={columns}
         onRowClick={() => {}}
         includeGlobalFilter
         loading={loading}
         error={error}
-      />
+      /> */}
     </Box>
   );
 }
