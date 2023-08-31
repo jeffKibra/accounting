@@ -3,7 +3,6 @@ import {
   TableContainer,
   Table as ChakraTable,
   Box,
-  Input,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
@@ -13,14 +12,20 @@ import {
   TableContextProviderPropTypes,
 } from 'contexts/TableContext';
 //
+import SkeletonLoader from 'components/ui/SkeletonLoader';
+import ControlledSearchInput from 'components/ui/ControlledSearchInput';
+//
+import Empty from '../Empty';
+import CustomAlert from '../CustomAlert';
+//
 import THead from './THead';
 import TBody from './TBody';
 import Pagination from './Pagination';
 
-const rowsPerPageOptions = [2, 4, 10, 15];
-
-function Table(props) {
+function ControlledTable(props) {
   const {
+    headers,
+    pageData, //active page data
     caption,
     includeGlobalFilter,
     onRowClick,
@@ -31,12 +36,10 @@ function Table(props) {
     //
     tableProps,
     tableBodyProps,
-    headers,
     prepareRow, //required for react-table table
     globalFilter,
     pageIndex,
     pageSize,
-    page, //active page data
     canNextPage,
     canPreviousPage,
     pageOptions,
@@ -47,6 +50,11 @@ function Table(props) {
     setGlobalFilter,
     // pageCount,
     itemsCount,
+    rowsPerPageOptions,
+    //
+    error,
+    loading,
+    onSearch,
   } = props;
   // console.log({ bodyRowProps });
 
@@ -63,12 +71,14 @@ function Table(props) {
       >
         {includeGlobalFilter ? (
           <Box mb={3} px={4}>
-            <Input
-              placeholder="Search..."
-              size="sm"
-              value={globalFilter}
+            <ControlledSearchInput
               id="global-filter-input"
+              placeholder="Search..."
               onChange={setGlobalFilter}
+              value={globalFilter || ''}
+              size="sm"
+              delayBeforeSearchMS={1500}
+              onSearch={onSearch}
             />
           </Box>
         ) : null}
@@ -77,17 +87,39 @@ function Table(props) {
           <ChakraTable minW="650px" variant="simple" size="sm" {...tableProps}>
             <THead headers={headers} />
 
-            <TBody
-              tableBodyProps={tableBodyProps}
-              rows={page}
-              prepareRow={prepareRow}
-              onRowClick={onRowClick}
-              rowProps={{ ...(bodyRowProps ? bodyRowProps : {}) }}
-            />
+            {loading ? null : (
+              <TBody
+                tableBodyProps={tableBodyProps}
+                rows={pageData}
+                prepareRow={prepareRow}
+                onRowClick={onRowClick}
+                rowProps={{ ...(bodyRowProps ? bodyRowProps : {}) }}
+              />
+            )}
 
             {caption && <TableCaption>{caption}</TableCaption>}
           </ChakraTable>
         </TableContainer>
+
+        {loading ? (
+          <SkeletonLoader />
+        ) : (
+          <>
+            {pageData?.length === 0 ? (
+              error ? (
+                <CustomAlert
+                  status="error"
+                  title="Error loading data!"
+                  description={`${error?.code || ''} ${
+                    error?.message || 'Unknown Error!'
+                  }`}
+                />
+              ) : (
+                <Empty message="No Data!" />
+              )
+            ) : null}
+          </>
+        )}
 
         <Box w="full" mt={2} mb={1}>
           <Pagination
@@ -109,7 +141,10 @@ function Table(props) {
   );
 }
 
-export const TablePropTypes = {
+export const ControlledTablePropTypes = {
+  headers: PropTypes.array.isRequired,
+  pageData: PropTypes.array.isRequired, //active page data
+  //
   caption: PropTypes.string,
   includeGlobalFilter: PropTypes.bool,
   onRowClick: PropTypes.func,
@@ -117,12 +152,10 @@ export const TablePropTypes = {
   //
   tableProps: PropTypes.object,
   tableBodyProps: PropTypes.object,
-  headers: PropTypes.array,
   prepareRow: PropTypes.func, //required for react-table table
   globalFilter: PropTypes.string,
   pageIndex: PropTypes.number,
   pageSize: PropTypes.number,
-  page: PropTypes.array.isRequired, //active page data
   canNextPage: PropTypes.bool,
   canPreviousPage: PropTypes.bool,
   pageOptions: PropTypes.array,
@@ -134,11 +167,13 @@ export const TablePropTypes = {
   // pageCount:PropTypes.number,
   //
   itemsCount: PropTypes.number,
+  rowsPerPageOptions: PropTypes.array,
+  onSearch: PropTypes.func,
   ...TableContextProviderPropTypes,
 };
 
-Table.propTypes = {
-  ...TablePropTypes,
+ControlledTable.propTypes = {
+  ...ControlledTablePropTypes,
 };
 
-export default Table;
+export default ControlledTable;

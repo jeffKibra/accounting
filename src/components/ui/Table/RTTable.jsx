@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   useTable,
   useFilters,
@@ -9,9 +10,7 @@ import {
 import PropTypes from 'prop-types';
 
 //
-import Table from './Table';
-//
-import { TablePropTypes } from './Table';
+import ControlledTable from './ControlledTable';
 //
 
 const rowsPerPageOptions = [2, 4, 10, 15];
@@ -27,15 +26,33 @@ function RTTable(props) {
     columns,
     data,
     caption,
-    includeGlobalFilter,
     onRowClick,
     bodyRowProps,
+    onSortByChange,
+    onSearch,
     ...moreProps
   } = props;
+  // console.log('RTTable', data);
   // console.log({ bodyRowProps });
 
+  const manualSortBy = typeof onSortByChange === 'function';
+  const manualGlobalFilter = typeof onSearch === 'function';
+
+  // console.log({
+  //   manualSortBy,
+  //   manualGlobalFilter,
+  // });
+
+  const includeGlobalFilter = props.includeGlobalFilter || manualGlobalFilter;
+
   const instance = useTable(
-    { columns, data, initialState },
+    {
+      columns,
+      data,
+      initialState,
+      manualSortBy,
+      manualGlobalFilter,
+    },
     useFilters,
     useGlobalFilter,
     useSortBy,
@@ -49,7 +66,7 @@ function RTTable(props) {
     getTableBodyProps,
     headers,
     prepareRow,
-    state: { pageIndex, pageSize, globalFilter },
+    state,
     page,
     canNextPage,
     canPreviousPage,
@@ -61,17 +78,27 @@ function RTTable(props) {
     setPageSize,
     setGlobalFilter,
   } = instance;
+  // console.log({ state });
+
+  const { pageIndex, pageSize, globalFilter, sortBy } = state;
+
+  useEffect(() => {
+    if (manualSortBy) {
+      console.log('sort by has changed... handling it manualy');
+      onSortByChange(sortBy);
+    }
+  }, [sortBy, manualSortBy, onSortByChange]);
 
   // console.log({ pageIndex, pageCount, pageOptions });
 
-  function handleGlobalFilterInputChange(e) {
-    const searchValue = e.target.value;
-    // console.log({ searchValue });
-    setGlobalFilter(searchValue);
+  function handleGlobalFilterInputChange(valueToSearch) {
+    // console.log({ valueToSearch });
+    setGlobalFilter(valueToSearch);
+    // typeof onSearch === 'function' && onSearch(valueToSearch);
   }
 
   return (
-    <Table
+    <ControlledTable
       setGlobalFilter={handleGlobalFilterInputChange}
       itemsCount={rows?.length}
       tableProps={getTableProps()}
@@ -81,7 +108,7 @@ function RTTable(props) {
       pageIndex={pageIndex}
       pageSize={pageSize}
       globalFilter={globalFilter}
-      page={page}
+      pageData={page}
       canNextPage={canNextPage}
       canPreviousPage={canPreviousPage}
       pageOptions={pageOptions}
@@ -95,6 +122,8 @@ function RTTable(props) {
       bodyRowProps={bodyRowProps}
       caption={caption}
       onRowClick={onRowClick}
+      rowsPerPageOptions={rowsPerPageOptions}
+      onSearch={onSearch}
       {...moreProps}
     />
   );
@@ -107,7 +136,8 @@ export const RTTablePropTypes = {
   includeGlobalFilter: PropTypes.bool,
   onRowClick: PropTypes.func,
   bodyRowProps: PropTypes.object,
-  ...TablePropTypes,
+  onSortByChange: PropTypes.func,
+  onSearch: PropTypes.func,
 };
 
 RTTable.propTypes = {

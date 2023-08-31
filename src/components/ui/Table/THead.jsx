@@ -19,15 +19,23 @@ export default function THead(props) {
             isSortedDesc,
           } = column;
 
+          // console.log({ getHeaderProps, getSortByToggleProps });
+
           // console.log({ isSorted, isSortedDesc });
           const { isNumeric } = column;
+
+          const sortByToggleProps = getSortByToggleProps();
+
+          const headerProps = getHeaderProps(sortByToggleProps);
+
+          // console.log({ sortByToggleProps, headerProps });
 
           return (
             <TH
               isNumeric={isNumeric}
               isSorted={isSorted}
               isSortedDesc={isSortedDesc}
-              {...getHeaderProps(getSortByToggleProps())}
+              {...headerProps}
             >
               {render('Header')}
             </TH>
