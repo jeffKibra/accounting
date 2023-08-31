@@ -26,6 +26,18 @@ const itemsSlice = createSlice({
     ...initialState,
   },
   reducers: {
+    startLoading: (state: State) => {
+      return {
+        ...state,
+        loading: true,
+      };
+    },
+    stopLoading: (state: State) => {
+      return {
+        ...state,
+        loading: false,
+      };
+    },
     start: (state: State, action: PayloadAction<string>) => {
       const { payload } = action;
       return {
@@ -45,6 +57,7 @@ const itemsSlice = createSlice({
     },
     itemsSuccess: (state: State, action: PayloadAction<Item[]>) => {
       const { payload } = action;
+      console.log('items success', payload);
       return {
         ...state,
         loading: false,
@@ -78,8 +91,16 @@ const itemsSlice = createSlice({
   },
 });
 
-export const { start, success, itemSuccess, itemsSuccess, fail, reset } =
-  itemsSlice.actions;
+export const {
+  start,
+  success,
+  itemSuccess,
+  itemsSuccess,
+  fail,
+  reset,
+  startLoading,
+  stopLoading,
+} = itemsSlice.actions;
 
 export const itemsReducer = itemsSlice.reducer;
 

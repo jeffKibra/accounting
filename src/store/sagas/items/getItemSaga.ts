@@ -27,8 +27,16 @@ import { error as toastError } from '../../slices/toastSlice';
 
 import { RootState, Item } from '../../../types';
 
-function* getItems() {
+//---------------------------------------------------------------
+interface IGetItemsPayload {
+  filters: Record<string, unknown>;
+}
+
+function* getItems(action: PayloadAction<IGetItemsPayload>) {
   yield put(start(GET_ITEMS));
+
+  const { payload } = action;
+  const filtersObject = payload?.filters;
 
   const orgId: string = yield select(
     (state: RootState) => state.orgsReducer.org?.orgId
@@ -55,7 +63,7 @@ function* getItems() {
 
   try {
     const items: Item[] = yield call(get);
-    // console.log({ items });
+    console.log({ items });
 
     yield put(itemsSuccess(items));
   } catch (err) {
