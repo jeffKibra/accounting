@@ -1,26 +1,27 @@
-import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { connect } from "react-redux";
+import { useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { connect } from 'react-redux';
 
-import { GET_EXPENSE } from "../../../store/actions/expensesActions";
-import { reset } from "../../../store/slices/expenseSlice";
+import { GET_EXPENSE } from '../../../store/actions/expensesActions';
+import { reset } from '../../../store/slices/expenseSlice';
 
-import { EXPENSES } from "../../../nav/routes";
+import { EXPENSES } from '../../../nav/routes';
 
-import useSavedLocation from "../../../hooks/useSavedLocation";
+import useSavedLocation from '../../../hooks/useSavedLocation';
 
-import PageLayout from "../../../components/layout/PageLayout";
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
+import PageLayout from '../../../components/layout/PageLayout';
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
 
-import ExpenseOptions from "../../../containers/Management/Expenses/ExpenseOptions";
-import ViewExpense from "../../../containers/Management/Expenses/ViewExpense";
+import ExpenseOptions from '../../../containers/Management/Expenses/ExpenseOptions';
+import ViewExpense from '../../../containers/Management/Expenses/ViewExpense';
 
 function ViewExpensePage(props) {
   const { loading, isModified, expense, action, resetExpense, getExpense } =
     props;
   const { expenseId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   useSavedLocation().setLocation();
 
   useEffect(() => {
@@ -38,6 +39,11 @@ function ViewExpensePage(props) {
     <PageLayout
       pageTitle="Expense Details"
       actions={expense && <ExpenseOptions expense={expense} edit deletion />}
+      breadcrumbLinks={{
+        Dashboard: '/',
+        Expenses: EXPENSES,
+        [expenseId]: location.pathname,
+      }}
     >
       {loading && action === GET_EXPENSE ? (
         <SkeletonLoader />
@@ -59,7 +65,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     resetExpense: () => dispatch(reset()),
-    getExpense: (expenseId) => dispatch({ type: GET_EXPENSE, expenseId }),
+    getExpense: expenseId =>
+      dispatch({ type: GET_EXPENSE, payload: expenseId }),
   };
 }
 

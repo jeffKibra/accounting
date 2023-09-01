@@ -1,22 +1,22 @@
-import { useEffect } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import { connect } from "react-redux";
-import { IconButton } from "@chakra-ui/react";
-import { RiCloseFill } from "react-icons/ri";
+import { useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 import {
   UPDATE_EXPENSE,
   GET_EXPENSE,
-} from "../../../store/actions/expensesActions";
-import { reset } from "../../../store/slices/expenseSlice";
+} from '../../../store/actions/expensesActions';
+import { reset } from '../../../store/slices/expenseSlice';
 
-import useSavedLocation from "../../../hooks/useSavedLocation";
-import PageLayout from "../../../components/layout/PageLayout";
+import { EXPENSES } from '../../../nav/routes';
 
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
+import useSavedLocation from '../../../hooks/useSavedLocation';
+import PageLayout from '../../../components/layout/PageLayout';
 
-import EditExpense from "../../../containers/Management/Expenses/EditExpense";
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
+
+import EditExpense from '../../../containers/Management/Expenses/EditExpense';
 
 function getFormValuesOnly(expense = {}) {
   const {
@@ -56,8 +56,9 @@ function EditExpensePage(props) {
   } = props;
   const { expenseId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   useSavedLocation().setLocation();
-  const viewRoute = `/expenses/${expenseId}/view`;
+  const viewRoute = `/purchase/expenses/${expenseId}/view`;
 
   useEffect(() => {
     getExpense(expenseId);
@@ -80,17 +81,11 @@ function EditExpensePage(props) {
   return (
     <PageLayout
       pageTitle="Edit Expense"
-      actions={
-        <Link to={-1}>
-          <IconButton
-            colorScheme="red"
-            variant="outline"
-            size="sm"
-            title="cancel"
-            icon={<RiCloseFill />}
-          />
-        </Link>
-      }
+      breadcrumbLinks={{
+        Dashboard: '/',
+        Expenses: EXPENSES,
+        [expenseId]: location.pathname,
+      }}
     >
       {loading && action === GET_EXPENSE ? (
         <SkeletonLoader />
@@ -115,9 +110,10 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    updateExpense: (data) => dispatch({ type: UPDATE_EXPENSE, data }),
+    updateExpense: payload => dispatch({ type: UPDATE_EXPENSE, payload }),
     resetExpense: () => dispatch(reset()),
-    getExpense: (expenseId) => dispatch({ type: GET_EXPENSE, expenseId }),
+    getExpense: expenseId =>
+      dispatch({ type: GET_EXPENSE, payload: expenseId }),
   };
 }
 

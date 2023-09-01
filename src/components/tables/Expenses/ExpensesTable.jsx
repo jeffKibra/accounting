@@ -1,10 +1,10 @@
-import { useMemo } from "react";
-import PropTypes from "prop-types";
+import { useMemo } from 'react';
+import PropTypes from 'prop-types';
 
-import formats from "../../../utils/formats";
-import ExpenseOptions from "../../../containers/Management/Expenses/ExpenseOptions";
+import formats from '../../../utils/formats';
+import ExpenseOptions from '../../../containers/Management/Expenses/ExpenseOptions';
 
-import CustomTable from "../CustomTable";
+import CustomTable from '../CustomTable';
 
 function ExpensesTable(props) {
   const { expenses } = props;
@@ -12,20 +12,20 @@ function ExpensesTable(props) {
 
   const columns = useMemo(() => {
     return [
-      { Header: "", accessor: "actions" },
-      { Header: "DATE", accessor: "date" },
-      { Header: "EXPENSE ACCOUNT", accessor: "expenseAccount" },
-      { Header: "PAID THROUGH", accessor: "paymentAccount.name" },
+      { Header: '', accessor: 'actions' },
+      { Header: 'DATE', accessor: 'date' },
+      { Header: 'EXPENSE ACCOUNT', accessor: 'expenseAccount' },
+      { Header: 'PAID THROUGH', accessor: 'paymentAccount.name' },
       // { Header: "CUSTOMER", accessor: "customer.displayName" },
       // { Header: "PAYMENT MODE", accessor: "paymentMode.name" },
-      { Header: "REFERENCE", accessor: "reference" },
-      { Header: "VENDOR", accessor: "vendor.displayName" },
-      { Header: "AMOUNT", accessor: "totalAmount", isNumeric: true },
+      { Header: 'REFERENCE', accessor: 'reference' },
+      { Header: 'VENDOR', accessor: 'vendor.displayName' },
+      { Header: 'AMOUNT', accessor: 'totalAmount', isNumeric: true },
     ];
   }, []);
 
   const data = useMemo(() => {
-    return expenses.map((expense) => {
+    return expenses.map(expense => {
       const {
         expenseDate,
         items,
@@ -33,7 +33,7 @@ function ExpensesTable(props) {
       } = expense;
       let expenseAccount = items[0]?.account?.name;
       if (items.length > 1) {
-        expenseAccount = "Split";
+        expenseAccount = 'Split';
       }
 
       return {
@@ -60,7 +60,7 @@ ExpensesTable.propTypes = {
         totalAmount: PropTypes.number.isRequired,
       }),
       expenseDate: PropTypes.instanceOf(Date).isRequired,
-      status: PropTypes.string.isRequired,
+      status: PropTypes.number.isRequired,
       expenseId: PropTypes.string.isRequired,
       paymentAccount: PropTypes.shape({
         accountId: PropTypes.string.isRequired,

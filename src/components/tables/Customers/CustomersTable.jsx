@@ -1,9 +1,9 @@
-import { useMemo } from "react";
-import PropTypes from "prop-types";
+import { useMemo } from 'react';
+import PropTypes from 'prop-types';
 
-import CustomerOptions from "../../../containers/Management/Customers/CustomerOptions";
+import CustomerOptions from '../../../containers/Management/Customers/CustomerOptions';
 
-import CustomTable from "../CustomTable";
+import CustomTable from '../CustomTable';
 
 function CustomersTable(props) {
   const { customers } = props;
@@ -11,24 +11,35 @@ function CustomersTable(props) {
 
   const columns = useMemo(() => {
     return [
-      { Header: "", accessor: "actions" },
-      { Header: "Name", accessor: "displayName" },
-      { Header: "Company Name", accessor: "companyName" },
-      { Header: "Email", accessor: "email" },
-      { Header: "Phone", accessor: "phone" },
+      { Header: 'Name', accessor: 'displayName' },
+      { Header: 'Company Name', accessor: 'companyName' },
+      { Header: 'Email', accessor: 'email' },
+      { Header: 'Phone', accessor: 'phone' },
       {
-        Header: "Opening Balance",
-        accessor: "openingBalance",
+        Header: 'Pending',
+        accessor: 'receivables',
         isNumeric: true,
       },
+      {
+        Header: 'Unused Credits',
+        accessor: 'summary.unusedCredits',
+        isNumeric: true,
+      },
+      { Header: '', accessor: 'actions', isNumeric: true, width: '1%' },
     ];
   }, []);
 
   const data = useMemo(() => {
-    return customers.map((customer) => {
+    return customers.map(customer => {
+      // const {
+      //   summary: { invoicedAmount, invoicePayments },
+      // } = customer;
+      // const receivables = +invoicedAmount - +invoicePayments;
+
       return {
         ...customer,
-        actions: <CustomerOptions customer={customer} edit deletion />,
+        receivables: 0,
+        actions: <CustomerOptions customer={customer} edit view deletion />,
       };
     });
   }, [customers]);
@@ -41,8 +52,9 @@ CustomersTable.propTypes = {
     PropTypes.shape({
       displayName: PropTypes.string.isRequired,
       companyName: PropTypes.string,
-      customerId: PropTypes.string.isRequired,
-      type: PropTypes.oneOf(["individual", "business"]).isRequired,
+      id: PropTypes.string.isRequired,
+      type: PropTypes.oneOf(['individual', 'business', 'walk_in_customer'])
+        .isRequired,
       phone: PropTypes.string.isRequired,
       email: PropTypes.string,
       openingBalance: PropTypes.number,

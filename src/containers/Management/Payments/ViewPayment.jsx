@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Container,
   VStack,
@@ -12,15 +12,17 @@ import {
   Tbody,
   Td,
   Tr,
-} from "@chakra-ui/react";
-import PropTypes from "prop-types";
+} from '@chakra-ui/react';
+import PropTypes from 'prop-types';
+//
+import { bookingProps, datePropType } from 'propTypes';
 
-import { getPaymentsTotal } from "../../../utils/payments";
+import { getPaymentsTotal } from '../../../utils/payments';
 
-import PaymentInvoicesTable from "../../../components/tables/Payments/PaymentInvoicesTable";
+import BookingsTable from 'components/tables/Bookings/BookingsTable';
 
 function ViewPayment(props) {
-  const { payment } = props;
+  const { payment, bookings } = props;
   const {
     org,
     customer,
@@ -29,7 +31,6 @@ function ViewPayment(props) {
     reference,
     amount,
     payments,
-    paidInvoices,
     paymentId,
   } = payment;
 
@@ -43,7 +44,7 @@ function ViewPayment(props) {
       maxW="container.md"
       //   minH="1123px"
       bg="white"
-      px={["20px", "50px"]}
+      px={['20px', '50px']}
       py="70px"
     >
       <VStack color="#333" w="full" h="full">
@@ -111,7 +112,7 @@ function ViewPayment(props) {
           <GridItem
             colSpan={[12, 6]}
             display="flex"
-            justifyContent="flex-end"
+            justifyContent={['center', 'flex-end']}
             alignItems="center"
           >
             <VStack
@@ -138,7 +139,13 @@ function ViewPayment(props) {
         </Flex>
 
         <Box w="full" pt={3}>
-          <PaymentInvoicesTable invoices={paidInvoices} payments={payments} />
+          {/* <PaymentBookingsTable bookings={bookings} payments={payments} /> */}
+          <BookingsTable
+            bookings={bookings}
+            payments={payments}
+            columnsToExclude={['paymentInput', 'actions', 'imprest', 'balance']}
+            paymentId={paymentId}
+          />
         </Box>
 
         <Box w="full" minH="200px" />
@@ -150,15 +157,15 @@ function ViewPayment(props) {
 ViewPayment.propTypes = {
   payment: PropTypes.shape({
     customer: PropTypes.object.isRequired,
-    org: PropTypes.object.isRequired,
+    orgId: PropTypes.string,
     amount: PropTypes.number.isRequired,
-    paymentDate: PropTypes.instanceOf(Date).isRequired,
+    paymentDate: datePropType,
     paymentId: PropTypes.string.isRequired,
-    status: PropTypes.string.isRequired,
-    paidInvoices: PropTypes.array.isRequired,
+    status: PropTypes.number,
     payments: PropTypes.object.isRequired,
     reference: PropTypes.string,
   }),
+  bookings: PropTypes.arrayOf(bookingProps),
 };
 
 export default ViewPayment;

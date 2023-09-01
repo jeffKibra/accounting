@@ -1,14 +1,14 @@
-import { useState, useMemo, useEffect } from "react";
-import { connect } from "react-redux";
-import PropTypes from "prop-types";
+import { useState, useMemo, useEffect } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
-import { GET_ITEMS } from "../store/actions/itemsActions";
-import { GET_PAYMENT_TERMS } from "../store/actions/paymentTermsActions";
+import { GET_ITEMS } from '../store/actions/itemsActions';
+import { GET_PAYMENT_TERMS } from '../store/actions/paymentTermsActions';
 
-import SkeletonLoader from "../components/ui/SkeletonLoader";
-import Empty from "../components/ui/Empty";
+import SkeletonLoader from '../components/ui/SkeletonLoader';
+import Empty from '../components/ui/Empty';
 
-import InvoiceItemsForm from "../../../components/forms/Invoice/InvoiceItemsForm";
+import InvoiceItemsForm from '../../../components/forms/Invoice/InvoiceItemsForm';
 
 function SelectItems(props) {
   const {
@@ -40,7 +40,7 @@ function SelectItems(props) {
     function deriveData(data) {
       // console.log({ data });
       const { itemId, rate, quantity, discount, discountType } = data;
-      const item = items.find((item) => item.itemId === itemId);
+      const item = items.find(item => item.itemId === itemId);
       let itemRate = rate;
       let itemTax = 0;
       let itemDiscount = discount;
@@ -49,7 +49,7 @@ function SelectItems(props) {
 
       //set all rates to be tax exclusive
       if (salesTax?.rate) {
-        if (salesTaxType === "tax inclusive") {
+        if (salesTaxType === 'tax inclusive') {
           //item rate is inclusive of tax
           const tax = (salesTax.rate / (100 + salesTax.rate)) * rate;
           itemRate = rate - tax;
@@ -58,7 +58,7 @@ function SelectItems(props) {
 
       //discounts
       if (discount > 0) {
-        if (discountType === "KES") {
+        if (discountType === 'KES') {
           itemDiscount = discount;
         } else {
           itemDiscount = (discount * itemRate) / 100;
@@ -103,7 +103,7 @@ function SelectItems(props) {
     }
 
     return items
-      ? addedItems.map((item) => {
+      ? addedItems.map(item => {
           return deriveData(item);
         })
       : addedItems;
@@ -115,7 +115,7 @@ function SelectItems(props) {
     let remaining = [];
 
     if (items) {
-      remaining = items.filter((item) => {
+      remaining = items.filter(item => {
         const addedItem = addedItems.find(
           ({ itemId }) => itemId === item.itemId
         );
@@ -128,10 +128,8 @@ function SelectItems(props) {
 
   const summary = useMemo(() => {
     let taxes = [];
-    selectedItems.forEach((item) => {
-      const index = taxes.findIndex(
-        (tax) => tax.taxId === item.salesTax?.taxId
-      );
+    selectedItems.forEach(item => {
+      const index = taxes.findIndex(tax => tax.taxId === item.salesTax?.taxId);
 
       if (index === -1) {
         taxes.push(item.salesTax);
@@ -139,12 +137,12 @@ function SelectItems(props) {
     });
 
     taxes = taxes
-      .filter((tax) => tax?.name)
-      .map((tax) => {
+      .filter(tax => tax?.name)
+      .map(tax => {
         const { taxId } = tax;
         //get all items with this tax
         let totalTax = selectedItems
-          .filter((obj) => obj.salesTax.taxId === taxId)
+          .filter(obj => obj.salesTax.taxId === taxId)
           .reduce((sum, item) => {
             return sum + item.totalTax;
           }, 0);
@@ -153,7 +151,7 @@ function SelectItems(props) {
         return { ...tax, totalTax };
       });
 
-    const totalTaxes = taxes.reduce((sum, taxGroup) => {
+    const totalTax = taxes.reduce((sum, taxGroup) => {
       return sum + taxGroup.totalTax;
     }, 0);
 
@@ -164,14 +162,14 @@ function SelectItems(props) {
     return {
       taxes,
       subTotal: +subTotal.toFixed(2),
-      totalTaxes: +totalTaxes.toFixed(2),
+      totalTax: +totalTax.toFixed(2),
     };
   }, [selectedItems]);
 
   function addItem(itemData) {
     const { itemId } = itemData;
-    setAddedItems((current) => {
-      const index = current.findIndex((item) => item.itemId === itemId);
+    setAddedItems(current => {
+      const index = current.findIndex(item => item.itemId === itemId);
       // console.log({ current, index, quantity });
       let newItems = [];
 
@@ -198,8 +196,8 @@ function SelectItems(props) {
 
   function removeItem(itemId) {
     // console.log({ itemId });
-    setAddedItems((current) => {
-      return current.filter((item) => item.itemId !== itemId);
+    setAddedItems(current => {
+      return current.filter(item => item.itemId !== itemId);
     });
   }
 

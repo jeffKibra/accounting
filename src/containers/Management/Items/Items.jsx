@@ -1,15 +1,15 @@
-import { Component } from "react";
-import { connect } from "react-redux";
+import { Component } from 'react';
+import { connect } from 'react-redux';
 
-import { GET_ITEMS, DELETE_ITEM } from "../../../store/actions/itemsActions";
-import { reset } from "../../../store/slices/itemsSlice";
+import { GET_ITEMS, DELETE_ITEM } from '../../../store/actions/itemsActions';
+import { reset } from '../../../store/slices/itemsSlice';
 
-import Empty from "../../../components/ui/Empty";
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
+import Empty from '../../../components/ui/Empty';
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
 
-import ItemsTable from "../../../components/tables/ItemsTables/ItemsTable";
+import ItemsTable from '../../../components/tables/Items/ItemsTable';
 
-class Items extends Component {
+class ItemsList extends Component {
   componentDidMount() {
     this.props.getItems();
   }
@@ -26,20 +26,33 @@ class Items extends Component {
   }
 
   render() {
-    const { loading, items, action, isModified, deleteItem } = this.props;
+    const { loading, items, action, isModified, error, deleteItem } =
+      this.props;
     // console.log({ items, loading, error });
 
-    return loading && action === GET_ITEMS ? (
-      <SkeletonLoader loading={loading} />
-    ) : items && items.length > 0 ? (
+    // return loading && action === GET_ITEMS ? (
+    //   <SkeletonLoader loading={loading} />
+    // ) : items && items.length > 0 ? (
+    //   <ItemsTable
+    //     isDeleted={isModified}
+    //     handleDelete={deleteItem}
+    //     deleting={loading && action === DELETE_ITEM}
+    //     items={items}
+    //     loading={}
+    //   />
+    // ) : (
+    //   <Empty />
+    // );
+
+    return (
       <ItemsTable
         isDeleted={isModified}
         handleDelete={deleteItem}
         deleting={loading && action === DELETE_ITEM}
-        items={items}
+        items={items || []}
+        loading={loading && action === GET_ITEMS}
+        error={error}
       />
-    ) : (
-      <Empty />
     );
   }
 }
@@ -53,9 +66,9 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     getItems: () => dispatch({ type: GET_ITEMS }),
-    deleteItem: (itemId) => dispatch({ type: DELETE_ITEM, itemId }),
+    deleteItem: itemId => dispatch({ type: DELETE_ITEM, payload: itemId }),
     resetItem: () => dispatch(reset()),
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Items);
+export default connect(mapStateToProps, mapDispatchToProps)(ItemsList);

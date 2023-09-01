@@ -1,21 +1,19 @@
-import { useEffect } from "react";
-import { connect } from "react-redux";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { RiCloseLine } from "react-icons/ri";
-import { IconButton } from "@chakra-ui/react";
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
-import useSavedLocation from "../../../hooks/useSavedLocation";
-import { VENDORS } from "../../../nav/routes";
+import useSavedLocation from '../../../hooks/useSavedLocation';
+import { VENDORS } from '../../../nav/routes';
 import {
   GET_VENDOR,
   UPDATE_VENDOR,
-} from "../../../store/actions/vendorsActions";
-import { reset } from "../../../store/slices/vendorsSlice";
+} from '../../../store/actions/vendorsActions';
+import { reset } from '../../../store/slices/vendorsSlice';
 
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
-import PageLayout from "../../../components/layout/PageLayout";
-import EditVendor from "../../../containers/Management/Vendors/EditVendor";
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
+import PageLayout from '../../../components/layout/PageLayout';
+import EditVendor from '../../../containers/Management/Vendors/EditVendor';
 
 function EditVendorPage(props) {
   const {
@@ -29,6 +27,7 @@ function EditVendorPage(props) {
   } = props;
   const navigate = useNavigate();
   const { vendorId } = useParams();
+  const location = useLocation();
 
   useSavedLocation().setLocation();
 
@@ -50,17 +49,11 @@ function EditVendorPage(props) {
   return (
     <PageLayout
       pageTitle="Edit vendor"
-      actions={
-        <Link to={VENDORS}>
-          <IconButton
-            colorScheme="red"
-            variant="outline"
-            size="sm"
-            title="cancel"
-            icon={<RiCloseLine />}
-          />
-        </Link>
-      }
+      breadcrumbLinks={{
+        Dashboard: '/',
+        Vendors: VENDORS,
+        [vendorId]: location.pathname,
+      }}
     >
       {loading && action === GET_VENDOR ? (
         <SkeletonLoader />
@@ -91,8 +84,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getVendor: (vendorId) => dispatch({ type: GET_VENDOR, vendorId }),
-    updateVendor: (data) => dispatch({ type: UPDATE_VENDOR, data }),
+    getVendor: vendorId => dispatch({ type: GET_VENDOR, payload: vendorId }),
+    updateVendor: payload => dispatch({ type: UPDATE_VENDOR, payload }),
     resetVendor: () => dispatch(reset()),
   };
 }

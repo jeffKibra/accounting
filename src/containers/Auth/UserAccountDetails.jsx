@@ -9,13 +9,13 @@ import {
   VStack,
   Text,
   Heading,
-} from "@chakra-ui/react";
-import { RiUser4Line } from "react-icons/ri";
+} from '@chakra-ui/react';
+import { RiUser4Line } from 'react-icons/ri';
 
-import useAuth from "../../hooks/useAuth";
-import useOrg from "../../hooks/useOrg";
+import useAuth from '../../hooks/useAuth';
+import useOrg from '../../hooks/useOrg';
 
-import LogoutModal from "./LogoutModal";
+import LogoutModal from './LogoutModal';
 
 function UserAccountDetails() {
   const userProfile = useAuth();
@@ -27,21 +27,22 @@ function UserAccountDetails() {
         <Avatar
           colorScheme="cyan"
           as={MenuButton}
-          size="sm"
           bg="cyan.300"
+          w="40px!important"
+          h="40px!important"
           _hover={{
-            bg: "cyan.200",
+            bg: 'cyan.200',
           }}
           icon={<Icon as={RiUser4Line} />}
         />
-        <MenuList w="250px">
+        <MenuList w="250px" shadow="lg">
           <Flex w="full">
             <VStack align="center" w="full" px={3}>
               <Avatar
                 colorScheme="cyan"
                 bg="cyan.300"
                 _hover={{
-                  bg: "cyan.200",
+                  bg: 'cyan.200',
                 }}
                 size="lg"
                 icon={<Icon as={RiUser4Line} />}

@@ -1,10 +1,10 @@
-import { useEffect } from "react";
-import { connect } from "react-redux";
-import PropTypes from "prop-types";
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
-import { CHECK_ACCOUNTS } from "../../../store/actions/accountsActions";
+import { GET_ACCOUNTS } from '../../../store/actions/accountsActions';
 
-import FullPageSpinner from "../../../components/ui/FullPageSpinner";
+import FullPageSpinner from '../../../components/ui/FullPageSpinner';
 
 function CheckAccounts(props) {
   const { check, loading, action, orgId, children } = props;
@@ -15,7 +15,7 @@ function CheckAccounts(props) {
     }
   }, [orgId, check]);
 
-  return loading && action === CHECK_ACCOUNTS ? (
+  return loading && action === GET_ACCOUNTS ? (
     <FullPageSpinner label="Loading Data..." />
   ) : (
     children
@@ -27,7 +27,7 @@ CheckAccounts.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const orgId = state.orgsReducer.org?.id;
+  const orgId = state.orgsReducer.org?.orgId;
   const { loading, action } = state.accountsReducer;
 
   return {
@@ -39,7 +39,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    check: () => dispatch({ type: CHECK_ACCOUNTS }),
+    check: () => dispatch({ type: GET_ACCOUNTS }),
   };
 }
 

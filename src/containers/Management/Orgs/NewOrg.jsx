@@ -33,13 +33,11 @@ function NewOrg(props) {
   }, [error, toasts]);
 
   return (
-    <Box>
-      <OrgForm
-        isAdmin={isAdmin(userProfile?.role)}
-        loading={loading}
-        onFormSubmit={createOrg}
-      />
-    </Box>
+    <OrgForm
+      isAdmin={isAdmin(userProfile?.role)}
+      loading={loading}
+      onFormSubmit={createOrg}
+    />
   );
 }
 
@@ -55,7 +53,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createOrg: (data) => dispatch({ type: CREATE_ORG, data }),
+    createOrg: (payload) => dispatch({ type: CREATE_ORG, payload }),
     resetOrg: () => dispatch(reset()),
   };
 }

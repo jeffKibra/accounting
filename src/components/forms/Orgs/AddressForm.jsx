@@ -26,7 +26,7 @@ function AddressForm(props) {
       city: defaultValues?.city || "",
       state: defaultValues?.state || "",
       postalCode: defaultValues?.postalCode || "",
-      country: defaultValues?.country || "",
+      country: defaultValues?.country || "Kenya",
     };
   }, [defaultValues]);
 

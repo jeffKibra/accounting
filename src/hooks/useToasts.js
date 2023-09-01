@@ -1,47 +1,60 @@
-import { useToast } from "@chakra-ui/react";
+import { useCallback } from 'react';
+import { useToast } from '@chakra-ui/react';
 
 function useToasts() {
   const toast = useToast();
 
-  const success = (msg) =>
-    toast({
-      duration: 9000,
-      position: "top",
-      isClosable: true,
-      status: "success",
-      variant: "subtle",
-      description: msg,
-    });
+  const success = useCallback(
+    msg =>
+      toast({
+        duration: 9000,
+        position: 'bottom-left',
+        isClosable: true,
+        status: 'success',
+        variant: 'subtle',
+        description: msg,
+      }),
+    [toast]
+  );
 
-  const info = (msg) =>
-    toast({
-      duration: 9000,
-      position: "top",
-      isClosable: true,
-      status: "info",
-      variant: "subtle",
-      description: msg,
-    });
+  const info = useCallback(
+    msg =>
+      toast({
+        duration: 9000,
+        position: 'bottom-left',
+        isClosable: true,
+        status: 'info',
+        variant: 'subtle',
+        description: msg,
+      }),
+    [toast]
+  );
 
-  const error = (msg) =>
-    toast({
-      duration: 9000,
-      position: "top",
-      isClosable: true,
-      status: "error",
-      variant: "subtle",
-      description: msg,
-    });
+  const error = useCallback(
+    msg =>
+      toast({
+        duration: 9000,
+        position: 'bottom-left',
+        isClosable: true,
+        status: 'error',
+        variant: 'subtle',
+        description: msg,
+      }),
+    [toast]
+  );
 
-  const warning = (msg) =>
-    toast({
-      duration: 9000,
-      position: "top",
-      isClosable: true,
-      status: "warning",
-      variant: "subtle",
-      description: msg,
-    });
+  const warning = useCallback(
+    msg =>
+      toast({
+        duration: 9000,
+        position: 'bottom-left',
+        isClosable: true,
+        status: 'warning',
+        variant: 'subtle',
+        description: msg,
+      }),
+    [toast]
+  );
 
   return {
     success,

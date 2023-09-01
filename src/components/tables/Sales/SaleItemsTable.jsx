@@ -1,86 +1,70 @@
-import { useMemo } from "react";
-import PropTypes from "prop-types";
-import { Stack, IconButton } from "@chakra-ui/react";
-import { RiDeleteBin4Line, RiEdit2Line } from "react-icons/ri";
+import { useMemo } from 'react';
+import PropTypes from 'prop-types';
+import { Stack, IconButton } from '@chakra-ui/react';
+import { RiDeleteBin4Line, RiEdit2Line } from 'react-icons/ri';
 
-import CustomTable from "../CustomTable";
-import CustomModal from "../../ui/CustomModal";
-import SelectItemForm from "../../forms/Sales/SelectItemForm";
+import CustomTable from '../CustomRawTable';
+// import CustomModal from "../../ui/CustomModal";
+// import SelectItemForm from "../../forms/Sales/SelectItemForm";
 
 function SaleItemsTable(props) {
-  const { items, handleDelete, handleEdit, loading, taxType } = props;
-  // console.log({ items });
+  const { items, handleItemDelete, handleItemEdit, loading, taxType } = props;
+  console.log({ items });
 
   const columns = useMemo(() => {
     return [
-      { Header: "", accessor: "actions" },
-      { Header: "Name", accessor: "displayName" },
-      { Header: "Quantity", accessor: "quantity", isNumeric: true },
-      { Header: "Rate", accessor: "itemRate", isNumeric: true },
-      { Header: "Discount", accessor: "discount", isNumeric: true },
-      { Header: "Tax", accessor: "tax", isNumeric: true },
-      { Header: "Amount", accessor: "totalAmount", isNumeric: true },
+      { Header: 'Name', accessor: 'displayName' },
+      { Header: 'Quantity', accessor: 'quantityString', isNumeric: true },
+      { Header: 'Rate', accessor: 'itemRate', isNumeric: true },
+      { Header: 'Tax', accessor: 'tax', isNumeric: true },
+      { Header: 'Amount', accessor: 'totalAmount', isNumeric: true },
+      { Header: '', accessor: 'actions' },
     ];
   }, []);
 
   const data = useMemo(() => {
-    return [...items].map((item) => {
+    return [...items].map((saleItem, index) => {
+      console.log({ saleItem });
       const {
-        itemId,
-        name,
-        variant,
+        item,
         salesTax,
-        discount,
-        discountType,
-        totalAmount,
-        totalTax,
+        itemRateTotal,
+        itemTaxTotal,
         itemRate,
         itemTax,
-      } = item;
+        quantity,
+      } = saleItem;
 
-      const rate = taxType === "taxInclusive" ? itemRate + itemTax : itemRate;
+      const rate = taxType === 'taxInclusive' ? itemRate + itemTax : itemRate;
       const amount =
-        taxType === "taxInclusive" ? totalAmount + totalTax : totalAmount;
+        taxType === 'taxInclusive'
+          ? itemRateTotal + itemTaxTotal
+          : itemRateTotal;
+
+      const itemName = item?.name || '';
+      const itemUnit = item?.unit || '';
 
       return {
-        ...item,
+        ...saleItem,
         itemRate: rate,
         totalAmount: amount,
-        displayName: `${name}-${variant}`,
-        discount: `${discount} (${discountType})`,
-        tax: salesTax?.name ? `${salesTax?.name} (${salesTax?.rate}%)` : "",
+        displayName: `${itemName}`,
+        quantityString: `${quantity} ${itemUnit}`,
+        tax: salesTax?.name ? `${salesTax?.name} (${salesTax?.rate}%)` : '0%',
         actions: (
           <Stack direction="row" spacing={1}>
-            <CustomModal
-              closeOnOverlayClick={false}
-              title="Edit Item"
-              renderTrigger={(onOpen) => {
-                return (
-                  <IconButton
-                    size="xs"
-                    onClick={onOpen}
-                    colorScheme="cyan"
-                    icon={<RiEdit2Line />}
-                    title="Edit"
-                    isDisabled={loading}
-                  />
-                );
-              }}
-              renderContent={(onClose) => {
-                return (
-                  <SelectItemForm
-                    handleFormSubmit={handleEdit}
-                    items={items}
-                    item={item}
-                    onClose={onClose}
-                  />
-                );
-              }}
+            <IconButton
+              size="xs"
+              onClick={() => handleItemEdit(saleItem, index)}
+              colorScheme="cyan"
+              icon={<RiEdit2Line />}
+              title="Edit"
+              isDisabled={loading}
             />
 
             <IconButton
               size="xs"
-              onClick={() => handleDelete(itemId)}
+              onClick={() => handleItemDelete(index)}
               colorScheme="red"
               icon={<RiDeleteBin4Line />}
               title="Delete"
@@ -90,7 +74,7 @@ function SaleItemsTable(props) {
         ),
       };
     });
-  }, [items, handleDelete, handleEdit, loading, taxType]);
+  }, [items, handleItemDelete, handleItemEdit, loading, taxType]);
 
   return <CustomTable data={data} columns={columns} />;
 }
@@ -99,9 +83,8 @@ SaleItemsTable.propTypes = {
   loading: PropTypes.bool.isRequired,
   items: PropTypes.arrayOf(
     PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      variant: PropTypes.string,
-      itemId: PropTypes.string.isRequired,
+      item: PropTypes.object.isRequired,
+      dateRange: PropTypes.array,
       rate: PropTypes.number.isRequired,
       tax: PropTypes.oneOfType([
         PropTypes.shape({
@@ -110,16 +93,15 @@ SaleItemsTable.propTypes = {
           taxId: PropTypes.string,
         }),
       ]),
-      totalAmount: PropTypes.number.isRequired,
+      itemRateTotal: PropTypes.number.isRequired,
       itemRate: PropTypes.number.isRequired,
       itemTax: PropTypes.number.isRequired,
-      totalTax: PropTypes.number.isRequired,
-      totalDiscount: PropTypes.number.isRequired,
+      itemTaxTotal: PropTypes.number.isRequired,
       quantity: PropTypes.number.isRequired,
     })
   ),
-  handleDelete: PropTypes.func.isRequired,
-  handleEdit: PropTypes.func.isRequired,
+  handleItemDelete: PropTypes.func.isRequired,
+  handleItemEdit: PropTypes.func.isRequired,
   taxType: PropTypes.string.isRequired,
 };
 

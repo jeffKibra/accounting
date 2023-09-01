@@ -44,7 +44,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createOrg: (data) => dispatch({ type: CREATE_ORG, data }),
+    createOrg: (payload) => dispatch({ type: CREATE_ORG, payload }),
     resetOrg: () => dispatch(reset()),
   };
 }

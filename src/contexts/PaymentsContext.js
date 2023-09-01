@@ -289,7 +289,10 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     getInvoices: (customerId, statuses) =>
-      dispatch({ type: GET_CUSTOMER_INVOICES, customerId, statuses }),
+      dispatch({
+        type: GET_CUSTOMER_INVOICES,
+        payload: { customerId, statuses },
+      }),
   };
 }
 

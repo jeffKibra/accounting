@@ -1,12 +1,14 @@
-import { Route } from "react-router-dom";
-import * as routes from "../routes";
+import { Route } from 'react-router-dom';
+import * as routes from '../routes';
 
-import ManagementRoute from "../ManagementRoute";
+import ManagementRoute from '../ManagementRoute';
 
-//items
-import ItemsPage from "../../pages/Management/Items/ItemsPage";
-import NewItemPage from "../../pages/Management/Items/NewItemPage";
-import EditItemPage from "../../pages/Management/Items/EditItemPage";
+//Items
+import ItemsPage from 'pages/Management/Item/ItemsPage';
+import NewItemPage from 'pages/Management/Item/NewItemPage';
+import EditItemPage from 'pages/Management/Item/EditItemPage';
+import ViewItemPage from 'pages/Management/Item/ViewItemPage';
+import ViewItemSchedulePage from 'pages/Management/Item/ViewItemSchedulePage';
 
 function Items() {
   return [
@@ -37,6 +39,26 @@ function Items() {
       element={
         <ManagementRoute>
           <EditItemPage />
+        </ManagementRoute>
+      }
+    />,
+    <Route
+      path={routes.VIEW_ITEM}
+      key={routes.VIEW_ITEM}
+      exact
+      element={
+        <ManagementRoute>
+          <ViewItemPage />
+        </ManagementRoute>
+      }
+    />,
+    <Route
+      path={routes.VIEW_ITEM_SCHEDULE}
+      key={routes.VIEW_ITEM_SCHEDULE}
+      exact
+      element={
+        <ManagementRoute>
+          <ViewItemSchedulePage />
         </ManagementRoute>
       }
     />,

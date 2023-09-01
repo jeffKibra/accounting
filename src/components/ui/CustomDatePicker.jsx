@@ -1,24 +1,21 @@
-import { forwardRef } from "react";
-import { Input } from "@chakra-ui/react";
-import { Controller, useFormContext } from "react-hook-form";
-import PropTypes from "prop-types";
+import { Controller, useFormContext } from 'react-hook-form';
+import PropTypes from 'prop-types';
 
-import DatePicker from "react-datepicker";
-
-import "react-datepicker/dist/react-datepicker.css";
-
-const DateInput = forwardRef((props, ref) => {
-  const { onClick, onChange, value } = props;
-
-  return (
-    <Input onClick={onClick} onChange={onChange} value={value} ref={ref} />
-  );
-});
+import ControlledDatePicker from './ControlledDatePicker';
 
 function CustomDatePicker(props) {
-  const { defaultDate, name, required } = props;
+  const { defaultDate, name, required, controllerProps, ...datePickerProps } =
+    props;
   const defaultValue = new Date(defaultDate || Date.now());
   // console.log({ defaultDate, defaultValue });
+
+  let rules = {};
+  if (controllerProps && typeof controllerProps === 'object') {
+    rules = controllerProps?.rules || {};
+    // delete controllerProps.rules;
+  }
+
+  // console.log(name, { controllerProps, rules });
 
   const { control } = useFormContext();
 
@@ -28,19 +25,19 @@ function CustomDatePicker(props) {
       control={control}
       defaultValue={defaultValue}
       rules={{
-        required: { value: required, message: "*Required!" },
+        required: { value: required, message: '*Required!' },
+        ...rules,
       }}
+      {...controllerProps}
       render={({ field: { name, onBlur, onChange, value, ref } }) => {
         return (
-          <DatePicker
+          <ControlledDatePicker
+            name={name}
             onBlur={onBlur}
             ref={ref}
             selected={value}
             onChange={onChange}
-            customInput={<DateInput name={name} />}
-            showYearDropdown
-            showMonthDropdown
-            dropdownMode="select"
+            {...datePickerProps}
           />
         );
       }}
@@ -52,6 +49,7 @@ CustomDatePicker.propTypes = {
   name: PropTypes.string.isRequired,
   required: PropTypes.bool,
   defaultDate: PropTypes.string,
+  controllerProps: PropTypes.object,
 };
 
 export default CustomDatePicker;

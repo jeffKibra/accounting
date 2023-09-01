@@ -30,7 +30,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    login: (data) => dispatch({ type: LOGIN, data }),
+    login: (payload) => dispatch({ type: LOGIN, payload }),
   };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

@@ -1,10 +1,8 @@
 import { useEffect } from "react";
 import { connect } from "react-redux";
+import { Box } from "@chakra-ui/react";
 
-import {
-  GET_INVOICES,
-  DELETE_INVOICE,
-} from "../../../store/actions/invoicesActions";
+import { GET_INVOICES } from "../../../store/actions/invoicesActions";
 import { reset } from "../../../store/slices/invoicesSlice";
 
 import SkeletonLoader from "../../../components/ui/SkeletonLoader";
@@ -13,15 +11,8 @@ import Empty from "../../../components/ui/Empty";
 import InvoicesTable from "../../../components/tables/Invoices/InvoicesTable";
 
 function Invoices(props) {
-  const {
-    loading,
-    invoices,
-    action,
-    isModified,
-    getInvoices,
-    deleteInvoice,
-    resetInvoices,
-  } = props;
+  const { loading, invoices, action, isModified, getInvoices, resetInvoices } =
+    props;
 
   useEffect(() => {
     getInvoices();
@@ -37,12 +28,17 @@ function Invoices(props) {
   return loading && action === GET_INVOICES ? (
     <SkeletonLoader />
   ) : invoices?.length > 0 ? (
-    <InvoicesTable
-      deleting={loading && action === DELETE_INVOICE}
-      isDeleted={isModified}
-      handleDelete={deleteInvoice}
-      invoices={invoices}
-    />
+    <Box
+      mt={-2}
+      w="full"
+      bg="white"
+      borderRadius="md"
+      shadow="md"
+      py={4}
+      px={2}
+    >
+      <InvoicesTable invoices={invoices} showCustomer />
+    </Box>
   ) : (
     <Empty />
   );
@@ -57,7 +53,6 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     getInvoices: () => dispatch({ type: GET_INVOICES }),
-    deleteInvoice: (invoiceId) => dispatch({ type: DELETE_INVOICE, invoiceId }),
     resetInvoices: () => dispatch(reset()),
   };
 }

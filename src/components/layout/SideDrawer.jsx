@@ -1,26 +1,24 @@
-import { useRef, useContext } from "react";
+import { useRef, useContext } from 'react';
 import {
   Drawer,
   DrawerBody,
   DrawerFooter,
-  DrawerHeader,
   DrawerOverlay,
   DrawerContent,
   DrawerCloseButton,
   IconButton,
   Box,
   useBreakpointValue,
-} from "@chakra-ui/react";
-import { RiMenu2Fill } from "react-icons/ri";
+} from '@chakra-ui/react';
+import { RiMenu2Fill } from 'react-icons/ri';
 
-import DrawerContext from "../../contexts/DrawerContext";
+import DrawerContext from '../../contexts/DrawerContext';
 
-import MainSidebar from "./MainSidebar";
-import Title from "./Title";
-import SidebarFooter from "./SidebarFooter";
-import { DRAWER_WIDTH, BAR_HEIGHT } from "../../constants";
+import MainSidebar from './MainSidebar';
+import SidebarFooter from './SidebarFooter';
+import { DRAWER_WIDTH } from '../../constants';
 
-import { useAuth, useOrg } from "../../hooks";
+import { useAuth, useOrg } from '../../hooks';
 
 function SideDrawer() {
   const userProfile = useAuth();
@@ -32,13 +30,12 @@ function SideDrawer() {
   return (
     userProfile &&
     org && (
-      <Box display={["block", null, null, "none"]}>
+      <Box display={['block', null, null, 'none']}>
         <IconButton
-          variant="outline"
+          variant="ghost"
           onClick={onOpen}
           colorScheme="cyan"
-          size="sm"
-          fontSize="md"
+          fontSize="24px"
           icon={<RiMenu2Fill />}
         />
 
@@ -51,17 +48,6 @@ function SideDrawer() {
           <DrawerOverlay />
           <DrawerContent w={`${DRAWER_WIDTH}px!important`}>
             <DrawerCloseButton />
-            <DrawerHeader
-              p={0}
-              pl={4}
-              display="flex"
-              alignItems="center"
-              minH={`${BAR_HEIGHT}px`}
-              h={`${BAR_HEIGHT}px`}
-              borderBottomWidth="1px"
-            >
-              <Title />
-            </DrawerHeader>
 
             <DrawerBody p={0}>
               <MainSidebar />

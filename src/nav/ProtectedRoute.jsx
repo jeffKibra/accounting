@@ -1,16 +1,13 @@
-import { useSelector } from "react-redux";
-import { useLocation, Navigate } from "react-router-dom";
-import PropTypes from "prop-types";
+import { useSelector } from 'react-redux';
+// import { useLocation, Navigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
+
+import LoginPage from 'pages/Auth/LoginPage';
 
 function ProtectedRoute({ children }) {
-  const location = useLocation();
-  const userProfile = useSelector((state) => state.authReducer.userProfile);
+  const userProfile = useSelector(state => state.authReducer.userProfile);
 
-  return userProfile ? (
-    children
-  ) : (
-    <Navigate to="/login" state={{ from: location }} />
-  );
+  return userProfile ? children : <LoginPage />;
 }
 
 ProtectedRoute.propTypes = {

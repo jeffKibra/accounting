@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Container,
   VStack,
@@ -11,25 +11,23 @@ import {
   Tbody,
   Td,
   Tr,
-} from "@chakra-ui/react";
-import PropTypes from "prop-types";
+} from '@chakra-ui/react';
+import PropTypes from 'prop-types';
 
-import ViewSaleItemsTable from "../../../components/tables/Sales/ViewSaleItemsTable";
-import ViewSaleSummaryTable from "../../../components/tables/Sales/ViewSaleSummaryTable";
+import ViewSaleItemTable from '../../../components/tables/Sales/ViewSaleItemTable';
+import ViewSaleSummaryTable from '../../../components/tables/Sales/ViewSaleSummaryTable';
 
 function ViewInvoice(props) {
   const { invoice } = props;
+  console.log({ invoice });
   const {
     org,
     customer,
-    selectedItems,
     invoiceId,
-    summary,
-    invoiceDate,
+    saleDate,
     dueDate,
     customerNotes,
     balance,
-    payments,
   } = invoice;
 
   return (
@@ -39,7 +37,7 @@ function ViewInvoice(props) {
       maxW="container.md"
       //   minH="1123px"
       bg="white"
-      px={["20px", "50px"]}
+      px={['20px', '50px']}
       py="70px"
     >
       <VStack color="#333" w="full" h="full">
@@ -93,7 +91,7 @@ function ViewInvoice(props) {
                 <Tr>
                   <Td isNumeric>Invoice Date:</Td>
                   <Td pr="0px !important" isNumeric>
-                    {new Date(invoiceDate).toDateString()}
+                    {new Date(saleDate).toDateString()}
                   </Td>
                 </Tr>
                 <Tr>
@@ -107,16 +105,12 @@ function ViewInvoice(props) {
           </GridItem>
         </Grid>
         <Box w="full" mt="20px!important">
-          <ViewSaleItemsTable taxType={summary.taxType} items={selectedItems} />
+          <ViewSaleItemTable invoice={invoice} />
         </Box>
         <Grid w="full" columnGap={3} templateColumns="repeat(12, 1fr)">
           <GridItem colSpan={[1, 6]}></GridItem>
           <GridItem colSpan={[11, 6]}>
-            <ViewSaleSummaryTable
-              showBalance
-              payments={payments}
-              summary={summary}
-            />
+            <ViewSaleSummaryTable showBalance invoice={invoice} />
           </GridItem>
         </Grid>
         {customerNotes && (
@@ -135,20 +129,28 @@ ViewInvoice.propTypes = {
   invoice: PropTypes.shape({
     customer: PropTypes.object.isRequired,
     org: PropTypes.object.isRequired,
-    summary: PropTypes.shape({
-      shipping: PropTypes.number.isRequired,
-      adjustment: PropTypes.number.isRequired,
-      totalAmount: PropTypes.number.isRequired,
-      subTotal: PropTypes.number.isRequired,
-      totalTaxes: PropTypes.number.isRequired,
-      taxes: PropTypes.array.isRequired,
-    }),
-    invoiceDate: PropTypes.instanceOf(Date).isRequired,
+    saleDate: PropTypes.instanceOf(Date).isRequired,
     dueDate: PropTypes.instanceOf(Date).isRequired,
     invoiceId: PropTypes.string.isRequired,
-    status: PropTypes.string.isRequired,
-    selectedItems: PropTypes.array.isRequired,
+    status: PropTypes.number.isRequired,
+    item: PropTypes.object.isRequired,
     balance: PropTypes.number.isRequired,
+    salesTax: PropTypes.oneOfType([
+      PropTypes.shape({
+        name: PropTypes.string,
+        rate: PropTypes.number,
+        taxId: PropTypes.string,
+      }),
+      PropTypes.string,
+    ]),
+    bookingRate: PropTypes.number.isRequired,
+    bookingTotal: PropTypes.number.isRequired,
+    transferAmount: PropTypes.number.isRequired,
+    subTotal: PropTypes.number.isRequired,
+    total: PropTypes.number.isRequired,
+    // itemTax: PropTypes.number.isRequired,
+    quantity: PropTypes.number.isRequired,
+    taxType: PropTypes.string,
   }),
 };
 

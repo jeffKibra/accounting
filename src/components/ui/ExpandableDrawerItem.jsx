@@ -1,19 +1,19 @@
-import { useContext } from "react";
+import { useContext } from 'react';
 import {
   AccordionButton,
   AccordionItem,
   AccordionPanel,
+  AccordionIcon,
   Icon,
   HStack,
   VStack,
   Flex,
   Box,
-} from "@chakra-ui/react";
-import { RiAddLine, RiSubtractLine } from "react-icons/ri";
-import { Link, useLocation } from "react-router-dom";
-import PropTypes from "prop-types";
+} from '@chakra-ui/react';
+import { Link, useLocation } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
-import DrawerContext from "../../contexts/DrawerContext";
+import DrawerContext from '../../contexts/DrawerContext';
 
 function ExpandableDrawerItem(props) {
   const { icon, subRoutes, title } = props;
@@ -28,18 +28,18 @@ function ExpandableDrawerItem(props) {
               outline="none"
               stroke="none"
               _expanded={{
-                bg: "blue.50",
-                border: "none",
-                outline: "none",
+                bg: 'blue.50',
+                border: 'none',
+                outline: 'none',
                 _hover: {
-                  bg: "blue.200",
+                  bg: 'blue.200',
                 },
               }}
               _hover={{
-                bg: "blue.200",
+                bg: 'blue.200',
               }}
               _focus={{
-                shadow: "none",
+                shadow: 'none',
               }}
             >
               <HStack justify="flex-start" w="full" spacing={3}>
@@ -50,12 +50,12 @@ function ExpandableDrawerItem(props) {
                 <Flex flexGrow="1" fontSize={14}>
                   {title}
                 </Flex>
-                <Icon as={isExpanded ? RiSubtractLine : RiAddLine} />
+                <AccordionIcon />
+                {/* <Icon as={isExpanded ? RiSubtractLine : RiAddLine} /> */}
               </HStack>
             </AccordionButton>
             <AccordionPanel
               pl="36px"
-              pr={4}
               px={0}
               pb={2}
               pt="1px"
@@ -113,11 +113,11 @@ function AccordionPanelItem({ route, children }) {
       pl="16px"
       pr={4}
       _hover={{
-        backgroundColor: "blue.200",
+        backgroundColor: 'blue.200',
       }}
       {...(pathname === route
         ? {
-            bg: "blue.100",
+            bg: 'blue.100',
           }
         : {})}
     >

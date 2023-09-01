@@ -1,16 +1,16 @@
-import { useEffect } from "react";
-import { Box } from "@chakra-ui/react";
-import { RiDeleteBin4Line, RiEdit2Line, RiEyeLine } from "react-icons/ri";
-import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { useEffect } from 'react';
+import { Box } from '@chakra-ui/react';
+import { RiDeleteBin4Line, RiEdit2Line, RiEyeLine } from 'react-icons/ri';
+import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
-import { useDeleteVendor } from "../../../hooks";
+import { useDeleteVendor } from '../../../hooks';
 
-import MenuOptions from "../../../components/ui/MenuOptions";
+import MenuOptions from '../../../components/ui/MenuOptions';
 
 function VendorOptions(props) {
   const { vendor, edit, view, deletion } = props;
-  const { vendorId } = vendor;
+  const { id: vendorId } = vendor;
   const { details, isDeleted, resetVendor } = useDeleteVendor(vendor);
 
   useEffect(() => {
@@ -23,27 +23,27 @@ function VendorOptions(props) {
     ...(view
       ? [
           {
-            name: "View",
+            name: 'View',
             icon: RiEyeLine,
             as: Link,
-            to: `/vendors/${vendorId}/view`,
+            to: `/purchase/vendors/${vendorId}/view`,
           },
         ]
       : []),
     ...(edit
       ? [
           {
-            name: "Edit",
+            name: 'Edit',
             icon: RiEdit2Line,
             as: Link,
-            to: `/vendors/${vendorId}/edit`,
+            to: `/purchase/vendors/${vendorId}/edit`,
           },
         ]
       : []),
     ...(deletion
       ? [
           {
-            name: "Delete",
+            name: 'Delete',
             icon: RiDeleteBin4Line,
             dialogDetails: {
               ...details,

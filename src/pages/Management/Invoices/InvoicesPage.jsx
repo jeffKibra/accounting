@@ -1,32 +1,32 @@
-import { Button } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
-import { RiAddLine } from "react-icons/ri";
+import { Button } from '@chakra-ui/react';
+import { Link, useLocation } from 'react-router-dom';
+import { RiAddLine } from 'react-icons/ri';
 
-import { NEW_INVOICE } from "../../../nav/routes";
+import { NEW_INVOICE } from '../../../nav/routes';
 
-import useSavedLocation from "../../../hooks/useSavedLocation";
-import PageLayout from "../../../components/layout/PageLayout";
+import useSavedLocation from '../../../hooks/useSavedLocation';
+import PageLayout from '../../../components/layout/PageLayout';
 
-import Invoices from "../../../containers/Management/Invoices/Invoices";
+import Invoices from '../../../containers/Management/Invoices/Invoices';
 
 function InvoicesPage() {
   useSavedLocation().setLocation();
+  const location = useLocation();
 
   return (
     <PageLayout
-      pageTitle="Invoices"
+      pageTitle="Invoice List"
       actions={
         <Link to={NEW_INVOICE}>
-          <Button
-            rightIcon={<RiAddLine />}
-            colorScheme="cyan"
-            size="sm"
-            variant="outline"
-          >
-            new
+          <Button leftIcon={<RiAddLine />} colorScheme="cyan" size="sm">
+            New Invoice
           </Button>
         </Link>
       }
+      breadcrumbLinks={{
+        Dashboard: '/',
+        'Invoice List': location.pathname,
+      }}
     >
       <Invoices />
     </PageLayout>

@@ -1,10 +1,9 @@
-import { Flex, Box } from "@chakra-ui/react";
+import { Flex, Box } from '@chakra-ui/react';
 
-import UserAccountDetails from "../../containers/Auth/UserAccountDetails";
-import SideDrawer from "./SideDrawer";
-import Title from "./Title";
+import UserAccountDetails from '../../containers/Auth/UserAccountDetails';
+import SideDrawer from './SideDrawer';
 
-import { BAR_HEIGHT } from "../../constants";
+import { BAR_HEIGHT } from '../../constants';
 
 export default function AppBar() {
   return (
@@ -14,13 +13,12 @@ export default function AppBar() {
       minH={`${BAR_HEIGHT}px`}
       maxH={`${BAR_HEIGHT}px`}
       align="center"
-      px={3}
+      px={[4, null, 6]}
       top={0}
       right={0}
       w="full"
     >
       <SideDrawer />
-      <Title />
       <Box flexGrow={1} />
       <UserAccountDetails />
     </Flex>

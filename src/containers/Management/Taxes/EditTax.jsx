@@ -60,8 +60,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getTax: (taxId) => dispatch({ type: GET_TAX, taxId }),
-    updateTax: (data) => dispatch({ type: UPDATE_TAX, data }),
+    getTax: (taxId) => dispatch({ type: GET_TAX, payload: taxId }),
+    updateTax: (payload) => dispatch({ type: UPDATE_TAX, payload }),
     resetTax: () => dispatch(reset()),
   };
 }

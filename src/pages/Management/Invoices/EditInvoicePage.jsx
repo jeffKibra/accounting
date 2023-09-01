@@ -1,44 +1,56 @@
-import { useEffect } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import { connect } from "react-redux";
-import { IconButton } from "@chakra-ui/react";
-import { RiCloseFill } from "react-icons/ri";
+import { useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 import {
   UPDATE_INVOICE,
   GET_INVOICE,
-} from "../../../store/actions/invoicesActions";
-import { reset } from "../../../store/slices/invoicesSlice";
+} from '../../../store/actions/invoicesActions';
+import { reset } from '../../../store/slices/invoicesSlice';
 
-import useSavedLocation from "../../../hooks/useSavedLocation";
-import PageLayout from "../../../components/layout/PageLayout";
+import { INVOICES } from '../../../nav/routes';
 
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
+import useSavedLocation from '../../../hooks/useSavedLocation';
+import PageLayout from '../../../components/layout/PageLayout';
 
-import EditInvoice from "../../../containers/Management/Invoices/EditInvoice";
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
+
+import InvoiceForm from 'components/forms/Invoice/InvoiceForm';
 
 function getFormValuesOnly(invoice = {}) {
   const {
-    customerId,
+    customer,
     customerNotes,
     dueDate,
-    invoiceDate,
+    saleDate,
     invoiceId,
-    summary,
-    subject,
-    selectedItems,
+    paymentTerm,
+    // subject,
+    dateRange,
+    quantity,
+    bookingRate,
+    bookingTotal,
+    transferAmount,
+    total,
+    item,
   } = invoice;
 
   return {
-    customerId,
+    customer,
     customerNotes,
     dueDate,
-    invoiceDate,
+    saleDate,
     invoiceId,
-    summary,
-    subject,
-    selectedItems,
+    paymentTerm,
+    // subject,
+    dateRange,
+    quantity,
+    bookingRate,
+    bookingTotal,
+    transferAmount,
+    total,
+    item,
   };
 }
 
@@ -54,8 +66,9 @@ function EditInvoicePage(props) {
   } = props;
   const { invoiceId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   useSavedLocation().setLocation();
-  const viewRoute = `/invoices/${invoiceId}/view`;
+  const viewRoute = `/sale/invoices/${invoiceId}/view`;
 
   useEffect(() => {
     getInvoice(invoiceId);
@@ -77,23 +90,17 @@ function EditInvoicePage(props) {
 
   return (
     <PageLayout
-      pageTitle={`Edit ${invoiceId || "Invoice"}`}
-      actions={
-        <Link to={viewRoute}>
-          <IconButton
-            colorScheme="red"
-            variant="outline"
-            size="sm"
-            title="cancel"
-            icon={<RiCloseFill />}
-          />
-        </Link>
-      }
+      pageTitle={`Edit ${invoiceId || 'Invoice'}`}
+      breadcrumbLinks={{
+        Dashboard: '/',
+        Invoices: INVOICES,
+        [String(invoiceId).padStart(6, '0')]: location.pathname,
+      }}
     >
       {loading && action === GET_INVOICE ? (
         <SkeletonLoader />
       ) : invoice ? (
-        <EditInvoice
+        <InvoiceForm
           updating={loading && action === UPDATE_INVOICE}
           handleFormSubmit={update}
           invoice={getFormValuesOnly(invoice)}
@@ -113,9 +120,10 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    updateInvoice: (data) => dispatch({ type: UPDATE_INVOICE, data }),
+    updateInvoice: payload => dispatch({ type: UPDATE_INVOICE, payload }),
     resetInvoice: () => dispatch(reset()),
-    getInvoice: (invoiceId) => dispatch({ type: GET_INVOICE, invoiceId }),
+    getInvoice: invoiceId =>
+      dispatch({ type: GET_INVOICE, payload: invoiceId }),
   };
 }
 

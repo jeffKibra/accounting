@@ -17,7 +17,7 @@ export default function useDeleteExpense(expense) {
   const deleting = loading && action === DELETE_EXPENSE;
 
   function handleDelete() {
-    dispatch({ type: DELETE_EXPENSE, expenseId });
+    dispatch({ type: DELETE_EXPENSE, payload: expenseId });
   }
 
   function resetExpense() {

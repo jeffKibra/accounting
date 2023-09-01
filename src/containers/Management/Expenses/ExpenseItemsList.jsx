@@ -24,6 +24,7 @@ function ExpenseItemsList(props) {
        */
       if (tax?.rate) {
         if (taxType === "taxInclusive") {
+          console.log({ taxType });
           /**
            * item rate is inclusive of tax
            * compute final tax and adjust itemRate accordingly
@@ -38,6 +39,7 @@ function ExpenseItemsList(props) {
           itemTax = (tax.rate / 100) * itemRate;
         }
       }
+      console.log({ itemRate });
 
       const itemData = {
         ...item,
@@ -91,7 +93,7 @@ function ExpenseItemsList(props) {
         return { ...tax, totalTax };
       });
 
-    const totalTaxes = expenseTaxes.reduce((sum, taxGroup) => {
+    const totalTax = expenseTaxes.reduce((sum, taxGroup) => {
       return sum + taxGroup.totalTax;
     }, 0);
 
@@ -100,12 +102,12 @@ function ExpenseItemsList(props) {
     }, 0);
 
     const totalAmount =
-      taxType === "taxInclusive" ? subTotal : subTotal + +totalTaxes;
+      taxType === "taxInclusive" ? subTotal : subTotal + +totalTax;
 
     return {
       expenseTaxes,
       subTotal: +subTotal.toFixed(2),
-      totalTaxes: +totalTaxes.toFixed(2),
+      totalTax: +totalTax.toFixed(2),
       totalAmount: +totalAmount.toFixed(2),
     };
   }, [items, taxType]);

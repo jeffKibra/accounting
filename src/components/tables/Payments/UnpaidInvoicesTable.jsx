@@ -1,12 +1,12 @@
-import { useMemo } from "react";
-import PropTypes from "prop-types";
+import { useMemo } from 'react';
+import PropTypes from 'prop-types';
 
-import CustomTable from "../CustomTable";
-import TableNumInput from "../../ui/TableNumInput";
+import CustomRawTable from '../CustomRawTable';
+import TableNumInput from '../../ui/TableNumInput';
 
-import { getInvoiceBalance } from "../../../utils/invoices";
+import { getInvoiceBalance } from '../../../utils/invoices';
 
-import InvoiceDates from "../Invoices/InvoiceDates";
+import InvoiceDates from '../Invoices/InvoiceDates';
 
 // import { RiEdit2Line } from "react-icons/ri";
 // import CustomModal from "../../ui/CustomModal";
@@ -25,24 +25,24 @@ function UnpaidInvoicesTable(props) {
   const columns = useMemo(() => {
     return [
       // { Header: "", accessor: "actions" },
-      { Header: "Date", accessor: "invoiceDate" },
-      { Header: "Invoice#", accessor: "invoiceId" },
-      { Header: "Amount", accessor: "summary.totalAmount", isNumeric: true },
-      { Header: "Amount Due", accessor: "balance", isNumeric: true },
+      { Header: 'Date', accessor: 'invoiceDate' },
+      { Header: 'Invoice#', accessor: 'invoiceId' },
+      { Header: 'Amount', accessor: 'summary.totalAmount', isNumeric: true },
+      { Header: 'Amount Due', accessor: 'balance', isNumeric: true },
       // ...(taxDeducted === "yes"
       //   ? [{ Header: "Withholding Tax", accessor: "withholdingTax" }]
       //   : []),
       {
-        Header: "Payment",
-        accessor: "payment",
-        width: "16%",
+        Header: 'Payment',
+        accessor: 'payment',
+        width: '16%',
         isNumeric: true,
       },
     ];
   }, []);
 
   const data = useMemo(() => {
-    return invoices.map((invoice) => {
+    return invoices.map(invoice => {
       const { invoiceId, transactionType } = invoice;
       const balance = getInvoiceBalance(invoice, paymentId);
       const max = Math.min(amount, balance);
@@ -56,7 +56,7 @@ function UnpaidInvoicesTable(props) {
 
       return {
         ...invoice,
-        invoiceId: transactionType === "invoice" ? invoiceId : transactionType,
+        invoiceId: transactionType === 'invoice' ? invoiceId : transactionType,
         balance,
         payment: (
           <TableNumInput
@@ -73,7 +73,7 @@ function UnpaidInvoicesTable(props) {
   }, [invoices, paymentId, amount, loading]);
 
   return (
-    <CustomTable
+    <CustomRawTable
       data={data}
       columns={columns}
       caption="The Excess amount is added to the customers account!"
@@ -93,7 +93,7 @@ UnpaidInvoicesTable.propTypes = {
       }),
       invoiceDate: PropTypes.instanceOf(Date).isRequired,
       dueDate: PropTypes.instanceOf(Date).isRequired,
-      status: PropTypes.string.isRequired,
+      status: PropTypes.number.isRequired,
       invoiceId: PropTypes.string.isRequired,
     })
   ),

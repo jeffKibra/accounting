@@ -1,5 +1,5 @@
-import { useRef, useEffect } from "react";
-import PropTypes from "prop-types";
+import { useRef, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import {
   useDisclosure,
   Button,
@@ -10,9 +10,10 @@ import {
   AlertDialogCloseButton,
   AlertDialogBody,
   AlertDialogFooter,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 
 function Dialog(props) {
+  // console.log({ props });
   const { renderButton, title, message, onConfirm, loading, isDone } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
@@ -25,6 +26,7 @@ function Dialog(props) {
 
   function handleConfirm() {
     onConfirm(onClose);
+    // onConfirm();
   }
 
   return (

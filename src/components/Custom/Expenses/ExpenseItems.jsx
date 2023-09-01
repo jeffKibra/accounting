@@ -120,7 +120,7 @@ function ExpenseItems(props) {
 ExpenseItems.propTypes = {
   summary: PropTypes.shape({
     subTotal: PropTypes.number.isRequired,
-    totalTaxes: PropTypes.number.isRequired,
+    totalTax: PropTypes.number.isRequired,
     totalAmount: PropTypes.number.isRequired,
     expenseTaxes: PropTypes.array.isRequired,
   }),

@@ -62,7 +62,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     getOrg: (orgId) => dispatch({ type: GET_ORG, orgId }),
-    updateOrg: (data) => dispatch({ type: UPDATE_ORG, data }),
+    updateOrg: (payload) => dispatch({ type: UPDATE_ORG, payload }),
     resetOrg: () => dispatch(reset()),
   };
 }

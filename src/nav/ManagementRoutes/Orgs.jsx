@@ -1,23 +1,23 @@
-import { Route } from "react-router-dom";
-import * as routes from "../routes";
+// import { Route } from 'react-router-dom';
+// import * as routes from '../routes';
 
-import ManagementRoute from "../ManagementRoute";
+// import ManagementRoute from '../ManagementRoute';
 
 //orgs
-import NewOrgPage from "../../pages/Management/Orgs/NewOrgPage";
+// import NewOrgPage from '../../pages/Management/Orgs/NewOrgPage';
 
 function Orgs() {
   return [
-    <Route
-      path={routes.NEW_ORG}
-      key={routes.NEW_ORG}
-      exact
-      element={
-        <ManagementRoute>
-          <NewOrgPage />
-        </ManagementRoute>
-      }
-    />,
+    // <Route
+    //   path={routes.NEW_ORG}
+    //   key={routes.NEW_ORG}
+    //   exact
+    //   element={
+    //     <ManagementRoute>
+    //       <NewOrgPage />
+    //     </ManagementRoute>
+    //   }
+    // />,
   ];
 }
 

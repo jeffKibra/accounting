@@ -1,16 +1,16 @@
-import { useEffect } from "react";
-import { connect } from "react-redux";
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
 
 import {
   GET_CUSTOMERS,
   DELETE_CUSTOMER,
-} from "../../../store/actions/customersActions";
-import { reset } from "../../../store/slices/customersSlice";
+} from '../../../store/actions/customersActions';
+import { reset } from '../../../store/slices/customersSlice';
 
-import Empty from "../../../components/ui/Empty";
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
+import Empty from '../../../components/ui/Empty';
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
 
-import CustomersTable from "../../../components/tables/Customers/CustomersTable";
+import CustomersTable from '../../../components/tables/Customers/CustomersTable';
 
 function Customers(props) {
   const {
@@ -57,8 +57,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     getCustomers: () => dispatch({ type: GET_CUSTOMERS }),
-    deleteCustomer: (customerId) =>
-      dispatch({ type: DELETE_CUSTOMER, customerId }),
+    deleteCustomer: customerId =>
+      dispatch({ type: DELETE_CUSTOMER, payload: customerId }),
     resetCustomer: () => dispatch(reset()),
   };
 }

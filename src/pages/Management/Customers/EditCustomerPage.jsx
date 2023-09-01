@@ -1,21 +1,19 @@
-import { useEffect } from "react";
-import { connect } from "react-redux";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { RiCloseLine } from "react-icons/ri";
-import { IconButton } from "@chakra-ui/react";
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
-import useSavedLocation from "../../../hooks/useSavedLocation";
-import { CUSTOMERS } from "../../../nav/routes";
+import useSavedLocation from '../../../hooks/useSavedLocation';
+import { CUSTOMERS } from '../../../nav/routes';
 import {
   GET_CUSTOMER,
   UPDATE_CUSTOMER,
-} from "../../../store/actions/customersActions";
-import { reset } from "../../../store/slices/customersSlice";
+} from '../../../store/actions/customersActions';
+import { reset } from '../../../store/slices/customersSlice';
 
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
-import PageLayout from "../../../components/layout/PageLayout";
-import EditCustomer from "../../../containers/Management/Customers/EditCustomer";
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
+import PageLayout from '../../../components/layout/PageLayout';
+import EditCustomer from '../../../containers/Management/Customers/EditCustomer';
 
 function EditCustomerPage(props) {
   const {
@@ -29,6 +27,7 @@ function EditCustomerPage(props) {
   } = props;
   const navigate = useNavigate();
   const { customerId } = useParams();
+  const location = useLocation();
 
   useSavedLocation().setLocation();
 
@@ -50,17 +49,11 @@ function EditCustomerPage(props) {
   return (
     <PageLayout
       pageTitle="Edit Customer"
-      actions={
-        <Link to={CUSTOMERS}>
-          <IconButton
-            colorScheme="red"
-            variant="outline"
-            size="sm"
-            title="cancel"
-            icon={<RiCloseLine />}
-          />
-        </Link>
-      }
+      breadcrumbLinks={{
+        Dashboard: '/',
+        Customers: CUSTOMERS,
+        [customerId]: location.pathname,
+      }}
     >
       {loading && action === GET_CUSTOMER ? (
         <SkeletonLoader />
@@ -91,8 +84,9 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getCustomer: (customerId) => dispatch({ type: GET_CUSTOMER, customerId }),
-    updateCustomer: (data) => dispatch({ type: UPDATE_CUSTOMER, data }),
+    getCustomer: customerId =>
+      dispatch({ type: GET_CUSTOMER, payload: customerId }),
+    updateCustomer: payload => dispatch({ type: UPDATE_CUSTOMER, payload }),
     resetCustomer: () => dispatch(reset()),
   };
 }

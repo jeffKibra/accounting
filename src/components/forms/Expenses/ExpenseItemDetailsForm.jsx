@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useSelector } from 'react-redux';
 import {
   FormControl,
   FormLabel,
@@ -9,41 +9,40 @@ import {
   Grid,
   GridItem,
   Textarea,
-} from "@chakra-ui/react";
-import { RiAddLine } from "react-icons/ri";
-import { useForm, FormProvider } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import PropTypes from "prop-types";
+} from '@chakra-ui/react';
+import { RiAddLine } from 'react-icons/ri';
+import { useForm, FormProvider } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import PropTypes from 'prop-types';
 
-import NumInput from "../../ui/NumInput";
-import CustomSelect from "../../ui/CustomSelect";
+import NumInput from '../../ui/NumInput';
+import CustomSelect from '../../ui/CustomSelect';
 
 const schema = yup.object().shape({
-  accountId: yup.string().required("*Required!"),
-  details: yup.string().required("*Required!"),
+  accountId: yup.string().required('*Required!'),
+  details: yup.string().required('*Required!'),
   taxId: yup.string(),
   amount: yup
     .number()
-    .typeError("Value must be a number")
-    .positive("value must be a positive number!")
-    .min(1, "Value should be greater than zero(0)!")
-    .required("*Required"),
+    .typeError('Value must be a number')
+    .positive('value must be a positive number!')
+    .min(1, 'Value should be greater than zero(0)!')
+    .required('*Required'),
 });
 
 function ExpenseItemDetailsForm(props) {
   const { handleFormSubmit, expense, onClose } = props;
-  const accounts =
-    useSelector((state) => state.accountsReducer?.accounts) || [];
-  const taxes = useSelector((state) => state.taxesReducer?.taxes) || [];
+  const accounts = useSelector(state => state.accountsReducer?.accounts) || [];
+  const taxes = useSelector(state => state.taxesReducer?.taxes) || [];
 
   const formMethods = useForm({
-    mode: "onChange",
+    mode: 'onChange',
     resolver: yupResolver(schema),
     defaultValues: {
-      accountId: expense?.account?.accountId || "",
-      details: expense?.details || "",
-      taxId: expense?.tax?.taxId || "",
+      accountId: expense?.account?.accountId || '',
+      details: expense?.details || '',
+      taxId: expense?.tax?.taxId || '',
       amount: expense?.amount || 0,
     },
   });
@@ -54,21 +53,24 @@ function ExpenseItemDetailsForm(props) {
     reset,
   } = formMethods;
 
-  const expenseAccounts = accounts.filter((account) => {
-    const { tags } = account;
-    const index = tags.findIndex((tag) => tag === "payable");
+  const expenseAccounts = accounts.filter(account => {
+    const {
+      tags,
+      accountType: { main },
+    } = account;
+    const index = tags.findIndex(tag => tag === 'payable');
 
-    return index > -1;
+    return main === 'expense' || index > -1;
   });
 
   function onSubmit(data) {
     // console.log({ data });
     const { accountId, taxId } = data;
     //add tax
-    const tax = taxes.find((tax) => tax.taxId === taxId) || {};
+    const tax = taxes.find(tax => tax.taxId === taxId) || {};
     //account
     const account = expenseAccounts.find(
-      (account) => account.accountId === accountId
+      account => account.accountId === accountId
     );
 
     const newData = {
@@ -92,7 +94,7 @@ function ExpenseItemDetailsForm(props) {
               <CustomSelect
                 name="accountId"
                 placeholder="---Expense Account---"
-                groupedOptions={expenseAccounts.map((account) => {
+                groupedOptions={expenseAccounts.map(account => {
                   const { name, accountId, accountType } = account;
                   return {
                     name,
@@ -108,7 +110,7 @@ function ExpenseItemDetailsForm(props) {
           <GridItem colSpan={12}>
             <FormControl isRequired isInvalid={errors.details}>
               <FormLabel htmlFor="details">What did you pay For?</FormLabel>
-              <Textarea {...register("details")} resize="none" />
+              <Textarea {...register('details')} resize="none" />
               <FormErrorMessage>{errors.details?.message}</FormErrorMessage>
             </FormControl>
           </GridItem>
@@ -119,7 +121,7 @@ function ExpenseItemDetailsForm(props) {
               <CustomSelect
                 name="taxId"
                 placeholder="select tax"
-                options={taxes.map((tax) => {
+                options={taxes.map(tax => {
                   const { taxId, name, rate } = tax;
                   return { value: taxId, name: `${name} (${rate}%)` };
                 })}

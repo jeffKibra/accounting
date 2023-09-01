@@ -1,4 +1,4 @@
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 import {
   FormControl,
   Input,
@@ -9,120 +9,142 @@ import {
   Box,
   Flex,
   Text,
-} from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+  Grid,
+  GridItem,
+  Heading,
+} from '@chakra-ui/react';
+import { useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 
-import * as routes from "../../../nav/routes";
-import PasswordInput from "../../ui/PasswordInput";
-
-import { CardHeader } from "../../ui/Card";
+import * as routes from '../../../nav/routes';
+import PasswordInput from '../../ui/PasswordInput';
 
 function CreateAccountForm(props) {
   const {
     register,
     formState: { errors },
     handleSubmit,
-    watch,
-  } = useForm({ mode: "onChange" });
+  } = useForm({ mode: 'onChange' });
 
   const { handleFormSubmit, loading } = props;
 
-  const password = watch("password");
+  // const password = watch('password');
 
   return (
     <VStack w="full" h="full" overflowY="auto">
-      <Box w="full" minH="48px" h="48px" />
+      <Box p={6} w="full">
+        <Heading size="md">(Accounts)</Heading>
+      </Box>
       <Box
-        bg="white"
-        borderRadius="md"
-        shadow="md"
-        w={350}
+        // borderWidth="1px"
+        // borderColor="gray.300"
+        // bg="white"
+        // borderRadius="md"
+        // shadow="md"
+        w={500}
         maxW="90%"
-        mt="24px"
+        p={4}
       >
-        <Box textAlign="center">
-          <CardHeader>(Accounts)</CardHeader>
-        </Box>
+        <Heading mb={6} fontSize={['20px', null, '24px']}>
+          Get Started
+        </Heading>
 
-        <Box
-          p={4}
-          as="form"
-          role="form"
-          onSubmit={handleSubmit(handleFormSubmit)}
-        >
-          <VStack spacing={2}>
-            <FormControl
-              isDisabled={loading}
-              isRequired
-              isInvalid={!!errors.firstName}
-            >
-              <FormLabel>First Name</FormLabel>
-              <Input
-                {...register("firstName", {
-                  required: { value: true, message: "Required!" },
-                })}
-              />
-              <FormErrorMessage>{errors.firstName?.message}</FormErrorMessage>
-            </FormControl>
+        <Box as="form" role="form" onSubmit={handleSubmit(handleFormSubmit)}>
+          <Grid templateColumns="repeat(12, 1fr)" rowGap={2} columnGap={4}>
+            <GridItem colSpan={[12, 6]}>
+              <FormControl
+                isDisabled={loading}
+                isRequired
+                isInvalid={!!errors.firstName}
+              >
+                <FormLabel>First Name</FormLabel>
+                <Input
+                  size="lg"
+                  {...register('firstName', {
+                    required: { value: true, message: 'Required!' },
+                  })}
+                />
+                <FormErrorMessage>{errors.firstName?.message}</FormErrorMessage>
+              </FormControl>
+            </GridItem>
+            <GridItem colSpan={[12, 6]}>
+              <FormControl
+                isDisabled={loading}
+                isRequired
+                isInvalid={!!errors.lastName}
+              >
+                <FormLabel>Last Name</FormLabel>
+                <Input
+                  size="lg"
+                  {...register('lastName', {
+                    required: { value: true, message: 'Required!' },
+                  })}
+                />
+                <FormErrorMessage>{errors.lastName?.message}</FormErrorMessage>
+              </FormControl>
+            </GridItem>
+            <GridItem colSpan={12}>
+              <FormControl
+                isDisabled={loading}
+                isRequired
+                isInvalid={!!errors.email}
+              >
+                <FormLabel>Email</FormLabel>
+                <Input
+                  size="lg"
+                  {...register('email', {
+                    required: { value: true, message: 'Required!' },
+                  })}
+                />
+                <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
+              </FormControl>
+            </GridItem>
+            <GridItem colSpan={12}>
+              <FormControl
+                isDisabled={loading}
+                isRequired
+                isInvalid={!!errors.password}
+              >
+                <FormLabel>Password</FormLabel>
+                <PasswordInput
+                  size="lg"
+                  register={() =>
+                    register('password', {
+                      required: { value: true, message: 'Required!' },
+                    })
+                  }
+                />
+                <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
+              </FormControl>
+            </GridItem>
+            <GridItem colSpan={12}>
+              <Button
+                style={{ marginTop: 16 }}
+                colorScheme="cyan"
+                w="full"
+                type="submit"
+                isLoading={loading}
+                size="lg"
+              >
+                create account
+              </Button>
+            </GridItem>
+          </Grid>
 
-            <FormControl
-              isDisabled={loading}
-              isRequired
-              isInvalid={!!errors.lastName}
-            >
-              <FormLabel>Last Name</FormLabel>
-              <Input
-                {...register("lastName", {
-                  required: { value: true, message: "Required!" },
-                })}
-              />
-              <FormErrorMessage>{errors.lastName?.message}</FormErrorMessage>
-            </FormControl>
-
-            <FormControl
-              isDisabled={loading}
-              isRequired
-              isInvalid={!!errors.email}
-            >
-              <FormLabel>Email</FormLabel>
-              <Input
-                {...register("email", {
-                  required: { value: true, message: "Required!" },
-                })}
-              />
-              <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
-            </FormControl>
-
-            <FormControl
-              isDisabled={loading}
-              isRequired
-              isInvalid={!!errors.password}
-            >
-              <FormLabel>Password</FormLabel>
-              <PasswordInput
-                register={() =>
-                  register("password", {
-                    required: { value: true, message: "Required!" },
-                  })
-                }
-              />
-              <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
-            </FormControl>
-
-            <FormControl
+          {/* <FormControl
               isDisabled={loading}
               isRequired
               isInvalid={!!errors.confirmPassword}
             >
               <FormLabel>Confirm Password</FormLabel>
               <PasswordInput
+              size="lg"
                 register={() =>
-                  register("confirmPassword", {
-                    required: { value: true, message: "Required!" },
-                    validate: (value) => {
+                  register('confirmPassword', {
+                    required: { value: true, message: 'Required!' },
+                    validate: value => {
                       if (value !== password) {
-                        return "Passwords dont match";
+                        return 'Passwords dont match';
                       }
                     },
                   })
@@ -131,32 +153,21 @@ function CreateAccountForm(props) {
               <FormErrorMessage>
                 {errors.confirmPassword?.message}
               </FormErrorMessage>
-            </FormControl>
-
-            <Button
-              style={{ marginTop: 16 }}
-              colorScheme="cyan"
-              isFullWidth
-              type="submit"
-              isLoading={loading}
-            >
-              create account
-            </Button>
-          </VStack>
+            </FormControl> */}
         </Box>
 
-        <Flex p={4} pt={0} justifyContent="center">
+        <Flex p={4} pt={3} justifyContent="center">
           <Text>
-            Have an Account?{" "}
+            Already have an account?{' '}
             <Link to={routes.LOGIN_USER}>
               <Button isDisabled={loading} variant="link">
-                login
+                Login
               </Button>
             </Link>
           </Text>
         </Flex>
       </Box>
-      <Box w="full" minH="100px" h="100px" />
+      {/* <Box w="full" minH="100px" h="100px" /> */}
     </VStack>
   );
 }

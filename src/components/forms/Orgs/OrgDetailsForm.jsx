@@ -29,8 +29,15 @@ function OrgDetailsForm(props) {
 
   const formMethods = useForm({
     mode: "onChange",
-    defaultValues: defaultValues || {},
+    defaultValues: {
+      name: defaultValues?.name || "",
+      industry: defaultValues?.industry || "",
+      businessTypeId: defaultValues?.businessType?.value || "",
+      phone: defaultValues?.phone || "",
+      website: defaultValues?.website || "",
+    },
   });
+
   const {
     register,
     formState: { errors },

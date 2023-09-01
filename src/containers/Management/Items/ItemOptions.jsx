@@ -1,15 +1,20 @@
-import { useEffect } from "react";
-import { Box } from "@chakra-ui/react";
-import { RiDeleteBin4Line, RiEdit2Line, RiEyeLine } from "react-icons/ri";
-import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { useEffect } from 'react';
+import { Box } from '@chakra-ui/react';
+import {
+  RiCalendarEventLine,
+  RiDeleteBin4Line,
+  RiEdit2Line,
+  RiEyeLine,
+} from 'react-icons/ri';
+import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
-import useDeleteItem from "../../../hooks/useDeleteItem";
+import useDeleteItem from '../../../hooks/useDeleteItem';
 
-import MenuOptions from "../../../components/ui/MenuOptions";
+import MenuOptions from '../../../components/ui/MenuOptions';
 
 function ItemOptions(props) {
-  const { item, edit, view, deletion } = props;
+  const { item, edit, view, deletion, schedule } = props;
   const { itemId } = item;
   const { details, isDeleted, resetItem } = useDeleteItem(item);
 
@@ -23,7 +28,7 @@ function ItemOptions(props) {
     ...(view
       ? [
           {
-            name: "View",
+            name: 'View',
             icon: RiEyeLine,
             as: Link,
             to: `/items/${itemId}/view`,
@@ -33,7 +38,7 @@ function ItemOptions(props) {
     ...(edit
       ? [
           {
-            name: "Edit",
+            name: 'Edit',
             icon: RiEdit2Line,
             as: Link,
             to: `/items/${itemId}/edit`,
@@ -43,11 +48,21 @@ function ItemOptions(props) {
     ...(deletion
       ? [
           {
-            name: "Delete",
+            name: 'Delete',
             icon: RiDeleteBin4Line,
             dialogDetails: {
               ...details,
             },
+          },
+        ]
+      : []),
+    ...(schedule
+      ? [
+          {
+            name: 'View Schedule',
+            icon: RiCalendarEventLine,
+            as: Link,
+            to: `/items/${itemId}/schedule`,
           },
         ]
       : []),
@@ -67,6 +82,7 @@ ItemOptions.propTypes = {
   edit: PropTypes.bool,
   view: PropTypes.bool,
   deletion: PropTypes.bool,
+  schedule: PropTypes.bool,
 };
 
 export default ItemOptions;

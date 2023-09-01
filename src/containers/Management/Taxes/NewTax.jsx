@@ -36,7 +36,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createTax: (data) => dispatch({ type: CREATE_TAX, data }),
+    createTax: (payload) => dispatch({ type: CREATE_TAX, payload }),
     resetTax: () => dispatch(reset()),
   };
 }

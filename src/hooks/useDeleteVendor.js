@@ -1,23 +1,23 @@
-import { useSelector, useDispatch } from "react-redux";
-import { Box, Text } from "@chakra-ui/react";
+import { useSelector, useDispatch } from 'react-redux';
+import { Box, Text } from '@chakra-ui/react';
 
-import { DELETE_VENDOR } from "../store/actions/vendorsActions";
+import { DELETE_VENDOR } from '../store/actions/vendorsActions';
 
-import { reset } from "../store/slices/vendorsSlice";
+import { reset } from '../store/slices/vendorsSlice';
 
 export default function useDeleteVendor(vendor) {
-  const { vendorId, displayName } = vendor;
+  const { id: vendorId, displayName } = vendor;
   const {
     loading,
     action,
     isModified: isDeleted,
-  } = useSelector((state) => state.vendorsReducer);
+  } = useSelector(state => state.vendorsReducer);
   const dispatch = useDispatch();
 
   const deleting = loading && action === DELETE_VENDOR;
 
   function handleDelete() {
-    dispatch({ type: DELETE_VENDOR, vendorId });
+    dispatch({ type: DELETE_VENDOR, payload: vendorId });
   }
 
   function resetvendor() {
@@ -26,7 +26,7 @@ export default function useDeleteVendor(vendor) {
 
   const details = {
     isDone: isDeleted,
-    title: "Delete Vendor",
+    title: 'Delete Vendor',
     onConfirm: () => handleDelete(vendorId),
     loading: deleting,
     message: (

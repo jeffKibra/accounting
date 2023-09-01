@@ -1,157 +1,83 @@
-import { useEffect, useState } from "react";
-import { Box } from "@chakra-ui/react";
-import { connect } from "react-redux";
-import PropTypes from "prop-types";
+import { useEffect, useMemo } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
-import { GET_ITEMS } from "../../../store/actions/itemsActions";
-import { GET_CUSTOMERS } from "../../../store/actions/customersActions";
-import { GET_PAYMENT_MODES } from "../../../store/actions/paymentModesActions";
-import {
-  GET_UNPAID_CUSTOMER_INVOICES,
-  GET_PAYMENT_INVOICES_TO_EDIT,
-} from "../../../store/actions/invoicesActions";
+import { GET_ITEMS } from '../../../store/actions/itemsActions';
+import { GET_CUSTOMERS } from '../../../store/actions/customersActions';
+import { GET_PAYMENT_MODES } from '../../../store/actions/paymentModesActions';
 
-import Stepper from "../../../components/ui/Stepper";
-import Empty from "../../../components/ui/Empty";
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
+import { useAccounts } from 'hooks';
 
-import InvoicesPaymentForm from "../../../components/forms/Payments/InvoicesPaymentForm";
-import ReceivePaymentForm from "../../../components/forms/Payments/ReceivePaymentForm";
+import Empty from '../../../components/ui/Empty';
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+
+import PaymentForm from 'components/forms/Payment';
 
 function EditPayment(props) {
   const {
-    payment,
-    paymentId,
     loading,
     action,
     customers,
-    accounts,
     getCustomers,
-    saveData,
-    updating,
-    loadingInvoices,
-    getInvoices,
-    getInvoicesToEdit,
-    invoices,
     getPaymentModes,
     loadingPaymentModes,
     paymentModes,
+    saveData,
   } = props;
-  const [formValues, setFormValues] = useState(payment ? { ...payment } : null);
-  const [payments, setPayments] = useState(
-    payment?.payments ? { ...payment.payments } : null
-  );
-  // console.log({ paymentId });
-  const customerId = formValues?.customerId;
+  const { accounts, loading: loadingAccounts } = useAccounts();
+
+  const paymentAccounts = useMemo(() => {
+    if (!Array.isArray(accounts)) {
+      return [];
+    }
+
+    return accounts
+      .filter(account => {
+        const {
+          accountType: { id },
+          tags,
+        } = account;
+        const index = tags.findIndex(tag => tag === 'receivable');
+
+        return (
+          id === 'cash' || (id === 'other_current_liability' && index > -1)
+        );
+      })
+      .map(account => {
+        const { name, accountId, accountType } = account;
+        return { name, accountId, accountType };
+      });
+  }, [accounts]);
 
   useEffect(() => {
     getCustomers();
     getPaymentModes();
   }, [getCustomers, getPaymentModes]);
 
-  useEffect(() => {
-    if (customerId && paymentId) {
-      // console.log({ customerId, paymentId });
-      getInvoicesToEdit(customerId, paymentId);
-    } else if (customerId) {
-      // console.log({ customerId });
-      getInvoices(customerId);
-    }
-  }, [customerId, paymentId, getInvoices, getInvoicesToEdit]);
-
-  useEffect(() => {
-    const payments = formValues?.payments;
-    if (payments && invoices?.length > 0) {
-      const currentPayments = { ...payments };
-
-      Object.keys(currentPayments).forEach((invoiceId) => {
-        //check if this invoice is in the list of invoices
-        const found = invoices.find(
-          (invoice) => invoice.invoiceId === invoiceId
-        );
-
-        if (!found) {
-          //delete the invoice payment if it has not been found
-          delete currentPayments[invoiceId];
-        }
-      });
-
-      setPayments(
-        Object.keys(currentPayments).length > 0 ? currentPayments : null
-      );
-    }
-  }, [invoices, setPayments, formValues?.payments]);
-
-  function updateFormValues(data) {
-    setFormValues((current) => ({ ...(current ? current : {}), ...data }));
-  }
-
-  function saveAll(data) {
-    const { payments, ...rest } = data;
-    //update form values so that incase saving fails, data is not lost
-    // console.log({ data });
-    /**
-     * update states. helpful incase saving fails, all the data is preserved
-     */
-    updateFormValues(rest);
-    setPayments(payments);
-    //create new all inclusive data
-    const allData = {
-      ...formValues,
-      ...data,
-    };
-    // console.log({ allData });
-    saveData(allData);
-  }
-
-  // console.log({ UnpaidInvoices, ReceivePaymentForm });
-
-  return (loading && action === GET_CUSTOMERS) || loadingPaymentModes ? (
+  return (loading && action === GET_CUSTOMERS) ||
+    loadingPaymentModes ||
+    loadingAccounts ? (
     <SkeletonLoader />
-  ) : customers?.length > 0 || paymentModes?.length > 0 ? (
-    <Box w="full" h="full">
-      <Stepper
-        steps={[
-          {
-            label: "Receive Payment",
-            content: (
-              <ReceivePaymentForm
-                handleFormSubmit={updateFormValues}
-                customers={customers}
-                loading={updating}
-                defaultValues={formValues}
-                accounts={accounts}
-                paymentId={paymentId}
-                paymentModes={paymentModes}
-              />
-            ),
-          },
-          {
-            label: "Payment For",
-            content: loadingInvoices ? (
-              <SkeletonLoader />
-            ) : (
-              formValues?.amount > 0 && (
-                <InvoicesPaymentForm
-                  paymentId={paymentId}
-                  handleFormSubmit={saveAll}
-                  updatePayments={setPayments}
-                  formValues={formValues}
-                  payments={payments}
-                  invoices={invoices || []}
-                  loading={updating}
-                />
-              )
-            ),
-          },
-        ]}
-      />
-    </Box>
-  ) : customers?.length === 0 ? (
-    <Empty message="Please add atleast one CUSTOMER to continue or reload the page" />
-  ) : paymentModes?.length === 0 ? (
-    <Empty message="Failed to load Payment Modes. This could be because of a network issue. Try reloading the page!" />
-  ) : null;
+  ) : accounts?.length > 0 &&
+    customers?.length > 0 &&
+    paymentModes &&
+    Object.keys(paymentModes).length > 0 ? (
+    <PaymentForm
+      {...props}
+      handleFormSubmit={saveData}
+      accounts={paymentAccounts}
+    />
+  ) : (
+    <Empty
+      message={
+        !customers || customers?.length === 0
+          ? 'Please add atleast one CUSTOMER to continue or reload the page'
+          : !accounts || accounts?.length === 0
+          ? 'Failed to load Payment Modes. This could be because of a network issue. Try reloading the page!'
+          : 'Failed to load Payment Modes. This could be because of a network issue. Try reloading the page!'
+      }
+    />
+  );
 }
 
 EditPayment.propTypes = {
@@ -176,12 +102,8 @@ EditPayment.propTypes = {
 function mapStateToProps(state) {
   const { loading, customers, action } = state.customersReducer;
   const { accounts } = state.accountsReducer;
-  const { loading: l, action: a, invoices } = state.invoicesReducer;
   const { loading: lpm, action: pma, paymentModes } = state.paymentModesReducer;
 
-  const loadingInvoices =
-    l &&
-    (a === GET_UNPAID_CUSTOMER_INVOICES || a === GET_PAYMENT_INVOICES_TO_EDIT);
   const loadingPaymentModes = lpm && pma === GET_PAYMENT_MODES;
 
   return {
@@ -189,8 +111,6 @@ function mapStateToProps(state) {
     action,
     customers,
     accounts,
-    loadingInvoices,
-    invoices,
     loadingPaymentModes,
     paymentModes,
   };
@@ -201,10 +121,6 @@ function mapDispatchToProps(dispatch) {
     getItems: () => dispatch({ type: GET_ITEMS }),
     getCustomers: () => dispatch({ type: GET_CUSTOMERS }),
     getPaymentModes: () => dispatch({ type: GET_PAYMENT_MODES }),
-    getInvoices: (customerId) =>
-      dispatch({ type: GET_UNPAID_CUSTOMER_INVOICES, customerId }),
-    getInvoicesToEdit: (customerId, paymentId) =>
-      dispatch({ type: GET_PAYMENT_INVOICES_TO_EDIT, customerId, paymentId }),
   };
 }
 

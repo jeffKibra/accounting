@@ -1,29 +1,23 @@
-import { Flex, Text, Image } from "@chakra-ui/react";
-import PropTypes from "prop-types";
+import { Flex, Image, Heading } from '@chakra-ui/react';
+import PropTypes from 'prop-types';
 
-import emptyImage from "../../statics/images/empty.svg";
+import emptyImage from '../../statics/images/empty.svg';
 
 function Empty(props) {
   const { message } = props;
 
   return (
-    <Flex w="full" justify="center" position="relative">
+    <Flex direction="column" alignItems="center" w="full" justify="center">
       <Image
         width="200px"
         height="200px"
         src={emptyImage}
         alt="no data image"
       />
-      <Flex
-        justify="center"
-        alignItems="flex-end"
-        position="absolute"
-        top={0}
-        left={0}
-        w="full"
-        h="full"
-      >
-        <Text>{message || "No Data!"}</Text>
+      <Flex justify="center" w="full">
+        <Heading size="md" as="h5">
+          {message || 'No Data!'}
+        </Heading>
       </Flex>
     </Flex>
   );

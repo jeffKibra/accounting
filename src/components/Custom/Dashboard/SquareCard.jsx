@@ -1,12 +1,23 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { VStack, Heading, Text } from "@chakra-ui/react";
+import React from 'react';
+import PropTypes from 'prop-types';
+import {
+  VStack,
+  Grid,
+  GridItem,
+  Stat,
+  StatHelpText,
+  StatNumber,
+  StatLabel,
+} from '@chakra-ui/react';
 
-import formats from "../../../utils/formats";
+import formats from '../../../utils/formats';
+
+SquareCard.defaultProps = {
+  mainValueLabel: 'Net Value',
+};
 
 function SquareCard(props) {
-  const { data1, data2, cardLabel } = props;
-  const net = data1.amount - data2.amount;
+  const { data1, data2, cardLabel, mainValueLabel, mainValue } = props;
   return (
     <VStack
       align="flex-start"
@@ -17,13 +28,19 @@ function SquareCard(props) {
       borderRadius="md"
       //   minH="300px"
     >
-      <Heading size="xs">{cardLabel}</Heading>
-      <Heading size="md">{formats.formatCash(net)}</Heading>
-      <Text fontSize="xs" mt="0px!important">
-        Net Value
-      </Text>
-      <Piece {...data1} />
-      <Piece {...data2} />
+      <Stat>
+        <StatLabel>{cardLabel}</StatLabel>
+        <StatNumber>{formats.formatCash(mainValue)}</StatNumber>
+        <StatHelpText>{mainValueLabel}</StatHelpText>
+      </Stat>
+      <Grid w="full" columnGap={2} templateColumns="repeat(12, 1fr)">
+        <GridItem colSpan={6}>
+          <Piece {...data1} />
+        </GridItem>
+        <GridItem colSpan={6}>
+          <Piece {...data2} />
+        </GridItem>
+      </Grid>
     </VStack>
   );
 }
@@ -33,12 +50,10 @@ function Piece(props) {
 
   return (
     <VStack w="full" align="start">
-      <Text color="gray.900" fontSize="sm">
-        {label}
-      </Text>
-      <Heading color="gray.800" size="sm">
-        {formats.formatCash(amount)}
-      </Heading>
+      <Stat>
+        <StatHelpText>{label}</StatHelpText>
+        <StatNumber fontSize="md"> {formats.formatCash(amount)}</StatNumber>
+      </Stat>
     </VStack>
   );
 }
@@ -53,6 +68,8 @@ SquareCard.propTypes = {
     label: PropTypes.string.isRequired,
   }),
   cardLabel: PropTypes.string.isRequired,
+  mainValue: PropTypes.number.isRequired,
+  mainValueLabel: PropTypes.string.isRequired,
 };
 
 export default SquareCard;

@@ -1,12 +1,12 @@
-import { Route } from "react-router-dom";
-import * as routes from "../routes";
+import { Route } from 'react-router-dom';
+import * as routes from '../routes';
 
-import ManagementRoute from "../ManagementRoute";
+import ManagementRoute from '../ManagementRoute';
 
 //items
-import ItemsCategoriesPage from "../../pages/Management/ItemsCategories/ItemsCategoriesPage";
-import NewItemCategoryPage from "../../pages/Management/ItemsCategories/NewItemCategoryPage";
-import EditItemCategoryPage from "../../pages/Management/ItemsCategories/EditItemCategoryPage";
+import ItemsCategoriesPage from '../../pages/Management/ItemsCategories/ItemsCategoriesPage';
+import NewItemCategoryPage from '../../pages/Management/ItemsCategories/NewItemCategoryPage';
+import EditItemCategoryPage from '../../pages/Management/ItemsCategories/EditItemCategoryPage';
 
 function ItemsCategories() {
   return [
@@ -21,8 +21,8 @@ function ItemsCategories() {
       }
     />,
     <Route
-      path={routes.NEW_ITEM_CATEGORY}
-      key={routes.NEW_ITEM_CATEGORY}
+      path={routes.NEW_VEHICLE_CATEGORY}
+      key={routes.NEW_VEHICLE_CATEGORY}
       exact
       element={
         <ManagementRoute>
@@ -31,8 +31,8 @@ function ItemsCategories() {
       }
     />,
     <Route
-      path={routes.EDIT_ITEM_CATEGORY}
-      key={routes.EDIT_ITEM_CATEGORY}
+      path={routes.EDIT_VEHICLE_CATEGORY}
+      key={routes.EDIT_VEHICLE_CATEGORY}
       exact
       element={
         <ManagementRoute>

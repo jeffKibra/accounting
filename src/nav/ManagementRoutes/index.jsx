@@ -1,23 +1,26 @@
-import { Route } from "react-router-dom";
-import * as routes from "../routes";
+import { Route } from 'react-router-dom';
+import * as routes from '../routes';
 
-import ManagementRoute from "../ManagementRoute";
+import ManagementRoute from '../ManagementRoute';
 
-import DashboardPage from "../../pages/Management/Dashboard/DashboardPage";
+import DashboardPage from '../../pages/Management/Dashboard/DashboardPage';
 
 //routes
-import Orgs from "./Orgs";
-import Items from "./Items";
-import Customers from "./Customers";
-import Invoices from "./Invoices";
-import Taxes from "./Taxes";
-import Payments from "./Payments";
-import Estimates from "./Estimates";
-import Expenses from "./Expenses";
-import SalesReceipts from "./SalesReceipts";
-import Vendors from "./Vendors";
-
-import ItemsCategories from "./ItemsCategories";
+import Orgs from './Orgs';
+import Items from './Items';
+import Customers from './Customers';
+import Invoices from './Invoices';
+import Bookings from './Bookings';
+import Taxes from './Taxes';
+import Payments from './Payments';
+import Estimates from './Estimates';
+import Expenses from './Expenses';
+import SaleReceipts from './SaleReceipts';
+import Vendors from './Vendors';
+import CarModels from './CarModels';
+//
+import ChartOfAccounts from './ChartOfAccounts';
+import ManualJournals from './ManualJournals';
 
 function ManagementRoutes() {
   return [
@@ -35,14 +38,19 @@ function ManagementRoutes() {
     ...Items(),
     ...Customers(),
     ...Invoices(),
+    ...Bookings(),
     ...Taxes(),
     ...Payments(),
     ...Estimates(),
     ...Expenses(),
-    ...SalesReceipts(),
+    ...SaleReceipts(),
     ...Vendors(),
+    ...CarModels(),
 
-    ...ItemsCategories(),
+    ...ChartOfAccounts(),
+    ...ManualJournals(),
+
+    // ...ItemsCategories(),
   ];
 }
 
