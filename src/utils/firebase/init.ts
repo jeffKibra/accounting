@@ -5,7 +5,7 @@ import { getAuth } from 'firebase/auth';
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 import { getStorage } from 'firebase/storage';
 
-import firebaseConfig from '../../config/firebaseConfig';
+import firebaseConfig from 'config/firebaseConfig';
 
 const app = initializeApp(firebaseConfig);
 
