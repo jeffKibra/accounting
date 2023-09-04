@@ -12,7 +12,6 @@ import {
   TableContextProviderPropTypes,
 } from 'contexts/TableContext';
 //
-import SkeletonLoader from 'components/ui/SkeletonLoader';
 import ControlledSearchInput from 'components/ui/ControlledSearchInput';
 //
 import Empty from '../Empty';
@@ -28,7 +27,6 @@ function ControlledTable(props) {
     pageData, //active page data
     caption,
     includeGlobalFilter,
-    onRowClick,
     bodyRowProps,
     rowFieldToUseAsIdForHighlighting,
     highlightedRowBGColor,
@@ -48,13 +46,13 @@ function ControlledTable(props) {
     previousPage,
     setPageSize,
     setGlobalFilter,
-    // pageCount,
+    pageCount,
     itemsCount,
     rowsPerPageOptions,
     //
     error,
-    loading,
     onSearch,
+    onRowClick,
   } = props;
   // console.log({ bodyRowProps });
 
@@ -63,6 +61,7 @@ function ControlledTable(props) {
   return (
     <Box w="full">
       <TableContextProvider
+        onRowClick={onRowClick}
         highlightedRowBGColor={highlightedRowBGColor}
         rowIdToHighlight={rowIdToHighlight || ''}
         rowFieldToUseAsIdForHighlighting={
@@ -87,39 +86,33 @@ function ControlledTable(props) {
           <ChakraTable minW="650px" variant="simple" size="sm" {...tableProps}>
             <THead headers={headers} />
 
-            {loading ? null : (
-              <TBody
-                tableBodyProps={tableBodyProps}
-                rows={pageData}
-                prepareRow={prepareRow}
-                onRowClick={onRowClick}
-                rowProps={{ ...(bodyRowProps ? bodyRowProps : {}) }}
-              />
-            )}
+            <TBody
+              tableBodyProps={tableBodyProps}
+              rows={pageData}
+              prepareRow={prepareRow}
+              onRowClick={onRowClick}
+              rowProps={{ ...(bodyRowProps ? bodyRowProps : {}) }}
+            />
 
             {caption && <TableCaption>{caption}</TableCaption>}
           </ChakraTable>
         </TableContainer>
 
-        {loading ? (
-          <SkeletonLoader />
-        ) : (
-          <>
-            {pageData?.length === 0 ? (
-              error ? (
-                <CustomAlert
-                  status="error"
-                  title="Error loading data!"
-                  description={`${error?.code || ''} ${
-                    error?.message || 'Unknown Error!'
-                  }`}
-                />
-              ) : (
-                <Empty message="No Data!" />
-              )
-            ) : null}
-          </>
-        )}
+        <>
+          {pageData?.length === 0 ? (
+            error ? (
+              <CustomAlert
+                status="error"
+                title="Error loading data!"
+                description={`${error?.code || ''} ${
+                  error?.message || 'Unknown Error!'
+                }`}
+              />
+            ) : (
+              <Empty message="No Data!" />
+            )
+          ) : null}
+        </>
 
         <Box w="full" mt={2} mb={1}>
           <Pagination
@@ -134,6 +127,7 @@ function ControlledTable(props) {
             onRowsPerPageChange={setPageSize}
             rowsPerPageOptions={rowsPerPageOptions}
             itemsCount={Number(itemsCount) || 0}
+            pageCount={pageCount}
           />
         </Box>
       </TableContextProvider>

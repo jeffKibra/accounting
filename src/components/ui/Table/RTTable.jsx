@@ -30,10 +30,19 @@ function RTTable(props) {
     bodyRowProps,
     onSortByChange,
     onSearch,
+    loading,
+    error,
     ...moreProps
   } = props;
-  // console.log('RTTable', data);
+  console.log('RTTable', { loading, error, data });
   // console.log({ bodyRowProps });
+
+  useEffect(() => {
+    console.log('RTTable-data has changed', data);
+  }, [data]);
+  useEffect(() => {
+    console.log('RTTable-columns has changed', columns);
+  }, [columns]);
 
   const manualSortBy = typeof onSortByChange === 'function';
   const manualGlobalFilter = typeof onSearch === 'function';
@@ -91,15 +100,9 @@ function RTTable(props) {
 
   // console.log({ pageIndex, pageCount, pageOptions });
 
-  function handleGlobalFilterInputChange(valueToSearch) {
-    // console.log({ valueToSearch });
-    setGlobalFilter(valueToSearch);
-    // typeof onSearch === 'function' && onSearch(valueToSearch);
-  }
-
   return (
     <ControlledTable
-      setGlobalFilter={handleGlobalFilterInputChange}
+      setGlobalFilter={setGlobalFilter}
       itemsCount={rows?.length}
       tableProps={getTableProps()}
       tableBodyProps={getTableBodyProps()}
@@ -124,6 +127,9 @@ function RTTable(props) {
       onRowClick={onRowClick}
       rowsPerPageOptions={rowsPerPageOptions}
       onSearch={onSearch}
+      //
+      // loading={loading}
+      error={error}
       {...moreProps}
     />
   );
@@ -138,6 +144,8 @@ export const RTTablePropTypes = {
   bodyRowProps: PropTypes.object,
   onSortByChange: PropTypes.func,
   onSearch: PropTypes.func,
+  loading: PropTypes.bool,
+  error: PropTypes.object,
 };
 
 RTTable.propTypes = {

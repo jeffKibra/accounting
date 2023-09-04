@@ -5,6 +5,7 @@ const defaultValues = {
   rowFieldToUseAsIdForHighlighting: '',
   highlightedRowBGColor: '',
   rowIdToHighlight: '',
+  onRowClick: null,
 };
 
 const TableContext = createContext(defaultValues);
@@ -16,6 +17,7 @@ export const TableContextProviderPropTypes = {
   rowFieldToUseAsIdForHighlighting: PropTypes.string,
   highlightedRowBGColor: PropTypes.string,
   rowIdToHighlight: PropTypes.string,
+  onRowClick: PropTypes.func,
 };
 
 TableContextProvider.propTypes = {
@@ -31,6 +33,7 @@ export function TableContextProvider(props) {
     rowFieldToUseAsIdForHighlighting,
     highlightedRowBGColor,
     rowIdToHighlight,
+    onRowClick,
   } = props;
 
   return (
@@ -39,6 +42,7 @@ export function TableContextProvider(props) {
         rowFieldToUseAsIdForHighlighting,
         highlightedRowBGColor,
         rowIdToHighlight,
+        onRowClick,
       }}
     >
       {children}

@@ -81,7 +81,7 @@ function ItemsLoader(props) {
   // console.log({ idsForItemsAlreadyBooked });
 
   useEffect(() => {
-    fetchItemsNotBooked(idsForItemsAlreadyBooked);
+    // fetchItemsNotBooked(idsForItemsAlreadyBooked);
   }, [idsForItemsAlreadyBooked, fetchItemsNotBooked]);
 
   // console.log({ startDate, endDate });

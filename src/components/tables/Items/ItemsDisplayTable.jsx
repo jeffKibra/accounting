@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 //
+import SkeletonLoader from 'components/ui/SkeletonLoader';
+//
 import RTTable from 'components/ui/Table/RTTable';
 //
 import tableColumns from './tableColumns';
@@ -10,6 +12,7 @@ import getItemTableData from './getItemTableData';
 //
 
 function ItemsDisplayTable(props) {
+  // console.log('ITEmsDisplayProps:', props);
   const { items, loading, error, onSearch, onRowClick, onSort, ...tableProps } =
     props;
 
@@ -45,7 +48,11 @@ function ItemsDisplayTable(props) {
     typeof onSort === 'function' && onSort(array[0]);
   }
 
-  return (
+  console.log('ITEMSZDISPLAY rerendering...');
+
+  return loading ? (
+    <SkeletonLoader />
+  ) : (
     <RTTable
       loading={loading}
       error={error}
@@ -53,6 +60,7 @@ function ItemsDisplayTable(props) {
       data={data}
       onSortByChange={handleSortByChange}
       onSearch={onSearch}
+      onRowClick={onRowClick}
       {...(rowsAreSelectable
         ? {
             bodyRowProps: {

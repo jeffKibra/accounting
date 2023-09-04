@@ -39,9 +39,9 @@ function useGetItems() {
     [fetchFromFirestore, searchItems]
   );
 
-  useEffect(() => {
-    console.log('getItems fn has changed...', getItems);
-  }, [getItems]);
+  // useEffect(() => {
+  //   console.log('getItems fn has changed...', getItems);
+  // }, [getItems]);
 
   return { ...searchItemParams, getItems, fetchFromFirestore };
 }

@@ -9,6 +9,7 @@ import ItemsDisplayTable from './ItemsDisplayTable';
 
 function AlgoliaItemsTable(props) {
   const { onRowClick, idsForItemsToExclude } = props;
+  console.log({ onRowClick });
 
   const { loading, error, items, getItems } = useGetItems(idsForItemsToExclude);
 

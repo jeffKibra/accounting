@@ -20,7 +20,7 @@ Pagination.propTypes = {
   gotoPage: PropTypes.func.isRequired,
   nextPage: PropTypes.func.isRequired,
   previousPage: PropTypes.func.isRequired,
-  totalPages: PropTypes.number.isRequired,
+  pageCount: PropTypes.number.isRequired,
   pageNumber: PropTypes.number.isRequired,
 };
 
@@ -40,6 +40,7 @@ export default function Pagination(props) {
     nextPage,
     previousPage,
     pageNumber,
+    pageCount,
     // gotoPage,
   } = props;
 

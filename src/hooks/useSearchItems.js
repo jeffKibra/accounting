@@ -64,6 +64,9 @@ export default function useSearchItems() {
 
   const dispatch = useDispatch();
 
+  const orgId = useSelector(state => state?.orgsReducer?.org?.orgId);
+  // console.log({ orgId });
+
   const itemsReducer = useSelector(state => state?.itemsReducer) || {};
   const { loading, items, error } = itemsReducer;
 
@@ -101,7 +104,7 @@ export default function useSearchItems() {
     return combinedString;
   }, [filters]);
 
-  console.log({ filtersCombinedString });
+  // console.log({ filtersCombinedString });
 
   const hitsPerPage = 5;
 
@@ -117,7 +120,7 @@ export default function useSearchItems() {
         reset();
         setLoadingStatus(true);
 
-        let filtersString = '';
+        let filtersString = `orgId:${orgId}`; //initialize using orgId-ensure user only queries their own org
 
         const { page, idsForItemsToExclude } = options;
         // const idsForItemsToExcludeCombined =
@@ -126,7 +129,11 @@ export default function useSearchItems() {
           createObjectIdsToExcludeFilterFromArray(idsForItemsToExclude || []);
         console.log({ objectIdsToExcludeFilter });
 
-        filtersString = String(filtersString).concat(objectIdsToExcludeFilter);
+        if (objectIdsToExcludeFilter) {
+          filtersString = String(filtersString).concat(
+            ` AND ${objectIdsToExcludeFilter}`
+          );
+        }
 
         setSearchValue(string);
 
@@ -138,6 +145,9 @@ export default function useSearchItems() {
 
         const searchResult = await itemsIndex.search(string, {
           hitsPerPage,
+          // filters: String(
+          //   `orgId:${orgId} ${filtersString ? filtersString : ''}`
+          // ).trim(),
           ...(filtersString ? { filters: filtersString } : {}),
           ...(pageNumberIsValid ? { page } : {}),
         });
@@ -160,7 +170,7 @@ export default function useSearchItems() {
 
       setLoadingStatus(false);
     },
-    [reset, setError, setLoadingStatus, dispatch]
+    [orgId, reset, setError, setLoadingStatus, dispatch]
   );
 
   // useEffect(() => {
