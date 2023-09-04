@@ -10,6 +10,8 @@ import { GET_ITEMS_NOT_BOOKED } from 'store/actions/itemsActions';
 import { Bookings } from 'utils/bookings';
 import { groupDatesByMonths } from 'utils/dates';
 //
+import SkeletonLoader from 'components/ui/SkeletonLoader';
+//
 import BookingFormContext from 'contexts/BookingFormContext';
 
 //
@@ -49,7 +51,8 @@ function ItemsLoader(props) {
     selectedDates,
   } = props;
 
-  const [idsForItemsAlreadyBooked, setIdsForItemsAlreadyBooked] = useState([]);
+  const [idsForItemsAlreadyBooked, setIdsForItemsAlreadyBooked] =
+    useState(null);
 
   const { watch } = useFormContext();
   const itemId = watch('item')?.itemId || '';
@@ -78,7 +81,7 @@ function ItemsLoader(props) {
       });
     }
   }, [selectedDates, orgId, preselectedItemId, preselectedDates]);
-  // console.log({ idsForItemsAlreadyBooked });
+  console.log({ idsForItemsAlreadyBooked });
 
   useEffect(() => {
     // fetchItemsNotBooked(idsForItemsAlreadyBooked);
@@ -93,7 +96,11 @@ function ItemsLoader(props) {
     onItemSelect(item);
   }
 
-  return (
+  const loadingAlreadyBookedItems = !Boolean(idsForItemsAlreadyBooked);
+
+  return loadingAlreadyBookedItems ? (
+    <SkeletonLoader />
+  ) : (
     <>
       <SelectBookingItemTable
         emptyMessage="No Vehicle is available for booking on the selected Dates!"
@@ -101,7 +108,8 @@ function ItemsLoader(props) {
         items={items || []}
         error={itemsError}
         onRowClick={handleItemClick}
-        selectedItemId={itemId}
+        selectedItemId={itemId || ''}
+        idsForItemsToExclude={idsForItemsAlreadyBooked || []}
       />
     </>
   );

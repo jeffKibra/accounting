@@ -11,7 +11,19 @@ function AlgoliaItemsTable(props) {
   const { onRowClick, idsForItemsToExclude } = props;
   console.log({ onRowClick });
 
-  const { loading, error, items, getItems } = useGetItems(idsForItemsToExclude);
+  const {
+    loading,
+    error,
+    items,
+    getItems,
+    pageCount,
+    pageIndex,
+    fullListLength,
+    hitsPerPage,
+    setHitsPerPage,
+    setPageIndex,
+    search,
+  } = useGetItems(idsForItemsToExclude);
 
   useEffect(() => {
     console.log('fetching items onmount...');
@@ -29,7 +41,13 @@ function AlgoliaItemsTable(props) {
       items={items}
       onRowClick={onRowClick}
       onSort={handleSortByChange}
-      onSearch={getItems}
+      onSearch={search}
+      gotoPage={setPageIndex}
+      pageSize={hitsPerPage}
+      setPageSize={setHitsPerPage}
+      pageIndex={pageIndex}
+      pageCount={pageCount}
+      allItemsCount={fullListLength}
     />
   );
 }

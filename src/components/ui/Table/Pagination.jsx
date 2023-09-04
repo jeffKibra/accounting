@@ -20,7 +20,7 @@ Pagination.propTypes = {
   gotoPage: PropTypes.func.isRequired,
   nextPage: PropTypes.func.isRequired,
   previousPage: PropTypes.func.isRequired,
-  pageCount: PropTypes.number.isRequired,
+  // pageCount: PropTypes.number.isRequired,
   pageNumber: PropTypes.number.isRequired,
 };
 
@@ -40,9 +40,10 @@ export default function Pagination(props) {
     nextPage,
     previousPage,
     pageNumber,
-    pageCount,
+    loading,
     // gotoPage,
   } = props;
+  console.log('Pagination loading:', loading);
 
   const prevPage = pageNumber - 1;
   const virtualFirstItem = prevPage * rowsPerPage + 1;

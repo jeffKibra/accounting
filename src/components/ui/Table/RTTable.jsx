@@ -4,7 +4,7 @@ import {
   useFilters,
   useGlobalFilter,
   useSortBy,
-  usePagination,
+  // usePagination,
 } from 'react-table';
 
 import PropTypes from 'prop-types';
@@ -32,9 +32,16 @@ function RTTable(props) {
     onSearch,
     loading,
     error,
+    //pagination props
+    pageIndex,
+    pageCount,
+    gotoPage,
+    pageSize,
+    setPageSize,
+    allItemsCount,
     ...moreProps
   } = props;
-  console.log('RTTable', { loading, error, data });
+  console.log('RTTable', data);
   // console.log({ bodyRowProps });
 
   useEffect(() => {
@@ -64,8 +71,7 @@ function RTTable(props) {
     },
     useFilters,
     useGlobalFilter,
-    useSortBy,
-    usePagination
+    useSortBy
   );
   // console.log({ instance });
 
@@ -76,59 +82,50 @@ function RTTable(props) {
     headers,
     prepareRow,
     state,
-    page,
-    canNextPage,
-    canPreviousPage,
     pageOptions,
     // pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
     setGlobalFilter,
   } = instance;
   // console.log({ state });
 
-  const { pageIndex, pageSize, globalFilter, sortBy } = state;
+  const { globalFilter, sortBy } = state;
 
-  useEffect(() => {
-    if (manualSortBy) {
-      console.log('sort by has changed... handling it manualy');
-      onSortByChange(sortBy);
-    }
-  }, [sortBy, manualSortBy, onSortByChange]);
+  // useEffect(() => {
+  //   if (manualSortBy) {
+  //     console.log('sort by has changed... handling it manualy');
+  //     // onSortByChange(sortBy);
+  //   }
+  // }, [sortBy, manualSortBy, onSortByChange]);
 
   // console.log({ pageIndex, pageCount, pageOptions });
 
   return (
     <ControlledTable
+      headers={headers}
+      data={rows}
+      prepareRow={prepareRow}
       setGlobalFilter={setGlobalFilter}
       itemsCount={rows?.length}
       tableProps={getTableProps()}
       tableBodyProps={getTableBodyProps()}
-      headers={headers}
-      prepareRow={prepareRow}
+      //pagination props
+      allItemsCount={allItemsCount}
       pageIndex={pageIndex}
       pageSize={pageSize}
-      globalFilter={globalFilter}
-      pageData={page}
-      canNextPage={canNextPage}
-      canPreviousPage={canPreviousPage}
       pageOptions={pageOptions}
-      // pageCount={pageCount}
+      pageCount={pageCount}
       gotoPage={gotoPage}
-      nextPage={nextPage}
-      previousPage={previousPage}
       setPageSize={setPageSize}
+      rowsPerPageOptions={rowsPerPageOptions}
       //
       includeGlobalFilter={includeGlobalFilter}
+      globalFilter={globalFilter}
       bodyRowProps={bodyRowProps}
       caption={caption}
       onRowClick={onRowClick}
-      rowsPerPageOptions={rowsPerPageOptions}
       onSearch={onSearch}
       //
-      // loading={loading}
+      loading={loading}
       error={error}
       {...moreProps}
     />
@@ -146,10 +143,25 @@ export const RTTablePropTypes = {
   onSearch: PropTypes.func,
   loading: PropTypes.bool,
   error: PropTypes.object,
+  //pagination props
+  pageIndex: PropTypes.number,
+  pageCount: PropTypes.number,
+  gotoPage: PropTypes.func,
+  pageSize: PropTypes.number,
+  setPageSize: PropTypes.func,
+  allItemsCount: PropTypes.number,
 };
 
 RTTable.propTypes = {
   ...RTTablePropTypes,
+};
+
+RTTable.defaultProps = {
+  gotoPage: () => {},
+  setPageSize: () => {},
+  onRowClick: () => {},
+  onSearch: () => {},
+  onSort: () => {},
 };
 
 export default RTTable;

@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 import {
   TableCaption,
   TableContainer,
@@ -20,43 +22,57 @@ import CustomAlert from '../CustomAlert';
 import THead from './THead';
 import TBody from './TBody';
 import Pagination from './Pagination';
+import SkeletonLoader from '../SkeletonLoader';
 
 function ControlledTable(props) {
   const {
     headers,
-    pageData, //active page data
+    data,
     caption,
     includeGlobalFilter,
     bodyRowProps,
-    rowFieldToUseAsIdForHighlighting,
-    highlightedRowBGColor,
-    rowIdToHighlight,
     //
     tableProps,
     tableBodyProps,
-    prepareRow, //required for react-table table
+    prepareRow,
     globalFilter,
+    setGlobalFilter,
+    //pagination props
     pageIndex,
     pageSize,
-    canNextPage,
-    canPreviousPage,
-    pageOptions,
     gotoPage,
-    nextPage,
-    previousPage,
     setPageSize,
-    setGlobalFilter,
     pageCount,
-    itemsCount,
+    allItemsCount,
     rowsPerPageOptions,
     //
+    loading,
     error,
     onSearch,
     onRowClick,
+    //highlighting props
+    rowFieldToUseAsIdForHighlighting,
+    highlightedRowBGColor,
+    rowIdToHighlight,
   } = props;
   // console.log({ bodyRowProps });
 
   // console.log({ pageIndex, pageCount, pageOptions });
+
+  const canNextPage = pageIndex < pageCount - 1;
+  const canPreviousPage = pageIndex > 0;
+
+  const nextPage = useCallback(() => {
+    if (canNextPage) {
+      gotoPage(pageIndex + 1);
+    }
+  }, [gotoPage, pageIndex, canNextPage]);
+
+  const previousPage = useCallback(() => {
+    if (canPreviousPage) {
+      gotoPage(pageIndex - 1);
+    }
+  }, [gotoPage, pageIndex, canPreviousPage]);
 
   return (
     <Box w="full">
@@ -86,48 +102,54 @@ function ControlledTable(props) {
           <ChakraTable minW="650px" variant="simple" size="sm" {...tableProps}>
             <THead headers={headers} />
 
-            <TBody
-              tableBodyProps={tableBodyProps}
-              rows={pageData}
-              prepareRow={prepareRow}
-              onRowClick={onRowClick}
-              rowProps={{ ...(bodyRowProps ? bodyRowProps : {}) }}
-            />
+            {loading ? null : (
+              <TBody
+                tableBodyProps={tableBodyProps}
+                rows={data}
+                prepareRow={prepareRow}
+                onRowClick={onRowClick}
+                rowProps={{ ...(bodyRowProps ? bodyRowProps : {}) }}
+              />
+            )}
 
             {caption && <TableCaption>{caption}</TableCaption>}
           </ChakraTable>
         </TableContainer>
 
-        <>
-          {pageData?.length === 0 ? (
-            error ? (
-              <CustomAlert
-                status="error"
-                title="Error loading data!"
-                description={`${error?.code || ''} ${
-                  error?.message || 'Unknown Error!'
-                }`}
-              />
-            ) : (
-              <Empty message="No Data!" />
-            )
-          ) : null}
-        </>
+        {loading ? (
+          <SkeletonLoader />
+        ) : (
+          <>
+            {data?.length === 0 ? (
+              error ? (
+                <CustomAlert
+                  status="error"
+                  title="Error loading data!"
+                  description={`${error?.code || ''} ${
+                    error?.message || 'Unknown Error!'
+                  }`}
+                />
+              ) : (
+                <Empty message="No Data!" />
+              )
+            ) : null}
+          </>
+        )}
 
         <Box w="full" mt={2} mb={1}>
           <Pagination
+            loading={loading}
             canNextPage={canNextPage}
             canPreviousPage={canPreviousPage}
             gotoPage={gotoPage}
             nextPage={nextPage}
             previousPage={previousPage}
-            totalPages={pageOptions.length}
             pageNumber={Number(pageIndex) + 1}
+            // pageCount={pageCount}
             rowsPerPage={Number(pageSize)}
             onRowsPerPageChange={setPageSize}
             rowsPerPageOptions={rowsPerPageOptions}
-            itemsCount={Number(itemsCount) || 0}
-            pageCount={pageCount}
+            itemsCount={Number(allItemsCount) || 0}
           />
         </Box>
       </TableContextProvider>
@@ -137,7 +159,7 @@ function ControlledTable(props) {
 
 export const ControlledTablePropTypes = {
   headers: PropTypes.array.isRequired,
-  pageData: PropTypes.array.isRequired, //active page data
+  rows: PropTypes.array.isRequired, //active page data
   //
   caption: PropTypes.string,
   includeGlobalFilter: PropTypes.bool,
@@ -150,17 +172,15 @@ export const ControlledTablePropTypes = {
   globalFilter: PropTypes.string,
   pageIndex: PropTypes.number,
   pageSize: PropTypes.number,
-  canNextPage: PropTypes.bool,
-  canPreviousPage: PropTypes.bool,
   pageOptions: PropTypes.array,
   gotoPage: PropTypes.func,
-  nextPage: PropTypes.func,
-  previousPage: PropTypes.func,
   setPageSize: PropTypes.func,
   setGlobalFilter: PropTypes.func,
+  allItemsCount: PropTypes.number,
   // pageCount:PropTypes.number,
+  loading: PropTypes.bool,
+  error: PropTypes.object,
   //
-  itemsCount: PropTypes.number,
   rowsPerPageOptions: PropTypes.array,
   onSearch: PropTypes.func,
   ...TableContextProviderPropTypes,

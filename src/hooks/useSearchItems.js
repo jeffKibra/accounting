@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import algoliasearch from 'algoliasearch';
 
@@ -56,11 +56,20 @@ function createObjectIdsToExcludeFilterFromArray(stringsArray = []) {
   return String(combinedString).trim();
 }
 
-export default function useSearchItems() {
-  const [result, setResult] = useState(null);
-  const [filters, setFilters] = useState(null);
+export default function useSearchItems(idsForItemsToExclude) {
+  console.log({ idsForItemsToExclude });
+  const objectIdsToExcludeFilterSubString = useMemo(() => {
+    let filterSubString = '';
 
-  const [searchValue, setSearchValue] = useState('');
+    if (Array.isArray(idsForItemsToExclude)) {
+      filterSubString = createObjectIdsToExcludeFilterFromArray(
+        idsForItemsToExclude || []
+      );
+    }
+
+    return filterSubString;
+  }, [idsForItemsToExclude]);
+  //----------------------------------------------------------------
 
   const dispatch = useDispatch();
 
@@ -84,6 +93,27 @@ export default function useSearchItems() {
     },
     [dispatch]
   );
+  //----------------------------------------------------------------
+
+  const [result, setResult] = useState(null);
+  //
+  const [state, setState] = useState({
+    hitsPerPage: 2,
+    pageIndex: 0,
+  });
+  const { hitsPerPage, pageIndex } = state;
+
+  const [filters, setFilters] = useState(null);
+  const [valueToSearch, setValueToSearch] = useState('');
+  console.log({ valueToSearch });
+
+  const setHitsPerPage = useCallback(inValue => {
+    setState(current => ({ ...current, hitsPerPage: inValue, pageIndex: 0 }));
+  }, []);
+
+  const setPageIndex = useCallback(inValue => {
+    setState(current => ({ ...current, pageIndex: inValue }));
+  }, []);
 
   const filtersCombinedString = useMemo(() => {
     console.log('filters have changed', filters);
@@ -106,76 +136,78 @@ export default function useSearchItems() {
 
   // console.log({ filtersCombinedString });
 
-  const hitsPerPage = 5;
-
   const reset = useCallback(() => {
     setResult(null);
     setError(null);
   }, [setError]);
 
-  const searchItems = useCallback(
-    async (string, options = {}) => {
-      try {
-        console.log('searching algolia ...', string);
-        reset();
-        setLoadingStatus(true);
+  useEffect(() => {
+    try {
+      console.log('searching algolia ...', valueToSearch);
+      reset();
+      setLoadingStatus(true);
 
-        let filtersString = `orgId:${orgId}`; //initialize using orgId-ensure user only queries their own org
+      let filtersString = `orgId:${orgId}`; //initialize using orgId-ensure user only queries their own org
 
-        const { page, idsForItemsToExclude } = options;
-        // const idsForItemsToExcludeCombined =
-        //   createObjectIdsToExcludeFilterFromArray(idsForItemsToExclude);
-        const objectIdsToExcludeFilter =
-          createObjectIdsToExcludeFilterFromArray(idsForItemsToExclude || []);
-        console.log({ objectIdsToExcludeFilter });
+      console.log({ objectIdsToExcludeFilterSubString });
 
-        if (objectIdsToExcludeFilter) {
-          filtersString = String(filtersString).concat(
-            ` AND ${objectIdsToExcludeFilter}`
-          );
-        }
+      if (objectIdsToExcludeFilterSubString) {
+        filtersString = String(filtersString).concat(
+          ` AND ${objectIdsToExcludeFilterSubString}`
+        );
+      }
 
-        setSearchValue(string);
+      const pageNumberIsValid =
+        !isNaN(pageIndex) && typeof pageIndex === 'number' && pageIndex >= 0;
+      //   console.log({ pageNumberIsValid, page });
 
-        const pageNumberIsValid =
-          !isNaN(page) && typeof page === 'number' && page >= 0;
-        //   console.log({ pageNumberIsValid, page });
+      console.log({ filtersString });
 
-        console.log({ filtersString });
-
-        const searchResult = await itemsIndex.search(string, {
+      itemsIndex
+        .search(valueToSearch, {
           hitsPerPage,
           // filters: String(
           //   `orgId:${orgId} ${filtersString ? filtersString : ''}`
           // ).trim(),
           ...(filtersString ? { filters: filtersString } : {}),
-          ...(pageNumberIsValid ? { page } : {}),
+          ...(pageNumberIsValid ? { page: pageIndex } : {}),
+        })
+        .then(searchResult => {
+          console.log('algolia search result', { searchResult });
+
+          setResult(searchResult);
+
+          const hits = searchResult?.hits || [];
+
+          const items = hits.map(hit => {
+            const itemId = hit?.objectID;
+            return { ...hit, itemId };
+          });
+
+          dispatch(itemsSuccess(items));
+        })
+        .catch(error => {
+          console.error(error);
+          setError(error);
+        })
+        .finally(() => {
+          setLoadingStatus(false);
         });
-        console.log('algolia search result', { searchResult });
-
-        setResult(searchResult);
-
-        const hits = searchResult?.hits || [];
-
-        const items = hits.map(hit => {
-          const itemId = hit?.objectID;
-          return { ...hit, itemId };
-        });
-
-        dispatch(itemsSuccess(items));
-      } catch (error) {
-        console.error(error);
-        setError(error);
-      }
-
-      setLoadingStatus(false);
-    },
-    [orgId, reset, setError, setLoadingStatus, dispatch]
-  );
-
-  // useEffect(() => {
-  //   searchItems('');
-  // }, [searchItems]);
+    } catch (error) {
+      console.error(error);
+      setError(error);
+    }
+  }, [
+    valueToSearch,
+    orgId,
+    reset,
+    setError,
+    setLoadingStatus,
+    dispatch,
+    objectIdsToExcludeFilterSubString,
+    hitsPerPage,
+    pageIndex,
+  ]);
 
   const updateFilters = useCallback((key, value) => {
     setFilters(currentVal => {
@@ -188,19 +220,25 @@ export default function useSearchItems() {
 
   const list = result?.hits || [];
   const fullListLength = result?.nbHits || 0;
+  const pageCount = result?.nbPages || 0;
+  // const pageIndex = result?.page || 0;
 
   return {
     result,
     error,
-    searchItems,
     loading,
     items,
     list,
     fullListLength,
+    pageCount,
+    pageIndex,
+    setPageIndex,
     hitsPerPage,
+    setHitsPerPage,
     filters,
     updateFilters,
-    searchValue,
-    setSearchValue,
+    valueToSearch,
+    setValueToSearch,
+    search: setValueToSearch,
   };
 }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 //
@@ -7,11 +7,11 @@ import { GET_ITEMS } from 'store/actions/itemsActions';
 //
 import useSearchItems from './useSearchItems';
 
-function useGetItems() {
+function useGetItems(idsForItemsToExclude) {
   const dispatch = useDispatch();
 
-  const searchItemParams = useSearchItems();
-  const { searchItems } = searchItemParams;
+  const searchItemParams = useSearchItems(idsForItemsToExclude);
+  const { setValueToSearch } = searchItemParams;
 
   // console.log({ loading, list, items });
 
@@ -33,10 +33,10 @@ function useGetItems() {
       // } else {
       //   fetchFromFirestore(idsForItemsToExclude);
       // }
-      searchItems('');
+      setValueToSearch('');
     },
 
-    [fetchFromFirestore, searchItems]
+    [setValueToSearch]
   );
 
   // useEffect(() => {

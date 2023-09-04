@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
 //
-import SkeletonLoader from 'components/ui/SkeletonLoader';
 //
 import RTTable from 'components/ui/Table/RTTable';
 //
@@ -13,8 +12,21 @@ import getItemTableData from './getItemTableData';
 
 function ItemsDisplayTable(props) {
   // console.log('ITEmsDisplayProps:', props);
-  const { items, loading, error, onSearch, onRowClick, onSort, ...tableProps } =
-    props;
+  const {
+    items,
+    loading,
+    error,
+    onSearch,
+    onRowClick,
+    onSort,
+    gotoPage,
+    pageCount,
+    pageIndex,
+    pageSize,
+    setPageSize,
+    allItemsCount,
+    ...tableProps
+  } = props;
 
   const rowsAreSelectable = typeof onRowClick === 'function';
 
@@ -50,9 +62,7 @@ function ItemsDisplayTable(props) {
 
   console.log('ITEMSZDISPLAY rerendering...');
 
-  return loading ? (
-    <SkeletonLoader />
-  ) : (
+  return (
     <RTTable
       loading={loading}
       error={error}
@@ -61,6 +71,12 @@ function ItemsDisplayTable(props) {
       onSortByChange={handleSortByChange}
       onSearch={onSearch}
       onRowClick={onRowClick}
+      gotoPage={gotoPage}
+      pageCount={pageCount}
+      pageIndex={pageIndex}
+      pageSize={pageSize}
+      setPageSize={setPageSize}
+      allItemsCount={allItemsCount}
       {...(rowsAreSelectable
         ? {
             bodyRowProps: {
@@ -87,6 +103,12 @@ ItemsDisplayTable.propTypes = {
   onSearch: PropTypes.func,
   onRowClick: PropTypes.func,
   onSort: PropTypes.func,
+  gotoPage: PropTypes.func,
+  pageCount: PropTypes.number,
+  pageIndex: PropTypes.number,
+  pageSize: PropTypes.number,
+  setPageSize: PropTypes.func,
+  allItemsCount: PropTypes.number,
 };
 
 export default ItemsDisplayTable;
