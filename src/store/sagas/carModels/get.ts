@@ -18,6 +18,7 @@ import {
   carModelsSuccess,
   carModelSuccess,
   fail,
+  carTypesSuccess,
 } from '../../slices/carModelsSlice';
 import { error as toastError } from '../../slices/toastSlice';
 //
@@ -37,9 +38,38 @@ import {
 function getCarMakes(models: ICarModels) {
   const makes = Object.keys(models).sort();
 
-  console.log({ makes });
+  // console.log({ makes });
 
   return makes;
+}
+
+function getCarTypes(models: ICarModels) {
+  const carTypes: Record<string, string> = {};
+
+  if (models && typeof models === 'object') {
+    Object.values(models).forEach(makeModels => {
+      if (makeModels && typeof makeModels === 'object') {
+        Object.values(makeModels).forEach(carModel => {
+          const typesString = carModel?.type || '';
+          // console.log({ typesString });
+
+          String(typesString)
+            .split(',')
+            .forEach(type => {
+              const carType = String(type).trim();
+
+              if (carType) {
+                carTypes[carType] = carType;
+              }
+            });
+        });
+      }
+    });
+  }
+
+  console.log({ carTypes });
+
+  return Object.keys(carTypes);
 }
 
 async function getCarModelsFromFile() {
@@ -128,10 +158,12 @@ function* getCarModels() {
   try {
     const carModels: ICarModels = yield call(getAllModels);
     const carMakes = getCarMakes(carModels);
-    // console.log({ carModels });
+    const carTypes = getCarTypes(carModels);
+    // console.log({ carTypes });
 
     yield put(carMakesSuccess(carMakes));
     yield put(carModelsSuccess(carModels));
+    yield put(carTypesSuccess(carTypes));
   } catch (err) {
     const error = err as Error;
     console.error(error);

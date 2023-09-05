@@ -101,6 +101,7 @@ ItemsDisplayTable.propTypes = {
   loading: PropTypes.bool,
   error: PropTypes.object,
   onSearch: PropTypes.func,
+  onFilter: PropTypes.func,
   onRowClick: PropTypes.func,
   onSort: PropTypes.func,
   gotoPage: PropTypes.func,

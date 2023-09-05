@@ -141,6 +141,7 @@ export const RTTablePropTypes = {
   bodyRowProps: PropTypes.object,
   onSortByChange: PropTypes.func,
   onSearch: PropTypes.func,
+  onFilter: PropTypes.func,
   loading: PropTypes.bool,
   error: PropTypes.object,
   //pagination props

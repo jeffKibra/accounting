@@ -44,6 +44,7 @@ function AlgoliaItemsTable(props) {
       pageIndex={pageIndex}
       pageCount={pageCount}
       allItemsCount={fullListLength}
+      onFilter={() => {}}
     />
   );
 }

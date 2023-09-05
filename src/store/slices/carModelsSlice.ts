@@ -7,6 +7,7 @@ type State = {
   loading: boolean;
   isModified: boolean;
   carMakes: string[] | null;
+  carTypes: string[] | null;
   carModels: ICarModels | null;
   carModel: ICarModel | null;
   action: string | null;
@@ -17,6 +18,7 @@ export const initialState: State = {
   loading: false,
   isModified: false,
   carMakes: null,
+  carTypes: null,
   carModels: null,
   carModel: null,
   action: null,
@@ -52,6 +54,14 @@ const carModelsSlice = createSlice({
         ...state,
         loading: false,
         carMakes: payload,
+      };
+    },
+    carTypesSuccess: (state: State, action: PayloadAction<string[]>) => {
+      const { payload } = action;
+      return {
+        ...state,
+        loading: false,
+        carTypes: payload,
       };
     },
     carModelsSuccess: (state: State, action: PayloadAction<ICarModels>) => {
@@ -93,6 +103,7 @@ export const {
   start,
   success,
   carMakesSuccess,
+  carTypesSuccess,
   carModelSuccess,
   carModelsSuccess,
   fail,

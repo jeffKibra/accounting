@@ -5,6 +5,7 @@ import {
   TableContainer,
   Table as ChakraTable,
   Box,
+  HStack,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
@@ -15,14 +16,14 @@ import {
 } from 'contexts/TableContext';
 //
 import ControlledSearchInput from 'components/ui/ControlledSearchInput';
-//
-import Empty from '../Empty';
-import CustomAlert from '../CustomAlert';
+import SkeletonLoader from 'components/ui/SkeletonLoader';
+import Empty from 'components/ui/Empty';
+import CustomAlert from 'components/ui/CustomAlert';
 //
 import THead from './THead';
 import TBody from './TBody';
 import Pagination from './Pagination';
-import SkeletonLoader from '../SkeletonLoader';
+import Filters from './Filters';
 
 function ControlledTable(props) {
   const {
@@ -50,6 +51,7 @@ function ControlledTable(props) {
     error,
     onSearch,
     onRowClick,
+    onFilter,
     //highlighting props
     rowFieldToUseAsIdForHighlighting,
     highlightedRowBGColor,
@@ -85,7 +87,7 @@ function ControlledTable(props) {
         }
       >
         {includeGlobalFilter ? (
-          <Box mb={3} px={4}>
+          <HStack mb={3} px={4}>
             <ControlledSearchInput
               id="global-filter-input"
               placeholder="Search..."
@@ -95,7 +97,10 @@ function ControlledTable(props) {
               delayBeforeSearchMS={1500}
               onSearch={onSearch}
             />
-          </Box>
+            {typeof onFilter === 'function' ? (
+              <Filters onFilter={onFilter} />
+            ) : null}
+          </HStack>
         ) : null}
 
         <TableContainer w="full">
@@ -183,6 +188,7 @@ export const ControlledTablePropTypes = {
   //
   rowsPerPageOptions: PropTypes.array,
   onSearch: PropTypes.func,
+  onFilter: PropTypes.func,
   ...TableContextProviderPropTypes,
 };
 
