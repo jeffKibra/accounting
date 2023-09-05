@@ -159,7 +159,7 @@ function ControlledTable(props) {
 
 export const ControlledTablePropTypes = {
   headers: PropTypes.array.isRequired,
-  rows: PropTypes.array.isRequired, //active page data
+  data: PropTypes.array.isRequired, //active page data
   //
   caption: PropTypes.string,
   includeGlobalFilter: PropTypes.bool,

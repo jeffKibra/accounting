@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 import {
   useTable,
   useFilters,
@@ -41,15 +41,15 @@ function RTTable(props) {
     allItemsCount,
     ...moreProps
   } = props;
-  console.log('RTTable', data);
+  // console.log('RTTable', data);
   // console.log({ bodyRowProps });
 
-  useEffect(() => {
-    console.log('RTTable-data has changed', data);
-  }, [data]);
-  useEffect(() => {
-    console.log('RTTable-columns has changed', columns);
-  }, [columns]);
+  // useEffect(() => {
+  //   console.log('RTTable-data has changed', data);
+  // }, [data]);
+  // useEffect(() => {
+  //   console.log('RTTable-columns has changed', columns);
+  // }, [columns]);
 
   const manualSortBy = typeof onSortByChange === 'function';
   const manualGlobalFilter = typeof onSearch === 'function';

@@ -43,7 +43,7 @@ export default function Pagination(props) {
     loading,
     // gotoPage,
   } = props;
-  console.log('Pagination loading:', loading);
+  // console.log('Pagination loading:', loading);
 
   const prevPage = pageNumber - 1;
   const virtualFirstItem = prevPage * rowsPerPage + 1;
@@ -89,7 +89,7 @@ export default function Pagination(props) {
 
       <Box ml={4}>
         {/* <IconButton
-          disabled={!canPreviousPage}
+          disabled={!canPreviousPage||loading}
           // size="sm"
           variant="ghost"
           icon={<RiArrowLeftSLine />}
@@ -97,7 +97,7 @@ export default function Pagination(props) {
           fontSize="24px"
         /> */}
         <IconButton
-          disabled={!canPreviousPage}
+          disabled={!canPreviousPage || loading}
           // size="sm"
           variant="ghost"
           icon={<RiArrowDropLeftLine />}
@@ -105,7 +105,7 @@ export default function Pagination(props) {
           fontSize="24px"
         />
         <IconButton
-          disabled={!canNextPage}
+          disabled={!canNextPage || loading}
           // size="sm"
           variant="ghost"
           icon={<RiArrowDropRightLine />}
@@ -113,7 +113,7 @@ export default function Pagination(props) {
           fontSize="24px"
         />
         {/* <IconButton
-          disabled={!canNextPage}
+          disabled={!canNextPage||loading}
           // size="sm"
           variant="ghost"
           icon={<RiArrowRightSLine />}

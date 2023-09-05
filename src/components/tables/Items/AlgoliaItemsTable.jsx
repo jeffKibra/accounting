@@ -9,13 +9,12 @@ import ItemsDisplayTable from './ItemsDisplayTable';
 
 function AlgoliaItemsTable(props) {
   const { onRowClick, idsForItemsToExclude } = props;
-  console.log({ onRowClick });
+  // console.log({ onRowClick });
 
   const {
     loading,
     error,
     items,
-    getItems,
     pageCount,
     pageIndex,
     fullListLength,
@@ -25,10 +24,7 @@ function AlgoliaItemsTable(props) {
     search,
   } = useGetItems(idsForItemsToExclude);
 
-  useEffect(() => {
-    console.log('fetching items onmount...');
-    getItems();
-  }, [getItems]);
+  useEffect(() => {});
 
   function handleSortByChange(array) {
     console.log({ array });

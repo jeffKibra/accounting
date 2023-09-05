@@ -60,7 +60,7 @@ function ItemsDisplayTable(props) {
     typeof onSort === 'function' && onSort(array[0]);
   }
 
-  console.log('ITEMSZDISPLAY rerendering...');
+  // console.log('ITEMSZDISPLAY rerendering...');
 
   return (
     <RTTable

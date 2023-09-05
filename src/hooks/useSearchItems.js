@@ -57,20 +57,6 @@ function createObjectIdsToExcludeFilterFromArray(stringsArray = []) {
 }
 
 export default function useSearchItems(idsForItemsToExclude) {
-  console.log({ idsForItemsToExclude });
-  const objectIdsToExcludeFilterSubString = useMemo(() => {
-    let filterSubString = '';
-
-    if (Array.isArray(idsForItemsToExclude)) {
-      filterSubString = createObjectIdsToExcludeFilterFromArray(
-        idsForItemsToExclude || []
-      );
-    }
-
-    return filterSubString;
-  }, [idsForItemsToExclude]);
-  //----------------------------------------------------------------
-
   const dispatch = useDispatch();
 
   const orgId = useSelector(state => state?.orgsReducer?.org?.orgId);
@@ -93,6 +79,7 @@ export default function useSearchItems(idsForItemsToExclude) {
     },
     [dispatch]
   );
+
   //----------------------------------------------------------------
 
   const [result, setResult] = useState(null);
@@ -100,20 +87,70 @@ export default function useSearchItems(idsForItemsToExclude) {
   const [state, setState] = useState({
     hitsPerPage: 2,
     pageIndex: 0,
+    filters: null,
+    valueToSearch: '',
+    idsForItemsToExclude: null,
+    filterForItemsIdsToExclude: '',
   });
-  const { hitsPerPage, pageIndex } = state;
+  const {
+    hitsPerPage,
+    pageIndex,
+    filters,
+    valueToSearch,
+    filterForItemsIdsToExclude,
+  } = state;
 
-  const [filters, setFilters] = useState(null);
-  const [valueToSearch, setValueToSearch] = useState('');
-  console.log({ valueToSearch });
+  // console.log({ valueToSearch });
+
+  const setValueToSearch = useCallback(inValue => {
+    setState(current => ({ ...current, valueToSearch: inValue, pageIndex: 0 }));
+  }, []);
+
+  const setFilters = useCallback(inValue => {
+    setState(current => ({ ...current, filters: inValue, pageIndex: 0 }));
+  }, []);
 
   const setHitsPerPage = useCallback(inValue => {
     setState(current => ({ ...current, hitsPerPage: inValue, pageIndex: 0 }));
   }, []);
 
+  const setFilterForItemsIdsToExclude = useCallback(idsForItemsToExclude => {
+    console.log('idsForItemsToExclude', idsForItemsToExclude);
+
+    let filterSubString = '';
+
+    if (Array.isArray(idsForItemsToExclude)) {
+      filterSubString = createObjectIdsToExcludeFilterFromArray(
+        idsForItemsToExclude || []
+      );
+    }
+
+    setState(current => ({
+      ...current,
+      idsForItemsToExclude,
+      filterForItemsIdsToExclude: filterSubString,
+      pageIndex: 0, //reset page index
+    }));
+  }, []);
+
   const setPageIndex = useCallback(inValue => {
     setState(current => ({ ...current, pageIndex: inValue }));
   }, []);
+
+  //----------------------------------------------------------------
+
+  // console.log({ filterForItemsIdsToExclude });
+
+  useEffect(() => {
+    console.log(
+      ' ids for items to exclude have changed...',
+      idsForItemsToExclude
+    );
+
+    setFilterForItemsIdsToExclude(idsForItemsToExclude);
+  }, [idsForItemsToExclude, setFilterForItemsIdsToExclude]);
+
+  //----------------------------------------------------------------
 
   const filtersCombinedString = useMemo(() => {
     console.log('filters have changed', filters);
@@ -141,6 +178,8 @@ export default function useSearchItems(idsForItemsToExclude) {
     setError(null);
   }, [setError]);
 
+  //----------------------------------------------------------------
+
   useEffect(() => {
     try {
       console.log('searching algolia ...', valueToSearch);
@@ -149,26 +188,22 @@ export default function useSearchItems(idsForItemsToExclude) {
 
       let filtersString = `orgId:${orgId}`; //initialize using orgId-ensure user only queries their own org
 
-      console.log({ objectIdsToExcludeFilterSubString });
+      console.log({ filterForItemsIdsToExclude });
 
-      if (objectIdsToExcludeFilterSubString) {
+      if (filterForItemsIdsToExclude) {
         filtersString = String(filtersString).concat(
-          ` AND ${objectIdsToExcludeFilterSubString}`
+          ` AND ${filterForItemsIdsToExclude}`
         );
       }
 
       const pageNumberIsValid =
         !isNaN(pageIndex) && typeof pageIndex === 'number' && pageIndex >= 0;
-      //   console.log({ pageNumberIsValid, page });
 
       console.log({ filtersString });
 
       itemsIndex
         .search(valueToSearch, {
           hitsPerPage,
-          // filters: String(
-          //   `orgId:${orgId} ${filtersString ? filtersString : ''}`
-          // ).trim(),
           ...(filtersString ? { filters: filtersString } : {}),
           ...(pageNumberIsValid ? { page: pageIndex } : {}),
         })
@@ -204,24 +239,31 @@ export default function useSearchItems(idsForItemsToExclude) {
     setError,
     setLoadingStatus,
     dispatch,
-    objectIdsToExcludeFilterSubString,
+    filterForItemsIdsToExclude,
     hitsPerPage,
     pageIndex,
   ]);
 
-  const updateFilters = useCallback((key, value) => {
-    setFilters(currentVal => {
-      return {
-        ...currentVal,
-        [key]: value,
-      };
-    });
-  }, []);
+  //----------------------------------------------------------------
+
+  const updateFilters = useCallback(
+    (key, value) => {
+      setFilters(currentVal => {
+        return {
+          ...currentVal,
+          [key]: value,
+        };
+      });
+    },
+    [setFilters]
+  );
 
   const list = result?.hits || [];
   const fullListLength = result?.nbHits || 0;
   const pageCount = result?.nbPages || 0;
   // const pageIndex = result?.page || 0;
+
+  //----------------------------------------------------------------
 
   return {
     result,
@@ -240,5 +282,7 @@ export default function useSearchItems(idsForItemsToExclude) {
     valueToSearch,
     setValueToSearch,
     search: setValueToSearch,
+    setFilterForItemsIdsToExclude,
+    filterForItemsIdsToExclude,
   };
 }
