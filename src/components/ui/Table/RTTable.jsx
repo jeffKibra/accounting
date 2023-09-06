@@ -10,6 +10,12 @@ import {
 import PropTypes from 'prop-types';
 
 //
+import {
+  TableContextProvider,
+  TableContextProviderPropTypes,
+} from 'contexts/TableContext';
+
+//
 import ControlledTable from './ControlledTable';
 //
 
@@ -26,7 +32,6 @@ function RTTable(props) {
     columns,
     data,
     caption,
-    onRowClick,
     bodyRowProps,
     onSortByChange,
     onSearch,
@@ -39,6 +44,11 @@ function RTTable(props) {
     pageSize,
     setPageSize,
     allItemsCount,
+    //table context props
+    onRowClick,
+    highlightedRowBGColor,
+    rowIdToHighlight,
+    rowFieldToUseAsIdForHighlighting,
     ...moreProps
   } = props;
   // console.log('RTTable', data);
@@ -100,35 +110,42 @@ function RTTable(props) {
   // console.log({ pageIndex, pageCount, pageOptions });
 
   return (
-    <ControlledTable
-      headers={headers}
-      data={rows}
-      prepareRow={prepareRow}
-      setGlobalFilter={setGlobalFilter}
-      itemsCount={rows?.length}
-      tableProps={getTableProps()}
-      tableBodyProps={getTableBodyProps()}
-      //pagination props
-      allItemsCount={allItemsCount}
-      pageIndex={pageIndex}
-      pageSize={pageSize}
-      pageOptions={pageOptions}
-      pageCount={pageCount}
-      gotoPage={gotoPage}
-      setPageSize={setPageSize}
-      rowsPerPageOptions={rowsPerPageOptions}
-      //
-      includeGlobalFilter={includeGlobalFilter}
-      globalFilter={globalFilter}
-      bodyRowProps={bodyRowProps}
-      caption={caption}
+    <TableContextProvider
       onRowClick={onRowClick}
-      onSearch={onSearch}
-      //
-      loading={loading}
-      error={error}
-      {...moreProps}
-    />
+      highlightedRowBGColor={highlightedRowBGColor}
+      rowIdToHighlight={rowIdToHighlight || ''}
+      rowFieldToUseAsIdForHighlighting={rowFieldToUseAsIdForHighlighting || ''}
+    >
+      <ControlledTable
+        headers={headers}
+        data={rows}
+        prepareRow={prepareRow}
+        setGlobalFilter={setGlobalFilter}
+        itemsCount={rows?.length}
+        tableProps={getTableProps()}
+        tableBodyProps={getTableBodyProps()}
+        //pagination props
+        allItemsCount={allItemsCount}
+        pageIndex={pageIndex}
+        pageSize={pageSize}
+        pageOptions={pageOptions}
+        pageCount={pageCount}
+        gotoPage={gotoPage}
+        setPageSize={setPageSize}
+        rowsPerPageOptions={rowsPerPageOptions}
+        //
+        includeGlobalFilter={includeGlobalFilter}
+        globalFilter={globalFilter}
+        bodyRowProps={bodyRowProps}
+        caption={caption}
+        onRowClick={onRowClick}
+        onSearch={onSearch}
+        //
+        loading={loading}
+        error={error}
+        {...moreProps}
+      />
+    </TableContextProvider>
   );
 }
 
@@ -137,7 +154,6 @@ export const RTTablePropTypes = {
   columns: PropTypes.array.isRequired,
   caption: PropTypes.string,
   includeGlobalFilter: PropTypes.bool,
-  onRowClick: PropTypes.func,
   bodyRowProps: PropTypes.object,
   onSortByChange: PropTypes.func,
   onSearch: PropTypes.func,
@@ -151,6 +167,8 @@ export const RTTablePropTypes = {
   pageSize: PropTypes.number,
   setPageSize: PropTypes.func,
   allItemsCount: PropTypes.number,
+  //tableContext props
+  ...TableContextProviderPropTypes,
 };
 
 RTTable.propTypes = {

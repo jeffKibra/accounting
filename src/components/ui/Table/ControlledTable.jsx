@@ -10,10 +10,7 @@ import {
 import PropTypes from 'prop-types';
 
 //
-import {
-  TableContextProvider,
-  TableContextProviderPropTypes,
-} from 'contexts/TableContext';
+import { TableContextProviderPropTypes } from 'contexts/TableContext';
 //
 import ControlledSearchInput from 'components/ui/ControlledSearchInput';
 import SkeletonLoader from 'components/ui/SkeletonLoader';
@@ -50,12 +47,7 @@ function ControlledTable(props) {
     loading,
     error,
     onSearch,
-    onRowClick,
     onFilter,
-    //highlighting props
-    rowFieldToUseAsIdForHighlighting,
-    highlightedRowBGColor,
-    rowIdToHighlight,
   } = props;
   // console.log({ bodyRowProps });
 
@@ -78,86 +70,76 @@ function ControlledTable(props) {
 
   return (
     <Box w="full">
-      <TableContextProvider
-        onRowClick={onRowClick}
-        highlightedRowBGColor={highlightedRowBGColor}
-        rowIdToHighlight={rowIdToHighlight || ''}
-        rowFieldToUseAsIdForHighlighting={
-          rowFieldToUseAsIdForHighlighting || ''
-        }
-      >
-        {includeGlobalFilter ? (
-          <HStack mb={3} px={4}>
-            <ControlledSearchInput
-              id="global-filter-input"
-              placeholder="Search..."
-              onChange={setGlobalFilter}
-              value={globalFilter || ''}
-              size="sm"
-              delayBeforeSearchMS={1500}
-              onSearch={onSearch}
-            />
-            {typeof onFilter === 'function' ? (
-              <Filters onFilter={onFilter} />
-            ) : null}
-          </HStack>
-        ) : null}
-
-        <TableContainer w="full">
-          <ChakraTable minW="650px" variant="simple" size="sm" {...tableProps}>
-            <THead headers={headers} />
-
-            {loading ? null : (
-              <TBody
-                tableBodyProps={tableBodyProps}
-                rows={data}
-                prepareRow={prepareRow}
-                onRowClick={onRowClick}
-                rowProps={{ ...(bodyRowProps ? bodyRowProps : {}) }}
-              />
-            )}
-
-            {caption && <TableCaption>{caption}</TableCaption>}
-          </ChakraTable>
-        </TableContainer>
-
-        {loading ? (
-          <SkeletonLoader />
-        ) : (
-          <>
-            {data?.length === 0 ? (
-              error ? (
-                <CustomAlert
-                  status="error"
-                  title="Error loading data!"
-                  description={`${error?.code || ''} ${
-                    error?.message || 'Unknown Error!'
-                  }`}
-                />
-              ) : (
-                <Empty message="No Data!" />
-              )
-            ) : null}
-          </>
-        )}
-
-        <Box w="full" mt={2} mb={1}>
-          <Pagination
-            loading={loading}
-            canNextPage={canNextPage}
-            canPreviousPage={canPreviousPage}
-            gotoPage={gotoPage}
-            nextPage={nextPage}
-            previousPage={previousPage}
-            pageNumber={Number(pageIndex) + 1}
-            // pageCount={pageCount}
-            rowsPerPage={Number(pageSize)}
-            onRowsPerPageChange={setPageSize}
-            rowsPerPageOptions={rowsPerPageOptions}
-            itemsCount={Number(allItemsCount) || 0}
+      {includeGlobalFilter ? (
+        <HStack mb={3} px={4}>
+          <ControlledSearchInput
+            id="global-filter-input"
+            placeholder="Search..."
+            onChange={setGlobalFilter}
+            value={globalFilter || ''}
+            size="sm"
+            delayBeforeSearchMS={1500}
+            onSearch={onSearch}
           />
-        </Box>
-      </TableContextProvider>
+          {typeof onFilter === 'function' ? (
+            <Filters onFilter={onFilter} />
+          ) : null}
+        </HStack>
+      ) : null}
+
+      <TableContainer w="full">
+        <ChakraTable minW="650px" variant="simple" size="sm" {...tableProps}>
+          <THead headers={headers} />
+
+          {loading ? null : (
+            <TBody
+              tableBodyProps={tableBodyProps}
+              rows={data}
+              prepareRow={prepareRow}
+              rowProps={{ ...(bodyRowProps ? bodyRowProps : {}) }}
+            />
+          )}
+
+          {caption && <TableCaption>{caption}</TableCaption>}
+        </ChakraTable>
+      </TableContainer>
+
+      {loading ? (
+        <SkeletonLoader />
+      ) : (
+        <>
+          {data?.length === 0 ? (
+            error ? (
+              <CustomAlert
+                status="error"
+                title="Error loading data!"
+                description={`${error?.code || ''} ${
+                  error?.message || 'Unknown Error!'
+                }`}
+              />
+            ) : (
+              <Empty message="No Data!" />
+            )
+          ) : null}
+        </>
+      )}
+
+      <Box w="full" mt={2} mb={1}>
+        <Pagination
+          loading={loading}
+          canNextPage={canNextPage}
+          canPreviousPage={canPreviousPage}
+          gotoPage={gotoPage}
+          nextPage={nextPage}
+          previousPage={previousPage}
+          pageNumber={Number(pageIndex) + 1}
+          // pageCount={pageCount}
+          rowsPerPage={Number(pageSize)}
+          onRowsPerPageChange={setPageSize}
+          rowsPerPageOptions={rowsPerPageOptions}
+          itemsCount={Number(allItemsCount) || 0}
+        />
+      </Box>
     </Box>
   );
 }
@@ -168,7 +150,6 @@ export const ControlledTablePropTypes = {
   //
   caption: PropTypes.string,
   includeGlobalFilter: PropTypes.bool,
-  onRowClick: PropTypes.func,
   bodyRowProps: PropTypes.object,
   //
   tableProps: PropTypes.object,

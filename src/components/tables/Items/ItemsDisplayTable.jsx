@@ -1,10 +1,12 @@
-import { useMemo } from 'react';
+import { useMemo, useContext } from 'react';
 import PropTypes from 'prop-types';
 //
+
+import SearchItemsContext from 'contexts/SearchItemsContext';
 //
 import RTTable from 'components/ui/Table/RTTable';
 //
-import tableColumns from './tableColumns';
+import getTableColumns from './getTableColumns';
 //
 import getItemTableData from './getItemTableData';
 
@@ -12,30 +14,31 @@ import getItemTableData from './getItemTableData';
 
 function ItemsDisplayTable(props) {
   // console.log('ITEmsDisplayProps:', props);
+  const { onRowClick, enableActions, itemIdToHighlight, ...tableProps } = props;
+
+  const itemsContext = useContext(SearchItemsContext);
+  console.log({ itemsContext });
+
   const {
-    items,
     loading,
+    items,
     error,
-    onSearch,
-    onRowClick,
-    onSort,
-    gotoPage,
     pageCount,
     pageIndex,
-    pageSize,
-    setPageSize,
-    allItemsCount,
-    ...tableProps
-  } = props;
+    fullListLength,
+    hitsPerPage,
+    setPageIndex,
+    setHitsPerPage,
+    setValueToSearch,
+  } = itemsContext;
 
   const rowsAreSelectable = typeof onRowClick === 'function';
 
   const columns = useMemo(() => {
-    return [
-      ...tableColumns,
-      { Header: '', accessor: 'actions', isNumeric: true, width: '1%' },
-    ];
-  }, []);
+    const tableColumns = getTableColumns(enableActions);
+
+    return [...tableColumns];
+  }, [enableActions]);
 
   const data = useMemo(() => {
     let itemsData = [];
@@ -56,27 +59,31 @@ function ItemsDisplayTable(props) {
 
   function handleSortByChange(array) {
     console.log({ array });
-
-    typeof onSort === 'function' && onSort(array[0]);
   }
 
   // console.log('ITEMSZDISPLAY rerendering...');
 
   return (
     <RTTable
-      loading={loading}
-      error={error}
       columns={columns}
       data={data}
-      onSortByChange={handleSortByChange}
-      onSearch={onSearch}
-      onRowClick={onRowClick}
-      gotoPage={gotoPage}
+      //status
+      loading={loading}
+      error={error}
+      //pagination
       pageCount={pageCount}
       pageIndex={pageIndex}
-      pageSize={pageSize}
-      setPageSize={setPageSize}
-      allItemsCount={allItemsCount}
+      pageSize={hitsPerPage}
+      allItemsCount={fullListLength}
+      gotoPage={setPageIndex}
+      setPageSize={setHitsPerPage}
+      //
+      onSortByChange={handleSortByChange}
+      onSearch={setValueToSearch}
+      onRowClick={onRowClick}
+      rowIdToHighlight={itemIdToHighlight || ''}
+      rowFieldToUseAsIdForHighlighting="itemId"
+      highlightedRowBGColor="cyan.50"
       {...(rowsAreSelectable
         ? {
             bodyRowProps: {
@@ -96,20 +103,14 @@ function ItemsDisplayTable(props) {
   );
 }
 
-ItemsDisplayTable.propTypes = {
-  items: PropTypes.array,
-  loading: PropTypes.bool,
-  error: PropTypes.object,
-  onSearch: PropTypes.func,
-  onFilter: PropTypes.func,
+export const ItemsDisplayTablePropTypes = {
   onRowClick: PropTypes.func,
-  onSort: PropTypes.func,
-  gotoPage: PropTypes.func,
-  pageCount: PropTypes.number,
-  pageIndex: PropTypes.number,
-  pageSize: PropTypes.number,
-  setPageSize: PropTypes.func,
-  allItemsCount: PropTypes.number,
+  enableActions: PropTypes.bool,
+  itemIdToHighlight: PropTypes.string,
+};
+
+ItemsDisplayTable.propTypes = {
+  ...ItemsDisplayTablePropTypes,
 };
 
 export default ItemsDisplayTable;

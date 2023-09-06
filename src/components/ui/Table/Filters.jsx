@@ -142,7 +142,7 @@ function Filters({ onFilter }) {
                   onChange={inValue => updateField('type', inValue)}
                   value={type}
                   id="filter_items_car_type"
-                  options={carTypes.map(carType => ({
+                  options={(carTypes || []).map(carType => ({
                     name: carType,
                     value: carType,
                   }))}

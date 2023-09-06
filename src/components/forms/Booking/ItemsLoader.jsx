@@ -17,7 +17,7 @@ import BookingFormContext from 'contexts/BookingFormContext';
 //
 // import DateRangePicker from 'components/ui/DateRangePicker';
 //
-import SelectBookingItemTable from 'components/tables/Items/SelectBookingItemTable';
+import ItemsTable from 'components/tables/Items/ItemsTable';
 
 //---------------------------------------------------------------
 ItemsLoader.propTypes = {
@@ -41,9 +41,9 @@ ItemsLoader.defaultProps = {
 function ItemsLoader(props) {
   // console.log({ props });
   const {
-    items,
-    loadingItems,
-    itemsError,
+    // items,
+    // loadingItems,
+    // itemsError,
     fetchItemsNotBooked,
     // defaultItemId,
     orgId,
@@ -102,13 +102,13 @@ function ItemsLoader(props) {
     <SkeletonLoader />
   ) : (
     <>
-      <SelectBookingItemTable
+      <ItemsTable
         emptyMessage="No Vehicle is available for booking on the selected Dates!"
-        loading={loadingItems}
-        items={items || []}
-        error={itemsError}
+        // loading={loadingItems}
+        // items={items || []}
+        // error={itemsError}
         onRowClick={handleItemClick}
-        selectedItemId={itemId || ''}
+        itemIdToHighlight={itemId || ''}
         idsForItemsToExclude={idsForItemsAlreadyBooked || []}
       />
     </>

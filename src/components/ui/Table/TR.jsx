@@ -7,7 +7,7 @@ import TableContext from 'contexts/TableContext';
 
 export default function TR(props) {
   // console.log({ TRProps: props });
-  const { row, onClick, children, ...rowProps } = props;
+  const { row, children, ...rowProps } = props;
   // console.log({ rowProps });
   // console.log({ row });
 
@@ -17,6 +17,7 @@ export default function TR(props) {
     highlightedRowBGColor,
     rowFieldToUseAsIdForHighlighting,
     rowIdToHighlight,
+    onRowClick,
   } = useContext(TableContext);
 
   const currentRowId = original[rowFieldToUseAsIdForHighlighting];
@@ -30,7 +31,7 @@ export default function TR(props) {
   // });
 
   function handleRowClick() {
-    typeof onClick === 'function' && onClick(original);
+    typeof onRowClick === 'function' && onRowClick(original);
   }
 
   return (
@@ -52,7 +53,6 @@ export default function TR(props) {
 }
 
 export const TRProps = {
-  onClick: PropTypes.func,
   row: PropTypes.object,
 };
 

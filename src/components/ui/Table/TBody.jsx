@@ -6,7 +6,7 @@ import TRow from './TRow';
 
 export default function TBody(props) {
   // console.log({ TBodyProps: props });
-  const { tableBodyProps, rows, prepareRow, onRowClick, rowProps } = props;
+  const { tableBodyProps, rows, prepareRow, rowProps } = props;
 
   return (
     <Tbody {...(tableBodyProps ? tableBodyProps : {})}>
@@ -14,14 +14,7 @@ export default function TBody(props) {
         prepareRow(row);
         // console.log({ row });
 
-        return (
-          <TRow
-            key={i}
-            row={row}
-            onClick={onRowClick}
-            {...(rowProps ? rowProps : {})}
-          />
-        );
+        return <TRow key={i} row={row} {...(rowProps ? rowProps : {})} />;
       })}
     </Tbody>
   );
@@ -31,6 +24,5 @@ TBody.propTypes = {
   tableBodyProps: PropTypes.object,
   rows: PropTypes.array,
   prepareRow: PropTypes.func,
-  onRowClick: PropTypes.func,
   rowProps: PropTypes.object,
 };
