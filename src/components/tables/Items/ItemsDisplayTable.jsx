@@ -7,8 +7,9 @@ import SearchItemsContext from 'contexts/SearchItemsContext';
 import RTTable from 'components/ui/Table/RTTable';
 //
 import getTableColumns from './getTableColumns';
-//
 import getItemTableData from './getItemTableData';
+//
+import ItemsFilters from './ItemsFilters';
 
 //
 
@@ -17,7 +18,7 @@ function ItemsDisplayTable(props) {
   const { onRowClick, enableActions, itemIdToHighlight, ...tableProps } = props;
 
   const itemsContext = useContext(SearchItemsContext);
-  console.log({ itemsContext });
+  // console.log({ itemsContext });
 
   const {
     loading,
@@ -77,6 +78,8 @@ function ItemsDisplayTable(props) {
       allItemsCount={fullListLength}
       gotoPage={setPageIndex}
       setPageSize={setHitsPerPage}
+      //
+      FiltersComponent={ItemsFilters}
       //
       onSortByChange={handleSortByChange}
       onSearch={setValueToSearch}

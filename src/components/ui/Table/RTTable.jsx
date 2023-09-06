@@ -35,6 +35,7 @@ function RTTable(props) {
     bodyRowProps,
     onSortByChange,
     onSearch,
+    onFilter,
     loading,
     error,
     //pagination props
@@ -51,6 +52,7 @@ function RTTable(props) {
     rowFieldToUseAsIdForHighlighting,
     ...moreProps
   } = props;
+  console.log({ onFilter });
   // console.log('RTTable', data);
   // console.log({ bodyRowProps });
 
@@ -140,6 +142,7 @@ function RTTable(props) {
         caption={caption}
         onRowClick={onRowClick}
         onSearch={onSearch}
+        onFilter={onFilter}
         //
         loading={loading}
         error={error}
@@ -167,6 +170,8 @@ export const RTTablePropTypes = {
   pageSize: PropTypes.number,
   setPageSize: PropTypes.func,
   allItemsCount: PropTypes.number,
+  //
+  FiltersComponent: PropTypes.node,
   //tableContext props
   ...TableContextProviderPropTypes,
 };

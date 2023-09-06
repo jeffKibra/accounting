@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-
 import {
   TableCaption,
   TableContainer,
@@ -20,7 +19,6 @@ import CustomAlert from 'components/ui/CustomAlert';
 import THead from './THead';
 import TBody from './TBody';
 import Pagination from './Pagination';
-import Filters from './Filters';
 
 function ControlledTable(props) {
   const {
@@ -47,7 +45,8 @@ function ControlledTable(props) {
     loading,
     error,
     onSearch,
-    onFilter,
+    //
+    FiltersComponent,
   } = props;
   // console.log({ bodyRowProps });
 
@@ -81,9 +80,7 @@ function ControlledTable(props) {
             delayBeforeSearchMS={1500}
             onSearch={onSearch}
           />
-          {typeof onFilter === 'function' ? (
-            <Filters onFilter={onFilter} />
-          ) : null}
+          {FiltersComponent ? <FiltersComponent /> : null}
         </HStack>
       ) : null}
 
@@ -169,7 +166,9 @@ export const ControlledTablePropTypes = {
   //
   rowsPerPageOptions: PropTypes.array,
   onSearch: PropTypes.func,
-  onFilter: PropTypes.func,
+  // onFilter: PropTypes.func,
+  //
+  FiltersComponent: PropTypes.node,
   ...TableContextProviderPropTypes,
 };
 

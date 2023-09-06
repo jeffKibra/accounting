@@ -6,6 +6,6 @@ export default function useSearchItems() {
   const values = useContext(SearchItemsContext);
 
   return {
-    values,
+    ...values,
   };
 }
