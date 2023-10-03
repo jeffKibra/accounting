@@ -55,6 +55,7 @@ function ControlledTable(props) {
   // console.log('controlled table', { pageIndex, pageCount });
 
   const canNextPage = pageIndex < pageCount - 1;
+  // console.log({ pageIndex, pageCount, canNextPage });
   const canPreviousPage = pageIndex > 0;
 
   return (

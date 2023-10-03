@@ -4,7 +4,7 @@ import {
   useReducer,
   useCallback,
   useRef,
-  // useMemo,
+  useMemo,
 } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -38,6 +38,10 @@ import reducer from './reducer';
 
 //
 const initialState = {
+  sortBy: {
+    field: 'searchScore',
+    direction: 'desc',
+  },
   hitsPerPage: 2,
   filters: null,
   valueToSearch: '',
@@ -70,14 +74,53 @@ const SearchItemsContext = createContext(contextDefaultValues);
 export default SearchItemsContext;
 
 //----------------------------------------------------------------
+function generateQueryVariables(state, incomingPage) {
+  const {
+    sortBy,
+    hitsPerPage,
+    valueToSearch,
+    // filters,
+  } = state;
+
+  const pageNumberIsValid =
+    !isNaN(incomingPage) &&
+    typeof incomingPage === 'number' &&
+    incomingPage >= 0;
+
+  console.log('searching vehicles...');
+
+  const sortByField = sortBy.field || 'searchScore';
+
+  const sortByFieldIsNumeric =
+    sortByField === 'searchScore' || sortByField === 'rate';
+  console.log({ sortByField, sortByFieldIsNumeric });
+
+  const queryOptions = {
+    sortBy,
+    pagination: {
+      limit: hitsPerPage,
+      page: pageNumberIsValid ? incomingPage : 0,
+    },
+    filters: {
+      // make:"Toyota"
+      // color: ['grey'],
+      // make:["Honda"]
+      // type:["sedan"]
+      // rate:[20000, 40000]
+      // make:["Mercedes"]
+    },
+  };
+
+  return {
+    query: valueToSearch,
+    queryOptions,
+  };
+}
+
+//----------------------------------------------------------------
 SearchItemsContextProvider.propTypes = {
   children: PropTypes.node.isRequired,
   selectedDates: PropTypes.array,
-};
-
-const sortBy = {
-  field: 'searchScore',
-  direction: 'desc',
 };
 
 export function SearchItemsContextProvider(props) {
@@ -151,6 +194,11 @@ export function SearchItemsContextProvider(props) {
   // }, []);
 
   //----------------------------------------------------------------
+  const originalState = useMemo(
+    () => state,
+    //eslint-disable-next-line
+    []
+  );
 
   //----------------------------------------------------------------
   //GQL
@@ -159,7 +207,9 @@ export function SearchItemsContextProvider(props) {
     error,
     data: gqlData,
     refetch: searchVehicles,
-  } = useQuery(queries.vehicles.SEARCH_VEHICLES);
+  } = useQuery(queries.vehicles.SEARCH_VEHICLES, {
+    variables: generateQueryVariables(originalState, 0),
+  });
 
   const result = gqlData?.searchVehicles;
   const vehicles = result?.vehicles || [];
@@ -191,66 +241,17 @@ export function SearchItemsContextProvider(props) {
 
   //----------------------------------------------------------------
   const searchVehiclesCB = useCallback(
-    (currentPage, firstVehicle, lastVehicle) => {
-      console.log({ firstVehicle, lastVehicle });
-
+    incomingPage => {
       try {
         // reset();
         // setLoadingStatus(true);
 
-        const {
-          hitsPerPage,
-          // filters,
-          valueToSearch,
-        } = state;
+        const queryVariables = generateQueryVariables(state, incomingPage);
 
-        const pageNumberIsValid =
-          !isNaN(currentPage) &&
-          typeof currentPage === 'number' &&
-          currentPage >= 0;
-
-        console.log('searching vehicles...');
-
-        const sortByField = sortBy.field || 'searchScore';
-        const sortByFieldIsNumeric =
-          sortByField === 'searchScore' || sortByField === 'rate';
+        console.log({ queryVariables });
 
         searchVehicles({
-          query: valueToSearch,
-          queryOptions: {
-            pagination: {
-              limit: hitsPerPage,
-              currentPage: pageNumberIsValid ? currentPage : 0,
-              ...(lastVehicle && typeof lastVehicle === 'object'
-                ? {
-                    after: {
-                      _id: lastVehicle._id,
-                      field: sortByField,
-                      value: String(lastVehicle[sortByField]),
-                      isNumber: sortByFieldIsNumeric,
-                    },
-                  }
-                : {}),
-              ...(firstVehicle && typeof firstVehicle === 'object'
-                ? {
-                    before: {
-                      _id: firstVehicle._id,
-                      field: sortByField,
-                      value: String(firstVehicle[sortByField]),
-                      isNumber: sortByFieldIsNumeric,
-                    },
-                  }
-                : {}),
-            },
-            filters: {
-              // make:"Toyota"
-              // color: ['grey'],
-              // make:["Honda"]
-              // type:["sedan"]
-              // rate:[20000, 40000]
-              // make:["Mercedes"]
-            },
-          },
+          ...queryVariables,
         });
       } catch (error) {
         console.error(error);
@@ -261,26 +262,25 @@ export function SearchItemsContextProvider(props) {
   );
   //----------------------------------------------------------------
   const gotoPage = useCallback(
-    (currentPageIndex, firstVehicle, lastVehicle) => {
-      searchVehiclesCB(currentPageIndex, firstVehicle, lastVehicle);
+    incomingPageIndex => {
+      searchVehiclesCB(incomingPageIndex);
     },
     [searchVehiclesCB]
   );
   //----------------------------------------------------------------
   const nextPage = useCallback(
-    (currentPageIndex, lastVehicle) => {
-      console.log('fetching next page...', { currentPageIndex, lastVehicle });
-      gotoPage(currentPageIndex, null, lastVehicle);
+    currentPageIndex => {
+      console.log('fetching next page...', { currentPageIndex });
+      gotoPage(currentPageIndex + 1, null);
     },
     [gotoPage]
   );
   const previousPage = useCallback(
-    (currentPageIndex, firstVehicle) => {
+    currentPageIndex => {
       console.log('fetching previous page...', {
         currentPageIndex,
-        firstVehicle,
       });
-      gotoPage(currentPageIndex, firstVehicle);
+      gotoPage(currentPageIndex - 1);
     },
     [gotoPage]
   );
@@ -334,10 +334,11 @@ export function SearchItemsContextProvider(props) {
   const pageIndex = meta?.page || 0;
   const fullListLength = meta?.count || 0;
   const page = meta?.page || 0;
-  const numberOfPages = Math.floor(
-    Number(fullListLength) || 1 / Number(hitsPerPage) || 1
+  const numberOfPages = Math.ceil(
+    Number(fullListLength || 1) / Number(hitsPerPage || 1)
   );
   const pageCount = numberOfPages > 0 ? numberOfPages : 0;
+  console.log({ pageCount, fullListLength, hitsPerPage, numberOfPages });
   // console.log({ fullListLength, page, numberOfPages, hitsPerPage, pageCount });
 
   //----------------------------------------------------------------

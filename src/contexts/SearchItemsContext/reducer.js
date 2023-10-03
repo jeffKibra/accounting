@@ -3,11 +3,11 @@ import {
   SET_FILTER,
   REMOVE_FILTER,
   CLEAR_FILTERS,
-  SET_FILTER_FOR_ITEMS_IDS_TO_EXCLUDE,
   SET_HITS_PER_PAGE,
   // SET_PAGE_INDEX,
   SET_VALUE_TO_SEARCH,
   SET_FIELD,
+  SET_SORT_BY,
 } from './actions';
 
 function setField(state, action) {
@@ -37,6 +37,15 @@ function removeFilter(state, action) {
     filters: { ...currentFilters },
     pageIndex: 0, //reset page index
   };
+}
+
+function setSortBy(state, action) {
+  const payload = action?.payload || {
+    field: 'searchScore',
+    direction: 'desc',
+  };
+
+  return { ...state, sortBy: payload };
 }
 
 // function setPageIndex(state, action) {
@@ -69,15 +78,11 @@ function reducer(state, action) {
     case SET_HITS_PER_PAGE:
       return { ...state, hitsPerPage: payload, pageIndex: 0 };
 
+    case SET_SORT_BY:
+      return setSortBy(state, action);
+
     // case SET_PAGE_INDEX:
     //   return setPageIndex(state, action);
-
-    case SET_FILTER_FOR_ITEMS_IDS_TO_EXCLUDE:
-      return {
-        ...state,
-        filterForItemsIdsToExclude: payload,
-        pageIndex: 0, //reset page index
-      };
 
     case SET_FIELD:
       return setField(state, action);
