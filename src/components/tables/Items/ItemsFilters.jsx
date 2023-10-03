@@ -45,9 +45,9 @@ function ItemsFilters({ onFilter }) {
   }
 
   const { error, carModels, carMakes, carTypes, loading } = useCarModels();
-  console.log({ carMakes, carModels });
+  // console.log({ carMakes, carModels });
 
-  console.log({ carTypes });
+  // console.log({ carTypes });
 
   const models = useMemo(() => {
     let activeModels = {};
@@ -59,7 +59,7 @@ function ItemsFilters({ onFilter }) {
     return Object.keys(activeModels);
   }, [carModels, make]);
 
-  console.log({ models });
+  // console.log({ models });
 
   return (
     <CustomModal

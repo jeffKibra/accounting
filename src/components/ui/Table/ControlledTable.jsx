@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+// import { useCallback } from 'react';
 import {
   TableCaption,
   TableContainer,
@@ -37,6 +37,8 @@ function ControlledTable(props) {
     pageIndex,
     pageSize,
     gotoPage,
+    nextPage,
+    previousPage,
     setPageSize,
     pageCount,
     allItemsCount,
@@ -50,22 +52,10 @@ function ControlledTable(props) {
   } = props;
   // console.log({ bodyRowProps });
 
-  // console.log({ pageIndex, pageCount, pageOptions });
+  // console.log('controlled table', { pageIndex, pageCount });
 
   const canNextPage = pageIndex < pageCount - 1;
   const canPreviousPage = pageIndex > 0;
-
-  const nextPage = useCallback(() => {
-    if (canNextPage) {
-      gotoPage(pageIndex + 1);
-    }
-  }, [gotoPage, pageIndex, canNextPage]);
-
-  const previousPage = useCallback(() => {
-    if (canPreviousPage) {
-      gotoPage(pageIndex - 1);
-    }
-  }, [gotoPage, pageIndex, canPreviousPage]);
 
   return (
     <Box w="full">
@@ -123,13 +113,14 @@ function ControlledTable(props) {
 
       <Box w="full" mt={2} mb={1}>
         <Pagination
+          data={data || []}
           loading={loading}
           canNextPage={canNextPage}
           canPreviousPage={canPreviousPage}
           gotoPage={gotoPage}
           nextPage={nextPage}
           previousPage={previousPage}
-          pageNumber={Number(pageIndex) + 1}
+          pageIndex={Number(pageIndex)}
           // pageCount={pageCount}
           rowsPerPage={Number(pageSize)}
           onRowsPerPageChange={setPageSize}
@@ -157,6 +148,8 @@ export const ControlledTablePropTypes = {
   pageSize: PropTypes.number,
   pageOptions: PropTypes.array,
   gotoPage: PropTypes.func,
+  nextPage: PropTypes.func,
+  previousPage: PropTypes.func,
   setPageSize: PropTypes.func,
   setGlobalFilter: PropTypes.func,
   allItemsCount: PropTypes.number,

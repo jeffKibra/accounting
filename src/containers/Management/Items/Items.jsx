@@ -1,58 +1,40 @@
 import { Component } from 'react';
 import { connect } from 'react-redux';
+import { Box } from '@chakra-ui/react';
+//
 
 import { GET_ITEMS, DELETE_ITEM } from '../../../store/actions/itemsActions';
 import { reset } from '../../../store/slices/itemsSlice';
 
-import Empty from '../../../components/ui/Empty';
-import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+// import Empty from '../../../components/ui/Empty';
+// import SkeletonLoader from '../../../components/ui/SkeletonLoader';
 
 import ItemsTable from '../../../components/tables/Items/ItemsTable';
 
 class ItemsList extends Component {
-  componentDidMount() {
-    this.props.getItems();
-  }
+  // componentDidMount() {
+  //   this.props.getItems();
+  // }
 
-  componentDidUpdate(prevProps) {
-    const { isModified, resetItem, getItems } = this.props;
+  // componentDidUpdate(prevProps) {
+  //   const { isModified, resetItem, getItems } = this.props;
 
-    if (isModified) {
-      //reset
-      resetItem();
-      //refetch items
-      getItems();
-    }
-  }
+  //   if (isModified) {
+  //     //reset
+  //     resetItem();
+  //     //refetch items
+  //     getItems();
+  //   }
+  // }
 
   render() {
     const { loading, items, action, isModified, error, deleteItem } =
       this.props;
-    // console.log({ items, loading, error });
-
-    // return loading && action === GET_ITEMS ? (
-    //   <SkeletonLoader loading={loading} />
-    // ) : items && items.length > 0 ? (
-    //   <ItemsTable
-    //     isDeleted={isModified}
-    //     handleDelete={deleteItem}
-    //     deleting={loading && action === DELETE_ITEM}
-    //     items={items}
-    //     loading={}
-    //   />
-    // ) : (
-    //   <Empty />
-    // );
 
     return (
-      <ItemsTable
-        isDeleted={isModified}
-        handleDelete={deleteItem}
-        deleting={loading && action === DELETE_ITEM}
-        items={items || []}
-        loading={loading && action === GET_ITEMS}
-        error={error}
-      />
+      <Box shadow="lg" bg="white" py={4} borderRadius="lg" w="full">
+        <ItemsTable />
+      </Box>
     );
   }
 }

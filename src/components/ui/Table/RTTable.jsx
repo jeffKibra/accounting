@@ -52,7 +52,7 @@ function RTTable(props) {
     rowFieldToUseAsIdForHighlighting,
     ...moreProps
   } = props;
-  console.log({ onFilter });
+  // console.log({ onFilter });
   // console.log('RTTable', data);
   // console.log({ bodyRowProps });
 
@@ -167,6 +167,8 @@ export const RTTablePropTypes = {
   pageIndex: PropTypes.number,
   pageCount: PropTypes.number,
   gotoPage: PropTypes.func,
+  nextPage: PropTypes.func,
+  previousPage: PropTypes.func,
   pageSize: PropTypes.number,
   setPageSize: PropTypes.func,
   allItemsCount: PropTypes.number,

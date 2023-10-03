@@ -1,8 +1,12 @@
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import { StepsStyleConfig as Steps } from 'chakra-ui-steps';
 import { BrowserRouter } from 'react-router-dom';
+import { ApolloProvider } from '@apollo/client';
 // import { mode } from '@chakra-ui/theme-tools';
 
+//
+import { apollo } from './config';
+//
 import Layout from './components/layout/Layout';
 import Router from './nav/Router';
 import CheckAuth from './containers/Auth/CheckAuth';
@@ -79,13 +83,15 @@ function App() {
     <ChakraProvider theme={theme}>
       <Toasts />
       <CheckAuth>
-        <CheckOrg>
-          <BrowserRouter>
-            <Layout>
-              <Router />
-            </Layout>
-          </BrowserRouter>
-        </CheckOrg>
+        <ApolloProvider client={apollo.client}>
+          <CheckOrg>
+            <BrowserRouter>
+              <Layout>
+                <Router />
+              </Layout>
+            </BrowserRouter>
+          </CheckOrg>
+        </ApolloProvider>
       </CheckAuth>
     </ChakraProvider>
   );

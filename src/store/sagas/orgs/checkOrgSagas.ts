@@ -19,7 +19,8 @@ function* checkOrg() {
     const { uid } = userProfile;
 
     const org: Org | null = uid ? yield call(getOrg, uid) : null;
-    // console.log({ org });
+    // // console.log({ org });
+
     yield put(orgSuccess(org));
   } catch (err) {
     const error = err as Error;

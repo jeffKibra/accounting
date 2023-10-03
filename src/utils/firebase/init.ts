@@ -24,6 +24,6 @@ const localhost = 'localhost';
 // ('127.0.0.1');
 
 if (isDev) {
-  connectFirestoreEmulator(db, localhost, 8080);
+  // connectFirestoreEmulator(db, localhost, 8080);
   connectFunctionsEmulator(functions, localhost, 5001);
 }

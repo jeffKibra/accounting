@@ -21,7 +21,7 @@ Pagination.propTypes = {
   nextPage: PropTypes.func.isRequired,
   previousPage: PropTypes.func.isRequired,
   // pageCount: PropTypes.number.isRequired,
-  pageNumber: PropTypes.number.isRequired,
+  pageIndex: PropTypes.number.isRequired,
 };
 
 // Pagination.defaultProps = {
@@ -39,23 +39,36 @@ export default function Pagination(props) {
     canPreviousPage,
     nextPage,
     previousPage,
-    pageNumber,
+    pageIndex,
     loading,
+    data,
     // gotoPage,
   } = props;
   // console.log('Pagination loading:', loading);
 
-  const prevPage = pageNumber - 1;
-  const virtualFirstItem = prevPage * rowsPerPage + 1;
-  const firstItem = Math.min(virtualFirstItem, itemsCount);
+  const pageNumber = pageIndex + 1; //since page index is zero based
+  // const prevPage = pageNumber - 1;
+  const prevPage = pageIndex;
+  const virtualFirstItemNumber = prevPage * rowsPerPage + 1;
+  const firstItemNumber = Math.min(virtualFirstItemNumber, itemsCount);
+  // console.log({
+  //   virtualFirstItemNumber,
+  //   firstItemNumber,
+  //   prevPage,
+  //   pageNumber,
+  // });
 
-  const virtualLastItem = pageNumber * rowsPerPage;
-  const lastItem = Math.min(virtualLastItem, itemsCount);
+  const virtualLastItemNumber = pageNumber * rowsPerPage;
+  const lastItemNumber = Math.min(virtualLastItemNumber, itemsCount);
+  // console.log({ virtualLastItemNumber, lastItemNumber });
 
   function handleRowsPerPageChange(incoming) {
     // console.log({ incoming });
     onRowsPerPageChange(Number(incoming));
   }
+
+  const firstItem = data[0]?.original;
+  const lastItem = data[data.length - 1]?.original;
 
   return (
     <Box
@@ -84,7 +97,7 @@ export default function Pagination(props) {
       </Box>
 
       <Text fontSize="14px">
-        {firstItem}-{lastItem} of {itemsCount}
+        {firstItemNumber}-{lastItemNumber} of {itemsCount}
       </Text>
 
       <Box ml={4}>
@@ -101,7 +114,7 @@ export default function Pagination(props) {
           // size="sm"
           variant="ghost"
           icon={<RiArrowDropLeftLine />}
-          onClick={previousPage}
+          onClick={() => previousPage(pageIndex, firstItem)}
           fontSize="24px"
         />
         <IconButton
@@ -109,7 +122,7 @@ export default function Pagination(props) {
           // size="sm"
           variant="ghost"
           icon={<RiArrowDropRightLine />}
-          onClick={nextPage}
+          onClick={() => nextPage(pageIndex, lastItem)}
           fontSize="24px"
         />
         {/* <IconButton

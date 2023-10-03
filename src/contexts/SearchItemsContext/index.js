@@ -3,18 +3,25 @@ import {
   useEffect,
   useReducer,
   useCallback,
-  useMemo,
+  useRef,
+  // useMemo,
 } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
-import algoliasearch from 'algoliasearch';
+//
+import { useQuery } from '@apollo/client';
 
+//
+import { queries } from 'gql';
+//
+import { getDatesWithinRange } from 'utils/dates';
 //
 import {
   startLoading,
   stopLoading,
   fail,
-  itemsSuccess,
+  reset as resetItems,
+  // itemsSuccess,
 } from 'store/slices/itemsSlice';
 
 //
@@ -22,33 +29,24 @@ import {
   SET_FILTERS,
   SET_VALUE_TO_SEARCH,
   SET_HITS_PER_PAGE,
-  SET_PAGE_INDEX,
-  SET_FILTER_FOR_ITEMS_IDS_TO_EXCLUDE,
-  SET_FIELD,
+  // SET_PAGE_INDEX,
+  // SET_FIELD,
 } from './actions';
 import reducer from './reducer';
 //
-import { createObjectIdsToExcludeFilterFromArray } from './utils';
 //
-import { algoliaAppId, alogoliaSearchApiKey } from '../../constants';
 
-//
-const client = algoliasearch(algoliaAppId, alogoliaSearchApiKey);
-const itemsIndex = client.initIndex('items');
 //
 const initialState = {
   hitsPerPage: 2,
-  pageIndex: 0,
   filters: null,
   valueToSearch: '',
-  filterForItemsIdsToExclude: '',
-  result: null,
 };
 
 //
 const contextDefaultValues = {
   ...initialState,
-  idsForItemsToExclude: null,
+  selectedDates: null,
   result: null,
   pageCount: 0,
   fullListLength: 0,
@@ -59,7 +57,9 @@ const contextDefaultValues = {
   setFilters: () => {},
   setHitsPerPage: () => {},
   setFilterForItemsIdsToExclude: () => {},
-  setPageIndex: () => {},
+  gotoPage: () => {},
+  nextPage: () => {},
+  previousPage: () => {},
 };
 
 //useReducer actions
@@ -72,42 +72,57 @@ export default SearchItemsContext;
 //----------------------------------------------------------------
 SearchItemsContextProvider.propTypes = {
   children: PropTypes.node.isRequired,
-  idsForItemsToExclude: PropTypes.array,
+  selectedDates: PropTypes.array,
+};
+
+const sortBy = {
+  field: 'searchScore',
+  direction: 'desc',
 };
 
 export function SearchItemsContextProvider(props) {
   // console.log({ props });
-  const { children, idsForItemsToExclude } = props;
-  console.log({ idsForItemsToExclude });
+
+  const calendar = getDatesWithinRange('2023/Jan/01', '2023/Dec/31');
+  // console.log({ calendar });
+  const { children, selectedDates } = props;
+  // console.log({ selectedDates });
+
+  //----------------------------------------------------------------
+  const isMounted = useRef(null);
+  useEffect(() => {
+    isMounted.current = true;
+  }, []);
+  //----------------------------------------------------------------
 
   const reduxDispatch = useDispatch();
 
-  const orgId = useSelector(state => state?.orgsReducer?.org?.orgId);
   // console.log({ orgId });
 
-  const itemsReducer = useSelector(state => state?.itemsReducer) || {};
-  const { loading, items, error } = itemsReducer;
+  // const itemsReducer = useSelector(state => state?.itemsReducer) || {};
+  // const { isModified } = itemsReducer;
+  // console.log({ isModified });
 
-  const setError = useCallback(
-    incomingError => {
-      reduxDispatch(fail(incomingError));
-    },
-    [reduxDispatch]
-  );
+  // const setError = useCallback(
+  //   incomingError => {
+  //     reduxDispatch(fail(incomingError));
+  //   },
+  //   [reduxDispatch]
+  // );
 
-  const setLoadingStatus = useCallback(
-    status => {
-      console.log({ status });
-      reduxDispatch(status ? startLoading() : stopLoading());
-    },
-    [reduxDispatch]
-  );
+  // const setLoadingStatus = useCallback(
+  //   status => {
+  //     // console.log({ status });
+  //     reduxDispatch(status ? startLoading() : stopLoading());
+  //   },
+  //   [reduxDispatch]
+  // );
 
   //----------------------------------------------------------------
 
   const [state, contextDispatch] = useReducer(reducer, initialState);
 
-  console.log({ state });
+  // console.log({ state });
 
   const setValueToSearch = useCallback(inValue => {
     contextDispatch({
@@ -130,162 +145,160 @@ export function SearchItemsContextProvider(props) {
     });
   }, []);
 
-  const setFilterForItemsIdsToExclude = useCallback(idsForItemsToExclude => {
-    console.log('idsForItemsToExclude', idsForItemsToExclude);
-
-    let filterSubString = '';
-
-    if (Array.isArray(idsForItemsToExclude)) {
-      filterSubString = createObjectIdsToExcludeFilterFromArray(
-        idsForItemsToExclude || []
-      );
-    }
-
-    console.log({ filterSubString });
-
-    contextDispatch({
-      type: SET_FILTER_FOR_ITEMS_IDS_TO_EXCLUDE,
-      payload: filterSubString,
-    });
-  }, []);
-
-  const setPageIndex = useCallback(inValue => {
-    contextDispatch({ type: SET_PAGE_INDEX, payload: inValue });
-  }, []);
-
-  const setResult = useCallback(incomingResult => {
-    contextDispatch({
-      type: SET_FIELD,
-      payload: { field: 'result', value: incomingResult },
-    });
-  }, []);
+  // const setPageIndex = useCallback(inValue => {
+  //   // console.log('setting pageIndex', inValue);
+  //   contextDispatch({ type: SET_PAGE_INDEX, payload: inValue });
+  // }, []);
 
   //----------------------------------------------------------------
+
+  //----------------------------------------------------------------
+  //GQL
   const {
-    hitsPerPage,
-    pageIndex,
-    filters,
-    valueToSearch,
-    filterForItemsIdsToExclude,
+    loading,
+    error,
+    data: gqlData,
+    refetch: searchVehicles,
+  } = useQuery(queries.vehicles.SEARCH_VEHICLES);
+
+  const result = gqlData?.searchVehicles;
+  const vehicles = result?.vehicles || [];
+  const meta = result?.meta || {};
+  console.log('gql search vehicles result', {
+    gqlData,
     result,
-  } = state;
-
-  //----------------------------------------------------------------
-
-  const searchAlgolia = useCallback(
-    async (valueToSearch, options) => {
-      try {
-        console.log('searching algolia ...', { valueToSearch, options });
-
-        const searchResult = await itemsIndex.search(valueToSearch, {
-          ...options,
-        });
-
-        console.log('algolia search result', { searchResult });
-
-        setResult(searchResult);
-
-        const hits = searchResult?.hits || [];
-
-        const items = hits.map(hit => {
-          const itemId = hit?.objectID;
-          return { ...hit, itemId };
-        });
-
-        reduxDispatch(itemsSuccess(items));
-      } catch (error) {
-        console.error(error);
-        setError(error);
-      }
-
-      setLoadingStatus(false);
-    },
-    [reduxDispatch, setResult, setError, setLoadingStatus]
-  );
+    loading,
+    error,
+    searchVehicles,
+  });
 
   //----------------------------------------------------------------
 
   // console.log({ filterForItemsIdsToExclude });
 
-  useEffect(() => {
-    console.log(
-      ' ids for items to exclude have changed...',
-      idsForItemsToExclude
-    );
-
-    setFilterForItemsIdsToExclude(idsForItemsToExclude);
-  }, [idsForItemsToExclude, setFilterForItemsIdsToExclude]);
+  // useEffect(() => {
+  //   console.log(' selected dates have changed...', selectedDates);
+  // }, [selectedDates]);
 
   //----------------------------------------------------------------
-
-  const filtersCombinedString = useMemo(() => {
-    console.log('filters have changed', filters);
-    let combinedString = '';
-
-    if (filters) {
-      const stringsArray = Object.keys(filters).map(filterKey => {
-        const filterValue = filters[filterKey];
-
-        const filterString = `${filterKey}:${filterValue}`;
-
-        return filterString;
-      });
-
-      combinedString = stringsArray.join(' AND ');
-    }
-
-    return combinedString;
-  }, [filters]);
 
   // console.log({ filtersCombinedString });
 
-  const reset = useCallback(() => {
-    setResult(null);
-    setError(null);
-  }, [setError, setResult]);
+  // const reset = useCallback(() => {
+  //   setResult(null);
+  //   setError(null);
+  // }, [setError, setResult]);
 
+  //----------------------------------------------------------------
+  const searchVehiclesCB = useCallback(
+    (currentPage, firstVehicle, lastVehicle) => {
+      console.log({ firstVehicle, lastVehicle });
+
+      try {
+        // reset();
+        // setLoadingStatus(true);
+
+        const {
+          hitsPerPage,
+          // filters,
+          valueToSearch,
+        } = state;
+
+        const pageNumberIsValid =
+          !isNaN(currentPage) &&
+          typeof currentPage === 'number' &&
+          currentPage >= 0;
+
+        console.log('searching vehicles...');
+
+        const sortByField = sortBy.field || 'searchScore';
+        const sortByFieldIsNumeric =
+          sortByField === 'searchScore' || sortByField === 'rate';
+
+        searchVehicles({
+          query: valueToSearch,
+          queryOptions: {
+            pagination: {
+              limit: hitsPerPage,
+              currentPage: pageNumberIsValid ? currentPage : 0,
+              ...(lastVehicle && typeof lastVehicle === 'object'
+                ? {
+                    after: {
+                      _id: lastVehicle._id,
+                      field: sortByField,
+                      value: String(lastVehicle[sortByField]),
+                      isNumber: sortByFieldIsNumeric,
+                    },
+                  }
+                : {}),
+              ...(firstVehicle && typeof firstVehicle === 'object'
+                ? {
+                    before: {
+                      _id: firstVehicle._id,
+                      field: sortByField,
+                      value: String(firstVehicle[sortByField]),
+                      isNumber: sortByFieldIsNumeric,
+                    },
+                  }
+                : {}),
+            },
+            filters: {
+              // make:"Toyota"
+              // color: ['grey'],
+              // make:["Honda"]
+              // type:["sedan"]
+              // rate:[20000, 40000]
+              // make:["Mercedes"]
+            },
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        // setError(error);
+      }
+    },
+    [state, searchVehicles]
+  );
+  //----------------------------------------------------------------
+  const gotoPage = useCallback(
+    (currentPageIndex, firstVehicle, lastVehicle) => {
+      searchVehiclesCB(currentPageIndex, firstVehicle, lastVehicle);
+    },
+    [searchVehiclesCB]
+  );
+  //----------------------------------------------------------------
+  const nextPage = useCallback(
+    (currentPageIndex, lastVehicle) => {
+      console.log('fetching next page...', { currentPageIndex, lastVehicle });
+      gotoPage(currentPageIndex, null, lastVehicle);
+    },
+    [gotoPage]
+  );
+  const previousPage = useCallback(
+    (currentPageIndex, firstVehicle) => {
+      console.log('fetching previous page...', {
+        currentPageIndex,
+        firstVehicle,
+      });
+      gotoPage(currentPageIndex, firstVehicle);
+    },
+    [gotoPage]
+  );
   //----------------------------------------------------------------
 
   useEffect(() => {
-    try {
-      reset();
-      setLoadingStatus(true);
+    console.log('fetching data start stage');
+    //fetching data
+    if (isMounted.current) {
+      console.log('fetching data continue stage');
 
-      let filtersString = `orgId:${orgId}`; //initialize using orgId-ensure user only queries their own org
-
-      console.log({ filterForItemsIdsToExclude });
-
-      if (filterForItemsIdsToExclude) {
-        filtersString = String(filtersString).concat(
-          ` AND ${filterForItemsIdsToExclude}`
-        );
-      }
-
-      const pageNumberIsValid =
-        !isNaN(pageIndex) && typeof pageIndex === 'number' && pageIndex >= 0;
-
-      console.log({ filtersString });
-
-      searchAlgolia(valueToSearch, {
-        hitsPerPage,
-        ...(filtersString ? { filters: filtersString } : {}),
-        ...(pageNumberIsValid ? { page: pageIndex } : {}),
-      });
-    } catch (error) {
-      console.error(error);
-      setError(error);
+      searchVehiclesCB(0);
     }
-  }, [
-    valueToSearch,
-    orgId,
-    reset,
-    setError,
-    setLoadingStatus,
-    filterForItemsIdsToExclude,
-    hitsPerPage,
-    pageIndex,
-    searchAlgolia,
-  ]);
+  }, [searchVehiclesCB, state]);
+
+  useEffect(() => {
+    console.log('state has changed', state);
+  }, [state]);
 
   //----------------------------------------------------------------
 
@@ -301,8 +314,31 @@ export function SearchItemsContextProvider(props) {
     [setFilters]
   );
 
-  const fullListLength = result?.nbHits || 0;
-  const pageCount = result?.nbPages || 0;
+  //----------------------------------------------------------------
+
+  // useEffect(() => {
+  //   //if an action (delete) is done, reset and refetch list
+  //   if (isModified) {
+  //     console.log('reseting items list due to list modification...');
+  //     //reset
+  //     reduxDispatch(resetItems());
+  //     //refetch items-change active page to trigger refresh
+  //     setPageIndex(pageIndex > 0 ? pageIndex - 1 : 0);
+  //   }
+  //   //eslint-disable-next-line
+  // }, [isModified]);
+  //----------------------------------------------------------------
+
+  const { hitsPerPage, filters, valueToSearch } = state;
+
+  const pageIndex = meta?.page || 0;
+  const fullListLength = meta?.count || 0;
+  const page = meta?.page || 0;
+  const numberOfPages = Math.floor(
+    Number(fullListLength) || 1 / Number(hitsPerPage) || 1
+  );
+  const pageCount = numberOfPages > 0 ? numberOfPages : 0;
+  // console.log({ fullListLength, page, numberOfPages, hitsPerPage, pageCount });
 
   //----------------------------------------------------------------
 
@@ -314,22 +350,23 @@ export function SearchItemsContextProvider(props) {
         pageIndex,
         filters,
         valueToSearch,
-        idsForItemsToExclude,
-        filterForItemsIdsToExclude,
         //search result values
         result,
         pageCount,
+        page,
         fullListLength,
         //redux store values
         loading,
-        items,
+        items: vehicles,
         error,
         //fns
         setValueToSearch,
         setFilters,
         setHitsPerPage,
-        setFilterForItemsIdsToExclude,
-        setPageIndex,
+        gotoPage,
+        nextPage,
+        previousPage,
+        selectedDates,
       }}
     >
       {children}

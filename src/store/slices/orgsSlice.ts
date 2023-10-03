@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { Org } from "../../types";
+import { Org } from '../../types';
 
 type State = {
   loading: boolean;
@@ -21,7 +21,7 @@ const initialState: State = {
 };
 
 const orgsSlice = createSlice({
-  name: "orgs_slice",
+  name: 'orgs_slice',
   initialState: {
     ...initialState,
   },
@@ -37,6 +37,10 @@ const orgsSlice = createSlice({
     },
     success: (state: State, action: PayloadAction<Org | null>) => {
       const { payload } = action;
+
+      const orgId = payload?.orgId || '';
+      localStorage.setItem('orgId', orgId);
+      //todo: remove orgId from local storage on logout
 
       return {
         ...state,

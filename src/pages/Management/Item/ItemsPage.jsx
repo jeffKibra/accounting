@@ -1,11 +1,12 @@
-import { Button } from '@chakra-ui/react';
+import { Button, Box } from '@chakra-ui/react';
 import { Link, useLocation } from 'react-router-dom';
 import { RiAddLine } from 'react-icons/ri';
 
 import useSavedLocation from '../../../hooks/useSavedLocation';
 
 import PageLayout from '../../../components/layout/PageLayout';
-import Items from '../../../containers/Management/Items/Items';
+// import Items from '../../../containers/Management/Items/Items';
+import ItemsTable from 'components/tables/Items/ItemsTable';
 
 function ItemsPage() {
   const location = useLocation();
@@ -26,7 +27,9 @@ function ItemsPage() {
         Vehicles: location.pathname,
       }}
     >
-      <Items />
+      <Box shadow="lg" bg="white" py={4} borderRadius="lg" w="full">
+        <ItemsTable enableActions />
+      </Box>
     </PageLayout>
   );
 }

@@ -1,10 +1,10 @@
 function getTableColumns(enableActions) {
-  console.log({ enableActions });
+  // console.log({ enableActions });
   const tableColumns = [
-    { Header: 'Registration', accessor: 'name' },
+    { Header: 'Registration', accessor: 'registration' },
     // { Header: 'Unique Identifier', accessor: 'sku' },
-    { Header: 'Make', accessor: 'carMake' },
-    { Header: 'Model', accessor: 'carModel' },
+    { Header: 'Make', accessor: 'make' },
+    { Header: 'Model', accessor: 'model' },
     { Header: 'Type', accessor: 'type' },
     { Header: 'Color', accessor: 'color' },
     { Header: 'Rate', accessor: 'rate', isNumeric: true },

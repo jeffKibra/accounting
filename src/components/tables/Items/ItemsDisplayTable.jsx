@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 
 import SearchItemsContext from 'contexts/SearchItemsContext';
 //
+import { useGetItems } from 'hooks';
+//
 import RTTable from 'components/ui/Table/RTTable';
 //
 import getTableColumns from './getTableColumns';
@@ -20,6 +22,8 @@ function ItemsDisplayTable(props) {
   const itemsContext = useContext(SearchItemsContext);
   // console.log({ itemsContext });
 
+  useGetItems();
+
   const {
     loading,
     items,
@@ -28,9 +32,11 @@ function ItemsDisplayTable(props) {
     pageIndex,
     fullListLength,
     hitsPerPage,
-    setPageIndex,
     setHitsPerPage,
     setValueToSearch,
+    gotoPage,
+    nextPage,
+    previousPage,
   } = itemsContext;
 
   const rowsAreSelectable = typeof onRowClick === 'function';
@@ -46,7 +52,7 @@ function ItemsDisplayTable(props) {
 
     if (Array.isArray(items)) {
       itemsData = items.map(item => {
-        const itemTableData = getItemTableData(item);
+        const itemTableData = getItemTableData(item, enableActions);
 
         return {
           ...itemTableData,
@@ -56,7 +62,7 @@ function ItemsDisplayTable(props) {
     }
 
     return itemsData;
-  }, [items]);
+  }, [items, enableActions]);
 
   function handleSortByChange(array) {
     console.log({ array });
@@ -76,7 +82,9 @@ function ItemsDisplayTable(props) {
       pageIndex={pageIndex}
       pageSize={hitsPerPage}
       allItemsCount={fullListLength}
-      gotoPage={setPageIndex}
+      gotoPage={gotoPage}
+      nextPage={nextPage}
+      previousPage={previousPage}
       setPageSize={setHitsPerPage}
       //
       FiltersComponent={ItemsFilters}

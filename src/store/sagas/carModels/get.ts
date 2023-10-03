@@ -67,7 +67,7 @@ function getCarTypes(models: ICarModels) {
     });
   }
 
-  console.log({ carTypes });
+  // console.log({ carTypes });
 
   return Object.keys(carTypes);
 }
@@ -86,7 +86,7 @@ async function getCarModelsFromFile() {
   const carModels = await fileHandling._readDataFromArrayBuffer(
     carModelsFileArrayBuffer
   );
-  console.log({ carModels });
+  // console.log({ carModels });
 
   return carModels;
 }
@@ -108,7 +108,7 @@ export async function copyCarModelsToDB() {
 async function getAllModels() {
   const carModels: ICarModels = await getCarModelsFromFile();
 
-  console.log({ carModels });
+  // console.log({ carModels });
 
   return carModels;
 }
@@ -205,7 +205,7 @@ export function sortGroupedModelsYears(modelsGroupedByMake: ICarModels) {
     {}
   );
 
-  console.log({ modelsGroupedByMakeSorted });
+  // console.log({ modelsGroupedByMakeSorted });
 
   //temp-create file
   // createCarModelsFile(modelsGroupedByMakeSorted); //returns promise

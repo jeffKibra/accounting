@@ -170,6 +170,8 @@ function BookingForm(props) {
     }
     formValues.paymentTerm = paymentTerm;
 
+    console.log({ formValues });
+
     // if (booking) {
     //   //booking is being updated-submit only the changed values
     //   formValues = getDirtyFields(dirtyFields, formValues);
@@ -177,7 +179,7 @@ function BookingForm(props) {
     // console.log({ formValues });
 
     //submit the data
-    handleFormSubmit(formValues);
+    // handleFormSubmit(formValues);
   }
 
   // console.log({ customers, items, paymentTerms, loading });
