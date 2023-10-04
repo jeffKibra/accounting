@@ -87,7 +87,7 @@ function ItemsDisplayTable(props) {
       previousPage={previousPage}
       setPageSize={setHitsPerPage}
       //
-      FiltersComponent={ItemsFilters}
+      FiltersComponent={<ItemsFilters />}
       //
       onSortByChange={handleSortByChange}
       onSearch={setValueToSearch}

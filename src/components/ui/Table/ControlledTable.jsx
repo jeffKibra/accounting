@@ -71,7 +71,7 @@ function ControlledTable(props) {
             delayBeforeSearchMS={1500}
             onSearch={onSearch}
           />
-          {FiltersComponent ? <FiltersComponent /> : null}
+          {FiltersComponent ? FiltersComponent : null}
         </HStack>
       ) : null}
 

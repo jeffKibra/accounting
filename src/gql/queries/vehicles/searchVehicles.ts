@@ -40,6 +40,24 @@ const SEARCH_VEHICLES = gql`
       meta {
         count
         page
+        facets {
+          makes {
+            _id
+            models
+          }
+          ratesRange {
+            min
+            max
+          }
+          types {
+            _id
+            count
+          }
+          colors {
+            _id
+            count
+          }
+        }
       }
     }
   }
