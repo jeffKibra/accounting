@@ -37,6 +37,7 @@ function ItemsDisplayTable(props) {
     gotoPage,
     nextPage,
     previousPage,
+    facets,
   } = itemsContext;
 
   const rowsAreSelectable = typeof onRowClick === 'function';
@@ -87,7 +88,7 @@ function ItemsDisplayTable(props) {
       previousPage={previousPage}
       setPageSize={setHitsPerPage}
       //
-      FiltersComponent={<ItemsFilters />}
+      FiltersComponent={<ItemsFilters facets={facets || {}} />}
       //
       onSortByChange={handleSortByChange}
       onSearch={setValueToSearch}

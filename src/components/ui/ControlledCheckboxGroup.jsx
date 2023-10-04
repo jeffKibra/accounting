@@ -2,17 +2,21 @@ import {
   CheckboxGroup as ChakraCheckboxGroup,
   Checkbox,
   Stack,
+  Grid,
+  GridItem,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
-function getValue(field, valueField) {
+function getNameAndValue(field, nameField, valueField) {
   let value = String(field);
+  let name = String(field);
 
   if (typeof field === 'object') {
+    name = field[nameField];
     value = field[valueField];
   }
 
-  return value;
+  return { name, value };
 }
 
 export default function ControlledCheckboxGroup(props) {
@@ -27,7 +31,7 @@ export default function ControlledCheckboxGroup(props) {
     valueField,
   } = props;
 
-  console.log({ checkedValues });
+  // console.log({ checkedValues, fields, nameField, valueField });
 
   if (!Array.isArray(fields)) {
     return null;
@@ -52,19 +56,19 @@ export default function ControlledCheckboxGroup(props) {
 
   function handleIndeterminateChange(e) {
     const isChecked = e.target.checked;
-    console.log({ isChecked });
+    // console.log({ isChecked });
 
     const incomingCheckedValues = [];
 
     if (isChecked) {
       fields.forEach(field => {
-        const fieldValue = getValue(field, valueField);
+        const { value } = getNameAndValue(field, nameField, valueField);
 
-        incomingCheckedValues.push(fieldValue);
+        incomingCheckedValues.push(value);
       });
     }
 
-    console.log({ incomingCheckedValues });
+    // console.log({ incomingCheckedValues });
 
     onChange(incomingCheckedValues);
   }
@@ -73,6 +77,7 @@ export default function ControlledCheckboxGroup(props) {
     <Stack>
       {name ? (
         <Checkbox
+          colorScheme="cyan"
           isChecked={allChecked}
           isIndeterminate={isIndeterminate}
           onChange={handleIndeterminateChange}
@@ -86,23 +91,29 @@ export default function ControlledCheckboxGroup(props) {
         onChange={handleChange}
         value={checkedValues || []}
       >
-        <Stack pl={6}>
+        <Grid pl={6} templateColumns="repeat(12, 1fr)" w="full">
           {fields.map(field => {
-            let name = String(field);
-            let value = String(field);
-
-            if (typeof field === 'object') {
-              name = fields[nameField];
-              value = fields[valueField];
-            }
+            const { name, value } = getNameAndValue(
+              field,
+              nameField,
+              valueField
+            );
+            // console.log({ name, value });
 
             return (
-              <Checkbox onChange={handleFieldChange} value={value}>
-                {name}
-              </Checkbox>
+              <GridItem colSpan={6}>
+                <Checkbox
+                  onChange={handleFieldChange}
+                  value={value}
+                  // style={{ textWrap: 'nowrap' }}
+                >
+                  {name}
+                </Checkbox>
+              </GridItem>
             );
           })}
-        </Stack>
+        </Grid>
+        <Stack pl={6} direction="row"></Stack>
       </ChakraCheckboxGroup>
     </Stack>
   );

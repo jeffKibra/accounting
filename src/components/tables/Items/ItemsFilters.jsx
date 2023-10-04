@@ -4,6 +4,7 @@ import {
   Button,
   Flex,
   HStack,
+  Box,
   Input,
   Grid,
   GridItem,
@@ -26,7 +27,8 @@ import ControlledNumInput from 'components/ui/ControlledNumInput';
 import RHFCheckboxGroup from 'components/ui/hookForm/RHFCheckboxGroup';
 
 function ItemsFilters(props) {
-  const { onFilter, makes, models, types, colors, ratesRange } = props;
+  const { onFilter, facets } = props;
+  const { makes, types, colors, ratesRange } = facets;
   const [state, setState] = useState({
     make: '',
     model: '',
@@ -38,19 +40,36 @@ function ItemsFilters(props) {
   });
 
   const formMethods = useForm();
-  const { handleSubmit, watch, getValues } = formMethods;
+  const { handleSubmit, watch, getValues, setValue } = formMethods;
 
-  const { make, model, year, color, type, rate_min, rate_max } = state;
+  const { models, makesObject } = useMemo(() => {
+    const models = [];
+    const makesObject = {};
+
+    if (Array.isArray(makes)) {
+      makes.forEach(make => {
+        const { _id, models } = make;
+
+        makesObject[_id] = make;
+
+        const makeModels = models || [];
+        models.push(...makeModels);
+      });
+    }
+
+    return { models, makesObject };
+  }, [makes]);
+
+  console.log({ models, makesObject });
 
   function updateField(field, value) {
     setState(current => ({ ...current, [field]: value }));
   }
 
-  function handleMakeChange(inValue) {
-    setState(current => ({ ...current, make: inValue, model: '' }));
-  }
+  // function handleMakeChange(inValue) {
+  //   setState(current => ({ ...current, make: inValue, model: '' }));
+  // }
 
-  const { error, carModels, carMakes, carTypes, loading } = useCarModels();
   // console.log({ carMakes, carModels });
 
   // console.log({ carTypes });
@@ -71,11 +90,39 @@ function ItemsFilters(props) {
     console.log({ data });
   }
 
-  function handleMakeChange(make, isChecked) {
-    console.log({ make, isChecked });
+  function handleMakeChange(makeId, isChecked) {
+    console.log({ makeId, isChecked });
     /**
      * if not checked, unselect all models of this make
      */
+    if (!isChecked) {
+      const selectedModels = getValues('models');
+      const selectedModelsObject = {};
+      if (Array.isArray(selectedModels)) {
+        selectedModels.forEach(modelId => {
+          selectedModelsObject[modelId] = modelId;
+        });
+      }
+      const makeModels = makesObject[makeId]?.models || [];
+      console.log({ makeModels });
+
+      if (Array.isArray(makeModels)) {
+        makeModels.forEach(model => {
+          const modelId = model._id;
+
+          const isSelected = Boolean(selectedModelsObject[modelId]);
+          console.log({ modelId, isSelected });
+
+          if (isSelected) {
+            delete selectedModelsObject[modelId];
+          }
+        });
+      }
+
+      const updatedModels = Object.keys(selectedModelsObject);
+
+      setValue('modles', updatedModels);
+    }
   }
 
   return (
@@ -91,24 +138,53 @@ function ItemsFilters(props) {
               icon={<RiFilter3Line />}
             />
           )}
-          title={loading ? 'Loading Car Models...' : 'Set Filter Params'}
+          title={'Set Filter Params'}
           renderContent={() => {
-            return loading ? (
-              <SkeletonLoader />
-            ) : error ? (
-              <CustomAlert
-                status="error"
-                title="Error Fetching Car models!"
-                description={error?.message || 'Uknown Error!'}
-              />
-            ) : (
-              <Grid rowGap={2} columnGap={4} templateColumns="repeat(2, 1fr)">
+            return (
+              <Box w="full">
                 <RHFCheckboxGroup
                   onFieldChange={handleMakeChange}
                   name="Makes"
-                  fields={makesFields}
+                  fields={(makes || []).map(make => {
+                    const { _id, count } = make;
+                    return {
+                      name: `${_id} (${count})`,
+                      _id,
+                    };
+                  })}
+                  nameField="name"
+                  valueField="_id"
                 />
-              </Grid>
+
+                <RHFCheckboxGroup
+                  name="Models"
+                  fields={(models || []).map(modelFacet => {
+                    const { _id, count } = modelFacet;
+                    return { name: `${_id} (${count})`, _id };
+                  })}
+                  nameField="name"
+                  valueField="_id"
+                />
+
+                <RHFCheckboxGroup
+                  name="Type"
+                  fields={(types || []).map(typeFacet => {
+                    const { _id, count } = typeFacet;
+                    return { name: `${_id} (${count})`, _id };
+                  })}
+                  nameField="name"
+                  valueField="_id"
+                />
+                <RHFCheckboxGroup
+                  name="Color"
+                  fields={(colors || []).map(colorFacet => {
+                    const { _id, count } = colorFacet;
+                    return { name: `${_id} (${count})`, _id };
+                  })}
+                  nameField="name"
+                  valueField="_id"
+                />
+              </Box>
             );
           }}
           renderFooter={onClose => {
@@ -123,15 +199,14 @@ function ItemsFilters(props) {
                   <Button type="button" onClick={onClose} colorScheme="red">
                     close
                   </Button>
-                  {loading ? null : (
-                    <Button
-                      type="button"
-                      onClick={handleClick}
-                      colorScheme="cyan"
-                    >
-                      apply
-                    </Button>
-                  )}
+
+                  <Button
+                    type="button"
+                    onClick={handleClick}
+                    colorScheme="cyan"
+                  >
+                    apply
+                  </Button>
                 </HStack>
               </Flex>
             );

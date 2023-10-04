@@ -45,6 +45,12 @@ const initialState = {
   hitsPerPage: 2,
   filters: null,
   valueToSearch: '',
+  facets: {
+    makes: [],
+    types: [],
+    colors: [],
+    rateRange: { min: 0, max: 0 },
+  },
 };
 
 //
@@ -86,8 +92,6 @@ function generateQueryVariables(state, incomingPage) {
     !isNaN(incomingPage) &&
     typeof incomingPage === 'number' &&
     incomingPage >= 0;
-
-  console.log('searching vehicles...');
 
   const sortByField = sortBy.field || 'searchScore';
 
@@ -222,6 +226,44 @@ export function SearchItemsContextProvider(props) {
     searchVehicles,
   });
 
+  const makesFacet = meta?.facets?.makes;
+
+  const makes = useMemo(() => {
+    const makesObject = {};
+
+    if (Array.isArray(makesFacet)) {
+      makesFacet.forEach(makeFacet => {
+        console.log({ makeFacet });
+        const { models, _id: makeId } = makeFacet;
+        console.log({ models });
+
+        const makeModels = {};
+
+        if (Array.isArray(models)) {
+          models.forEach(model => {
+            const { _id: modelId } = model;
+            makeModels[modelId] = model;
+          });
+        }
+
+        console.log({ makeModels });
+
+        makesObject[makeId] = {
+          // ...makeFacet,
+          models: Object.values(makeModels),
+        };
+      });
+    }
+
+    const makes = Object.values(makesObject);
+
+    console.log('usememo makes', { makes, makesObject });
+
+    return makes;
+  }, [makesFacet]);
+
+  console.log({ makes });
+
   //----------------------------------------------------------------
 
   // console.log({ filterForItemsIdsToExclude });
@@ -249,6 +291,8 @@ export function SearchItemsContextProvider(props) {
         const queryVariables = generateQueryVariables(state, incomingPage);
 
         console.log({ queryVariables });
+
+        console.log('searching vehicles...');
 
         searchVehicles({
           ...queryVariables,
@@ -294,7 +338,7 @@ export function SearchItemsContextProvider(props) {
 
       searchVehiclesCB(0);
     }
-  }, [searchVehiclesCB, state]);
+  }, [searchVehiclesCB]);
 
   useEffect(() => {
     console.log('state has changed', state);
@@ -331,6 +375,7 @@ export function SearchItemsContextProvider(props) {
 
   const { hitsPerPage, filters, valueToSearch } = state;
 
+  const facets = meta?.facets || {};
   const pageIndex = meta?.page || 0;
   const fullListLength = meta?.count || 0;
   const page = meta?.page || 0;
@@ -368,6 +413,10 @@ export function SearchItemsContextProvider(props) {
         nextPage,
         previousPage,
         selectedDates,
+        facets: {
+          ...facets,
+          makes,
+        },
       }}
     >
       {children}

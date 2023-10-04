@@ -15,14 +15,14 @@ function RHFCheckboxGroup(props) {
       name={name}
       control={control}
       render={({ field: { name, onBlur, onChange, value } }) => {
-        console.log({ value });
+        // console.log({ value });
 
         return (
           <ControlledCheckboxGroup
             onChange={onChange}
             checkedValues={value || []}
             onBlur={onBlur}
-            title={name}
+            name={name}
             {...moreProps}
           />
         );

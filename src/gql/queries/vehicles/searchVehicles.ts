@@ -43,7 +43,11 @@ const SEARCH_VEHICLES = gql`
         facets {
           makes {
             _id
-            models
+            count
+            models {
+              _id
+              count
+            }
           }
           ratesRange {
             min
