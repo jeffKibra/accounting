@@ -93,7 +93,7 @@ export default function ControlledCheckboxGroup(props) {
         value={checkedValues || []}
       >
         <Grid pl={6} templateColumns="repeat(12, 1fr)" w="full">
-          {fields.map(field => {
+          {fields.map((field, i) => {
             const { name, value } = getNameAndValue(
               field,
               nameField,
@@ -102,7 +102,7 @@ export default function ControlledCheckboxGroup(props) {
             // console.log({ name, value });
 
             return (
-              <GridItem colSpan={6}>
+              <GridItem key={i} colSpan={6}>
                 <Checkbox
                   onChange={handleFieldChange}
                   value={value}

@@ -173,7 +173,7 @@ export const RTTablePropTypes = {
   setPageSize: PropTypes.func,
   allItemsCount: PropTypes.number,
   //
-  FiltersComponent: PropTypes.node,
+  onFiltersModalOpen: PropTypes.func,
   //tableContext props
   ...TableContextProviderPropTypes,
 };

@@ -5,7 +5,9 @@ import {
   Table as ChakraTable,
   Box,
   HStack,
+  IconButton,
 } from '@chakra-ui/react';
+import { RiFilter3Line } from 'react-icons/ri';
 import PropTypes from 'prop-types';
 
 //
@@ -48,7 +50,7 @@ function ControlledTable(props) {
     error,
     onSearch,
     //
-    FiltersComponent,
+    onFiltersModalOpen,
   } = props;
   // console.log({ bodyRowProps });
 
@@ -71,7 +73,14 @@ function ControlledTable(props) {
             delayBeforeSearchMS={1500}
             onSearch={onSearch}
           />
-          {FiltersComponent ? FiltersComponent : null}
+          {typeof onFiltersModalOpen === 'function' ? (
+            <IconButton
+              size="sm"
+              onClick={onFiltersModalOpen}
+              title="opem filters modal"
+              icon={<RiFilter3Line />}
+            />
+          ) : null}
         </HStack>
       ) : null}
 
@@ -162,7 +171,7 @@ export const ControlledTablePropTypes = {
   onSearch: PropTypes.func,
   // onFilter: PropTypes.func,
   //
-  FiltersComponent: PropTypes.node,
+  onFiltersModalOpen: PropTypes.func,
   ...TableContextProviderPropTypes,
 };
 

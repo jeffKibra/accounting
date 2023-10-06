@@ -2,6 +2,12 @@ import { Button, Box } from '@chakra-ui/react';
 import { Link, useLocation } from 'react-router-dom';
 import { RiAddLine } from 'react-icons/ri';
 
+//
+import { SearchItemsContextProvider } from 'contexts/SearchItemsContext';
+
+//
+
+//
 import useSavedLocation from '../../../hooks/useSavedLocation';
 
 import PageLayout from '../../../components/layout/PageLayout';
@@ -28,7 +34,9 @@ function ItemsPage() {
       }}
     >
       <Box shadow="lg" bg="white" py={4} borderRadius="lg" w="full">
-        <ItemsTable enableActions />
+        <SearchItemsContextProvider>
+          <ItemsTable enableActions />
+        </SearchItemsContextProvider>
       </Box>
     </PageLayout>
   );

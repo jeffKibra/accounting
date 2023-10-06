@@ -31,6 +31,8 @@ class ItemsList extends Component {
     const { loading, items, action, isModified, error, deleteItem } =
       this.props;
 
+    console.log('Items container');
+
     return (
       <Box shadow="lg" bg="white" py={4} borderRadius="lg" w="full">
         <ItemsTable />

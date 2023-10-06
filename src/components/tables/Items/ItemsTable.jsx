@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 
 //
-import { SearchItemsContextProvider } from 'contexts/SearchItemsContext';
 //
 import ItemsDisplayTable, {
   ItemsDisplayTablePropTypes,
@@ -10,21 +9,15 @@ import ItemsDisplayTable, {
 //
 
 function ItemsTable(props) {
-  const { idsForItemsToExclude, ...tableProps } = props;
+  const { selectedDates, ...tableProps } = props;
   // console.log({ items });
 
-  return (
-    <SearchItemsContextProvider
-      idsForItemsToExclude={idsForItemsToExclude || []}
-    >
-      <ItemsDisplayTable {...tableProps} />
-    </SearchItemsContextProvider>
-  );
+  return <ItemsDisplayTable {...tableProps} />;
 }
 
 const ItemsTablePropTypes = {
   ...ItemsDisplayTablePropTypes,
-  idsForItemsToExclude: PropTypes.array,
+  selectedDates: PropTypes.array,
 };
 
 ItemsTable.propTypes = {

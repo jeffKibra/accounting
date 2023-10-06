@@ -6,6 +6,7 @@ import {
   useRef,
   useMemo,
 } from 'react';
+import { useDisclosure } from '@chakra-ui/react';
 import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 //
@@ -13,6 +14,8 @@ import { useQuery } from '@apollo/client';
 
 //
 import { queries } from 'gql';
+//
+import VehiclesFiltersModalForm from 'components/forms/VehiclesFilters/ModalForm';
 //
 import { getDatesWithinRange } from 'utils/dates';
 //
@@ -70,6 +73,9 @@ const contextDefaultValues = {
   gotoPage: () => {},
   nextPage: () => {},
   previousPage: () => {},
+  closeFiltersModal: () => {},
+  openFiltersModal: () => {},
+  toggleFiltersModal: () => {},
 };
 
 //useReducer actions
@@ -379,7 +385,11 @@ export function SearchItemsContextProvider(props) {
 
   const { hitsPerPage, filters, valueToSearch } = state;
 
-  const facets = meta?.facets || {};
+  const metaFacets = meta?.facets || {};
+  const facets = {
+    ...metaFacets,
+    // makes,
+  };
   const pageIndex = meta?.page || 0;
   const fullListLength = meta?.count || 0;
   const page = meta?.page || 0;
@@ -390,6 +400,13 @@ export function SearchItemsContextProvider(props) {
   console.log({ pageCount, fullListLength, hitsPerPage, numberOfPages });
   // console.log({ fullListLength, page, numberOfPages, hitsPerPage, pageCount });
 
+  //----------------------------------------------------------------
+  const {
+    isOpen,
+    onClose: closeFiltersModal,
+    onOpen: openFiltersModal,
+    onToggle: toggleFiltersModal,
+  } = useDisclosure();
   //----------------------------------------------------------------
 
   return (
@@ -417,12 +434,21 @@ export function SearchItemsContextProvider(props) {
         nextPage,
         previousPage,
         selectedDates,
-        facets: {
-          ...facets,
-          // makes,
-        },
+        facets,
+        //
+        closeFiltersModal,
+        openFiltersModal,
+        toggleFiltersModal,
       }}
     >
+      <VehiclesFiltersModalForm
+        closeOnOverlayClick={false}
+        isOpen={isOpen}
+        onClose={closeFiltersModal}
+        facets={facets}
+        onSubmit={() => {}}
+      />
+
       {children}
     </SearchItemsContext.Provider>
   );

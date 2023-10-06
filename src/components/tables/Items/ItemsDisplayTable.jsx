@@ -11,7 +11,7 @@ import RTTable from 'components/ui/Table/RTTable';
 import getTableColumns from './getTableColumns';
 import getItemTableData from './getItemTableData';
 //
-import ItemsFilters from './ItemsFilters';
+// import ItemsFilters from './ItemsFilters/Form';
 
 //
 
@@ -37,7 +37,8 @@ function ItemsDisplayTable(props) {
     gotoPage,
     nextPage,
     previousPage,
-    facets,
+    openFiltersModal,
+    // facets,
   } = itemsContext;
 
   const rowsAreSelectable = typeof onRowClick === 'function';
@@ -88,7 +89,7 @@ function ItemsDisplayTable(props) {
       previousPage={previousPage}
       setPageSize={setHitsPerPage}
       //
-      FiltersComponent={<ItemsFilters facets={facets || {}} />}
+      onFiltersModalOpen={openFiltersModal}
       //
       onSortByChange={handleSortByChange}
       onSearch={setValueToSearch}
