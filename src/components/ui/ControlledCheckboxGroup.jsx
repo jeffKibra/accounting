@@ -4,6 +4,7 @@ import {
   Stack,
   Grid,
   GridItem,
+  Text,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
@@ -24,7 +25,7 @@ export default function ControlledCheckboxGroup(props) {
     name,
     onChange,
     onFieldChange,
-    onBlur,
+    // onBlur,
     checkedValues,
     fields,
     nameField,
@@ -82,7 +83,7 @@ export default function ControlledCheckboxGroup(props) {
           isIndeterminate={isIndeterminate}
           onChange={handleIndeterminateChange}
         >
-          <b>{name}</b>
+          <Text fontWeight="medium">{name}</Text>
         </Checkbox>
       ) : null}
 

@@ -227,42 +227,46 @@ export function SearchItemsContextProvider(props) {
   });
 
   const makesFacet = meta?.facets?.makes;
+  console.log({ makesFacet });
 
-  const makes = useMemo(() => {
-    const makesObject = {};
+  // const makes = useMemo(() => {
+  //   const makesObject = {};
 
-    if (Array.isArray(makesFacet)) {
-      makesFacet.forEach(makeFacet => {
-        console.log({ makeFacet });
-        const { models, _id: makeId } = makeFacet;
-        console.log({ models });
+  //   if (Array.isArray(makesFacet)) {
+  //     makesFacet.forEach((makeFacet, i) => {
+  //       console.log({ makeFacet });
+  //       const { models: makeModels, _id: makeId } = makeFacet;
+  //       console.log({ makeModels });
 
-        const makeModels = {};
+  //       const makeModelsObject = {};
 
-        if (Array.isArray(models)) {
-          models.forEach(model => {
-            const { _id: modelId } = model;
-            makeModels[modelId] = model;
-          });
-        }
+  //       if (Array.isArray(makeModels)) {
+  //         makeModels.forEach(model => {
+  //           const { _id: modelId } = model;
+  //           makeModelsObject[modelId] = model;
+  //         });
+  //       }
 
-        console.log({ makeModels });
+  //       const convertedModels = Object.values(makeModelsObject);
+  //       const modelsIds = Object.keys(makeModelsObject);
+  //       console.log({ makeModelsObject, convertedModels, modelsIds });
 
-        makesObject[makeId] = {
-          // ...makeFacet,
-          models: Object.values(makeModels),
-        };
-      });
-    }
+  //       makesObject[makeId] = {
+  //         // ...makeFacet,
+  //         models: convertedModels,
+  //         [i]: i,
+  //       };
+  //     });
+  //   }
 
-    const makes = Object.values(makesObject);
+  //   const makes = Object.values(makesObject);
 
-    console.log('usememo makes', { makes, makesObject });
+  //   console.log('usememo makes', { makes, makesObject });
 
-    return makes;
-  }, [makesFacet]);
+  //   return makes;
+  // }, [makesFacet]);
 
-  console.log({ makes });
+  // console.log({ makes });
 
   //----------------------------------------------------------------
 
@@ -415,7 +419,7 @@ export function SearchItemsContextProvider(props) {
         selectedDates,
         facets: {
           ...facets,
-          makes,
+          // makes,
         },
       }}
     >

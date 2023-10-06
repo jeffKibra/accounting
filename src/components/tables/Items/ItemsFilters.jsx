@@ -1,33 +1,26 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   IconButton,
   Button,
   Flex,
   HStack,
   Box,
-  Input,
-  Grid,
-  GridItem,
   FormControl,
   FormLabel,
-  FormHelperText,
-  Heading,
 } from '@chakra-ui/react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { RiFilter3Line } from 'react-icons/ri';
 import PropTypes from 'prop-types';
 //
-import { useCarModels } from 'hooks';
 //
-import SkeletonLoader from 'components/ui/SkeletonLoader';
-import CustomAlert from 'components/ui/CustomAlert';
+
 import CustomModal from 'components/ui/CustomModal';
-import ControlledSelect from 'components/ui/ControlledSelect';
-import ControlledNumInput from 'components/ui/ControlledNumInput';
 import RHFCheckboxGroup from 'components/ui/hookForm/RHFCheckboxGroup';
+import RHFRangeSlider from 'components/ui/hookForm/RHFRangeSlider';
 
 function ItemsFilters(props) {
   const { onFilter, facets } = props;
+  console.log({ facets });
   const { makes, types, colors, ratesRange } = facets;
   const [state, setState] = useState({
     make: '',
@@ -42,29 +35,47 @@ function ItemsFilters(props) {
   const formMethods = useForm();
   const { handleSubmit, watch, getValues, setValue } = formMethods;
 
-  const { models, makesObject } = useMemo(() => {
+  const selectedMakes = watch('makes');
+
+  console.log({ selectedMakes });
+
+  useEffect(() => {
+    console.log('selected makes have changed', selectedMakes);
+  }, [selectedMakes]);
+
+  const { models, makesObject, modelsObject } = useMemo(() => {
     const models = [];
     const makesObject = {};
+    const modelsObject = {};
 
     if (Array.isArray(makes)) {
       makes.forEach(make => {
-        const { _id, models } = make;
+        const { _id: makeId, models: makeModels } = make;
 
-        makesObject[_id] = make;
+        makesObject[makeId] = make;
+        console.log({ makeId, makeModels });
 
-        const makeModels = models || [];
+        if (Array.isArray(makeModels)) {
+          makeModels.forEach(makeModel => {
+            const { _id: modelId } = makeModel;
+            modelsObject[modelId] = makeModel;
+          });
+        }
+
         models.push(...makeModels);
       });
     }
 
-    return { models, makesObject };
+    return { models, makesObject, modelsObject };
   }, [makes]);
 
-  console.log({ models, makesObject });
+  console.log({ models, makesObject, modelsObject });
 
-  function updateField(field, value) {
-    setState(current => ({ ...current, [field]: value }));
-  }
+  // console.log({ models, makesObject });
+
+  // function updateField(field, value) {
+  //   setState(current => ({ ...current, [field]: value }));
+  // }
 
   // function handleMakeChange(inValue) {
   //   setState(current => ({ ...current, make: inValue, model: '' }));
@@ -142,6 +153,13 @@ function ItemsFilters(props) {
           renderContent={() => {
             return (
               <Box w="full">
+                <Box mb={6}>
+                  <FormControl>
+                    <FormLabel>Rates Range</FormLabel>
+                    <RHFRangeSlider name="ratesRange" min={0} max={500} />
+                  </FormControl>
+                </Box>
+
                 <RHFCheckboxGroup
                   onFieldChange={handleMakeChange}
                   name="Makes"
