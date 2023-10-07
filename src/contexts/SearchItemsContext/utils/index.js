@@ -1,3 +1,5 @@
+export { default as generateQueryVariables } from './generateQueryVariables';
+
 export function createObjectIdsToExcludeFilterFromArray(stringsArray = []) {
   function getStringFilter(itemId) {
     return `NOT objectID:${itemId}`;

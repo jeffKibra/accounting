@@ -48,7 +48,7 @@ export default function ControlledCheckboxGroup(props) {
   }
 
   function handleFieldChange(e) {
-    console.log('handle field change', { e });
+    // console.log('handle field change', { e });
     const isChecked = e?.target?.checked;
     const value = e?.target?.value;
 

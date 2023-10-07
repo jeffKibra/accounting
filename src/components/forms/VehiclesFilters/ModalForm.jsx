@@ -15,6 +15,13 @@ import PropTypes from 'prop-types';
 //
 import VehiclesFiltersFormFields from './FormFields';
 
+function getFacetsRatesRange(facets) {
+  const min = facets?.ratesRange?.min || 0;
+  const max = facets?.ratesRange?.max || 0;
+
+  return [min, max];
+}
+
 function VehiclesFiltersModalForm(props) {
   const {
     closeOnOverlayClick,
@@ -22,35 +29,43 @@ function VehiclesFiltersModalForm(props) {
     isOpen,
     onClose,
     facets,
+    defaultValues,
     ...moreProps
   } = props;
 
-  const formMethods = useForm();
-  const { handleSubmit } = formMethods;
+  const defaultRatesRange =
+    defaultValues?.ratesRange || getFacetsRatesRange(facets);
+  // console.log({ defaultRatesRange, facets });
 
-  function handleFormSubmit(data) {
-    console.log({ data });
-    //close modal
-    onClose();
-  }
+  const formMethods = useForm({
+    defaultValues: {
+      ratesRange: defaultRatesRange,
+      color: [],
+      make: [],
+      model: [],
+      type: [],
+    },
+  });
+  const { handleSubmit } = formMethods;
 
   // const btnRef = useRef();
   return (
     <>
       <FormProvider {...formMethods}>
-        <form onSubmit={handleSubmit(handleFormSubmit)}>
-          <Modal
-            onClose={onClose}
-            // finalFocusRef={btnRef}
-            isOpen={isOpen}
-            scrollBehavior="inside"
-            closeOnOverlayClick={closeOnOverlayClick}
-            {...moreProps}
-          >
-            <ModalOverlay />
+        <Modal
+          onClose={onClose}
+          // finalFocusRef={btnRef}
+          isOpen={isOpen}
+          scrollBehavior="inside"
+          closeOnOverlayClick={closeOnOverlayClick}
+          {...moreProps}
+        >
+          <ModalOverlay />
+          <form onSubmit={handleSubmit(onSubmit)}>
             <ModalContent>
               <ModalHeader>Filter Vehicles</ModalHeader>
               <ModalCloseButton />
+
               <ModalBody>
                 <VehiclesFiltersFormFields facets={facets} />
               </ModalBody>
@@ -69,8 +84,8 @@ function VehiclesFiltersModalForm(props) {
                 </Flex>
               </ModalFooter>
             </ModalContent>
-          </Modal>
-        </form>
+          </form>
+        </Modal>
       </FormProvider>
     </>
   );
@@ -86,6 +101,7 @@ VehiclesFiltersModalForm.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   facets: PropTypes.object,
+  defaultValues: PropTypes.object,
 };
 
 export default VehiclesFiltersModalForm;
