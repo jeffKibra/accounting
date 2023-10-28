@@ -26,6 +26,7 @@ export default function ItemForm(props) {
   // console.log({ carModels, loadingModels, error });
 
   function onSubmit(data) {
+    delete data.model.years;
     // console.log({ data });
     const {
       salesTax: salesTaxId,
@@ -34,27 +35,27 @@ export default function ItemForm(props) {
     } = data;
     let formData = {
       ...rest,
-      unit: 'days',
-      sku: createSKU(data.name),
-      type: 'vehicle',
+      // unit: 'days',
+      // sku: createSKU(data.name),
+      // type: 'vehicle',
     };
 
-    const salesAccountId = 'vehicle_bookings';
-    // console.log({ salesAccountId });
-    /**
-     * if item is vehicle- assign account='', sku=generate, unit='days'
-     */
-    //sales account
-    let salesAccount = null;
-    salesAccount = accounts.find(
-      account => account.accountId === salesAccountId
-    );
-    if (!salesAccount) {
-      return toasts.error('The Selected Sales Account is not valid!');
-    }
-    const { accountId, accountType, name } = salesAccount;
-    //add value to newValues
-    formData.salesAccount = { accountId, accountType, name };
+    // const salesAccountId = 'vehicle_bookings';
+    // // console.log({ salesAccountId });
+    // /**
+    //  * if item is vehicle- assign account='', sku=generate, unit='days'
+    //  */
+    // //sales account
+    // let salesAccount = null;
+    // salesAccount = accounts.find(
+    //   account => account.accountId === salesAccountId
+    // );
+    // if (!salesAccount) {
+    //   return toasts.error('The Selected Sales Account is not valid!');
+    // }
+    // const { accountId, accountType, name } = salesAccount;
+    // //add value to newValues
+    // formData.salesAccount = { accountId, accountType, name };
 
     //tax account
     let salesTax = null;

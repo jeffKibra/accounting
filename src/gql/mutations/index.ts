@@ -1,1 +1,1 @@
-export const mutation = () => {};
+export * as vehicles from './vehicles';

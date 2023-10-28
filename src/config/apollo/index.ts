@@ -9,6 +9,7 @@ const httpLink = createHttpLink({
 });
 
 const authLink = setContext(async (_, { headers, ...moreParams }) => {
+  console.log({ headers, ...moreParams, _ });
   /**
    * this is a middleware
    * it is invoked on every request

@@ -29,7 +29,7 @@ export default function Form(props) {
   const formMethods = useForm({
     mode: 'onChange',
     defaultValues: {
-      name: item?.name || '',
+      registration: item?.name || '',
       rate: item?.rate || 0,
       make: item?.make || '',
       model: item?.model || null,
@@ -104,11 +104,11 @@ export default function Form(props) {
             isReadOnly={updating}
             w="full"
             isRequired
-            isInvalid={errors.name}
+            isInvalid={errors.registration}
           >
             <FormLabel htmlFor="name">Registration</FormLabel>
             <Controller
-              name="name"
+              name="registration"
               control={control}
               rules={{ required: { value: true, message: '* Required!' } }}
               render={({ field: { name, onBlur, onChange, ref, value } }) => {
@@ -130,7 +130,7 @@ export default function Form(props) {
               }}
             />
 
-            <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
+            <FormErrorMessage>{errors?.registration?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
 

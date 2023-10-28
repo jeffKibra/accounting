@@ -7,9 +7,14 @@ function createTaxDisplay(tax) {
 
 export default function getItemTableData(item, enableActions) {
   // console.log({ item });
+  const modelObject = item?.model || {};
+  const { model, type } = modelObject;
 
   return {
     ...item,
+    modelObject,
+    model,
+    type,
     tax: createTaxDisplay(item?.salesTax),
     ...(enableActions
       ? { actions: <ItemsOptions item={item} deletion edit view schedule /> }

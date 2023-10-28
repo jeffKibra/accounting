@@ -29,8 +29,10 @@ const SEARCH_VEHICLES = gql`
         registration
         rate
         make
-        model
-        type
+        model {
+          model
+          type
+        }
         year
         color
         metaData {
