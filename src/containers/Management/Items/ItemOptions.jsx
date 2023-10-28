@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useContext } from 'react';
 import { Box } from '@chakra-ui/react';
 import {
   RiCalendarEventLine,
@@ -8,6 +8,8 @@ import {
 } from 'react-icons/ri';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+//
+import SearchItemsContext from 'contexts/SearchItemsContext';
 
 import useDeleteItem from '../../../hooks/useDeleteItem';
 
@@ -15,14 +17,10 @@ import MenuOptions from '../../../components/ui/MenuOptions';
 
 function ItemOptions(props) {
   const { item, edit, view, deletion, schedule } = props;
-  const { itemId } = item;
-  const { details, isDeleted, resetItem } = useDeleteItem(item);
+  const { _id: itemId } = item;
+  const { details } = useDeleteItem(item);
 
-  useEffect(() => {
-    if (isDeleted) {
-      resetItem();
-    }
-  }, [isDeleted, resetItem]);
+  const { handleSearchVehicles } = useContext(SearchItemsContext);
 
   const options = [
     ...(view

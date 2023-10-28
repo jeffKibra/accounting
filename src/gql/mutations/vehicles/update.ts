@@ -1,9 +1,11 @@
 import { gql } from '@apollo/client';
+//
+import { vehicleFields } from '../../queries/vehicles/getVehicle';
 
 const UPDATE_VEHICLE = gql`
-  mutation updateVehicles($id: ID!, $formData: VehiclesInput!) {
+  mutation UpdateVehicle($id: ID!, $formData: VehicleInput!) {
     updateVehicle(id: $id, formData: $formData) {
-      _id
+      ${vehicleFields}
     }
   }
 `;

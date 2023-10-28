@@ -1,42 +1,38 @@
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { connect } from 'react-redux';
 
 import { ITEMS } from '../../../nav/routes';
 
-import { useSavedLocation, useItemFormProps } from 'hooks';
+import {
+  useSavedLocation,
+  // useItemFormProps,
+  useUpdateVehicle,
+} from 'hooks';
 
 import PageLayout from '../../../components/layout/PageLayout';
 
 import ItemForm from 'components/forms/Item';
 
-import { GET_ITEM, UPDATE_ITEM } from '../../../store/actions/itemsActions';
-import { reset } from '../../../store/slices/itemsSlice';
-
 import SkeletonLoader from '../../../components/ui/SkeletonLoader';
 import Empty from '../../../components/ui/Empty';
 
 function EditItemPage(props) {
-  console.log({ props });
-  const { getItem, updateItem, resetItem, loading, isModified, action, item } =
-    props;
+  // console.log({ props });
+  // const { getItem, updateItem, resetItem, loading, isModified, action, item } =
+  //   props;
   useSavedLocation().setLocation();
-  const { accounts, taxes, loading: loadingFormProps } = useItemFormProps();
+  // const { accounts, taxes, loading: loadingFormProps } = useItemFormProps();
 
   const location = useLocation();
   const { itemId } = useParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    getItem(itemId);
-  }, [getItem, itemId]);
+  const { updating, updateVehicle, vehicle, loading } =
+    useUpdateVehicle(itemId);
 
-  useEffect(() => {
-    if (isModified) {
-      resetItem();
-      navigate(ITEMS);
-    }
-  }, [isModified, resetItem, navigate]);
+  // useEffect(() => {
+  //   getItem(itemId);
+  // }, [getItem, itemId]);
 
   function handleSubmit(data) {
     if (Object.keys(data).length === 0) {
@@ -44,10 +40,7 @@ function EditItemPage(props) {
       return navigate(ITEMS);
     }
 
-    updateItem({
-      ...data,
-      itemId,
-    });
+    updateVehicle(data);
   }
 
   return (
@@ -59,43 +52,32 @@ function EditItemPage(props) {
         [itemId]: location.pathname,
       }}
     >
-      {(loading && action === GET_ITEM) || loadingFormProps ? (
+      {loading ? (
         <SkeletonLoader />
-      ) : item && accounts ? (
+      ) : vehicle ? (
         (() => {
           const { createdAt, modifiedAt, createdBy, modifiedBy, ...rest } =
-            item;
+            vehicle;
+          console.log({ rest });
           return (
             <ItemForm
-              updating={loading && action === UPDATE_ITEM}
+              updating={updating}
               item={rest}
               handleFormSubmit={handleSubmit}
-              accounts={accounts}
-              taxes={taxes || []}
+              // accounts={accounts}
+              // taxes={taxes || []}
             />
           );
         })()
       ) : (
         <Empty
-          message={!item ? 'vehicle Data not found!' : 'Accounts data missing!'}
+          message={
+            !vehicle ? 'vehicle Data not found!' : 'Accounts data missing!'
+          }
         />
       )}
     </PageLayout>
   );
 }
 
-function mapStateToProps(state) {
-  const { loading, isModified, action, item } = state.itemsReducer;
-
-  return { loading, isModified, action, item };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    updateItem: payload => dispatch({ type: UPDATE_ITEM, payload }),
-    getItem: itemId => dispatch({ type: GET_ITEM, payload: itemId }),
-    resetItem: () => dispatch(reset()),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(EditItemPage);
+export default EditItemPage;

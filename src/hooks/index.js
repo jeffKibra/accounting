@@ -35,3 +35,5 @@ export { default as useCarModels } from './useCarModels';
 //
 export { default as useSearchItems } from './useSearchItems';
 export { default as useGetItems } from './useGetItems';
+export { default as useGetVehicle } from './useGetVehicle';
+export { default as useUpdateVehicle } from './useUpdateVehicle';

@@ -151,7 +151,7 @@ export default function SearchItemsContextProvider(props) {
   });
 
   const makesFacet = meta?.facets?.makes;
-  console.log({ makesFacet });
+  // console.log({ makesFacet });
 
   //----------------------------------------------------------------
 
@@ -171,18 +171,18 @@ export default function SearchItemsContextProvider(props) {
   } = useDisclosure();
 
   //----------------------------------------------------------------
-  const searchVehiclesCB = useCallback(
+  const handleSearchVehicles = useCallback(
     incomingPage => {
       try {
         // reset();
         // setLoadingStatus(true);
 
         const state = getValues();
-        console.log({ state });
+        // console.log({ state });
 
         const queryVariables = generateQueryVariables(state, incomingPage);
 
-        console.log({ queryVariables });
+        // console.log({ queryVariables });
 
         console.log('searching vehicles...');
 
@@ -203,55 +203,55 @@ export default function SearchItemsContextProvider(props) {
     inValue => {
       setValue('valueToSearch', inValue);
       //search
-      searchVehiclesCB(0);
+      handleSearchVehicles(0);
     },
-    [setValue, searchVehiclesCB]
+    [setValue, handleSearchVehicles]
   );
 
   const setFilters = useCallback(
     filtersData => {
-      console.log('setting filters', filtersData);
+      // console.log('setting filters', filtersData);
       setValue('filters', filtersData);
       //search
-      searchVehiclesCB(0);
+      handleSearchVehicles(0);
       //close modal
       closeFiltersModal();
     },
-    [setValue, closeFiltersModal, searchVehiclesCB]
+    [setValue, closeFiltersModal, handleSearchVehicles]
   );
 
   const setHitsPerPage = useCallback(
     inValue => {
       setValue('hitsPerPage', inValue);
       //search
-      searchVehiclesCB(0);
+      handleSearchVehicles(0);
     },
-    [setValue, searchVehiclesCB]
+    [setValue, handleSearchVehicles]
   );
 
   //----------------------------------------------------------------
   const gotoPage = useCallback(
     incomingPageIndex => {
-      searchVehiclesCB(incomingPageIndex);
+      handleSearchVehicles(incomingPageIndex);
     },
-    [searchVehiclesCB]
+    [handleSearchVehicles]
   );
   //----------------------------------------------------------------
   const nextPage = useCallback(
     currentPageIndex => {
-      console.log('fetching next page...', { currentPageIndex });
-      searchVehiclesCB(currentPageIndex + 1);
+      // console.log('fetching next page...', { currentPageIndex });
+      handleSearchVehicles(currentPageIndex + 1);
     },
-    [searchVehiclesCB]
+    [handleSearchVehicles]
   );
   const previousPage = useCallback(
     currentPageIndex => {
-      console.log('fetching previous page...', {
-        currentPageIndex,
-      });
-      searchVehiclesCB(currentPageIndex - 1);
+      // console.log('fetching previous page...', {
+      //   currentPageIndex,
+      // });
+      handleSearchVehicles(currentPageIndex - 1);
     },
-    [searchVehiclesCB]
+    [handleSearchVehicles]
   );
   //----------------------------------------------------------------
 
@@ -261,9 +261,9 @@ export default function SearchItemsContextProvider(props) {
   //   if (isMounted.current) {
   //     console.log('fetching data continue stage');
 
-  //     searchVehiclesCB(0);
+  //     handleSearchVehicles(0);
   //   }
-  // }, [searchVehiclesCB]);
+  // }, [handleSearchVehicles]);
 
   //----------------------------------------------------------------
 
@@ -281,9 +281,9 @@ export default function SearchItemsContextProvider(props) {
   //----------------------------------------------------------------
 
   const formValues = watch();
-  console.log({ formValues });
+  // console.log({ formValues });
   const hitsPerPage = watch('hitsPerPage');
-  console.log({ hitsPerPage });
+  // console.log({ hitsPerPage });
 
   const metaFacets = meta?.facets;
   const facets = metaFacets
@@ -299,7 +299,7 @@ export default function SearchItemsContextProvider(props) {
     Number(fullListLength || 1) / Number(hitsPerPage || 1)
   );
   const pageCount = numberOfPages > 0 ? numberOfPages : 0;
-  console.log({ pageCount, fullListLength, hitsPerPage, numberOfPages });
+  // console.log({ pageCount, fullListLength, hitsPerPage, numberOfPages });
   // console.log({ fullListLength, page, numberOfPages, hitsPerPage, pageCount });
 
   //----------------------------------------------------------------
@@ -333,6 +333,7 @@ export default function SearchItemsContextProvider(props) {
           closeFiltersModal,
           openFiltersModal,
           toggleFiltersModal,
+          handleSearchVehicles,
         }}
       >
         <Controller

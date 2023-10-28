@@ -7,6 +7,8 @@ import { GET_ITEM } from 'store/actions/itemsActions';
 //
 import { ITEMS } from 'nav/routes';
 //
+import { useGetVehicle } from 'hooks';
+//
 import PageLayout from 'components/layout/PageLayout';
 import SkeletonLoader from 'components/ui/SkeletonLoader';
 import Empty from 'components/ui/Empty';
@@ -16,9 +18,12 @@ import useSavedLocation from '../../../hooks/useSavedLocation';
 import ViewItem from 'containers/Management/Items/ViewItem';
 
 function ViewItemPage(props) {
-  const { getItem, loading, item } = props;
+  const { getItem } = props;
 
   const { itemId } = useParams();
+
+  const { loading, vehicle } = useGetVehicle(itemId);
+  // console.log({ vehicle });
 
   const location = useLocation();
   useSavedLocation().setLocation();
@@ -45,8 +50,8 @@ function ViewItemPage(props) {
     >
       {loading ? (
         <SkeletonLoader />
-      ) : item ? (
-        <ViewItem item={item} />
+      ) : vehicle ? (
+        <ViewItem item={vehicle} />
       ) : (
         <Empty message={'vehicle Data not found!'} />
       )}

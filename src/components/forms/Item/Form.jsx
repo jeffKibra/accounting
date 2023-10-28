@@ -29,7 +29,7 @@ export default function Form(props) {
   const formMethods = useForm({
     mode: 'onChange',
     defaultValues: {
-      registration: item?.name || '',
+      registration: item?.registration || '',
       rate: item?.rate || 0,
       make: item?.make || '',
       model: item?.model || null,
@@ -355,5 +355,5 @@ Form.propTypes = {
   updating: PropTypes.bool.isRequired,
   item: PropTypes.object,
   carModels: PropTypes.object,
-  accounts: PropTypes.array.isRequired,
+  accounts: PropTypes.array,
 };

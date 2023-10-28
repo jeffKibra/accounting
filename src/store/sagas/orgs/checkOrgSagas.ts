@@ -19,7 +19,11 @@ function* checkOrg() {
     const { uid } = userProfile;
 
     const org: Org | null = uid ? yield call(getOrg, uid) : null;
-    // // console.log({ org });
+    // console.log({ org });
+
+    const orgId = org?.orgId || '';
+    // console.log({ orgId });
+    localStorage.setItem('orgId', orgId);
 
     yield put(orgSuccess(org));
   } catch (err) {

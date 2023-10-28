@@ -26,7 +26,7 @@ export default function ViewItem(props) {
   // console.log({ props });
   const { item } = props;
   const {
-    name,
+    registration,
     model: modelData,
     year,
     rate,
@@ -63,7 +63,7 @@ export default function ViewItem(props) {
             <Tbody>
               <Tr>
                 <FieldTitle>Registration</FieldTitle>
-                <FieldValue>{name}</FieldValue>
+                <FieldValue>{registration}</FieldValue>
               </Tr>
               {/* <Tr>
                 <FieldTitle>Vehicle Type</FieldTitle>

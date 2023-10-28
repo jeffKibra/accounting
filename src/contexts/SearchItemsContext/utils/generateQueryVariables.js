@@ -15,7 +15,7 @@ export default function generateQueryVariables(state, incomingPage) {
 
   const sortByFieldIsNumeric =
     sortByField === 'searchScore' || sortByField === 'rate';
-  console.log({ sortByField, sortByFieldIsNumeric });
+  // console.log({ sortByField, sortByFieldIsNumeric });
 
   const queryOptions = {
     sortBy,
@@ -33,8 +33,12 @@ export default function generateQueryVariables(state, incomingPage) {
     },
   };
 
-  return {
+  const variables = {
     query: valueToSearch,
     queryOptions,
   };
+
+  localStorage.setItem('searchVehiclesVariables', JSON.stringify(variables));
+
+  return variables;
 }

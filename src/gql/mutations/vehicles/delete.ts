@@ -1,7 +1,10 @@
 import { gql } from '@apollo/client';
 
+//
+// import { vehicleInListFields } from '../../queries/vehicles/searchVehicles';
+
 const DELETE_VEHICLE = gql`
-  mutation deleteVehicle($id: ID!) {
+  mutation DeleteVehicle($id: ID!) {
     deleteVehicle(id: $id)
   }
 `;

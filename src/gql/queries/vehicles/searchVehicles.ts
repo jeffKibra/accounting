@@ -1,43 +1,21 @@
 import { gql } from '@apollo/client';
 
-// const plus = gql`
-//   input Pagination {
-//     currentPage: Int
-//     limit: Int
-//     after: PaginationCursor
-//     before: PaginationCursor
-//   }
-//   input VehicleFilters {
-//     make: [String]
-//     model: [String]
-//     type: [String]
-//     color: [String]
-//     rate: [Int]
-//   }
-//   type VehiclesQueryOptions {
-//     pagination: Pagination
-//     selectedDates: [String]
-//     filters: VehicleFilters
-//   }
-// `;
+import { vehicleFields } from './getVehicle';
+
+export const vehicleInListFields = `
+  ${vehicleFields}
+  id
+  metaData {
+    status
+  }
+`;
+
 const SEARCH_VEHICLES = gql`
-  query searchVehicles($query: ID, $queryOptions: VehiclesQueryOptions) {
+  query SearchVehicles($query: ID, $queryOptions: VehiclesQueryOptions) {
     searchVehicles(query: $query, queryOptions: $queryOptions) {
       vehicles {
-        _id
+        ${vehicleInListFields}
         searchScore
-        registration
-        rate
-        make
-        model {
-          model
-          type
-        }
-        year
-        color
-        metaData {
-          status
-        }
       }
       meta {
         count

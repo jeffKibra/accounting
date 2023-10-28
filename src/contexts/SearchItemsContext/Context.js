@@ -38,6 +38,7 @@ const contextDefaultValues = {
   closeFiltersModal: () => {},
   openFiltersModal: () => {},
   toggleFiltersModal: () => {},
+  handleSearchVehicles: () => {},
 };
 
 //useReducer actions
