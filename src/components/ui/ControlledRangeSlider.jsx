@@ -18,26 +18,18 @@ export default function ControlledRangeSlider(props) {
     defaultValue,
     onBlur,
     isReadOnly,
+    min,
+    max,
     ...moreProps
   } = props;
 
-  const [range, setRange] = useState(defaultValue || value || []);
-
-  function handleChange(incomingValue) {
-    // console.log('handle change', { incomingValue });
-    // onChange(incomingValue);
-    setRange(incomingValue);
-    //
-    typeof onChange === 'function' && onChange(incomingValue);
-  }
-
   function handleChangeEnd(incomingValue) {
-    // console.log('handle change end', { incomingValue });
+    console.log('handle change end', { incomingValue });
     typeof onChangeEnd === 'function' && onChangeEnd(incomingValue);
   }
 
-  const selectedMin = range[0] || 0;
-  const selectedMax = range[1] || 1;
+  const selectedMin = value[0] || 0;
+  const selectedMax = value[1] || 1;
 
   return (
     <Box>
@@ -53,11 +45,13 @@ export default function ControlledRangeSlider(props) {
         aria-label="Range slider"
         // defaultValue={[10, 30]}
         colorScheme="cyan"
-        onChange={handleChange}
+        onChange={onChange}
         onChangeEnd={handleChangeEnd}
         value={value}
         isReadOnly={isReadOnly}
         onBlur={onBlur}
+        max={max}
+        min={min}
         {...moreProps}
       >
         <RangeSliderTrack>

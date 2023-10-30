@@ -1,10 +1,5 @@
 export default function generateQueryVariables(state, incomingPage) {
-  const {
-    sortBy,
-    hitsPerPage,
-    valueToSearch,
-    // filters,
-  } = state;
+  const { sortBy, hitsPerPage, valueToSearch, filters } = state;
 
   const pageNumberIsValid =
     !isNaN(incomingPage) &&
@@ -24,6 +19,7 @@ export default function generateQueryVariables(state, incomingPage) {
       page: pageNumberIsValid ? incomingPage : 0,
     },
     filters: {
+      ...filters,
       // make:"Toyota"
       // color: ['grey'],
       // make:["Honda"]

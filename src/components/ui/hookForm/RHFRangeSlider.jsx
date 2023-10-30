@@ -18,6 +18,7 @@ function RHFRangeSlider(props) {
         return (
           <ControlledRangeSlider
             onChangeEnd={onChange}
+            onChange={onChange}
             isReadOnly={isReadOnly}
             onBlur={onBlur}
             value={value}

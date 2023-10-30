@@ -9,16 +9,19 @@ import RHFCheckboxGroup from 'components/ui/hookForm/RHFCheckboxGroup';
 import RHFRangeSlider from 'components/ui/hookForm/RHFRangeSlider';
 
 function VehiclesFiltersFormFields(props) {
+  console.log({ props });
   /**
    * component must be wrapped in a react-hook-form FormProvider context
    */
   const { facets } = props;
-  // console.log({ facets });
+  console.log({ facets });
   const { makes, types, colors, ratesRange } = facets;
 
   const { watch, getValues, setValue } = useFormContext();
 
   const selectedMakes = watch('makes');
+  const selectedRatesRange = watch('rate');
+  console.log({ selectedRatesRange });
 
   // console.log({ selectedMakes });
 
@@ -38,10 +41,15 @@ function VehiclesFiltersFormFields(props) {
         makesObject[makeId] = make;
         // console.log({ makeId, makeModels });
 
+        // console.log({ makeModels });
+
         if (Array.isArray(makeModels)) {
           makeModels.forEach(makeModel => {
-            const { _id: modelId } = makeModel;
-            modelsObject[modelId] = makeModel;
+            if (makeModel) {
+              // console.log({ makeModel });
+              const { _id: modelId } = makeModel;
+              modelsObject[modelId] = makeModel;
+            }
           });
         }
 
@@ -111,7 +119,7 @@ function VehiclesFiltersFormFields(props) {
 
       const updatedModels = Object.keys(selectedModelsObject);
 
-      setValue('modles', updatedModels);
+      setValue('model', updatedModels);
     }
   }
 
@@ -121,7 +129,7 @@ function VehiclesFiltersFormFields(props) {
         <FormControl>
           <FormLabel>Rates Range</FormLabel>
           <RHFRangeSlider
-            name="ratesRange"
+            name="rate"
             min={ratesRange?.min || 0}
             max={ratesRange?.max || 500}
           />
@@ -129,7 +137,7 @@ function VehiclesFiltersFormFields(props) {
       </Box>
 
       <RHFCheckboxGroup
-        onFieldChange={handleMakeChange}
+        // onFieldChange={handleMakeChange}
         name="make"
         fields={(makes || []).map(make => {
           const { _id, count } = make;

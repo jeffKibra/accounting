@@ -1,11 +1,18 @@
-import { useEffect, useContext } from 'react';
+import {
+  useEffect,
+  // useContext
+} from 'react';
 import { Box, Text } from '@chakra-ui/react';
 import { useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 //
-import { mutations, queries } from 'gql';
+import {
+  mutations,
+  // queries
+} from 'gql';
 import useToasts from './useToasts';
 //
+// import SearchItemsContext from 'contexts/SearchItemsContext/Context';
 //
 import { ITEMS } from 'nav/routes';
 
@@ -13,7 +20,7 @@ import { ITEMS } from 'nav/routes';
 // import { reset } from '../store/slices/itemsSlice';
 
 const { DELETE_VEHICLE } = mutations.vehicles;
-const { SEARCH_VEHICLES } = queries.vehicles;
+// const { SEARCH_VEHICLES } = queries.vehicles;
 
 export default function useDeleteItem(item) {
   // console.log({ item });
@@ -36,38 +43,30 @@ export default function useDeleteItem(item) {
       //   //activate if refetch queries completely fails to work
       //   // console.log({ cache, result, options });
       //   const deletedVehicleId = options.variables.id;
-
       //   window.apolloCache = cache;
       //   window.SEARCH_VEHICLES = SEARCH_VEHICLES;
-
       //   // console.log({ deletedVehicleId });
       //   const searchVehiclesVariables = JSON.parse(
       //     localStorage.getItem('searchVehiclesVariables')
       //   );
       //   // console.log({ searchVehiclesVariables });
-
       //   const queryOptions = {
       //     query: SEARCH_VEHICLES,
       //     variables: searchVehiclesVariables,
       //   };
-
       //   const cacheResult = cache.readQuery({
       //     ...queryOptions,
       //   });
       //   // console.log({ cacheResult });
-
       //   if (cacheResult) {
       //     const cachedVehicles = cacheResult?.searchVehicles?.vehicles;
       //     const cachedMeta = cacheResult?.searchVehicles?.meta;
-
       //     let newCachedVehicles = [];
-
       //     if (Array.isArray(cachedVehicles)) {
       //       newCachedVehicles = cachedVehicles.filter(
       //         vehicle => vehicle.id !== deletedVehicleId
       //       );
       //     }
-
       //     cache.writeQuery({
       //       ...queryOptions,
       //       data: {

@@ -39,6 +39,7 @@ const contextDefaultValues = {
   openFiltersModal: () => {},
   toggleFiltersModal: () => {},
   handleSearchVehicles: () => {},
+  refetchQuery: () => {},
 };
 
 //useReducer actions

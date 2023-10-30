@@ -33,13 +33,12 @@ function VehiclesFiltersModalForm(props) {
     ...moreProps
   } = props;
 
-  const defaultRatesRange =
-    defaultValues?.ratesRange || getFacetsRatesRange(facets);
+  const defaultRatesRange = defaultValues?.rate || getFacetsRatesRange(facets);
   // console.log({ defaultRatesRange, facets });
 
   const formMethods = useForm({
     defaultValues: {
-      ratesRange: defaultRatesRange,
+      rate: defaultRatesRange,
       color: [],
       make: [],
       model: [],
@@ -47,6 +46,9 @@ function VehiclesFiltersModalForm(props) {
     },
   });
   const { handleSubmit } = formMethods;
+  // const allFields = watch();
+
+  // console.log({ allFields });
 
   // const btnRef = useRef();
   return (

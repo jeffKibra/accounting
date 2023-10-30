@@ -66,7 +66,15 @@ function NewItemPage(props) {
   function handleSubmit(formData) {
     console.log({ formData });
     reset();
-    createItem({ variables: { formData } });
+    createItem({
+      variables: { formData },
+      // refetchQueries: [
+      //   {
+      //     query: 'SearchVehicles',
+      //     // fetchPolicy:''
+      //   },
+      // ],
+    });
   }
 
   return (

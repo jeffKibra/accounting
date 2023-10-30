@@ -1,4 +1,5 @@
 import {
+  useState,
   createContext,
   useEffect,
   useReducer,
@@ -62,6 +63,8 @@ export default function SearchItemsContextProvider(props) {
   // console.log({ calendar });
   const { children, selectedDates, defaultValues } = props;
   // console.log({ selectedDates });
+
+  const [facets, setFacets] = useState(null);
 
   // const defaultRatesRange =
   //   defaultValues?.ratesRange || getFacetsRatesRange(facets);
@@ -137,6 +140,7 @@ export default function SearchItemsContextProvider(props) {
     refetch: searchVehicles,
   } = useQuery(queries.vehicles.SEARCH_VEHICLES, {
     variables: generateQueryVariables(originalState, 0),
+    fetchPolicy: 'cache-and-network',
   });
 
   const result = gqlData?.searchVehicles;
@@ -149,6 +153,15 @@ export default function SearchItemsContextProvider(props) {
     error,
     searchVehicles,
   });
+
+  const incomingFacets = meta?.facets;
+
+  useEffect(() => {
+    console.log({ incomingFacets });
+    if (incomingFacets) {
+      setFacets(incomingFacets);
+    }
+  }, [incomingFacets]);
 
   const makesFacet = meta?.facets?.makes;
   // console.log({ makesFacet });
@@ -178,11 +191,11 @@ export default function SearchItemsContextProvider(props) {
         // setLoadingStatus(true);
 
         const state = getValues();
-        // console.log({ state });
+        console.log({ state });
 
         const queryVariables = generateQueryVariables(state, incomingPage);
 
-        // console.log({ queryVariables });
+        console.log({ queryVariables });
 
         console.log('searching vehicles...');
 
@@ -210,7 +223,7 @@ export default function SearchItemsContextProvider(props) {
 
   const setFilters = useCallback(
     filtersData => {
-      // console.log('setting filters', filtersData);
+      console.log('setting filters', filtersData);
       setValue('filters', filtersData);
       //search
       handleSearchVehicles(0);
@@ -253,6 +266,7 @@ export default function SearchItemsContextProvider(props) {
     },
     [handleSearchVehicles]
   );
+
   //----------------------------------------------------------------
 
   // useEffect(() => {
@@ -286,12 +300,12 @@ export default function SearchItemsContextProvider(props) {
   // console.log({ hitsPerPage });
 
   const metaFacets = meta?.facets;
-  const facets = metaFacets
-    ? {
-        ...metaFacets,
-        // makes,
-      }
-    : null;
+  // const facets = metaFacets
+  //   ? {
+  //       ...metaFacets,
+  //       // makes,
+  //     }
+  //   : null;
   const pageIndex = meta?.page || 0;
   const fullListLength = meta?.count || 0;
   const page = meta?.page || 0;
@@ -301,6 +315,12 @@ export default function SearchItemsContextProvider(props) {
   const pageCount = numberOfPages > 0 ? numberOfPages : 0;
   // console.log({ pageCount, fullListLength, hitsPerPage, numberOfPages });
   // console.log({ fullListLength, page, numberOfPages, hitsPerPage, pageCount });
+
+  //----------------------------------------------------------------
+
+  const refetchQuery = useCallback(() => {
+    handleSearchVehicles(pageIndex || 0);
+  }, [pageIndex, handleSearchVehicles]);
 
   //----------------------------------------------------------------
 
@@ -334,6 +354,7 @@ export default function SearchItemsContextProvider(props) {
           openFiltersModal,
           toggleFiltersModal,
           handleSearchVehicles,
+          refetchQuery,
         }}
       >
         <Controller
