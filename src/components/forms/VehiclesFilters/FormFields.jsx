@@ -20,8 +20,6 @@ function VehiclesFiltersFormFields(props) {
   const { watch, getValues, setValue } = useFormContext();
 
   const selectedMakes = watch('makes');
-  const selectedRatesRange = watch('rate');
-  // console.log({ selectedRatesRange });
 
   // console.log({ selectedMakes });
 

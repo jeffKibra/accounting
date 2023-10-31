@@ -74,10 +74,7 @@ export default function SearchItemsContextProvider(props) {
       hitsPerPage: 2,
       valueToSearch: '',
       filters: null,
-      sortBy: {
-        field: 'searchScore',
-        direction: 'desc',
-      },
+      sortBy: null,
     },
   });
 
@@ -270,6 +267,17 @@ export default function SearchItemsContextProvider(props) {
   );
 
   //----------------------------------------------------------------
+  const handleSortByChange = useCallback(
+    (field, direction) => {
+      console.log({ field, direction });
+      //update form fields first
+      setValue('sortBy', [field, direction]);
+      //fetch new vehicles list
+      handleSearchVehicles(0);
+    },
+    [handleSearchVehicles, setValue]
+  );
+  //----------------------------------------------------------------
 
   // useEffect(() => {
   //   console.log('fetching data start stage');
@@ -358,6 +366,8 @@ export default function SearchItemsContextProvider(props) {
           toggleFiltersModal,
           handleSearchVehicles,
           refetchQuery,
+          //
+          handleSortByChange,
         }}
       >
         <Controller
@@ -367,6 +377,7 @@ export default function SearchItemsContextProvider(props) {
         />
         <Controller name="hitsPerPage" control={control} render={() => null} />
         <Controller name="pageIndex" control={control} render={() => null} />
+        <Controller name="sortBy" control={control} render={() => null} />
         <Controller
           name="filters"
           control={control}

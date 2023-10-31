@@ -1,4 +1,4 @@
-// import { useEffect } from 'react';
+import { useEffect } from 'react';
 import {
   useTable,
   useFilters,
@@ -33,7 +33,7 @@ function RTTable(props) {
     data,
     caption,
     bodyRowProps,
-    onSortByChange,
+    onSort,
     onSearch,
     onFilter,
     loading,
@@ -52,6 +52,7 @@ function RTTable(props) {
     rowFieldToUseAsIdForHighlighting,
     ...moreProps
   } = props;
+  // console.log({ moreProps });
   // console.log({ onFilter });
   // console.log('RTTable', data);
   // console.log({ bodyRowProps });
@@ -63,7 +64,7 @@ function RTTable(props) {
   //   console.log('RTTable-columns has changed', columns);
   // }, [columns]);
 
-  const manualSortBy = typeof onSortByChange === 'function';
+  const manualSortBy = typeof onSort === 'function';
   const manualGlobalFilter = typeof onSearch === 'function';
 
   // console.log({
@@ -78,8 +79,9 @@ function RTTable(props) {
       columns,
       data,
       initialState,
-      manualSortBy,
       manualGlobalFilter,
+      manualSortBy,
+      autoResetSortBy: manualSortBy,
     },
     useFilters,
     useGlobalFilter,
@@ -100,14 +102,20 @@ function RTTable(props) {
   } = instance;
   // console.log({ state });
 
-  const { globalFilter, sortBy } = state;
+  const { globalFilter, sortBy: sortByArray } = state;
+  const sortBy = sortByArray[0] || {};
+  //
+  const sortByField = sortBy?.id;
+  const sortByDirection = sortBy?.desc ? 'desc' : 'asc';
 
-  // useEffect(() => {
-  //   if (manualSortBy) {
-  //     console.log('sort by has changed... handling it manualy');
-  //     // onSortByChange(sortBy);
-  //   }
-  // }, [sortBy, manualSortBy, onSortByChange]);
+  useEffect(() => {
+    console.log('sort by has changed... ');
+
+    if (manualSortBy) {
+      console.log('handling sortBy manualy');
+      onSort(sortByField, sortByDirection);
+    }
+  }, [sortByField, sortByDirection, onSort, manualSortBy]);
 
   // console.log({ pageIndex, pageCount, pageOptions });
 
@@ -158,7 +166,7 @@ export const RTTablePropTypes = {
   caption: PropTypes.string,
   includeGlobalFilter: PropTypes.bool,
   bodyRowProps: PropTypes.object,
-  onSortByChange: PropTypes.func,
+  onSort: PropTypes.func,
   onSearch: PropTypes.func,
   onFilter: PropTypes.func,
   loading: PropTypes.bool,

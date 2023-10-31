@@ -3,10 +3,7 @@ import { createContext } from 'react';
 //
 
 const initialState = {
-  sortBy: {
-    field: 'searchScore',
-    direction: 'desc',
-  },
+  sortBy: ['searchScore', 'desc'],
   hitsPerPage: 2,
   filters: null,
   valueToSearch: '',
@@ -40,6 +37,7 @@ const contextDefaultValues = {
   toggleFiltersModal: () => {},
   handleSearchVehicles: () => {},
   refetchQuery: () => {},
+  handleSortByChange: () => {},
 };
 
 //useReducer actions

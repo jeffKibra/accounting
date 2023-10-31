@@ -77,7 +77,7 @@ function ControlledTable(props) {
             <IconButton
               size="sm"
               onClick={onFiltersModalOpen}
-              title="opem filters modal"
+              title="open filters modal"
               icon={<RiFilter3Line />}
             />
           ) : null}

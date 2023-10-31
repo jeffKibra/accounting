@@ -12,8 +12,19 @@ export default function generateQueryVariables(state, incomingPage) {
   //   sortByField === 'searchScore' || sortByField === 'rate';
   // console.log({ sortByField, sortByFieldIsNumeric });
 
+  const sortByIsValid =
+    Array.isArray(sortBy) &&
+    sortBy.length === 2 &&
+    Boolean(sortBy[0]) &&
+    Boolean(sortBy[1]);
+  console.log({ sortByIsValid, sortBy });
+
   const queryOptions = {
-    sortBy,
+    ...(sortByIsValid
+      ? {
+          sortBy,
+        }
+      : {}),
     pagination: {
       limit: hitsPerPage,
       page: pageNumberIsValid ? incomingPage : 0,

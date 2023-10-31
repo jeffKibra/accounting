@@ -38,6 +38,7 @@ function ItemsDisplayTable(props) {
     nextPage,
     previousPage,
     openFiltersModal,
+    handleSortByChange,
     // facets,
   } = itemsContext;
 
@@ -66,10 +67,6 @@ function ItemsDisplayTable(props) {
     return itemsData;
   }, [items, enableActions]);
 
-  function handleSortByChange(array) {
-    console.log({ array });
-  }
-
   // console.log('ITEMSZDISPLAY rerendering...');
 
   return (
@@ -92,7 +89,7 @@ function ItemsDisplayTable(props) {
         //
         onFiltersModalOpen={openFiltersModal}
         //
-        onSortByChange={handleSortByChange}
+        onSort={handleSortByChange}
         onSearch={setValueToSearch}
         onRowClick={onRowClick}
         rowIdToHighlight={itemIdToHighlight || ''}
