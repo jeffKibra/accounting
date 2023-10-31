@@ -1,4 +1,4 @@
-import { useState } from 'react';
+// import { useState } from 'react';
 import {
   RangeSlider,
   RangeSliderTrack,
@@ -24,7 +24,7 @@ export default function ControlledRangeSlider(props) {
   } = props;
 
   function handleChangeEnd(incomingValue) {
-    console.log('handle change end', { incomingValue });
+    // console.log('handle change end', { incomingValue });
     typeof onChangeEnd === 'function' && onChangeEnd(incomingValue);
   }
 
@@ -74,14 +74,14 @@ export const RangeSliderPropTypes = {
   min: PropTypes.number,
   max: PropTypes.number,
   icon: PropTypes.node,
+  onChangeEnd: PropTypes.func.isRequired,
+  isReadOnly: PropTypes.bool,
 };
 
 ControlledRangeSlider.propTypes = {
   ...RangeSliderPropTypes,
   onChange: PropTypes.func,
-  onChangeEnd: PropTypes.func.isRequired,
   onBlur: PropTypes.func,
   value: PropTypes.array.isRequired,
   defaultValue: PropTypes.array,
-  isReadOnly: PropTypes.bool,
 };

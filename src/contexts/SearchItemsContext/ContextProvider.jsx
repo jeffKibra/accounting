@@ -20,6 +20,8 @@ import SearchItemsContext from './Context';
 import { queries } from 'gql';
 //
 import VehiclesFiltersModalForm from 'components/forms/VehiclesFilters/ModalForm';
+import FiltersDisplay from 'components/Custom/Vehicles/FiltersDisplay';
+
 //
 import { getDatesWithinRange } from 'utils/dates';
 //
@@ -63,8 +65,6 @@ export default function SearchItemsContextProvider(props) {
   // console.log({ calendar });
   const { children, selectedDates, defaultValues } = props;
   // console.log({ selectedDates });
-
-  const [facets, setFacets] = useState(null);
 
   // const defaultRatesRange =
   //   defaultValues?.ratesRange || getFacetsRatesRange(facets);
@@ -156,6 +156,8 @@ export default function SearchItemsContextProvider(props) {
 
   const incomingFacets = meta?.facets;
 
+  const [facets, setFacets] = useState(null);
+
   useEffect(() => {
     console.log({ incomingFacets });
     if (incomingFacets) {
@@ -223,7 +225,7 @@ export default function SearchItemsContextProvider(props) {
 
   const setFilters = useCallback(
     filtersData => {
-      console.log('setting filters', filtersData);
+      // console.log('setting filters', filtersData);
       setValue('filters', filtersData);
       //search
       handleSearchVehicles(0);
@@ -299,7 +301,7 @@ export default function SearchItemsContextProvider(props) {
   const hitsPerPage = watch('hitsPerPage');
   // console.log({ hitsPerPage });
 
-  const metaFacets = meta?.facets;
+  // const metaFacets = meta?.facets;
   // const facets = metaFacets
   //   ? {
   //       ...metaFacets,
@@ -364,7 +366,19 @@ export default function SearchItemsContextProvider(props) {
         />
         <Controller name="hitsPerPage" control={control} render={() => null} />
         <Controller name="pageIndex" control={control} render={() => null} />
-        <Controller name="filters" control={control} render={() => null} />
+        <Controller
+          name="filters"
+          control={control}
+          render={({ field: { onChange, value } }) => {
+            return value ? (
+              <FiltersDisplay
+                onChange={onChange}
+                filters={value}
+                ratesRangeFacet={facets?.ratesRange}
+              />
+            ) : null;
+          }}
+        />
 
         {children}
       </SearchItemsContext.Provider>

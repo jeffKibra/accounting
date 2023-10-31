@@ -33,7 +33,6 @@ function RHFRangeSlider(props) {
 RHFRangeSlider.propTypes = {
   ...RangeSliderPropTypes,
   name: PropTypes.string.isRequired,
-  isReadOnly: PropTypes.bool,
   controllerProps: PropTypes.object,
 };
 

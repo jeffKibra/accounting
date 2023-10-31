@@ -6,10 +6,10 @@ export default function generateQueryVariables(state, incomingPage) {
     typeof incomingPage === 'number' &&
     incomingPage >= 0;
 
-  const sortByField = sortBy?.field || 'searchScore';
+  // const sortByField = sortBy?.field || 'searchScore';
 
-  const sortByFieldIsNumeric =
-    sortByField === 'searchScore' || sortByField === 'rate';
+  // const sortByFieldIsNumeric =
+  //   sortByField === 'searchScore' || sortByField === 'rate';
   // console.log({ sortByField, sortByFieldIsNumeric });
 
   const queryOptions = {

@@ -73,46 +73,48 @@ function ItemsDisplayTable(props) {
   // console.log('ITEMSZDISPLAY rerendering...');
 
   return (
-    <RTTable
-      columns={columns}
-      data={data}
-      //status
-      loading={loading}
-      error={error}
-      //pagination
-      pageCount={pageCount}
-      pageIndex={pageIndex}
-      pageSize={hitsPerPage}
-      allItemsCount={fullListLength}
-      gotoPage={gotoPage}
-      nextPage={nextPage}
-      previousPage={previousPage}
-      setPageSize={setHitsPerPage}
-      //
-      onFiltersModalOpen={openFiltersModal}
-      //
-      onSortByChange={handleSortByChange}
-      onSearch={setValueToSearch}
-      onRowClick={onRowClick}
-      rowIdToHighlight={itemIdToHighlight || ''}
-      rowFieldToUseAsIdForHighlighting="itemId"
-      highlightedRowBGColor="cyan.50"
-      {...(rowsAreSelectable
-        ? {
-            bodyRowProps: {
-              cursor: 'pointer',
-              transition: 'all 100ms ease-in-out',
-              _hover: {
-                backgroundColor: 'cyan.100',
+    <>
+      <RTTable
+        columns={columns}
+        data={data}
+        //status
+        loading={loading}
+        error={error}
+        //pagination
+        pageCount={pageCount}
+        pageIndex={pageIndex}
+        pageSize={hitsPerPage}
+        allItemsCount={fullListLength}
+        gotoPage={gotoPage}
+        nextPage={nextPage}
+        previousPage={previousPage}
+        setPageSize={setHitsPerPage}
+        //
+        onFiltersModalOpen={openFiltersModal}
+        //
+        onSortByChange={handleSortByChange}
+        onSearch={setValueToSearch}
+        onRowClick={onRowClick}
+        rowIdToHighlight={itemIdToHighlight || ''}
+        rowFieldToUseAsIdForHighlighting="itemId"
+        highlightedRowBGColor="cyan.50"
+        {...(rowsAreSelectable
+          ? {
+              bodyRowProps: {
+                cursor: 'pointer',
+                transition: 'all 100ms ease-in-out',
+                _hover: {
+                  backgroundColor: 'cyan.100',
+                },
+                _active: {
+                  backgroundColor: 'cyan.200',
+                },
               },
-              _active: {
-                backgroundColor: 'cyan.200',
-              },
-            },
-          }
-        : {})}
-      {...tableProps}
-    />
+            }
+          : {})}
+        {...tableProps}
+      />
+    </>
   );
 }
 

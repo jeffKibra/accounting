@@ -9,19 +9,19 @@ import RHFCheckboxGroup from 'components/ui/hookForm/RHFCheckboxGroup';
 import RHFRangeSlider from 'components/ui/hookForm/RHFRangeSlider';
 
 function VehiclesFiltersFormFields(props) {
-  console.log({ props });
+  // console.log({ props });
   /**
    * component must be wrapped in a react-hook-form FormProvider context
    */
   const { facets } = props;
-  console.log({ facets });
+  // console.log({ facets });
   const { makes, types, colors, ratesRange } = facets;
 
   const { watch, getValues, setValue } = useFormContext();
 
   const selectedMakes = watch('makes');
   const selectedRatesRange = watch('rate');
-  console.log({ selectedRatesRange });
+  // console.log({ selectedRatesRange });
 
   // console.log({ selectedMakes });
 
