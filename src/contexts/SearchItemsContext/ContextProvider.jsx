@@ -296,7 +296,6 @@ export default function SearchItemsContextProvider(props) {
   // }, [isModified]);
   //----------------------------------------------------------------
 
-  const formValues = watch();
   // console.log({ formValues });
   const hitsPerPage = watch('hitsPerPage');
   // console.log({ hitsPerPage });
@@ -325,6 +324,8 @@ export default function SearchItemsContextProvider(props) {
   }, [pageIndex, handleSearchVehicles]);
 
   //----------------------------------------------------------------
+
+  const currentFilters = watch('filters');
 
   return (
     <>
@@ -369,10 +370,10 @@ export default function SearchItemsContextProvider(props) {
         <Controller
           name="filters"
           control={control}
-          render={({ field: { onChange, value } }) => {
+          render={({ field: { value } }) => {
             return value ? (
               <FiltersDisplay
-                onChange={onChange}
+                onChange={setFilters}
                 filters={value}
                 ratesRangeFacet={facets?.ratesRange}
               />
@@ -383,13 +384,14 @@ export default function SearchItemsContextProvider(props) {
         {children}
       </SearchItemsContext.Provider>
 
-      {facets ? (
+      {facets && isOpen ? (
         <VehiclesFiltersModalForm
           closeOnOverlayClick={false}
           isOpen={isOpen}
           onClose={closeFiltersModal}
           facets={facets}
           onSubmit={setFilters}
+          defaultValues={currentFilters || {}}
         />
       ) : null}
     </>

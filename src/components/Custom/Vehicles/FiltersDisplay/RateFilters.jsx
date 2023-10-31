@@ -5,7 +5,7 @@ import CustomTag from './CustomTag';
 import { checkIfRangeIsValid } from './utils';
 
 function RateFilters(props) {
-  const { selectedRatesRange, ratesRangeFacet } = props;
+  const { selectedRatesRange, ratesRangeFacet, onChange } = props;
 
   //
   const ratesRangeMin = ratesRangeFacet?.min;
@@ -18,10 +18,10 @@ function RateFilters(props) {
   const selectedRangeIsValid = checkIfRangeIsValid(selectedRatesRange);
 
   if (!selectedRangeIsValid || !ratesRangeFacetIsValid) {
-    console.log('ranges not valid', {
-      selectedRatesRange,
-      ratesRangeFacetIsValid,
-    });
+    // console.log('ranges not valid', {
+    //   selectedRatesRange,
+    //   ratesRangeFacetIsValid,
+    // });
     return null;
   }
 
@@ -35,22 +35,33 @@ function RateFilters(props) {
   const rangeNotChanged = minNotChanged && maxNotChanged;
 
   if (rangeNotChanged) {
-    console.log('selected range is similar to default range', {
-      selectedMin,
-      selectedMax,
-      ratesRangeMin,
-      ratesRangeMax,
-    });
+    // console.log('selected range is similar to default range', {
+    //   selectedMin,
+    //   selectedMax,
+    //   ratesRangeMin,
+    //   ratesRangeMax,
+    // });
     return null;
+  }
+
+  function resetMax() {
+    onChange([selectedMin, ratesRangeMax]);
+  }
+  function resetMin() {
+    onChange([ratesRangeMin, selectedMax]);
   }
 
   return (
     <>
       {minNotChanged ? null : (
-        <CustomTag>Rate Min: {Number(selectedMin).toLocaleString()}</CustomTag>
+        <CustomTag onClose={resetMin}>
+          Rate Min: {Number(selectedMin).toLocaleString()}
+        </CustomTag>
       )}
       {maxNotChanged ? null : (
-        <CustomTag>Rate Max: {Number(selectedMax).toLocaleString()}</CustomTag>
+        <CustomTag onClose={resetMax}>
+          Rate Max: {Number(selectedMax).toLocaleString()}
+        </CustomTag>
       )}
     </>
   );
@@ -62,6 +73,7 @@ RateFilters.propTypes = {
     min: PropTypes.number,
     max: PropTypes.number,
   }),
+  onChange: PropTypes.func.isRequired,
 };
 
 export default RateFilters;

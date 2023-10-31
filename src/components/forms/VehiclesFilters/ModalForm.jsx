@@ -1,3 +1,4 @@
+// import {} from 'react'
 import {
   Modal,
   ModalOverlay,
@@ -40,10 +41,10 @@ function VehiclesFiltersModalForm(props) {
   const formMethods = useForm({
     defaultValues: {
       rate: defaultRatesRange,
-      color: [],
-      make: [],
-      model: [],
-      type: [],
+      color: defaultValues?.color || [],
+      make: defaultValues?.make || [],
+      model: defaultValues?.model || [],
+      type: defaultValues?.type || [],
     },
   });
   const { handleSubmit } = formMethods;
