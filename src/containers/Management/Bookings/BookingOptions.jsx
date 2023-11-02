@@ -26,9 +26,8 @@ import { useDeleteBooking } from 'hooks';
 import { generatePDF } from 'utils/invoices';
 
 function BookingOptions(props) {
-  // console.log({ props });
   const { booking, edit, view, deletion, download } = props;
-  const { id } = booking;
+  const { _id } = booking;
   const { details, isDeleted, resetBooking } = useDeleteBooking(booking);
 
   useEffect(() => {
@@ -52,7 +51,7 @@ function BookingOptions(props) {
         {view ? (
           <MenuItem
             as={Link}
-            to={`/sale/bookings/${id}/view`}
+            to={`/sale/bookings/${_id}/view`}
             icon={<RiEyeLine />}
           >
             View
@@ -61,7 +60,7 @@ function BookingOptions(props) {
         {edit ? (
           <MenuItem
             as={Link}
-            to={`/sale/bookings/${id}/edit`}
+            to={`/sale/bookings/${_id}/edit?stage=2`}
             icon={<RiEdit2Line />}
           >
             Edit

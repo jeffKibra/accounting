@@ -10,7 +10,8 @@ import { reset } from '../../../store/slices/bookingsSlice';
 
 import { BOOKINGS } from '../../../nav/routes';
 
-import useSavedLocation from '../../../hooks/useSavedLocation';
+import { useSavedLocation, useUpdateBooking } from 'hooks';
+//
 import PageLayout from '../../../components/layout/PageLayout';
 
 import SkeletonLoader from '../../../components/ui/SkeletonLoader';
@@ -59,38 +60,12 @@ function getFormValuesOnly(booking = {}) {
 }
 
 function EditBookingPage(props) {
-  const {
-    loading,
-    action,
-    isModified,
-    booking,
-    updateBooking,
-    resetBooking,
-    getBooking,
-  } = props;
   const { bookingId } = useParams();
-  const navigate = useNavigate();
   const location = useLocation();
   useSavedLocation().setLocation();
-  const viewRoute = `/sale/bookings/${bookingId}/view`;
 
-  useEffect(() => {
-    getBooking(bookingId);
-  }, [getBooking, bookingId]);
-
-  useEffect(() => {
-    if (isModified) {
-      resetBooking();
-      navigate(viewRoute);
-    }
-  }, [isModified, resetBooking, navigate, viewRoute]);
-
-  function update(data) {
-    updateBooking({
-      ...data,
-      bookingId,
-    });
-  }
+  const { booking, loading, updateBooking, updating } =
+    useUpdateBooking(bookingId);
 
   return (
     <PageLayout
@@ -101,13 +76,13 @@ function EditBookingPage(props) {
         [bookingId]: location.pathname,
       }}
     >
-      {loading && action === GET_BOOKING ? (
+      {loading ? (
         <SkeletonLoader />
       ) : booking ? (
         <BookingForm
-          updating={loading && action === UPDATE_BOOKING}
-          handleFormSubmit={update}
-          booking={getFormValuesOnly(booking)}
+          updating={updating}
+          onSubmit={updateBooking}
+          booking={booking}
         />
       ) : (
         <Empty message="booking not found!" />

@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Box, Flex, Button } from '@chakra-ui/react';
 import { useForm, FormProvider } from 'react-hook-form';
@@ -13,7 +13,7 @@ import { bookingFormProps } from 'propTypes';
 //
 //
 import BookingDaysSelector from 'components/Custom/Bookings/BookingDaysSelector';
-import SelectItem from 'components/Custom/Bookings/SelectItem';
+import SelectVehicle from 'components/Custom/Bookings/SelectVehicle';
 //
 import DetailsFields from './DetailsFields';
 
@@ -49,11 +49,11 @@ function Form(props) {
       endDate: new Date(booking?.endDate || Date.now()),
       selectedDates: defaultSelectedDates.join(','),
       daysCount: defaultSelectedDates?.length || 0,
-      item: booking?.item || null,
+      vehicle: booking?.vehicle || null,
       // quantity: booking?.quantity || 0,
       bookingRate: booking?.bookingRate || 0,
       bookingTotal: booking?.bookingTotal || 0,
-      transferAmount: booking?.transferAmount || 0,
+      transferFee: booking?.transferFee || 0,
       total: booking?.total || 0,
       //  itemTax: 0,
       //   itemRateTotal: 0,
@@ -61,15 +61,15 @@ function Form(props) {
       //   salesTax: null,
       // taxType: 'taxExclusive',
       //
-      customer: booking?.customer?.id || '',
-      saleDate: new Date(booking?.saleDate || today),
-      paymentTerm: booking?.paymentTerm?.value || 'on_receipt',
-      dueDate: new Date(booking?.dueDate || today),
+      customer: booking?.customer?._id || '',
+      // paymentTerm: booking?.paymentTerm?.value || 'on_receipt',
       downPayment: booking?.downPayment || {
         amount: 0,
         paymentMode: null,
         reference: '',
       },
+      // saleDate: new Date(booking?.saleDate || today),
+      // dueDate: new Date(booking?.dueDate || today),
       //
       // queryVariables: booking?.queryVariables || null,
       //
@@ -85,7 +85,7 @@ function Form(props) {
 
   const startDate = watch('startDate');
   const endDate = watch('endDate');
-  const selectedItem = watch('item');
+  const selectedVehicle = watch('vehicle');
   const selectedDates = watch('selectedDates');
 
   const startDateString = convertDateToString(startDate);
@@ -193,7 +193,7 @@ function Form(props) {
           w="full"
         >
           <Box w="full" rowGap={4}>
-            {stage === '2' && selectedItem ? (
+            {stage === '2' && selectedVehicle ? (
               <>
                 <DetailsFields
                   customers={customers}
@@ -201,7 +201,7 @@ function Form(props) {
                   loading={updating}
                   bookingId={booking?.id || ''}
                   taxes={taxes}
-                  item={selectedItem}
+                  // vehicle={selectedVehicle}
                   paymentModes={paymentModes}
                   currentBookingDetails={booking || null}
                 />
@@ -236,9 +236,13 @@ function Form(props) {
         </Box>
       </FormProvider>
 
-      {stage === '2' && selectedItem ? null : (
+      {stage === '2' && selectedVehicle ? null : (
         <Box p={4}>
-          <SelectItem watch={watch} setValue={setValue} />
+          <SelectVehicle
+            bookingId={booking?._id}
+            watch={watch}
+            setValue={setValue}
+          />
         </Box>
       )}
     </Box>

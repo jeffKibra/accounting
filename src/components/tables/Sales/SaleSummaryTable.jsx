@@ -9,28 +9,28 @@ function SaleSummaryTable(props) {
 
   // const taxType = watch('taxType');
   const bookingRate = watch('bookingRate');
-  const transferAmount = watch('transferAmount');
+  const transferFee = watch('transferFee');
   const saleTax = watch('saleTax');
 
   // const selectedDates = watch('selectedDates');
   const quantity = watch('daysCount');
 
-  // console.log({ bookingRate, quantity, transferAmount, saleTax });
+  // console.log({ bookingRate, quantity, transferFee, saleTax });
 
-  // console.log({ bookingRate, quantity, transferAmount, saleTax });
+  // console.log({ bookingRate, quantity, transferFee, saleTax });
 
   const updateTotals = useCallback(
-    (bookingRate, quantity, transferAmount) => {
+    (bookingRate, quantity, transferFee) => {
       // console.log('caculating totals', {
       //   bookingRate,
       //   quantity,
-      //   transferAmount,
+      //   transferFee,
       // });
       //get current values
 
       // let { taxes } = subSummary;
       const bookingTotal = new BigNumber(bookingRate).times(quantity);
-      let subTotal = bookingTotal.plus(transferAmount);
+      let subTotal = bookingTotal.plus(transferFee);
 
       // const totalTax = new BigNumber(subSummary.totalTax);
       // const newbookingTotal = bookingTotal.plus(totalTax);
@@ -59,8 +59,8 @@ function SaleSummaryTable(props) {
   // console.log({ bookingTotal });
 
   useEffect(() => {
-    updateTotals(bookingRate, quantity, transferAmount);
-  }, [updateTotals, bookingRate, quantity, transferAmount]);
+    updateTotals(bookingRate, quantity, transferFee);
+  }, [updateTotals, bookingRate, quantity, transferFee]);
 
   return (
     <TableContainer>
@@ -74,7 +74,7 @@ function SaleSummaryTable(props) {
               render={({ field: { value } }) => {
                 return (
                   <Td w="16%" isNumeric>
-                    {value}
+                    {Number(value).toLocaleString()}
                   </Td>
                 );
               }}
@@ -100,7 +100,7 @@ function SaleSummaryTable(props) {
                       {' '}
                       {name} ({rate}%)
                     </Td>
-                    <Td isNumeric>{totalTax}</Td>
+                    <Td isNumeric>{Number(totalTax).toLocaleString()}</Td>
                   </Tr>
                 );
               })()
@@ -120,7 +120,7 @@ function SaleSummaryTable(props) {
               render={({ field: { value } }) => {
                 return (
                   <Th fontSize="16px" w="16%" isNumeric>
-                    {value}
+                    {Number(value).toLocaleString()}
                   </Th>
                 );
               }}

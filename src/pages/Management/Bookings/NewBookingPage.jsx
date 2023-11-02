@@ -1,30 +1,30 @@
-import { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 import { BOOKINGS } from '../../../nav/routes';
 
 import { CREATE_BOOKING } from '../../../store/actions/bookingsActions';
 import { reset } from '../../../store/slices/bookingsSlice';
 
-import useSavedLocation from '../../../hooks/useSavedLocation';
+import { useSavedLocation, useCreateBooking } from 'hooks';
 
 import PageLayout from '../../../components/layout/PageLayout';
 // import NewBooking from 'containers/Management/Bookings/NewBooking';
 import BookingForm from 'components/forms/Booking';
 
 function NewBookingPage(props) {
-  const { loading, action, isModified, createBooking, resetBooking } = props;
   useSavedLocation().setLocation();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    if (isModified) {
-      resetBooking();
-      navigate(BOOKINGS);
-    }
-  }, [isModified, resetBooking, navigate]);
+  const { createBooking, loading } = useCreateBooking();
+
+  // useEffect(() => {
+  //   if (isModified) {
+  //     resetBooking();
+  //     navigate(BOOKINGS);
+  //   }
+  // }, [isModified, resetBooking, navigate]);
 
   return (
     <PageLayout
@@ -35,10 +35,7 @@ function NewBookingPage(props) {
         'New Booking': location.pathname,
       }}
     >
-      <BookingForm
-        updating={loading && action === CREATE_BOOKING}
-        handleFormSubmit={createBooking}
-      />
+      <BookingForm updating={loading} onSubmit={createBooking} />
     </PageLayout>
   );
 }

@@ -5,7 +5,7 @@ import { useFormContext } from 'react-hook-form';
 //
 //
 import Editable from './Editable';
-import TransferAmount from './TransferAmount';
+import TransferFee from './TransferFee';
 import BookingRate from './BookingRate';
 import { NumberDisplay } from './CustomDisplays';
 
@@ -27,15 +27,12 @@ export default function EditBookingPricing(props) {
   return (
     <Editable onEditToggle={toggleEditing} isEditing={isEditing}>
       <Stack>
-        <TransferAmount isEditing={isEditing} />
+        <TransferFee isEditing={isEditing} />
 
         <BookingRate isEditing={isEditing} />
 
         <NumberDisplay title="Days Count" value={daysCount || 0} />
-        <NumberDisplay
-          title="Booking Total"
-          value={Number(bookingTotal || 0).toLocaleString()}
-        />
+        <NumberDisplay title="Booking Total" value={bookingTotal || 0} />
       </Stack>
     </Editable>
   );

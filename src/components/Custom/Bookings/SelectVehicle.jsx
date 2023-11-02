@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Alert,
@@ -9,16 +9,20 @@ import {
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 //
-import { SearchItemsContextProvider } from 'contexts/SearchItemsContext';
+import ItemsTable from 'components/tables/Items/ItemsTable';
+//
+import SearchItemsContext, {
+  SearchItemsContextProvider,
+} from 'contexts/SearchItemsContext';
 
 //
-import ItemsLoader from 'components/forms/Booking/ItemsLoader';
+// import ItemsLoader from 'components/forms/Booking/ItemsLoader';
 
-function SelectItem(props) {
+function SelectVehicle(props) {
   const {
     onSelect,
-    preselectedItemId,
-    preselectedDates,
+    // preselectedItemId,
+    // preselectedDates,
     watch,
     setValue,
     bookingId,
@@ -27,33 +31,51 @@ function SelectItem(props) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
+  const { getQueryVariables } = useContext(SearchItemsContext);
+
   const selectedDates = watch('selectedDates');
   const queryVariables = watch('queryVariables');
-  const item = watch('item');
-  console.log({ selectedDates, queryVariables });
+  const vehicle = watch('vehicle');
+  // console.log({ selectedDates, queryVariables });
 
-  const handleItemSelect = useCallback(
-    (item, incomingQueryVariables) => {
-      console.log('handling item selection in form', {
-        item,
-        incomingQueryVariables,
-      });
+  const updateForm = useCallback(
+    (selectedVehicle, incomingQueryVariables) => {
       // console.log({ item });
-      const itemRate = item?.rate || 0;
+      const rate = selectedVehicle?.rate || 0;
 
-      setValue('item', item);
+      setValue('vehicle', selectedVehicle);
       setValue('queryVariables', incomingQueryVariables);
       //update rate and reset transfer rate
-      setValue('bookingRate', itemRate, {
+      setValue('bookingRate', rate, {
         shouldValidate: true,
         shouldDirty: true,
       });
+    },
+    [setValue]
+  );
+
+  const handleVehicleSelect = useCallback(
+    selectedVehicle => {
+      delete selectedVehicle?.__typename;
+      delete selectedVehicle?.searchScore;
+      delete selectedVehicle?.model?.__typename;
+      delete selectedVehicle?.carModel;
+      delete selectedVehicle?.tax;
+
+      const incomingQueryVariables = getQueryVariables();
+      // console.log('handling vehicle selection in form', {
+      //   selectedVehicle,
+      //   incomingQueryVariables,
+      // });
+
+      updateForm(selectedVehicle, incomingQueryVariables);
+
       //call passed cb
-      typeof onSelect === 'function' && onSelect(item);
+      typeof onSelect === 'function' && onSelect(selectedVehicle);
       //
       navigate(`${pathname}?stage=2`);
     },
-    [setValue, pathname, navigate, onSelect]
+    [pathname, navigate, onSelect, getQueryVariables, updateForm]
   );
 
   //----------------------------------------------------------------
@@ -66,12 +88,17 @@ function SelectItem(props) {
     >
       {selectedDates?.length > 0 ? (
         <Box mx={-4}>
-          <ItemsLoader
-            onItemSelect={handleItemSelect}
-            selectedItem={item}
+          {/* <ItemsLoader
+            onItemSelect={handleVehicleSelect}
+            selectedItem={vehicle}
             selectedDates={selectedDates}
             preselectedItemId={preselectedItemId}
             preselectedDates={preselectedDates}
+          /> */}
+          <ItemsTable
+            emptyMessage="No Vehicle is available for booking on the selected Dates!"
+            onRowClick={handleVehicleSelect}
+            itemIdToHighlight={vehicle?._id || ''}
           />
         </Box>
       ) : (
@@ -88,7 +115,7 @@ function SelectItem(props) {
   );
 }
 
-SelectItem.propTypes = {
+SelectVehicle.propTypes = {
   onSelect: PropTypes.func.isRequired,
   preselectedItemId: PropTypes.string,
   preselectedDates: PropTypes.array,
@@ -97,10 +124,10 @@ SelectItem.propTypes = {
   bookingId: PropTypes.string,
 };
 
-SelectItem.defaultProps = {
+SelectVehicle.defaultProps = {
   onSelect: () => {},
   preselectedItemId: '',
   preselectedDates: [],
 };
 
-export default SelectItem;
+export default SelectVehicle;

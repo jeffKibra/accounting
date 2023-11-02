@@ -6,7 +6,7 @@ import SaleSummaryTable from 'components/tables/Sales/SaleSummaryTable';
 //
 import EditBookingPricing from 'components/Custom/Bookings/EditBookingPricing';
 import EditBookingDates from 'components/Custom/Bookings/EditBookingDates';
-import EditSelectedItem from 'components/Custom/Bookings/EditSelectedItem';
+import EditSelectedVehicle from 'components/Custom/Bookings/EditSelectedVehicle';
 
 function BookingItemFormFields(props) {
   const { loading, currentBookingDetails } = props;
@@ -33,7 +33,7 @@ function BookingItemFormFields(props) {
         </GridItem> */}
 
         <GridItem colSpan={[12, 6]} mt={4}>
-          <EditSelectedItem loading={loading} />
+          <EditSelectedVehicle loading={loading} />
 
           <Box w="full" py={4}>
             <EditBookingDates

@@ -23,16 +23,18 @@ function ViewSaleItemTable(props) {
   const { booking } = props;
 
   const {
-    item: { name },
+    vehicle: { registration },
     bookingRate,
     startDate,
     endDate,
-    quantity,
+    selectedDates,
     bookingTotal,
-    transferAmount,
+    transferFee,
     // taxType,
     downPayment: { amount: downPayment, paymentMode, reference },
   } = booking;
+
+  const quantity = selectedDates?.length || 0;
 
   const imprest = downPayment || 0;
 
@@ -42,7 +44,7 @@ function ViewSaleItemTable(props) {
         <Tbody>
           <Tr>
             <Th>Registration</Th>
-            <Td textAlign="end">{name}</Td>
+            <Td textAlign="end">{registration}</Td>
           </Tr>
           <Tr>
             <Th>Rate</Th>
@@ -70,10 +72,8 @@ function ViewSaleItemTable(props) {
             </Td>
           </Tr>
           <Tr>
-            <Th>Transfer Amount</Th>
-            <Td textAlign="end">
-              KES {Number(transferAmount).toLocaleString()}
-            </Td>
+            <Th>Transfer Fee</Th>
+            <Td textAlign="end">KES {Number(transferFee).toLocaleString()}</Td>
           </Tr>
           <Tr>
             <Th>Imprest Given</Th>

@@ -20,7 +20,7 @@ import ViewSaleSummaryTable from '../../../components/tables/Sales/ViewSaleSumma
 
 function ViewBooking(props) {
   const { booking } = props;
-  console.log({ booking });
+  // console.log({ booking });
   const { org, customer, id, saleDate, dueDate, customerNotes, balance } =
     booking;
 

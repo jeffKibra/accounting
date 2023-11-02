@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Text } from '@chakra-ui/react';
+// import { Text } from '@chakra-ui/react';
 
 // import useDeletebooking from "../../../hooks/useDeletebooking";
 import BookingOptions from '../../../containers/Management/Bookings/BookingOptions';
@@ -24,7 +24,7 @@ function BookingsTable(props) {
 
   const columns = useMemo(() => {
     const allColumns = [
-      { Header: 'Car', accessor: 'car' },
+      { Header: 'Car', accessor: 'vehicle.registration' },
       { Header: 'Booking Dates', accessor: 'date' },
 
       { Header: 'Days', accessor: 'quantity', isNumeric: true },
@@ -68,7 +68,6 @@ function BookingsTable(props) {
       const {
         total,
         downPayment,
-        item,
         paymentsReceived,
         startDate,
         endDate,
@@ -85,7 +84,7 @@ function BookingsTable(props) {
 
       return {
         ...booking,
-        car: <Text textTransform="uppercase">{item?.name || ''}</Text>,
+        // car: <Text textTransform="uppercase">{item?.name || ''}</Text>,
         total: Number(total).toLocaleString(),
         balance: Number(balance).toLocaleString(),
         imprest: Number(imprest).toLocaleString(),

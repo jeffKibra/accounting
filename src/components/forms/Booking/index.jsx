@@ -67,11 +67,11 @@ function BookingForm(props) {
     }
     formValues.customer = formats.formatCustomerData(customer);
 
-    const paymentTerm = paymentTerms.find(term => term.value === paymentTermId);
-    if (!paymentTerm) {
-      return toastError('Selected Payment Term is not a valid Payment Term');
-    }
-    formValues.paymentTerm = paymentTerm;
+    // const paymentTerm = paymentTerms.find(term => term.value === paymentTermId);
+    // if (!paymentTerm) {
+    //   return toastError('Selected Payment Term is not a valid Payment Term');
+    // }
+    // formValues.paymentTerm = paymentTerm;
 
     console.log({ formValues });
 
@@ -82,7 +82,7 @@ function BookingForm(props) {
     // console.log({ formValues });
 
     //submit the data
-    // handleFormSubmit(formValues);
+    onSubmit(formValues);
   }
 
   // console.log({ customers, items, paymentTerms, loading });

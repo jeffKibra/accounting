@@ -5,18 +5,18 @@ import { Box } from '@chakra-ui/react';
 import { GET_BOOKINGS } from '../../../store/actions/bookingsActions';
 import { reset } from '../../../store/slices/bookingsSlice';
 
+//
+import { useSearchBookings } from 'hooks';
+
 import SkeletonLoader from '../../../components/ui/SkeletonLoader';
 import Empty from '../../../components/ui/Empty';
 
 import BookingsTable from '../../../components/tables/Bookings/BookingsTable';
 
 function Bookings(props) {
-  const { loading, bookings, action, isModified, getBookings, resetBookings } =
-    props;
+  const { isModified, getBookings, resetBookings } = props;
 
-  useEffect(() => {
-    getBookings();
-  }, [getBookings]);
+  const { bookings, loading } = useSearchBookings();
 
   useEffect(() => {
     if (isModified) {
@@ -25,7 +25,7 @@ function Bookings(props) {
     }
   }, [isModified, resetBookings, getBookings]);
 
-  return loading && action === GET_BOOKINGS ? (
+  return loading ? (
     <SkeletonLoader />
   ) : bookings?.length > 0 ? (
     <Box

@@ -9,7 +9,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 //
 import Editable from './Editable';
 
-function EditSelectedItem(props) {
+function EditSelectedVehicle(props) {
   //   console.log({ orgId });
 
   const location = useLocation();
@@ -18,11 +18,11 @@ function EditSelectedItem(props) {
 
   const { watch } = useFormContext();
 
-  const item = watch('item');
+  const vehicle = watch('vehicle');
   // console.log({ item });
 
-  const carModel = item?.model || {};
-  const year = item?.year || '';
+  const carModel = vehicle?.model || {};
+  const year = vehicle?.year || '';
 
   const handleEdit = useCallback(() => {
     navigate(`${pathname}?stage=1`);
@@ -32,7 +32,7 @@ function EditSelectedItem(props) {
     <Editable onEditToggle={handleEdit} isEditing={false}>
       <>
         <Heading mt={-4} textTransform="uppercase">
-          {item?.registration || ''}
+          {vehicle?.registration || ''}
         </Heading>
         <Text>{`${carModel?.make} ${carModel?.model} ${
           year ? `(${year})` : ''
@@ -59,4 +59,4 @@ function EditSelectedItem(props) {
   // );
 }
 
-export default EditSelectedItem;
+export default EditSelectedVehicle;

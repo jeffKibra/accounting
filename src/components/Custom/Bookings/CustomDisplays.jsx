@@ -61,5 +61,8 @@ NumberDisplay.defaultProps = {
 };
 
 export function NumberDisplay(props) {
-  return <CustomDisplay {...props} />;
+  const { value } = props;
+  // console.log({ props });
+
+  return <CustomDisplay {...props} value={Number(value).toLocaleString()} />;
 }

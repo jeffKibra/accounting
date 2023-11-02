@@ -9,7 +9,7 @@ import { reset } from '../../../store/slices/bookingsSlice';
 
 import { BOOKINGS } from '../../../nav/routes';
 
-import useSavedLocation from '../../../hooks/useSavedLocation';
+import { useSavedLocation, useGetBooking } from 'hooks';
 
 import PageLayout from '../../../components/layout/PageLayout';
 import SkeletonLoader from '../../../components/ui/SkeletonLoader';
@@ -18,16 +18,13 @@ import Empty from '../../../components/ui/Empty';
 import ViewBooking from '../../../containers/Management/Bookings/ViewBooking';
 
 function ViewBookingPage(props) {
-  const { loading, isModified, booking, action, resetBooking, getBooking } =
-    props;
+  const { isModified, resetBooking } = props;
   const { bookingId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   useSavedLocation().setLocation();
 
-  useEffect(() => {
-    getBooking(bookingId);
-  }, [getBooking, bookingId]);
+  const { booking, loading } = useGetBooking(bookingId);
 
   useEffect(() => {
     if (isModified) {
@@ -48,7 +45,7 @@ function ViewBookingPage(props) {
         [bookingId]: location.pathname,
       }}
     >
-      {loading && action === GET_BOOKING ? (
+      {loading ? (
         <SkeletonLoader />
       ) : booking ? (
         <ViewBooking booking={booking} />

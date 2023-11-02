@@ -55,4 +55,6 @@ export interface IContactSummary
   extends Pick<
     IContact,
     'companyName' | 'displayName' | 'email' | 'contactType' | 'type' | 'id'
-  > {}
+  > {
+  // id: string;
+}

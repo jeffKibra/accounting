@@ -10,7 +10,7 @@ import BookingFormContext from 'contexts/BookingFormContext';
 import CustomModal from 'components/ui/CustomModal';
 
 //
-import SelectItem from './SelectItem';
+import SelectItem from './SelectVehicle';
 import BookingDaysSelector from './BookingDaysSelector';
 
 //----------------------------------------------------------------

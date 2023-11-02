@@ -24,15 +24,15 @@ ItemsLoader.propTypes = {
   // children: PropTypes.node.isRequired,
   // items: PropTypes.array,
   // loadingItems: PropTypes.bool,
-  onItemSelect: PropTypes.func,
-  selectedItem: PropTypes.object,
+  onSelect: PropTypes.func,
+  selectedVehicle: PropTypes.object,
   // selectedDates: PropTypes.arrayOf(PropTypes.string),
   // startDate: PropTypes.string.isRequired,
   // endDate: PropTypes.string.isRequired,
 };
 
 ItemsLoader.defaultProps = {
-  preselectedItemId: '',
+  preselectedVehicleId: '',
   preselectedDates: [],
 };
 
@@ -40,43 +40,43 @@ ItemsLoader.defaultProps = {
 
 function ItemsLoader(props) {
   // console.log({ props });
-  const { onItemSelect, selectedItem, selectedDates } = props;
+  const { onSelect, selectedVehicle } = props;
 
-  const itemId = selectedItem?._id || '';
-  // console.log({ itemId, selectedItem });
+  const vehicleId = selectedVehicle?._id || '';
+  // console.log({ vehicleId, selectedVehicle });
 
   const { savedData } = useContext(BookingFormContext);
   const { getQueryVariables } = useContext(SearchItemsContext);
 
-  const { preselectedDates, preselectedItemId } = useMemo(() => {
+  const { preselectedDates, preselectedVehicleId } = useMemo(() => {
     const preselectedDates = savedData?.selectedDates || [];
-    const preselectedItemId = savedData?.item?.itemId || '';
+    const preselectedVehicleId = savedData?.item?.vehicleId || '';
 
-    return { preselectedItemId, preselectedDates };
+    return { preselectedVehicleId, preselectedDates };
   }, [savedData]);
 
   // console.log({ startDate, endDate });
 
   // console.log({ selectedDaysGroupedInMonths, availableItems });
 
-  function handleItemClick(item) {
+  function handleRowClick(vehicle) {
     // console.log({ item });
-    delete item?.__typename;
-    delete item?.searchScore;
-    delete item?.model?.__typename;
+    delete vehicle?.__typename;
+    delete vehicle?.searchScore;
+    delete vehicle?.model?.__typename;
 
     const queryVariables = getQueryVariables();
     // console.log({ queryVariables });
 
-    onItemSelect(item, queryVariables);
+    onSelect(vehicle, queryVariables);
   }
 
   return (
     <>
       <ItemsTable
         emptyMessage="No Vehicle is available for booking on the selected Dates!"
-        onRowClick={handleItemClick}
-        itemIdToHighlight={itemId || ''}
+        onRowClick={handleRowClick}
+        vehicleIdToHighlight={vehicleId || ''}
       />
     </>
   );

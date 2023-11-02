@@ -6,7 +6,7 @@ import ControlledNumInput from 'components/ui/ControlledNumInput';
 //
 import { NumberDisplay } from './CustomDisplays';
 
-function TransferAmount(props) {
+function TransferFee(props) {
   const { loading, isEditing } = props;
 
   const {
@@ -14,12 +14,12 @@ function TransferAmount(props) {
     control,
   } = useFormContext();
 
-  const label = 'Transfer Amount';
+  const label = 'Transfer Fee';
 
   return (
-    <FormControl isInvalid={errors?.transferAmount}>
+    <FormControl isInvalid={errors?.transferFee}>
       <Controller
-        name="transferAmount"
+        name="transferFee"
         rules={{
           required: { value: true, message: '* Required!' },
         }}
@@ -27,10 +27,12 @@ function TransferAmount(props) {
         render={({ field: { value, ref, onBlur, onChange } }) => {
           return isEditing ? (
             <>
-              <FormLabel fontSize="14px" htmlFor="transferAmount">
+              <FormLabel fontSize="14px" htmlFor="transferFee">
                 {label}
               </FormLabel>
               <ControlledNumInput
+                key="transferFee"
+                id="transferFee"
                 ref={ref}
                 updateFieldMode="onBlur"
                 value={value}
@@ -47,14 +49,14 @@ function TransferAmount(props) {
         }}
       />
 
-      <FormErrorMessage>{errors?.transferAmount?.message}</FormErrorMessage>
+      <FormErrorMessage>{errors?.transferFee?.message}</FormErrorMessage>
     </FormControl>
   );
 }
 
-TransferAmount.propTypes = {
+TransferFee.propTypes = {
   loading: PropTypes.bool,
   isEditing: PropTypes.bool,
 };
 
-export default TransferAmount;
+export default TransferFee;
