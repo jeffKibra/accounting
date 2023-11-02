@@ -1,5 +1,16 @@
-export default function generateQueryVariables(state, incomingPage) {
-  const { sortBy, hitsPerPage, valueToSearch, filters } = state;
+export default function generateQueryVariables(
+  state,
+  selectedDates,
+  bookingId
+) {
+  const {
+    sortBy,
+    hitsPerPage,
+    valueToSearch,
+    filters,
+    pageIndex: incomingPage,
+  } = state;
+  // console.log({ incomingPage });
 
   const pageNumberIsValid =
     !isNaN(incomingPage) &&
@@ -17,14 +28,10 @@ export default function generateQueryVariables(state, incomingPage) {
     sortBy.length === 2 &&
     Boolean(sortBy[0]) &&
     Boolean(sortBy[1]);
-  console.log({ sortByIsValid, sortBy });
+
+  // console.log({ sortByIsValid, sortBy });
 
   const queryOptions = {
-    ...(sortByIsValid
-      ? {
-          sortBy,
-        }
-      : {}),
     pagination: {
       limit: hitsPerPage,
       page: pageNumberIsValid ? incomingPage : 0,
@@ -38,6 +45,17 @@ export default function generateQueryVariables(state, incomingPage) {
       // rate:[20000, 40000]
       // make:["Mercedes"]
     },
+    ...(bookingId ? { bookingId } : {}),
+    ...(selectedDates?.length > 0
+      ? {
+          selectedDates,
+        }
+      : {}),
+    ...(sortByIsValid
+      ? {
+          sortBy,
+        }
+      : {}),
   };
 
   const variables = {

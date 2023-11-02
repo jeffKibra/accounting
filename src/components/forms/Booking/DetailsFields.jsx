@@ -87,7 +87,7 @@ export default function DetailsFields(props) {
   }, [paymentTermId, saleDate, paymentTerms, setValue, bookingId]);
 
   return (
-    <Box>
+    <Box p={4}>
       <Grid mb={2} rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
         {/* <GridItem colSpan={12}>
           <FormControl isDisabled={loading} isRequired isInvalid={errors.item}>
@@ -124,9 +124,9 @@ export default function DetailsFields(props) {
         borderBottomRightRadius="lg"
         mt={6}
         mx={-4}
-        mb={-8}
+        // mb={-8}
         p={4}
-        pb={8}
+        pb={4}
         bg="#f4f6f8"
         rowGap={2}
         columnGap={4}

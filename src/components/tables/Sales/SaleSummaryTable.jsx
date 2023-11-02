@@ -12,8 +12,8 @@ function SaleSummaryTable(props) {
   const transferAmount = watch('transferAmount');
   const saleTax = watch('saleTax');
 
-  const selectedDates = watch('selectedDates');
-  const quantity = selectedDates?.length;
+  // const selectedDates = watch('selectedDates');
+  const quantity = watch('daysCount');
 
   // console.log({ bookingRate, quantity, transferAmount, saleTax });
 

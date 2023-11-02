@@ -1,7 +1,6 @@
 import { useEffect, useState, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { useFormContext } from 'react-hook-form';
 
 //
 import { GET_MONTHLY_BOOKINGS } from 'store/actions/monthlyBookings';
@@ -10,9 +9,9 @@ import { GET_ITEMS_NOT_BOOKED } from 'store/actions/itemsActions';
 import { Bookings } from 'utils/bookings';
 import { groupDatesByMonths } from 'utils/dates';
 //
-import SkeletonLoader from 'components/ui/SkeletonLoader';
 //
 import BookingFormContext from 'contexts/BookingFormContext';
+import SearchItemsContext from 'contexts/SearchItemsContext';
 
 //
 // import DateRangePicker from 'components/ui/DateRangePicker';
@@ -23,10 +22,11 @@ import ItemsTable from 'components/tables/Items/ItemsTable';
 ItemsLoader.propTypes = {
   // loading: PropTypes.bool.isRequired,
   // children: PropTypes.node.isRequired,
-  items: PropTypes.array,
-  loadingItems: PropTypes.bool,
+  // items: PropTypes.array,
+  // loadingItems: PropTypes.bool,
   onItemSelect: PropTypes.func,
-  selectedDates: PropTypes.arrayOf(PropTypes.string),
+  selectedItem: PropTypes.object,
+  // selectedDates: PropTypes.arrayOf(PropTypes.string),
   // startDate: PropTypes.string.isRequired,
   // endDate: PropTypes.string.isRequired,
 };
@@ -40,24 +40,13 @@ ItemsLoader.defaultProps = {
 
 function ItemsLoader(props) {
   // console.log({ props });
-  const {
-    // items,
-    // loadingItems,
-    // itemsError,
-    fetchItemsNotBooked,
-    // defaultItemId,
-    orgId,
-    onItemSelect,
-    selectedDates,
-  } = props;
+  const { onItemSelect, selectedItem, selectedDates } = props;
 
-  const [idsForItemsAlreadyBooked, setIdsForItemsAlreadyBooked] =
-    useState(null);
-
-  const { watch } = useFormContext();
-  const itemId = watch('item')?.itemId || '';
+  const itemId = selectedItem?._id || '';
+  // console.log({ itemId, selectedItem });
 
   const { savedData } = useContext(BookingFormContext);
+  const { getQueryVariables } = useContext(SearchItemsContext);
 
   const { preselectedDates, preselectedItemId } = useMemo(() => {
     const preselectedDates = savedData?.selectedDates || [];
@@ -66,50 +55,28 @@ function ItemsLoader(props) {
     return { preselectedItemId, preselectedDates };
   }, [savedData]);
 
-  useEffect(() => {
-    if (selectedDates?.length > 0) {
-      const datesGroupedInMonths = groupDatesByMonths(selectedDates);
-      // console.log({ datesGroupedInMonths, selectedDates });
-
-      Bookings.getIdsForItemsAlreadyBooked(
-        orgId,
-        datesGroupedInMonths
-        // preselectedItemId,
-        // preselectedDates
-      ).then(itemsIds => {
-        setIdsForItemsAlreadyBooked(itemsIds);
-      });
-    }
-  }, [selectedDates, orgId, preselectedItemId, preselectedDates]);
-  console.log({ idsForItemsAlreadyBooked });
-
-  useEffect(() => {
-    // fetchItemsNotBooked(idsForItemsAlreadyBooked);
-  }, [idsForItemsAlreadyBooked, fetchItemsNotBooked]);
-
   // console.log({ startDate, endDate });
 
   // console.log({ selectedDaysGroupedInMonths, availableItems });
 
   function handleItemClick(item) {
     // console.log({ item });
-    onItemSelect(item);
+    delete item?.__typename;
+    delete item?.searchScore;
+    delete item?.model?.__typename;
+
+    const queryVariables = getQueryVariables();
+    // console.log({ queryVariables });
+
+    onItemSelect(item, queryVariables);
   }
 
-  const loadingAlreadyBookedItems = !Boolean(idsForItemsAlreadyBooked);
-
-  return loadingAlreadyBookedItems ? (
-    <SkeletonLoader />
-  ) : (
+  return (
     <>
       <ItemsTable
         emptyMessage="No Vehicle is available for booking on the selected Dates!"
-        // loading={loadingItems}
-        // items={items || []}
-        // error={itemsError}
         onRowClick={handleItemClick}
         itemIdToHighlight={itemId || ''}
-        idsForItemsToExclude={idsForItemsAlreadyBooked || []}
       />
     </>
   );

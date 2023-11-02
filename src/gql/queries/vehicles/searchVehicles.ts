@@ -4,10 +4,6 @@ import { vehicleFields } from './getVehicle';
 
 export const vehicleInListFields = `
   ${vehicleFields}
-  id
-  metaData {
-    status
-  }
 `;
 
 const SEARCH_VEHICLES = gql`

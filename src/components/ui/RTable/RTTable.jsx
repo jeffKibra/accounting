@@ -68,6 +68,8 @@ function RTTable(props) {
     setGlobalFilter(searchValue);
   }
 
+  // console.log({ moreProps });
+
   return (
     <ControlledTable
       setGlobalFilter={handleGlobalFilterInputChange}

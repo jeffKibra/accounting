@@ -11,7 +11,7 @@ import useSavedLocation from '../../../hooks/useSavedLocation';
 
 import PageLayout from '../../../components/layout/PageLayout';
 // import NewBooking from 'containers/Management/Bookings/NewBooking';
-import BookingForm from 'components/forms/Booking/BookingForm';
+import BookingForm from 'components/forms/Booking';
 
 function NewBookingPage(props) {
   const { loading, action, isModified, createBooking, resetBooking } = props;

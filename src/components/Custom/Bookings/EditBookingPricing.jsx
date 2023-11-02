@@ -16,8 +16,9 @@ export default function EditBookingPricing(props) {
 
   const { watch } = useFormContext();
 
-  const selectedDates = watch('selectedDates');
   const bookingTotal = watch('bookingTotal');
+  // const selectedDates = watch('selectedDates');
+  const daysCount = watch('daysCount');
 
   function toggleEditing() {
     setIsEditing(currentState => !currentState);
@@ -30,7 +31,7 @@ export default function EditBookingPricing(props) {
 
         <BookingRate isEditing={isEditing} />
 
-        <NumberDisplay title="Days Count" value={selectedDates?.length || 0} />
+        <NumberDisplay title="Days Count" value={daysCount || 0} />
         <NumberDisplay
           title="Booking Total"
           value={Number(bookingTotal || 0).toLocaleString()}

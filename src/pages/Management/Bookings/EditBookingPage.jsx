@@ -16,7 +16,7 @@ import PageLayout from '../../../components/layout/PageLayout';
 import SkeletonLoader from '../../../components/ui/SkeletonLoader';
 import Empty from '../../../components/ui/Empty';
 
-import BookingForm from 'components/forms/Booking/BookingForm';
+import BookingForm from 'components/forms/Booking';
 
 function getFormValuesOnly(booking = {}) {
   const {

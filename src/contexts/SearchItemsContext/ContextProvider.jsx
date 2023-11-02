@@ -1,14 +1,5 @@
-import {
-  useState,
-  createContext,
-  useEffect,
-  useReducer,
-  useCallback,
-  useRef,
-  useMemo,
-} from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useDisclosure } from '@chakra-ui/react';
-import { useSelector, useDispatch } from 'react-redux';
 import { useForm, Controller } from 'react-hook-form';
 import PropTypes from 'prop-types';
 //
@@ -27,54 +18,43 @@ import { getDatesWithinRange } from 'utils/dates';
 //
 import { generateQueryVariables } from './utils';
 //
-import {
-  startLoading,
-  stopLoading,
-  fail,
-  reset as resetItems,
-  // itemsSuccess,
-} from 'store/slices/itemsSlice';
-
-//
-import {
-  SET_FILTERS,
-  SET_VALUE_TO_SEARCH,
-  SET_HITS_PER_PAGE,
-  // SET_PAGE_INDEX,
-  // SET_FIELD,
-} from './actions';
-import reducer from './reducer';
-//
-
-//useReducer actions
 
 //----------------------------------------------------------------
-
 //----------------------------------------------------------------
-
 //----------------------------------------------------------------
 SearchItemsContextProvider.propTypes = {
   children: PropTypes.node.isRequired,
-  selectedDates: PropTypes.array,
+  selectedDatesString: PropTypes.string,
+  defaultValues: PropTypes.object,
+  bookingId: PropTypes.string,
 };
 
 export default function SearchItemsContextProvider(props) {
   // console.log({ props });
 
-  const calendar = getDatesWithinRange('2023/Jan/01', '2023/Dec/31');
-  // console.log({ calendar });
-  const { children, selectedDates, defaultValues } = props;
-  // console.log({ selectedDates });
+  const { children, selectedDatesString, defaultValues, bookingId } = props;
+  // console.log({ defaultValues });
+  // console.log({ selectedDatesString });
+
+  const selectedDates = useMemo(() => {
+    let sDates = [];
+    if (selectedDatesString) {
+      sDates = String(selectedDatesString).split(',');
+    }
+
+    return sDates;
+  }, [selectedDatesString]);
 
   // const defaultRatesRange =
   //   defaultValues?.ratesRange || getFacetsRatesRange(facets);
   // console.log({ defaultRatesRange, facets });
   const formMethods = useForm({
     defaultValues: {
-      hitsPerPage: 2,
-      valueToSearch: '',
-      filters: null,
-      sortBy: null,
+      hitsPerPage: defaultValues?.hitsPerPage || 2,
+      valueToSearch: defaultValues?.valueToSearch || '',
+      filters: defaultValues?.filters || null,
+      sortBy: defaultValues?.sortBy || null,
+      pageIndex: defaultValues?.pageIndex || 0,
     },
   });
 
@@ -86,39 +66,7 @@ export default function SearchItemsContextProvider(props) {
     isMounted.current = true;
   }, []);
   //----------------------------------------------------------------
-
-  const reduxDispatch = useDispatch();
-
-  // console.log({ orgId });
-
-  // const itemsReducer = useSelector(state => state?.itemsReducer) || {};
-  // const { isModified } = itemsReducer;
-  // console.log({ isModified });
-
-  // const setError = useCallback(
-  //   incomingError => {
-  //     reduxDispatch(fail(incomingError));
-  //   },
-  //   [reduxDispatch]
-  // );
-
-  // const setLoadingStatus = useCallback(
-  //   status => {
-  //     // console.log({ status });
-  //     reduxDispatch(status ? startLoading() : stopLoading());
-  //   },
-  //   [reduxDispatch]
-  // );
-
   //----------------------------------------------------------------
-
-  // console.log({ state });
-
-  // const setPageIndex = useCallback(inValue => {
-  //   // console.log('setting pageIndex', inValue);
-  //   contextDispatch({ type: SET_PAGE_INDEX, payload: inValue });
-  // }, []);
-
   //----------------------------------------------------------------
   const originalState = useMemo(
     () => {
@@ -129,6 +77,24 @@ export default function SearchItemsContextProvider(props) {
   );
 
   //----------------------------------------------------------------
+
+  const handleCompleted = useCallback(() => {
+    console.log('completing api fetch request...');
+    setValue('initialFetchCompleted', true);
+  }, [setValue]);
+
+  // const initialFetchCompleted = watch('initialFetchCompleted');
+  // console.log({ initialFetchCompleted });
+
+  //----------------------------------------------------------------
+  const generateQueryVariablesLocally = useCallback(
+    stateToParse => {
+      return generateQueryVariables(stateToParse, selectedDates, bookingId);
+    },
+    [selectedDates, bookingId]
+  );
+  //----------------------------------------------------------------
+
   //GQL
   const {
     loading,
@@ -136,44 +102,34 @@ export default function SearchItemsContextProvider(props) {
     data: gqlData,
     refetch: searchVehicles,
   } = useQuery(queries.vehicles.SEARCH_VEHICLES, {
-    variables: generateQueryVariables(originalState, 0),
+    variables: generateQueryVariablesLocally(originalState),
     fetchPolicy: 'cache-and-network',
+    onCompleted: handleCompleted,
   });
 
   const result = gqlData?.searchVehicles;
   const vehicles = result?.vehicles || [];
   const meta = result?.meta || {};
-  console.log('gql search vehicles result', {
-    gqlData,
-    result,
-    loading,
-    error,
-    searchVehicles,
-  });
+  // console.log('gql search vehicles result', {
+  //   gqlData,
+  //   result,
+  //   loading,
+  //   error,
+  //   searchVehicles,
+  // });
 
   const incomingFacets = meta?.facets;
 
   const [facets, setFacets] = useState(null);
 
   useEffect(() => {
-    console.log({ incomingFacets });
+    // console.log({ incomingFacets });
     if (incomingFacets) {
       setFacets(incomingFacets);
     }
   }, [incomingFacets]);
 
-  const makesFacet = meta?.facets?.makes;
-  // console.log({ makesFacet });
-
   //----------------------------------------------------------------
-
-  // console.log({ filtersCombinedString });
-
-  // const reset = useCallback(() => {
-  //   setResult(null);
-  //   setError(null);
-  // }, [setError, setResult]);
-
   //----------------------------------------------------------------
   const {
     isOpen,
@@ -183,39 +139,40 @@ export default function SearchItemsContextProvider(props) {
   } = useDisclosure();
 
   //----------------------------------------------------------------
-  const handleSearchVehicles = useCallback(
-    incomingPage => {
-      try {
-        // reset();
-        // setLoadingStatus(true);
-
+  const handleSearchVehicles = useCallback(() => {
+    try {
+      // reset();
+      // setLoadingStatus(true);
+      const initialFetchCompleted = getValues('initialFetchCompleted');
+      if (initialFetchCompleted) {
         const state = getValues();
-        console.log({ state });
+        // console.log({ state });
 
-        const queryVariables = generateQueryVariables(state, incomingPage);
+        const queryVariables = generateQueryVariablesLocally(state);
 
-        console.log({ queryVariables });
+        // console.log({ queryVariables });
 
         console.log('searching vehicles...');
 
         searchVehicles({
           ...queryVariables,
         });
-      } catch (error) {
-        console.error(error);
-        // setError(error);
       }
-    },
-    [searchVehicles, getValues]
-  );
+    } catch (error) {
+      console.error(error);
+      // setError(error);
+    }
+  }, [searchVehicles, getValues, generateQueryVariablesLocally]);
 
   //----------------------------------------------------------------
 
   const setValueToSearch = useCallback(
     inValue => {
       setValue('valueToSearch', inValue);
+      //reset page index
+      setValue('pageIndex', 0);
       //search
-      handleSearchVehicles(0);
+      handleSearchVehicles();
     },
     [setValue, handleSearchVehicles]
   );
@@ -224,8 +181,10 @@ export default function SearchItemsContextProvider(props) {
     filtersData => {
       // console.log('setting filters', filtersData);
       setValue('filters', filtersData);
+      //reset page index
+      setValue('pageIndex', 0);
       //search
-      handleSearchVehicles(0);
+      handleSearchVehicles();
       //close modal
       closeFiltersModal();
     },
@@ -235,73 +194,67 @@ export default function SearchItemsContextProvider(props) {
   const setHitsPerPage = useCallback(
     inValue => {
       setValue('hitsPerPage', inValue);
+      //reset page index
+      setValue('pageIndex', 0);
       //search
-      handleSearchVehicles(0);
+      handleSearchVehicles();
     },
     [setValue, handleSearchVehicles]
   );
 
   //----------------------------------------------------------------
-  const gotoPage = useCallback(
-    incomingPageIndex => {
-      handleSearchVehicles(incomingPageIndex);
-    },
-    [handleSearchVehicles]
-  );
   //----------------------------------------------------------------
-  const nextPage = useCallback(
-    currentPageIndex => {
-      // console.log('fetching next page...', { currentPageIndex });
-      handleSearchVehicles(currentPageIndex + 1);
-    },
-    [handleSearchVehicles]
-  );
-  const previousPage = useCallback(
-    currentPageIndex => {
-      // console.log('fetching previous page...', {
-      //   currentPageIndex,
-      // });
-      handleSearchVehicles(currentPageIndex - 1);
-    },
-    [handleSearchVehicles]
-  );
+
+  const { gotoPage, nextPage, previousPage } = useMemo(() => {
+    function gotoPage(incomingPageIndex) {
+      //update pageIndex value in form
+      setValue('pageIndex', incomingPageIndex);
+      //trigger fetch
+      handleSearchVehicles();
+    }
+
+    function nextPage(currentPageIndex) {
+      gotoPage(currentPageIndex + 1);
+    }
+
+    function previousPage(currentPageIndex) {
+      gotoPage(currentPageIndex - 1);
+    }
+
+    return { gotoPage, nextPage, previousPage };
+  }, [handleSearchVehicles, setValue]);
 
   //----------------------------------------------------------------
+
   const handleSortByChange = useCallback(
     (field, direction) => {
-      console.log({ field, direction });
+      // console.log('handling sortby change', { field, direction });
       //update form fields first
-      setValue('sortBy', [field, direction]);
+      let sortByTupple = null;
+      if (field) {
+        sortByTupple = [field, direction || 'desc'];
+      }
+
+      setValue('sortBy', sortByTupple);
+      //reset page index
+      setValue('pageIndex', 0);
       //fetch new vehicles list
-      handleSearchVehicles(0);
+      handleSearchVehicles();
     },
     [handleSearchVehicles, setValue]
   );
   //----------------------------------------------------------------
-
-  // useEffect(() => {
-  //   console.log('fetching data start stage');
-  //   //fetching data
-  //   if (isMounted.current) {
-  //     console.log('fetching data continue stage');
-
-  //     handleSearchVehicles(0);
-  //   }
-  // }, [handleSearchVehicles]);
-
   //----------------------------------------------------------------
+  //----------------------------------------------------------------
+  const getQueryVariables = useCallback(() => {
+    const state = getValues();
+    // console.log({ state });
 
-  // useEffect(() => {
-  //   //if an action (delete) is done, reset and refetch list
-  //   if (isModified) {
-  //     console.log('reseting items list due to list modification...');
-  //     //reset
-  //     reduxDispatch(resetItems());
-  //     //refetch items-change active page to trigger refresh
-  //     setPageIndex(pageIndex > 0 ? pageIndex - 1 : 0);
-  //   }
-  //   //eslint-disable-next-line
-  // }, [isModified]);
+    return {
+      ...state,
+    };
+  }, [getValues]);
+  //----------------------------------------------------------------
   //----------------------------------------------------------------
 
   // console.log({ formValues });
@@ -316,8 +269,8 @@ export default function SearchItemsContextProvider(props) {
   //     }
   //   : null;
   const pageIndex = meta?.page || 0;
+  const page = pageIndex;
   const fullListLength = meta?.count || 0;
-  const page = meta?.page || 0;
   const numberOfPages = Math.ceil(
     Number(fullListLength || 1) / Number(hitsPerPage || 1)
   );
@@ -325,15 +278,9 @@ export default function SearchItemsContextProvider(props) {
   // console.log({ pageCount, fullListLength, hitsPerPage, numberOfPages });
   // console.log({ fullListLength, page, numberOfPages, hitsPerPage, pageCount });
 
-  //----------------------------------------------------------------
-
-  const refetchQuery = useCallback(() => {
-    handleSearchVehicles(pageIndex || 0);
-  }, [pageIndex, handleSearchVehicles]);
-
-  //----------------------------------------------------------------
-
+  // sortBy
   const currentFilters = watch('filters');
+  // console.log({ currentFilters });
 
   return (
     <>
@@ -365,9 +312,10 @@ export default function SearchItemsContextProvider(props) {
           openFiltersModal,
           toggleFiltersModal,
           handleSearchVehicles,
-          refetchQuery,
+          refetchQuery: handleSearchVehicles,
           //
           handleSortByChange,
+          getQueryVariables,
         }}
       >
         <Controller

@@ -105,14 +105,14 @@ function RTTable(props) {
   const { globalFilter, sortBy: sortByArray } = state;
   const sortBy = sortByArray[0] || {};
   //
-  const sortByField = sortBy?.id;
+  const sortByField = sortBy?.id || '';
   const sortByDirection = sortBy?.desc ? 'desc' : 'asc';
 
   useEffect(() => {
-    console.log('sort by has changed... ');
+    // console.log('sort by has changed... ');
 
     if (manualSortBy) {
-      console.log('handling sortBy manualy');
+      // console.log('handling sortBy manualy');
       onSort(sortByField, sortByDirection);
     }
   }, [sortByField, sortByDirection, onSort, manualSortBy]);

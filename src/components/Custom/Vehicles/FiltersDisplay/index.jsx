@@ -61,9 +61,12 @@ function FiltersDisplay(props) {
           return <></>;
         }
 
-        return values.map(value => {
+        return values.map((value, i) => {
           return (
-            <CustomTag onClose={e => removeFilter(filterGroupKey, value, e)}>
+            <CustomTag
+              key={i}
+              onClose={e => removeFilter(filterGroupKey, value, e)}
+            >
               {value}
             </CustomTag>
           );
@@ -75,7 +78,7 @@ function FiltersDisplay(props) {
 
 FiltersDisplay.propTypes = {
   filters: PropTypes.object,
-  ratesRangeFacet: PropTypes.arrayOf(PropTypes.number),
+  ratesRangeFacet: PropTypes.object,
   onChange: PropTypes.func.isRequired,
 };
 

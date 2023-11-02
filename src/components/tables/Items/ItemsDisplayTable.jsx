@@ -93,7 +93,7 @@ function ItemsDisplayTable(props) {
         onSearch={setValueToSearch}
         onRowClick={onRowClick}
         rowIdToHighlight={itemIdToHighlight || ''}
-        rowFieldToUseAsIdForHighlighting="itemId"
+        rowFieldToUseAsIdForHighlighting="_id"
         highlightedRowBGColor="cyan.50"
         {...(rowsAreSelectable
           ? {

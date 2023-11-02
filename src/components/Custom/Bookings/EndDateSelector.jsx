@@ -45,9 +45,9 @@ export default function EndDateSelector(props) {
 
   const startDate = watch('startDate');
   const endDate = watch('endDate');
-  const selectedDates = watch('selectedDates');
+  // const selectedDates = watch('selectedDates');
   //   console.log({ selectedDates });
-  const days = selectedDates?.length;
+  const days = watch('daysCount');
 
   return (
     <FormControl isDisabled={loading} isRequired isInvalid={errors.endDate}>

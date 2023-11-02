@@ -4,7 +4,7 @@ function getTableColumns(enableActions) {
     { Header: 'Registration', accessor: 'registration' },
     // { Header: 'Unique Identifier', accessor: 'sku' },
     { Header: 'Make', accessor: 'make' },
-    { Header: 'Model', accessor: 'model' },
+    { Header: 'Model', accessor: 'carModel' },
     { Header: 'Type', accessor: 'type' },
     { Header: 'Color', accessor: 'color' },
     { Header: 'Rate', accessor: 'rate', isNumeric: true },

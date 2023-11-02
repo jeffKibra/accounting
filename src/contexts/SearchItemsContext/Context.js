@@ -38,6 +38,7 @@ const contextDefaultValues = {
   handleSearchVehicles: () => {},
   refetchQuery: () => {},
   handleSortByChange: () => {},
+  getQueryVariables: () => {},
 };
 
 //useReducer actions
