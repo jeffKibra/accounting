@@ -1,34 +1,57 @@
-import { useSelector, useDispatch } from 'react-redux';
+import { useEffect } from 'react';
 import { Box, Text } from '@chakra-ui/react';
+import { useMutation } from '@apollo/client';
+import { useNavigate } from 'react-router-dom';
 
-import { DELETE_BOOKING } from '../store/actions/bookingsActions';
+//
+import { BOOKINGS } from 'nav/routes';
+//
 
 import BookingDates from 'components/tables/Bookings/BookingDates';
+//
+import useToasts from './useToasts';
 
-import { reset } from '../store/slices/bookingsSlice';
+import { mutations } from 'gql';
 
 export default function useDeleteBooking(booking) {
-  const { customer, id: bookingId, item, startDate, endDate } = booking;
-  const {
-    loading,
-    action,
-    isModified: isDeleted,
-  } = useSelector(state => state.bookingsReducer);
-  const dispatch = useDispatch();
+  const { customer, _id: bookingId, vehicle, startDate, endDate } = booking;
 
-  const deleting = loading && action === DELETE_BOOKING;
-  // console.log({ loading, action, isDeleted });
+  const navigate = useNavigate();
+  const { error: toastError, success: toastSuccess } = useToasts();
+
+  const [deleteBooking, { called, loading, error, reset }] = useMutation(
+    mutations.bookings.DELETE_BOOKING,
+    { refetchQueries: ['ListBookings'] }
+  );
+
+  const success = called && !loading && !error;
+  const failed = called && !loading && Boolean(error);
+
+  useEffect(() => {
+    if (success) {
+      toastSuccess('Booking successfully deleted!');
+      //
+      reset();
+      //
+      navigate(BOOKINGS);
+    }
+  }, [success, toastSuccess, reset, navigate]);
+
+  useEffect(() => {
+    if (failed) {
+      toastError(error.message);
+    }
+  }, [failed, error, toastError]);
 
   function handleDelete() {
-    dispatch({ type: DELETE_BOOKING, payload: bookingId });
-  }
-
-  function resetBooking() {
-    dispatch(reset());
+    deleteBooking({
+      variables: { id: bookingId },
+    });
+    // dispatch({ type: DELETE_vehicle, payload: vehicleId });
   }
 
   const details = {
-    isDone: isDeleted,
+    isDone: success,
     title: 'Delete Booking',
     onConfirm: () => handleDelete(bookingId),
     // loading: deleting,
@@ -40,7 +63,7 @@ export default function useDeleteBooking(booking) {
           <Text>
             Car Registration:{' '}
             <Text as="b" textTransform="uppercase">
-              {item?.name}
+              {vehicle?.registration}
             </Text>
           </Text>
           <Text>
@@ -65,10 +88,10 @@ export default function useDeleteBooking(booking) {
   };
 
   return {
-    deleting,
-    isDeleted,
+    deleting: loading,
+    isDeleted: success,
     details,
     handleDelete,
-    resetBooking,
+    resetBooking: reset,
   };
 }
