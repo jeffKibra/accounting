@@ -1,12 +1,13 @@
 import { createContext } from 'react';
 
 //
+import {
+  contextDefaultValues as searchContextDefaultValues,
+  initialState as searchContextInitialState,
+} from '../SearchContext/Context';
 
 const initialState = {
-  sortBy: ['searchScore', 'desc'],
-  hitsPerPage: 2,
-  filters: null,
-  valueToSearch: '',
+  ...searchContextInitialState,
   facets: {
     makes: [],
     types: [],
@@ -17,28 +18,13 @@ const initialState = {
 
 //
 const contextDefaultValues = {
+  ...searchContextDefaultValues,
   ...initialState,
   selectedDates: null,
   result: null,
   pageCount: 0,
   fullListLength: 0,
-  loading: false,
   items: null,
-  error: null,
-  setValueToSearch: () => {},
-  setFilters: () => {},
-  setHitsPerPage: () => {},
-  setFilterForItemsIdsToExclude: () => {},
-  gotoPage: () => {},
-  nextPage: () => {},
-  previousPage: () => {},
-  closeFiltersModal: () => {},
-  openFiltersModal: () => {},
-  toggleFiltersModal: () => {},
-  handleSearchVehicles: () => {},
-  refetchQuery: () => {},
-  handleSortByChange: () => {},
-  getQueryVariables: () => {},
 };
 
 //useReducer actions

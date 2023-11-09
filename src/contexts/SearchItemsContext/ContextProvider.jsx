@@ -1,40 +1,22 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useDisclosure } from '@chakra-ui/react';
-import { useForm, Controller } from 'react-hook-form';
+import { useState, useEffect, useRef, useMemo, useContext } from 'react';
+
 import PropTypes from 'prop-types';
-//
-import { useQuery } from '@apollo/client';
 
 //
 import SearchItemsContext from './Context';
+import SearchContext, { SearchContextProvider } from '../SearchContext';
 //
 import { queries } from 'gql';
 //
 import VehiclesFiltersModalForm from 'components/forms/VehiclesFilters/ModalForm';
-import FiltersDisplay from 'components/Custom/Vehicles/FiltersDisplay';
 
-//
-import { getDatesWithinRange } from 'utils/dates';
-//
-import { generateQueryVariables } from './utils';
 //
 
 //----------------------------------------------------------------
 //----------------------------------------------------------------
-//----------------------------------------------------------------
-SearchItemsContextProvider.propTypes = {
-  children: PropTypes.node.isRequired,
-  selectedDatesString: PropTypes.string,
-  defaultValues: PropTypes.object,
-  bookingId: PropTypes.string,
-};
 
 export default function SearchItemsContextProvider(props) {
-  // console.log({ props });
-
   const { children, selectedDatesString, defaultValues, bookingId } = props;
-  // console.log({ defaultValues });
-  // console.log({ selectedDatesString });
 
   const selectedDates = useMemo(() => {
     let sDates = [];
@@ -45,20 +27,51 @@ export default function SearchItemsContextProvider(props) {
     return sDates;
   }, [selectedDatesString]);
 
+  return (
+    <SearchContextProvider
+      defaultValues={defaultValues}
+      GQLQuery={queries.vehicles.SEARCH_VEHICLES}
+      additionalQueryParams={{ bookingId, selectedDates }}
+      selectedDates={selectedDates}
+    >
+      <ContextProvider {...props}>{children}</ContextProvider>
+    </SearchContextProvider>
+  );
+}
+
+SearchItemsContextProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+  selectedDatesString: PropTypes.string,
+  defaultValues: PropTypes.object,
+  bookingId: PropTypes.string,
+};
+
+//----------------------------------------------------------------
+//----------------------------------------------------------------
+//----------------------------------------------------------------
+//----------------------------------------------------------------
+//----------------------------------------------------------------
+
+ContextProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+  selectedDatesString: PropTypes.string,
+  defaultValues: PropTypes.object,
+  bookingId: PropTypes.string,
+  selectedDates: PropTypes.array,
+};
+
+function ContextProvider(props) {
+  // console.log({ props });
+
+  const { children, selectedDates } = props;
+  // console.log({ defaultValues });
+  // console.log({ selectedDatesString });
+
+  const searchContext = useContext(SearchContext);
+
   // const defaultRatesRange =
   //   defaultValues?.ratesRange || getFacetsRatesRange(facets);
   // console.log({ defaultRatesRange, facets });
-  const formMethods = useForm({
-    defaultValues: {
-      hitsPerPage: defaultValues?.hitsPerPage || 2,
-      valueToSearch: defaultValues?.valueToSearch || '',
-      filters: defaultValues?.filters || null,
-      sortBy: defaultValues?.sortBy || null,
-      pageIndex: defaultValues?.pageIndex || 0,
-    },
-  });
-
-  const { setValue, getValues, control, watch } = formMethods;
 
   //----------------------------------------------------------------
   const isMounted = useRef(null);
@@ -68,46 +81,22 @@ export default function SearchItemsContextProvider(props) {
   //----------------------------------------------------------------
   //----------------------------------------------------------------
   //----------------------------------------------------------------
-  const originalState = useMemo(
-    () => {
-      return getValues();
-    },
-    //eslint-disable-next-line
-    [getValues]
-  );
 
   //----------------------------------------------------------------
-
-  const handleCompleted = useCallback(() => {
-    console.log('completing api fetch request...');
-    setValue('initialFetchCompleted', true);
-  }, [setValue]);
-
-  // const initialFetchCompleted = watch('initialFetchCompleted');
-  // console.log({ initialFetchCompleted });
-
-  //----------------------------------------------------------------
-  const generateQueryVariablesLocally = useCallback(
-    stateToParse => {
-      return generateQueryVariables(stateToParse, selectedDates, bookingId);
-    },
-    [selectedDates, bookingId]
-  );
   //----------------------------------------------------------------
 
-  //GQL
+  //----------------------------------------------------------------
+  //----------------------------------------------------------------
   const {
-    loading,
-    error,
-    data: gqlData,
-    refetch: searchVehicles,
-  } = useQuery(queries.vehicles.SEARCH_VEHICLES, {
-    variables: generateQueryVariablesLocally(originalState),
-    fetchPolicy: 'cache-and-network',
-    onCompleted: handleCompleted,
-  });
+    rawResult,
+    hitsPerPage,
+    filters,
+    isOpen,
+    setFilters,
+    closeFiltersModal,
+  } = searchContext;
 
-  const result = gqlData?.searchVehicles;
+  const result = rawResult?.searchVehicles;
   const vehicles = result?.vehicles || [];
   const meta = result?.meta || {};
   // console.log('gql search vehicles result', {
@@ -117,6 +106,9 @@ export default function SearchItemsContextProvider(props) {
   //   error,
   //   searchVehicles,
   // });
+
+  //----------------------------------------------------------------
+  //----------------------------------------------------------------
 
   const incomingFacets = meta?.facets;
 
@@ -128,138 +120,9 @@ export default function SearchItemsContextProvider(props) {
       setFacets(incomingFacets);
     }
   }, [incomingFacets]);
-
-  //----------------------------------------------------------------
-  //----------------------------------------------------------------
-  const {
-    isOpen,
-    onClose: closeFiltersModal,
-    onOpen: openFiltersModal,
-    onToggle: toggleFiltersModal,
-  } = useDisclosure();
-
-  //----------------------------------------------------------------
-  const handleSearchVehicles = useCallback(() => {
-    try {
-      // reset();
-      // setLoadingStatus(true);
-      const initialFetchCompleted = getValues('initialFetchCompleted');
-      if (initialFetchCompleted) {
-        const state = getValues();
-        // console.log({ state });
-
-        const queryVariables = generateQueryVariablesLocally(state);
-
-        // console.log({ queryVariables });
-
-        console.log('searching vehicles...');
-
-        searchVehicles({
-          ...queryVariables,
-        });
-      }
-    } catch (error) {
-      console.error(error);
-      // setError(error);
-    }
-  }, [searchVehicles, getValues, generateQueryVariablesLocally]);
-
-  //----------------------------------------------------------------
-
-  const setValueToSearch = useCallback(
-    inValue => {
-      setValue('valueToSearch', inValue);
-      //reset page index
-      setValue('pageIndex', 0);
-      //search
-      handleSearchVehicles();
-    },
-    [setValue, handleSearchVehicles]
-  );
-
-  const setFilters = useCallback(
-    filtersData => {
-      // console.log('setting filters', filtersData);
-      setValue('filters', filtersData);
-      //reset page index
-      setValue('pageIndex', 0);
-      //search
-      handleSearchVehicles();
-      //close modal
-      closeFiltersModal();
-    },
-    [setValue, closeFiltersModal, handleSearchVehicles]
-  );
-
-  const setHitsPerPage = useCallback(
-    inValue => {
-      setValue('hitsPerPage', inValue);
-      //reset page index
-      setValue('pageIndex', 0);
-      //search
-      handleSearchVehicles();
-    },
-    [setValue, handleSearchVehicles]
-  );
-
-  //----------------------------------------------------------------
-  //----------------------------------------------------------------
-
-  const { gotoPage, nextPage, previousPage } = useMemo(() => {
-    function gotoPage(incomingPageIndex) {
-      //update pageIndex value in form
-      setValue('pageIndex', incomingPageIndex);
-      //trigger fetch
-      handleSearchVehicles();
-    }
-
-    function nextPage(currentPageIndex) {
-      gotoPage(currentPageIndex + 1);
-    }
-
-    function previousPage(currentPageIndex) {
-      gotoPage(currentPageIndex - 1);
-    }
-
-    return { gotoPage, nextPage, previousPage };
-  }, [handleSearchVehicles, setValue]);
-
-  //----------------------------------------------------------------
-
-  const handleSortByChange = useCallback(
-    (field, direction) => {
-      // console.log('handling sortby change', { field, direction });
-      //update form fields first
-      let sortByTupple = null;
-      if (field) {
-        sortByTupple = [field, direction || 'desc'];
-      }
-
-      setValue('sortBy', sortByTupple);
-      //reset page index
-      setValue('pageIndex', 0);
-      //fetch new vehicles list
-      handleSearchVehicles();
-    },
-    [handleSearchVehicles, setValue]
-  );
   //----------------------------------------------------------------
   //----------------------------------------------------------------
   //----------------------------------------------------------------
-  const getQueryVariables = useCallback(() => {
-    const state = getValues();
-    // console.log({ state });
-
-    return {
-      ...state,
-    };
-  }, [getValues]);
-  //----------------------------------------------------------------
-  //----------------------------------------------------------------
-
-  // console.log({ formValues });
-  const hitsPerPage = watch('hitsPerPage');
-  // console.log({ hitsPerPage });
 
   // const metaFacets = meta?.facets;
   // const facets = metaFacets
@@ -278,14 +141,11 @@ export default function SearchItemsContextProvider(props) {
   // console.log({ pageCount, fullListLength, hitsPerPage, numberOfPages });
   // console.log({ fullListLength, page, numberOfPages, hitsPerPage, pageCount });
 
-  // sortBy
-  const currentFilters = watch('filters');
-  // console.log({ currentFilters });
-
   return (
     <>
       <SearchItemsContext.Provider
         value={{
+          ...searchContext,
           //search params
           hitsPerPage,
           pageIndex,
@@ -294,52 +154,12 @@ export default function SearchItemsContextProvider(props) {
           pageCount,
           page,
           fullListLength,
-          //redux store values
-          loading,
           items: vehicles,
-          error,
-          //fns
-          setValueToSearch,
-          setFilters,
-          setHitsPerPage,
-          gotoPage,
-          nextPage,
-          previousPage,
           selectedDates,
           facets,
           //
-          closeFiltersModal,
-          openFiltersModal,
-          toggleFiltersModal,
-          handleSearchVehicles,
-          refetchQuery: handleSearchVehicles,
-          //
-          handleSortByChange,
-          getQueryVariables,
         }}
       >
-        <Controller
-          name="valueToSearch"
-          control={control}
-          render={() => null}
-        />
-        <Controller name="hitsPerPage" control={control} render={() => null} />
-        <Controller name="pageIndex" control={control} render={() => null} />
-        <Controller name="sortBy" control={control} render={() => null} />
-        <Controller
-          name="filters"
-          control={control}
-          render={({ field: { value } }) => {
-            return value ? (
-              <FiltersDisplay
-                onChange={setFilters}
-                filters={value}
-                ratesRangeFacet={facets?.ratesRange}
-              />
-            ) : null;
-          }}
-        />
-
         {children}
       </SearchItemsContext.Provider>
 
@@ -350,7 +170,7 @@ export default function SearchItemsContextProvider(props) {
           onClose={closeFiltersModal}
           facets={facets}
           onSubmit={setFilters}
-          defaultValues={currentFilters || {}}
+          defaultValues={filters || {}}
         />
       ) : null}
     </>
