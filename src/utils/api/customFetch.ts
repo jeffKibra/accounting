@@ -16,15 +16,19 @@ async function getUserIdToken() {
 export default async function customFetch(options: RequestInit) {
   const idToken = await getUserIdToken();
   //
-
-  const response = await fetch('http://localhost:5000/graphql', {
-    ...options,
-    headers: {
-      Authorization: 'Bearer ' + idToken,
-      //   Authorization: 'Bearer ',
-      ...options.headers,
-    },
-  });
+  // https://cyan-good-calf.cyclic.app
+  // http://localhost:5000
+  const response = await fetch(
+    'https://cyan-good-calf.cyclic.app/graphql',
+    {
+      ...options,
+      headers: {
+        Authorization: 'Bearer ' + idToken,
+        //   Authorization: 'Bearer ',
+        ...options.headers,
+      },
+    }
+  );
   //   console.log({ response });
 
   const responseClone = response.clone();

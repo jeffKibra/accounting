@@ -2,6 +2,9 @@ import { Button } from '@chakra-ui/react';
 import { Link, useLocation } from 'react-router-dom';
 import { RiAddLine } from 'react-icons/ri';
 
+//
+import { SearchBookingsContextProvider } from 'contexts/SearchBookingsContext';
+
 import { NEW_BOOKING } from '../../../nav/routes';
 //
 //
@@ -29,7 +32,9 @@ function BookingsPage() {
         Bookings: location.pathname,
       }}
     >
-      <Bookings />
+      <SearchBookingsContextProvider>
+        <Bookings />
+      </SearchBookingsContextProvider>
     </PageLayout>
   );
 }

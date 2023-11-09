@@ -3,7 +3,11 @@ import { setContext } from '@apollo/client/link/context';
 //
 import { auth } from 'utils/firebase';
 
+//
+// 'https://cyan-good-calf.cyclic.app/graphql',
+// 'http://localhost:5000/graphql'
 const httpLink = createHttpLink({
+  // uri: 'https://cyan-good-calf.cyclic.app/graphql',
   uri: 'http://localhost:5000/graphql',
   //   uri: '/graphql',
 });

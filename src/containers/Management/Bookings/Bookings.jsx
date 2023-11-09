@@ -6,17 +6,14 @@ import { GET_BOOKINGS } from '../../../store/actions/bookingsActions';
 import { reset } from '../../../store/slices/bookingsSlice';
 
 //
-import { useSearchBookings } from 'hooks';
-
-import SkeletonLoader from '../../../components/ui/SkeletonLoader';
-import Empty from '../../../components/ui/Empty';
+// import { useSearchBookings } from 'hooks';
 
 import BookingsTable from '../../../components/tables/Bookings/BookingsTable';
 
 function Bookings(props) {
   const { isModified, getBookings, resetBookings } = props;
 
-  const { bookings, loading } = useSearchBookings();
+  // const { bookings, loading } = useSearchBookings();
 
   useEffect(() => {
     if (isModified) {
@@ -25,9 +22,7 @@ function Bookings(props) {
     }
   }, [isModified, resetBookings, getBookings]);
 
-  return loading ? (
-    <SkeletonLoader />
-  ) : bookings?.length > 0 ? (
+  return (
     <Box
       mt={-2}
       w="full"
@@ -35,16 +30,13 @@ function Bookings(props) {
       borderRadius="md"
       shadow="md"
       py={4}
-      px={2}
+      // px={2}
     >
       <BookingsTable
-        bookings={bookings}
         showCustomer
         columnsToExclude={['paymentInput', 'paymentAmount', 'id']}
       />
     </Box>
-  ) : (
-    <Empty />
   );
 }
 
