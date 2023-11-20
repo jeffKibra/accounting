@@ -1,37 +1,25 @@
 import { createContext } from 'react';
+//
+import {
+  initialState as ListContextInitialState,
+  contextDefaultValues as ListContextDefaultValues,
+} from '../ListContext/Context';
 
 //
 
 export const initialState = {
-  sortBy: ['searchScore', 'desc'],
-  hitsPerPage: 2,
-  filters: null,
+  ...ListContextInitialState,
   valueToSearch: '',
   facets: {},
 };
 
 //
 export const contextDefaultValues = {
+  ...ListContextDefaultValues,
   ...initialState,
-  rawResult: null,
-  loading: false,
-  error: null,
   setValueToSearch: () => {},
-  setFilters: () => {},
-  setHitsPerPage: () => {},
-  gotoPage: () => {},
-  nextPage: () => {},
-  previousPage: () => {},
-  //modal start
-  isOpen: false,
-  closeFiltersModal: () => {},
-  openFiltersModal: () => {},
-  toggleFiltersModal: () => {},
-  //modal end
   handleSearch: () => {},
-  refetchQuery: () => {},
-  handleSortByChange: () => {},
-  getQueryVariables: () => {},
+  // getQueryVariables: () => {},
 };
 
 //useReducer actions
