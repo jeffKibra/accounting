@@ -3,7 +3,7 @@ import { useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 //
 import { mutations } from 'gql';
-import useToasts from './useToasts';
+import useToasts from '../useToasts';
 
 //
 export function formatBookingData(formData) {

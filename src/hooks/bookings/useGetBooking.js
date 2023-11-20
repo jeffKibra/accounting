@@ -1,8 +1,9 @@
+import { useEffect } from 'react';
+
 import { useQuery } from '@apollo/client';
 //
 import { queries } from 'gql';
-import useToasts from './useToasts';
-import { useEffect } from 'react';
+import useToasts from '../useToasts';
 
 //
 

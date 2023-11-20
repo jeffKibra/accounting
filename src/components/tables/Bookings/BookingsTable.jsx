@@ -8,7 +8,7 @@ import RTTable from 'components/ui/Table/RTTable';
 // import TableActions from "../TableActions";
 
 // import bookingDates from './bookingDates';
-import SearchBookingsContext from 'contexts/SearchBookingsContext';
+import ListInvoicesContext from 'contexts/ListInvoicesContext';
 //
 import getBookingTableData from './getBookingTableData';
 import getTableColumns from './getTableColumns';
@@ -28,16 +28,16 @@ function BookingsTable(props) {
   } = props;
   // console.log({ bookings });
 
-  const bookingsContext = useContext(SearchBookingsContext);
-  // console.log({ bookingsContext });
+  const listBookingsContextValues = useContext(ListInvoicesContext);
+  // console.log({ listBookingsContextValues });
 
   const {
     loading,
-    bookings,
+    list: bookings,
     error,
     pageCount,
-    pageIndex,
-    fullListLength,
+    page,
+    count,
     hitsPerPage,
     setHitsPerPage,
     setValueToSearch,
@@ -47,9 +47,9 @@ function BookingsTable(props) {
     // openFiltersModal,
     handleSortByChange,
     // facets,
-  } = bookingsContext;
+  } = listBookingsContextValues;
 
-  // console.log({ bookings });
+  console.log({ bookings });
 
   const columns = useMemo(() => {
     const allColumns = getTableColumns(showCustomer, true);
@@ -104,9 +104,9 @@ function BookingsTable(props) {
       error={error}
       //pagination
       pageCount={pageCount}
-      pageIndex={pageIndex}
+      pageIndex={page}
       pageSize={hitsPerPage}
-      allItemsCount={fullListLength}
+      allItemsCount={count}
       gotoPage={gotoPage}
       nextPage={nextPage}
       previousPage={previousPage}

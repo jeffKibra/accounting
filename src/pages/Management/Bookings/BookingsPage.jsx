@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { RiAddLine } from 'react-icons/ri';
 
 //
-import { SearchBookingsContextProvider } from 'contexts/SearchBookingsContext';
+import { ListInvoicesContextProvider } from 'contexts/ListInvoicesContext';
 
 import { NEW_BOOKING } from '../../../nav/routes';
 //
@@ -32,9 +32,9 @@ function BookingsPage() {
         Bookings: location.pathname,
       }}
     >
-      <SearchBookingsContextProvider>
+      <ListInvoicesContextProvider>
         <Bookings />
-      </SearchBookingsContextProvider>
+      </ListInvoicesContextProvider>
     </PageLayout>
   );
 }

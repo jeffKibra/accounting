@@ -9,19 +9,19 @@ import { BOOKINGS } from 'nav/routes';
 
 import BookingDates from 'components/tables/Bookings/BookingDates';
 //
-import useToasts from './useToasts';
+import useToasts from '../useToasts';
 
 import { mutations } from 'gql';
 
-export default function useDeleteBooking(booking) {
-  const { customer, _id: bookingId, vehicle, startDate, endDate } = booking;
+export default function useDeleteInvoice(invoice) {
+  const { customer, _id: invoiceId, vehicle, startDate, endDate } = invoice;
 
   const navigate = useNavigate();
   const { error: toastError, success: toastSuccess } = useToasts();
 
-  const [deleteBooking, { called, loading, error, reset }] = useMutation(
-    mutations.bookings.DELETE_BOOKING,
-    { refetchQueries: ['ListBookings'] }
+  const [deleteInvoice, { called, loading, error, reset }] = useMutation(
+    mutations.invoices.DELETE_BOOKING,
+    { refetchQueries: ['ListInvoices'] }
   );
 
   const success = called && !loading && !error;
@@ -29,7 +29,7 @@ export default function useDeleteBooking(booking) {
 
   useEffect(() => {
     if (success) {
-      toastSuccess('Booking successfully deleted!');
+      toastSuccess('Invoice successfully deleted!');
       //
       reset();
       //
@@ -44,21 +44,21 @@ export default function useDeleteBooking(booking) {
   }, [failed, error, toastError]);
 
   function handleDelete() {
-    deleteBooking({
-      variables: { id: bookingId },
+    deleteInvoice({
+      variables: { id: invoiceId },
     });
     // dispatch({ type: DELETE_vehicle, payload: vehicleId });
   }
 
   const details = {
     isDone: success,
-    title: 'Delete Booking',
-    onConfirm: () => handleDelete(bookingId),
+    title: 'Delete Invoice',
+    onConfirm: () => handleDelete(invoiceId),
     // loading: deleting,
     loading,
     message: (
       <Box>
-        <Text>Are you sure you want to delete this Booking</Text>
+        <Text>Are you sure you want to delete this Invoice</Text>
         <Box p={1} pl={5}>
           <Text>
             Car Registration:{' '}
@@ -67,16 +67,16 @@ export default function useDeleteBooking(booking) {
             </Text>
           </Text>
           <Text>
-            Booking Id#: <b>{bookingId}</b>
+            Invoice Id#: <b>{invoiceId}</b>
           </Text>
           <Text>
             Customer Name: <b>{customer.displayName}</b>
           </Text>
           {/* <Text>
-            Booking Dates :<b>{saleDate.toDateString()}</b>
+            Invoice Dates :<b>{saleDate.toDateString()}</b>
           </Text> */}
           <Text>
-            Booking Dates :
+            Invoice Dates :
             <b>
               <BookingDates startDate={startDate} endDate={endDate} />
             </b>
@@ -92,6 +92,6 @@ export default function useDeleteBooking(booking) {
     isDeleted: success,
     details,
     handleDelete,
-    resetBooking: reset,
+    resetDelete: reset,
   };
 }

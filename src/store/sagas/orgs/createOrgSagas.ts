@@ -15,7 +15,7 @@ import {
 import { OrgFormData, Org, UserProfile } from '../../../types';
 
 export function getOrg(userId: string) {
-  // console.log('getting org', userId);
+  console.log('getting org', userId);
 
   const q = query(
     collection(db, 'organizations'),

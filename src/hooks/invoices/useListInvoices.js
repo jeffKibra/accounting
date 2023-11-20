@@ -2,9 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@apollo/client';
 //
 import { queries } from 'gql';
-import useToasts from './useToasts';
+import useToasts from '../useToasts';
 
-function useSearchBookings() {
+const { LIST_INVOICES } = queries.invoices;
+
+function useListInvoices() {
   const [initialFetchCompleted, setInitialFetchCompleted] = useState(false);
 
   const { error: toastError } = useToasts();
@@ -17,30 +19,30 @@ function useSearchBookings() {
   const {
     loading,
     error,
-    data: gqlData,
-    refetch,
+    data: result,
+    refetch: refetchQuery,
     called,
-  } = useQuery(queries.bookings.LIST_BOOKINGS, {
+  } = useQuery(LIST_INVOICES, {
     fetchPolicy: 'cache-and-network',
     onCompleted: handleCompleted,
   });
 
-  console.log({ gqlData });
+  console.log({ result });
 
-  const bookings = gqlData?.bookings;
+  const invoices = result?.invoices;
   // console.log('gql search vehicles result', {
-  //   gqlData,
+  //   result,
   //   result,
   //   loading,
   //   error,
   //   searchVehicles,
   // });
 
-  const search = useCallback(() => {
+  const refetch = useCallback(() => {
     if (initialFetchCompleted) {
-      refetch();
+      refetchQuery();
     }
-  }, [initialFetchCompleted, refetch]);
+  }, [initialFetchCompleted, refetchQuery]);
 
   const failed = called && !loading && Boolean(error);
 
@@ -53,12 +55,13 @@ function useSearchBookings() {
 
   return {
     loading,
+    result,
     error,
     failed,
-    search,
-    bookings,
+    refetch,
+    invoices,
     initialFetchCompleted,
   };
 }
 
-export default useSearchBookings;
+export default useListInvoices;
