@@ -1,4 +1,5 @@
 export default function generateQueryOptions(state, additionalQueryParams) {
+  // console.log({ state });
   const {
     sortBy,
     hitsPerPage,
@@ -53,6 +54,8 @@ export default function generateQueryOptions(state, additionalQueryParams) {
   };
 
   localStorage.setItem('listQueryOptions', JSON.stringify(queryOptions));
+
+  // console.log({ queryOptions });
 
   return queryOptions;
 }

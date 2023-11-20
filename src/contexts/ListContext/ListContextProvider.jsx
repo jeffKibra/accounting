@@ -35,7 +35,7 @@ export default function ListContextProvider(props) {
     generateQueryVariables: generateQueryVariablesCB,
     resultField,
   } = props;
-  console.log({ GQLQuery });
+  // console.log({ GQLQuery, resultField });
 
   useEffect(() => {
     console.log('additionalQueryParams have changed', additionalQueryParams);
@@ -66,13 +66,6 @@ export default function ListContextProvider(props) {
   //----------------------------------------------------------------
   //----------------------------------------------------------------
   //----------------------------------------------------------------
-  const originalState = useMemo(
-    () => {
-      return getValues();
-    },
-    //eslint-disable-next-line
-    [getValues]
-  );
 
   //----------------------------------------------------------------
 
@@ -100,6 +93,17 @@ export default function ListContextProvider(props) {
   );
   //----------------------------------------------------------------
 
+  const initialQueryVariables = useMemo(() => {
+    const originalState = getValues();
+
+    const variables = generateQueryVariablesLocally(originalState);
+    console.log('generating initial query variables', variables);
+
+    return variables;
+  }, [getValues, generateQueryVariablesLocally]);
+
+  //----------------------------------------------------------------
+
   //GQL
   const {
     loading,
@@ -107,7 +111,7 @@ export default function ListContextProvider(props) {
     data: rawResult,
     refetch,
   } = useQuery(GQLQuery, {
-    variables: generateQueryVariablesLocally(originalState),
+    variables: initialQueryVariables,
     fetchPolicy: 'cache-and-network',
     onCompleted: handleCompleted,
   });
@@ -140,8 +144,7 @@ export default function ListContextProvider(props) {
         // console.log({ state });
 
         const queryVariables = generateQueryVariablesLocally(state);
-
-        // console.log({ queryVariables });
+        console.log({ queryVariables });
 
         console.log('searching...');
 
@@ -245,7 +248,7 @@ export default function ListContextProvider(props) {
 
     return data;
   }, [rawResult, resultField]);
-  console.log({ result });
+  // console.log({ result, rawResult });
 
   const list = result?.list || [];
   const meta = result?.meta || {};

@@ -7,7 +7,7 @@ import SearchBookingsContext from './Context';
 import ListContext, { ListContextProvider } from '../ListContext';
 //
 import { queries } from 'gql';
-console.log({ queries });
+// console.log({ queries });
 //
 // import bookingsFiltersModalForm from 'components/forms/bookingsFilters/ModalForm';
 

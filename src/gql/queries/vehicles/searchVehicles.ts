@@ -9,7 +9,7 @@ export const vehicleInListFields = `
 const SEARCH_VEHICLES = gql`
   query SearchVehicles($query: ID, $queryOptions: VehiclesQueryOptions) {
     searchVehicles(query: $query, queryOptions: $queryOptions) {
-      vehicles {
+      list {
         ${vehicleInListFields}
         searchScore
       }

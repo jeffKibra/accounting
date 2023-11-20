@@ -30,7 +30,7 @@ export default function SearchContextProvider(props) {
   return (
     <ListContextProvider
       {...providerProps}
-      generateQueryParams={generateQueryVariablesCB}
+      generateQueryVariables={generateQueryVariablesCB}
     >
       <ContextProvider {...props}>{children}</ContextProvider>
     </ListContextProvider>
@@ -42,6 +42,7 @@ SearchContextProvider.propTypes = {
   defaultValues: PropTypes.object,
   additionalQueryParams: PropTypes.object,
   GQLQuery: PropTypes.object.isRequired,
+  resultField: PropTypes.string.isRequired,
 };
 //----------------------------------------------------------------
 //----------------------------------------------------------------

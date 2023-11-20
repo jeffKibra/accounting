@@ -33,6 +33,7 @@ export default function SearchItemsContextProvider(props) {
       GQLQuery={queries.vehicles.SEARCH_VEHICLES}
       additionalQueryParams={{ bookingId, selectedDates }}
       selectedDates={selectedDates}
+      resultField="searchVehicles"
     >
       <ContextProvider {...props}>{children}</ContextProvider>
     </SearchContextProvider>
@@ -54,9 +55,6 @@ SearchItemsContextProvider.propTypes = {
 
 ContextProvider.propTypes = {
   children: PropTypes.node.isRequired,
-  selectedDatesString: PropTypes.string,
-  defaultValues: PropTypes.object,
-  bookingId: PropTypes.string,
   selectedDates: PropTypes.array,
 };
 
@@ -64,14 +62,8 @@ function ContextProvider(props) {
   // console.log({ props });
 
   const { children, selectedDates } = props;
-  // console.log({ defaultValues });
-  // console.log({ selectedDatesString });
 
   const searchContext = useContext(SearchContext);
-
-  // const defaultRatesRange =
-  //   defaultValues?.ratesRange || getFacetsRatesRange(facets);
-  // console.log({ defaultRatesRange, facets });
 
   //----------------------------------------------------------------
   const isMounted = useRef(null);
@@ -80,25 +72,19 @@ function ContextProvider(props) {
   }, []);
   //----------------------------------------------------------------
   //----------------------------------------------------------------
-  //----------------------------------------------------------------
-
-  //----------------------------------------------------------------
-  //----------------------------------------------------------------
-
-  //----------------------------------------------------------------
-  //----------------------------------------------------------------
   const {
     rawResult,
-    hitsPerPage,
     filters,
     isOpen,
     setFilters,
     closeFiltersModal,
+    meta,
+    list: vehicles,
   } = searchContext;
+  // console.log({ vehicles });
 
   const result = rawResult?.searchVehicles;
-  const vehicles = result?.vehicles || [];
-  const meta = result?.meta || {};
+
   // console.log('gql search vehicles result', {
   //   gqlData,
   //   result,
@@ -122,38 +108,13 @@ function ContextProvider(props) {
   }, [incomingFacets]);
   //----------------------------------------------------------------
   //----------------------------------------------------------------
-  //----------------------------------------------------------------
-
-  // const metaFacets = meta?.facets;
-  // const facets = metaFacets
-  //   ? {
-  //       ...metaFacets,
-  //       // makes,
-  //     }
-  //   : null;
-  const pageIndex = meta?.page || 0;
-  const page = pageIndex;
-  const fullListLength = meta?.count || 0;
-  const numberOfPages = Math.ceil(
-    Number(fullListLength || 1) / Number(hitsPerPage || 1)
-  );
-  const pageCount = numberOfPages > 0 ? numberOfPages : 0;
-  // console.log({ pageCount, fullListLength, hitsPerPage, numberOfPages });
-  // console.log({ fullListLength, page, numberOfPages, hitsPerPage, pageCount });
 
   return (
     <>
       <SearchItemsContext.Provider
         value={{
           ...searchContext,
-          //search params
-          hitsPerPage,
-          pageIndex,
-          //search result values
           result,
-          pageCount,
-          page,
-          fullListLength,
           items: vehicles,
           selectedDates,
           facets,

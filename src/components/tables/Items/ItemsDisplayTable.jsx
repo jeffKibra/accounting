@@ -29,8 +29,8 @@ function ItemsDisplayTable(props) {
     items,
     error,
     pageCount,
-    pageIndex,
-    fullListLength,
+    page,
+    count,
     hitsPerPage,
     setHitsPerPage,
     setValueToSearch,
@@ -79,9 +79,9 @@ function ItemsDisplayTable(props) {
         error={error}
         //pagination
         pageCount={pageCount}
-        pageIndex={pageIndex}
+        pageIndex={page}
         pageSize={hitsPerPage}
-        allItemsCount={fullListLength}
+        allItemsCount={count}
         gotoPage={gotoPage}
         nextPage={nextPage}
         previousPage={previousPage}

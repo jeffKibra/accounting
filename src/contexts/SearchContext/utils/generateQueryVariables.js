@@ -1,18 +1,15 @@
 import { generateQueryOptions } from '../../ListContext/utils';
 
-export default function generateQueryVariables(
-  valueToSearch,
-  state,
-  additionalQueryParams
-) {
+export default function generateQueryVariables(state, additionalQueryParams) {
   const queryOptions = generateQueryOptions(state, additionalQueryParams);
+  const query = state.valueToSearch || '';
 
   const variables = {
-    query: valueToSearch,
+    query,
     queryOptions,
   };
 
-  localStorage.setItem('searchVehiclesVariables', JSON.stringify(variables));
+  localStorage.setItem('searchContextVariables', JSON.stringify(variables));
 
   return variables;
 }

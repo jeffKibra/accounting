@@ -1,10 +1,6 @@
 import generateQueryOptions from './generateQueryOptions';
 
-export default function generateQueryVariables(
-  valueToSearch,
-  state,
-  additionalQueryParams
-) {
+export default function generateQueryVariables(state, additionalQueryParams) {
   const queryOptions = generateQueryOptions(state, additionalQueryParams);
 
   const variables = {
@@ -12,7 +8,7 @@ export default function generateQueryVariables(
     queryOptions,
   };
 
-  localStorage.setItem('searchVehiclesVariables', JSON.stringify(variables));
+  localStorage.setItem('listContextVariables', JSON.stringify(variables));
 
   return variables;
 }
