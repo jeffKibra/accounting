@@ -26,6 +26,7 @@ function BookingsTable(props) {
     columnsToExclude,
     ...tableProps
   } = props;
+  // console.log({ tableProps });
   // console.log({ bookings });
 
   const listBookingsContextValues = useContext(ListInvoicesContext);
@@ -40,7 +41,7 @@ function BookingsTable(props) {
     count,
     hitsPerPage,
     setHitsPerPage,
-    setValueToSearch,
+    // setValueToSearch,
     gotoPage,
     nextPage,
     previousPage,
@@ -115,7 +116,7 @@ function BookingsTable(props) {
       // onFiltersModalOpen={openFiltersModal}
       //
       onSort={handleSortByChange}
-      onSearch={setValueToSearch}
+      // onSearch={setValueToSearch}
       onRowClick={onRowClick}
       rowIdToHighlight={itemIdToHighlight || ''}
       rowFieldToUseAsIdForHighlighting="_id"

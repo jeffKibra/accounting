@@ -62,8 +62,8 @@ function ControlledTable(props) {
 
   return (
     <Box w="full">
-      {includeGlobalFilter ? (
-        <HStack mb={3} px={4}>
+      <HStack mb={3} px={4}>
+        {includeGlobalFilter ? (
           <ControlledSearchInput
             id="global-filter-input"
             placeholder="Search..."
@@ -73,16 +73,19 @@ function ControlledTable(props) {
             delayBeforeSearchMS={1500}
             onSearch={onSearch}
           />
-          {typeof onFiltersModalOpen === 'function' ? (
+        ) : null}
+
+        {typeof onFiltersModalOpen === 'function' ? (
+          <Box ml="auto">
             <IconButton
               size="sm"
               onClick={onFiltersModalOpen}
               title="open filters modal"
               icon={<RiFilter3Line />}
             />
-          ) : null}
-        </HStack>
-      ) : null}
+          </Box>
+        ) : null}
+      </HStack>
 
       <TableContainer w="full">
         <ChakraTable minW="650px" variant="simple" size="sm" {...tableProps}>

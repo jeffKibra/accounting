@@ -73,6 +73,7 @@ function RTTable(props) {
   // });
 
   const includeGlobalFilter = props.includeGlobalFilter || manualGlobalFilter;
+  console.log({ includeGlobalFilter, manualGlobalFilter, onSearch });
 
   const instance = useTable(
     {
@@ -194,7 +195,7 @@ RTTable.defaultProps = {
   gotoPage: () => {},
   setPageSize: () => {},
   onRowClick: () => {},
-  onSearch: () => {},
+  // onSearch: () => {},
   onSort: () => {},
 };
 
