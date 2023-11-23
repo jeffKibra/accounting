@@ -7,11 +7,11 @@ import useToasts from '../useToasts';
 
 //
 
-function useGetBooking(bookingId) {
+function useGetInvoice(invoiceId) {
   const { loading, error, data, refetch } = useQuery(
-    queries.bookings.GET_BOOKING,
+    queries.invoices.GET_INVOICE,
     {
-      variables: { id: bookingId },
+      variables: { id: invoiceId },
     }
   );
 
@@ -25,27 +25,25 @@ function useGetBooking(bookingId) {
     }
   }, [failed, error, toastError]);
 
-  const rawBooking = data?.booking;
-  console.log({ rawBooking });
+  const rawinvoice = data?.invoice;
+  console.log({ rawinvoice });
 
-  let booking = null;
-  if (rawBooking) {
-    const { startDate, endDate } = rawBooking;
+  let invoice = null;
+  if (rawinvoice) {
+    const { startDate, endDate } = rawinvoice;
 
-    booking = {
-      ...rawBooking,
+    invoice = {
+      ...rawinvoice,
       startDate: new Date(+startDate),
       endDate: new Date(+endDate),
     };
   }
 
-  delete booking?.__typename;
-  delete booking?.customer?.__typename;
-  delete booking?.downPayment?.__typename;
-  delete booking?.downPayment?.paymentMode?.__typename;
-  delete booking?.vehicle?.__typename;
+  delete invoice?.__typename;
+  delete invoice?.customer?.__typename;
+  delete invoice?.paymentTerm?.__typename;
 
-  return { loading, error, booking, refetch };
+  return { loading, error, invoice, refetch };
 }
 
-export default useGetBooking;
+export default useGetInvoice;

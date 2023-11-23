@@ -11,7 +11,7 @@ function getTableColumns(showCustomer, enableActions) {
     // { Header: 'Status', accessor: 'status' },
     // { Header: 'Payments Due', accessor: 'dueDate' },
     { Header: 'Total', accessor: 'total', isNumeric: true },
-    { Header: 'Imprest', accessor: 'imprest', isNumeric: true },
+    // { Header: 'Imprest', accessor: 'imprest', isNumeric: true },
     { Header: 'Balance', accessor: 'balance', isNumeric: true },
     { Header: 'Payment', accessor: 'paymentAmount', isNumeric: true },
     { Header: 'Pay', accessor: 'paymentInput', isNumeric: true },

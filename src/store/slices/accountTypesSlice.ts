@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { AccountType } from '../../types';
+import { IAccountType } from '../../types';
 
 type State = {
   loading: boolean;
-  accountType: AccountType | null;
-  accountTypes: AccountType[] | null;
+  accountType: IAccountType | null;
+  accountTypes: IAccountType[] | null;
   action: string | null;
   error: { code?: string; message?: string } | null;
 };
@@ -31,7 +31,7 @@ const accountTypesSlice = createSlice({
       };
     },
 
-    accountTypeSuccess: (state: State, action: PayloadAction<AccountType>) => {
+    accountTypeSuccess: (state: State, action: PayloadAction<IAccountType>) => {
       return {
         ...state,
         loading: false,
@@ -40,7 +40,7 @@ const accountTypesSlice = createSlice({
     },
     accountTypesSuccess: (
       state: State,
-      action: PayloadAction<AccountType[] | null>
+      action: PayloadAction<IAccountType[] | null>
     ) => {
       return {
         ...state,

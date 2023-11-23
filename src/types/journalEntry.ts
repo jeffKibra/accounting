@@ -1,9 +1,14 @@
-import { Timestamp } from "firebase/firestore";
-import { Account, DateDetails, AccountMapping, TransactionTypes } from ".";
+import { Timestamp } from 'firebase/firestore';
+import {
+  IAccountSummary,
+  DateDetails,
+  IAccountMapping,
+  TransactionTypes,
+} from '.';
 
 export interface Entry {
   entryId: string;
-  account: Account;
+  account: IAccountSummary;
   debit: number;
   credit: number;
 }
@@ -12,7 +17,7 @@ export interface GroupedEntries {
   [key: string]: Entry[];
 }
 
-export interface MappedEntry extends Entry, AccountMapping {}
+export interface MappedEntry extends Entry, IAccountMapping {}
 
 type TransactionDetails = {
   [key: string]: unknown;
@@ -24,7 +29,7 @@ export interface EntryWithStatus extends Entry {
 
 export interface EntryToChange {
   amount: number;
-  prevAccount: Account;
+  prevAccount: IAccountSummary;
   prevEntry: Entry;
   // transactionType?: keyof TransactionTypes;
   transactionId?: string;
@@ -37,13 +42,13 @@ export interface EntryToCreate {
   transactionType: keyof TransactionTypes;
   transactionId: string;
   reference: string;
-  account: Account;
+  account: IAccountSummary;
   transactionDetails: TransactionDetails;
 }
 
 export interface EntryToDelete {
   entryId: string;
-  account: Account;
+  account: IAccountSummary;
   debit: number;
   credit: number;
 }
@@ -51,12 +56,12 @@ export interface EntryToDelete {
 export interface EntryToUpdate extends Partial<EntryToCreate> {
   entryId: string;
   amount: number;
-  account: Account;
+  account: IAccountSummary;
   debit: number;
   credit: number;
 }
 
-export interface EntryFromDb extends Omit<Entry, "entryId"> {
+export interface EntryFromDb extends Omit<Entry, 'entryId'> {
   amount: number;
   amountState: string;
   createdAt: Date | Timestamp;

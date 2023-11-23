@@ -1,10 +1,10 @@
-import { Account, Tax } from '.';
+import { IAccountSummary, ITaxSummary } from '.';
 
 export type ItemType = 'goods' | 'service' | 'vehicle';
 
 export interface ItemFormData {
   name: string;
-  salesAccount: Account;
+  salesAccount: IAccountSummary;
   rate: number;
   sku: string;
   // skuOption: string;
@@ -12,7 +12,7 @@ export interface ItemFormData {
   unit: string;
   // costPrice?: number;
   description?: string;
-  salesTax?: Tax;
+  salesTax?: ITaxSummary;
   pricesIncludeTax?: string;
 }
 

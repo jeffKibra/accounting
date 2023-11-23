@@ -11,13 +11,13 @@ import { db } from '../firebase';
 // import { createInvoice } from "../invoices";
 import { getDateDetails } from '../dates';
 
-import { UserProfile, Org, Account, IContactForm } from '../../types';
+import { UserProfile, Org, IAccount, IContactForm } from '../../types';
 
 export default async function createVendor(
   transaction: Transaction,
   org: Org,
   userProfile: UserProfile,
-  accounts: Account[],
+  accounts: IAccount[],
   vendorId: string,
   vendorData: IContactForm
 ) {

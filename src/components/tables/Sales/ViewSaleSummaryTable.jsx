@@ -11,7 +11,7 @@ function ViewSaleSummaryTable(props) {
     total,
     subTotal,
     balance,
-    downPayment: { amount: imprest },
+    // downPayment: { amount: imprest },
   } = booking;
   // console.log({ payments, total, subTotal });
 
@@ -67,14 +67,14 @@ function ViewSaleSummaryTable(props) {
             </Td>
           </Tr>
 
-          <Tr>
+          {/* <Tr>
             <Td isNumeric>
               <b>Imprest Given</b>
             </Td>
             <Td isNumeric>
               <b>(-) {Number(imprest || 0).toLocaleString()}</b>
             </Td>
-          </Tr>
+          </Tr> */}
 
           {paymentsTotal > 0 && (
             <Tr>

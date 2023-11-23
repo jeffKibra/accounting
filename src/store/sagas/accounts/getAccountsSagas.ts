@@ -8,7 +8,7 @@ import { error as toastError } from '../../slices/toastSlice';
 
 import { getAllAccounts } from '../../../utils/accounts';
 
-import { RootState, AccountFromDb } from '../../../types';
+import { RootState, IAccount } from '../../../types';
 
 function* getAccounts(action: PayloadAction<string>) {
   yield put(getList());
@@ -19,7 +19,7 @@ function* getAccounts(action: PayloadAction<string>) {
 
   try {
     if (orgId) {
-      let accounts: AccountFromDb[] = yield call(getAllAccounts, orgId);
+      let accounts: IAccount[] = yield call(getAllAccounts, orgId);
       // console.log({ accounts });
 
       yield put(getListSuccess(accounts));

@@ -1,22 +1,20 @@
-import { Timestamp } from 'firebase/firestore';
-
-export interface TaxForm {
+export interface ITaxForm {
   name: string;
   rate: number;
 }
 
-interface Meta {
-  createdAt: Timestamp | Date;
+interface ITaxMeta {
+  createdAt: Date | string;
   createdBy: string;
-  modifiedAt: Timestamp | Date;
+  modifiedAt: Date | string;
   modifiedBy: string;
+  status: 0;
 }
 
-export interface TaxFromDb extends TaxForm, Meta {}
-
-export interface Tax extends TaxFromDb {
-  taxId: string;
+export interface ITax extends ITaxForm {
+  _id: string;
+  metaData: ITaxMeta;
 }
 
-export interface TaxSummary
-  extends Omit<Tax, 'createdAt' | 'createdBy' | 'modifiedAt' | 'modifiedBy'> {}
+//eslint-disable-next-line
+export interface ITaxSummary extends Omit<ITax, 'metaData'> {}

@@ -1,30 +1,36 @@
 import BigNumber from 'bignumber.js';
-import { SalesItem, ISaleItemFormData } from 'types';
+import {
+  ISaleItem,
+  IVehicle,
+  ITaxSummary,
+  // ISaleItemFormData
+} from 'types';
 
 //----------------------------------------------------------------
 BigNumber.config({ DECIMAL_PLACES: 2 });
 
-export default function getSalesItemData(formData: ISaleItemFormData) {
+interface IUserSelectedSaleItem {
+  itemId: string;
+  quantity: number;
+  rate: number;
+  salesTax: ITaxSummary;
+  item: IVehicle;
+}
+
+export default function getSalesItemData(formData: IUserSelectedSaleItem) {
   console.log({ formData });
-  const { rate, quantity, salesTax, item, ...saleItemMoreData } = formData;
-  const {
-    createdAt,
-    createdBy,
-    modifiedAt,
-    modifiedBy,
-    status,
-    ...ItemFormData
-  } = item;
 
-  const { pricesIncludeTax } = ItemFormData;
-  console.log({ pricesIncludeTax });
+  const { rate, quantity, salesTax, item, itemId, ...saleItemMoreData } =
+    formData;
+  const { registration: name } = item;
+  const taxType = 'inclusive';
 
-  let itemRate = rate;
+  let itemRate = rate; //init with rate assuming rate is tax-exclusive.
   let itemTax = 0;
 
   //set all rates to be tax exclusive
   if (salesTax?.rate) {
-    if (pricesIncludeTax) {
+    if (taxType === 'inclusive') {
       //item rate is inclusive of tax
       const tax = (salesTax.rate / (100 + salesTax.rate)) * rate;
       itemRate = rate - tax;
@@ -36,19 +42,25 @@ export default function getSalesItemData(formData: ISaleItemFormData) {
   /**
    * finally compute amounts based on item quantity
    */
-  const itemRateTotal = itemRate * quantity;
-  const itemTaxTotal = itemTax * quantity;
+  const subTotal = new BigNumber(itemRate).times(quantity);
+  const taxTotal = new BigNumber(itemTax).times(quantity);
+  const total = subTotal.plus(taxTotal);
 
-  const itemData: SalesItem = {
+  const itemData: ISaleItem = {
     ...saleItemMoreData,
-    item: { ...ItemFormData },
+    name,
+    itemId,
+    details: { ...item, taxType },
     rate,
-    quantity,
-    itemRate: new BigNumber(itemRate).dp(2).toNumber(),
-    itemTax: new BigNumber(itemTax).dp(2).toNumber(),
-    itemRateTotal: new BigNumber(itemRateTotal).dp(2).toNumber(),
-    itemTaxTotal: new BigNumber(itemTaxTotal).dp(2).toNumber(),
-    salesTax: salesTax?.rate ? salesTax : null,
+    tax: new BigNumber(itemTax).dp(2).toNumber(),
+    qty: quantity,
+    // itemRate: new BigNumber(itemRate).dp(2).toNumber(),
+    subTotal: subTotal.dp(2).toNumber(),
+    taxTotal: taxTotal.dp(2).toNumber(),
+    total: total.dp(2).toNumber(),
+    salesAccountId: '',
+    description: '',
+    // salesTax: salesTax?.rate ? salesTax : null,
   };
 
   console.log({ itemData });

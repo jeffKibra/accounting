@@ -1,10 +1,10 @@
-import { Invoice, InvoiceSummary } from "../../types";
+import { IInvoice, IInvoiceSummary } from '../../types';
 
 export default function getInvoiceFromArray(
   invoiceId: string,
-  invoices: Invoice[] | InvoiceSummary[]
+  invoices: IInvoice[] | IInvoiceSummary[]
 ) {
-  const invoice = invoices.find((invoice) => invoice.invoiceId === invoiceId);
+  const invoice = invoices.find(invoice => invoice._id === invoiceId);
 
   if (!invoice) throw new Error(`Invoice data with id ${invoiceId} not found!`);
 

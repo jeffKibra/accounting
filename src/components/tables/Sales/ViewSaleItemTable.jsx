@@ -31,12 +31,12 @@ function ViewSaleItemTable(props) {
     bookingTotal,
     transferFee,
     // taxType,
-    downPayment: { amount: downPayment, paymentMode, reference },
+    // downPayment: { amount: downPayment, paymentMode, reference },
   } = booking;
 
   const quantity = selectedDates?.length || 0;
 
-  const imprest = downPayment || 0;
+  // const imprest = downPayment || 0;
 
   return (
     <TableContainer>
@@ -75,7 +75,7 @@ function ViewSaleItemTable(props) {
             <Th>Transfer Fee</Th>
             <Td textAlign="end">KES {Number(transferFee).toLocaleString()}</Td>
           </Tr>
-          <Tr>
+          {/* <Tr>
             <Th>Imprest Given</Th>
             <Td textAlign="end">KES {Number(imprest).toLocaleString()}</Td>
           </Tr>
@@ -86,7 +86,7 @@ function ViewSaleItemTable(props) {
           <Tr>
             <Th>Imprest Reference #</Th>
             <Td textAlign="end">{reference}</Td>
-          </Tr>
+          </Tr> */}
         </Tbody>
       </Table>
     </TableContainer>

@@ -1,5 +1,5 @@
 import { checkIfIsSameDay } from '../../dates';
-import { Invoice } from '../../../types';
+import { IInvoice } from '../../../types';
 
 function getDaysDifference(
   date: Date = new Date(),
@@ -20,9 +20,21 @@ function getDaysDifference(
   return days;
 }
 
-export default function getInvoiceStatus(invoice: Invoice) {
-  const { balance, total, dueDate, isSent, isOverdue } = invoice;
+export default function getInvoiceStatus(invoice: IInvoice) {
+  const {
+    balance,
+    total,
+    dueDate: dueDateValue,
+    //  isSent, isOverdue
+  } = invoice;
+  const isSent = true;
+  const isOverdue = false;
+
   const today = new Date();
+
+  const dueDate = new Date(
+    typeof dueDateValue === 'string' ? +dueDateValue : dueDateValue
+  );
   const isDue = dueDate.getTime() > today.getTime();
   const daysDue = getDaysDifference(today, dueDate);
 

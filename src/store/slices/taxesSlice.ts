@@ -1,12 +1,12 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { Tax } from "../../types";
+import { ITaxSummary } from '../../types';
 
 type State = {
   loading: boolean;
   isModified: boolean;
-  taxes: Tax[] | null;
-  tax: Tax | null;
+  taxes: ITaxSummary[] | null;
+  tax: ITaxSummary | null;
   action: string | null;
   error: { code?: string; message?: string; stacktrace?: string } | null;
 };
@@ -21,7 +21,7 @@ const initialState: State = {
 };
 
 const taxesSlice = createSlice({
-  name: "taxes_slice",
+  name: 'taxes_slice',
   initialState: {
     ...initialState,
   },
@@ -34,14 +34,14 @@ const taxesSlice = createSlice({
         action: action.payload,
       };
     },
-    taxSuccess: (state: State, action: PayloadAction<Tax>) => {
+    taxSuccess: (state: State, action: PayloadAction<ITaxSummary>) => {
       return {
         ...state,
         loading: false,
         tax: action.payload,
       };
     },
-    taxesSuccess: (state: State, action: PayloadAction<Tax[]>) => {
+    taxesSuccess: (state: State, action: PayloadAction<ITaxSummary[]>) => {
       return {
         ...state,
         loading: false,

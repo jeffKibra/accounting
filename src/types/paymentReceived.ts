@@ -3,10 +3,10 @@ import {
   OrgSummary,
   IContactSummary,
   IContact,
-  Account,
+  IAccountSummary,
   PaymentMode,
   TransactionTypes,
-  Invoice,
+  IInvoice,
 } from '.';
 
 interface Meta {
@@ -22,7 +22,7 @@ interface Meta {
 }
 
 export interface PaymentReceivedForm {
-  account: Account;
+  account: IAccountSummary;
   amount: number;
   customer: IContact | IContactSummary;
   paymentDate: Date;
@@ -52,5 +52,5 @@ export interface InvoicesPayments {
 }
 
 export interface PaymentWithInvoices extends PaymentReceived {
-  invoices: Invoice[];
+  invoices: IInvoice[];
 }

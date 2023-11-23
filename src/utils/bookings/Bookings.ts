@@ -1,32 +1,16 @@
-import {
-  doc,
-  getDoc,
-  documentId,
-  where,
-  query,
-  getDocs,
-} from 'firebase/firestore';
-
-//
-
-//
-import { dbCollections } from '../../utils/firebase';
-//
-
 //----------------------------------------------------------------
 
 import {
   getDatesWithinRange,
   checkIfDateIsValid,
-  getDateDetails,
+  // getDateDetails,
 } from '../../utils/dates';
 //
 import {
   ItemType,
   // IBookingDateRange,
-  IMonthlyBookings,
-  IMonthBookings,
-  Item,
+  IBookingInvoice,
+  ISaleItemDetails,
 } from '../../types';
 
 //----------------------------------------------------------------
@@ -42,142 +26,15 @@ export default class Bookings {
   //   Static methods
   //   -------------------------------------------------------------------
 
-  static getItemBookingsForMonth(
-    itemId: string,
-    yearMonth: string,
-    monthlyBookings: IMonthlyBookings,
-    datesToExclude: Record<string, string> = {}
-  ) {
-    const monthBookings = monthlyBookings[yearMonth];
-    const itemBookingsForMonthArray = monthBookings
-      ? monthBookings[itemId] || []
-      : [];
-
-    const itemBookingsForMonth = itemBookingsForMonthArray.reduce(
-      (acc: Record<string, string>, date) => {
-        const shouldExclude = Boolean(datesToExclude[date]);
-        console.log({ date, shouldExclude });
-
-        return {
-          ...acc,
-          ...(shouldExclude ? {} : { [date]: date }),
-        };
-      },
-      {}
-    );
-
-    return {
-      array: itemBookingsForMonthArray,
-      object: itemBookingsForMonth,
-    };
-  }
-
   //   -------------------------------------------------------------------
-  static checkIfAnAlreadyBookedDateIsInRange(
-    itemId: string,
-    selectedDates: string[],
-    monthlyBookings: IMonthlyBookings,
-    datesToExclude: string[] = []
-  ) {
-    console.log({ datesToExclude });
-    let atleastOneDateIsInRange = false;
-
-    const datesToExcludeObject: Record<string, string> = {};
-
-    if (Array.isArray(datesToExclude)) {
-      datesToExclude.forEach(dateString => {
-        datesToExcludeObject[dateString] = dateString;
-      });
-    }
-
-    if (Array.isArray(selectedDates) && monthlyBookings) {
-      const itemMonthlyBookings: Record<string, Record<string, string>> = {};
-
-      const alreadyBookedDate = selectedDates.find(selectedDate => {
-        const { yearMonth, yearMonthDay } = getDateDetails(
-          new Date(selectedDate)
-        );
-
-        let itemBookingsForMonth = itemMonthlyBookings[yearMonth];
-
-        if (!itemBookingsForMonth) {
-          const itemBookingsForMonthResult = this.getItemBookingsForMonth(
-            itemId,
-            yearMonth,
-            monthlyBookings,
-            datesToExcludeObject
-          );
-
-          itemBookingsForMonth = itemBookingsForMonthResult.object;
-        }
-        console.log({ itemBookingsForMonth });
-
-        const dateIsAlreadyBooked = Boolean(itemBookingsForMonth[yearMonthDay]);
-        // console.log({ dateIsAlreadyBooked, yearMonthDay });
-
-        return dateIsAlreadyBooked;
-      });
-
-      // console.log({ alreadyBookedDate });
-
-      atleastOneDateIsInRange = Boolean(alreadyBookedDate);
-    }
-
-    // console.log({ atleastOneDateIsInRange });
-
-    return atleastOneDateIsInRange;
-  }
 
   //----------------------------------------------------------------
-
-  static async getMonthBookings(orgId: string, monthId: string) {
-    try {
-      const collectionRef = dbCollections(orgId).monthlyBookings;
-      const docRef = doc(collectionRef, monthId);
-
-      const docSnap = await getDoc(docRef);
-
-      const data = docSnap.data();
-
-      if (!data) {
-        return null;
-      }
-
-      return {
-        ...data,
-      };
-    } catch (err) {
-      const error = err as Error;
-      console.error(`Error fetching month ${monthId} bookings: `, error);
-
-      throw error;
-    }
-  }
 
   // static dispatch(dispatchFn: () => {} | null, args: DispatchProp) {
   //   if (dispatchFn && typeof dispatchFn === 'function') {
   //     dispatchFn(...args);
   //   }
   // }
-
-  static async getMonthlyBookings(
-    orgId: string,
-    months: string[]
-    // dispatchToStore?: () => {}
-  ) {
-    const monthlyBookings: IMonthlyBookings = {};
-
-    await Promise.all(
-      months.map(async monthId => {
-        const monthBookings = await Bookings.getMonthBookings(orgId, monthId);
-        monthlyBookings[monthId] = monthBookings;
-
-        return monthBookings;
-      })
-    );
-
-    return monthlyBookings;
-  }
 
   //-----------------------------------------------------------------------
   //-----------------------------------------------------------------------
@@ -186,15 +43,11 @@ export default class Bookings {
     itemId: string,
     monthId: string
   ) {
-    const monthBookings = await this.getMonthBookings(orgId, monthId);
-
-    let itemBookingsForTheMonth: string[] = [];
-
-    if (monthBookings) {
-      itemBookingsForTheMonth = monthBookings[itemId] || [];
-    }
-
-    return itemBookingsForTheMonth;
+    // let itemBookingsForTheMonth: string[] = [];
+    // if (monthBookings) {
+    //   itemBookingsForTheMonth = monthBookings[itemId] || [];
+    // }
+    // return itemBookingsForTheMonth;
   }
   //-----------------------------------------------------------------------
   //-----------------------------------------------------------------------
@@ -267,317 +120,11 @@ export default class Bookings {
 
   //-----------------------------------------------------------------------
 
-  static async checkItemAvailabilityForSelectedDates(
-    orgId: string,
-    itemId: string,
-    incomingDateRange: string,
-    currentDateRange: string
-  ) {
-    const incomingDatesResult = this.getDatesFromRange(incomingDateRange); //function checks if date range is valid
-    const {
-      startDate: incomingStartDate,
-      endDate: incomingEndDate,
-      datesGroupedInMonths: incomingDatesGroupedInMonths,
-      ungroupedDatesObject: incomingUngroupedDatesObject,
-    } = incomingDatesResult;
-
-    const currentDatesResult = this.getDatesFromRange(currentDateRange);
-    const {
-      startDate: currentStartDate,
-      endDate: currentEndDate,
-      datesGroupedInMonths: currentDatesGroupedInMonths,
-      ungroupedDatesObject: currentUngroupedDatesObject,
-    } = currentDatesResult;
-
-    //check id dates are the same-terminate function if they are the same
-    if (
-      incomingStartDate === currentStartDate &&
-      incomingEndDate === currentEndDate
-    ) {
-      return null; //update later
-    }
-
-    //create list of months to retrieve bookings for
-    const combinedDatesGroupedInMonths = {
-      ...incomingDatesGroupedInMonths,
-      ...currentDatesGroupedInMonths,
-    };
-    const months = Object.keys(combinedDatesGroupedInMonths);
-    console.log({ months });
-
-    const monthlyBookings = await this.getMonthlyBookings(orgId, months);
-
-    //get Item bookings for each month and combine into one
-    const itemBookedDates: string[] = [];
-    Object.keys(monthlyBookings).forEach(month => {
-      const monthBookings = monthlyBookings[month] || {};
-      const itemMonthlyBookedDates = monthBookings[itemId] || [];
-
-      console.log({ itemMonthlyBookedDates });
-
-      itemBookedDates.push(...itemMonthlyBookedDates);
-    });
-
-    console.log({ itemBookedDates });
-    /**
-     * exclude current booked dates from the item booked dates-for editing purposes
-     */
-
-    const alreadyBookedDate = itemBookedDates.find(bookedDate => {
-      const currentIsBooked = Boolean(currentUngroupedDatesObject[bookedDate]);
-      const incomingIsBooked = Boolean(
-        incomingUngroupedDatesObject[bookedDate]
-      );
-      console.log({ bookedDate, currentIsBooked, incomingIsBooked });
-
-      //check for item that is not booked but selected
-      return currentIsBooked
-        ? currentIsBooked && incomingIsBooked
-        : incomingIsBooked;
-    });
-
-    const atleastOneDateIsAlreadyBooked = Boolean(alreadyBookedDate);
-
-    console.log({ alreadyBookedDate, atleastOneDateIsAlreadyBooked });
-
-    return !atleastOneDateIsAlreadyBooked;
-  }
-
   //-----------------------------------------------------------------------
   //-----------------------------------------------------------------------
 
-  static async getIdsForItemsAlreadyBooked(
-    orgId: string,
-    selectedDatesGroupedInMonths: Record<string, string[]>,
-    preselectedItemId: string = '',
-    preselectedDates: string[] = []
-  ) {
-    // console.log({ selectedDatesGroupedInMonths });
-    //create preselectedDates object for quick lookups
-    let preselectedDatesObject: Record<string, string> = {};
-
-    if (Array.isArray(preselectedDates)) {
-      preselectedDates.forEach(dateString => {
-        preselectedDatesObject[dateString] = dateString;
-      });
-    }
-
-    const months = Object.keys(selectedDatesGroupedInMonths);
-    //fetch months from firestore
-
-    const currentMonthlyBookings: IMonthlyBookings = {};
-
-    const currentMonthlyBookingsArray = await Promise.all(
-      months.map(async monthId => {
-        const collectionRef = dbCollections(orgId).monthlyBookings;
-        const docRef = doc(collectionRef, monthId);
-
-        const snap = await getDoc(docRef);
-        let docData: IMonthBookings = {};
-        const docExists = snap.exists();
-        // console.log({ docExists });
-        if (docExists) {
-          docData = snap.data();
-        }
-
-        currentMonthlyBookings[monthId] = docData;
-
-        return {
-          monthId,
-          data: docData,
-        };
-      })
-    );
-
-    const idsForItemsAlreadyBookedInSelectedDates: string[] = [];
-
-    //retrieve items already booked on the selectedDays
-    currentMonthlyBookingsArray.forEach(monthlyBookingData => {
-      const { data, monthId } = monthlyBookingData;
-      const selectedDatesForMonth = selectedDatesGroupedInMonths[monthId];
-      // console.log({ selectedDatesForMonth });
-
-      /**
-       * loop through itemsIds booked in this month
-       * For each itemId, loop through its booked days for the month.
-       * For each booked date, check if it is contained in the current selected days.
-       * If it is, add it already booked items list.
-       */
-      const bookedItemsIds = Object.keys(data);
-      //use filter
-      const idsForItemsAlreadyBookedInSelectedDatesForMonth =
-        bookedItemsIds.filter(bookedItemId => {
-          const itemBookedDates = data[bookedItemId];
-
-          //check if even one selected day is already booked.
-          const alreadyBookedSelectedDate = selectedDatesForMonth.find(
-            selectedDate => {
-              let isBooked = false;
-
-              if (itemBookedDates) {
-                const itemBookedDate = itemBookedDates.find(
-                  bookedDate => bookedDate === selectedDate
-                );
-                // console.log({ itemBookedDate });
-
-                const selectedDateIsPreselected = Boolean(
-                  preselectedDatesObject[selectedDate]
-                );
-
-                const shouldExcludePreselectedDate =
-                  preselectedItemId === bookedItemId &&
-                  selectedDateIsPreselected;
-
-                if (!shouldExcludePreselectedDate) {
-                  isBooked = Boolean(itemBookedDate);
-                }
-
-                // console.log({
-                //   selectedDateIsPreselected,
-                //   selectedDate,
-                //   isBooked,
-                // });
-              }
-
-              return isBooked;
-            }
-          );
-
-          const itemIsBooked = Boolean(alreadyBookedSelectedDate);
-
-          // console.log({ itemIsBooked, bookedItemId });
-
-          return itemIsBooked;
-        });
-
-      // console.log({
-      //   idsForItemsAlreadyBookedInSelectedDatesForMonth,
-      //   bookedItemsIds,
-      // });
-
-      idsForItemsAlreadyBookedInSelectedDates.push(
-        ...idsForItemsAlreadyBookedInSelectedDatesForMonth
-      );
-
-      // bookedItemsIds.forEach(bookedItemId => {
-      //   const bookedDates = data[bookedItemId];
-
-      // if (bookedDates) {
-      //   bookedDates.forEach(bookedDate => {
-      //     console.log({ bookedDate, selectedDaysForMonth });
-      //     const isSelected = Boolean(selectedDaysForMonth[bookedDate]);
-
-      //     if (isSelected) {
-      //       idsForAlreadyBookedItems[bookedItemId] = bookedItemId;
-      //       /**
-      //        * if one date matches, exit loop. we are looking for just one
-      //        * appearance
-      //        */
-      //     } else {
-      //       //do nothing
-      //     }
-      //   });
-      // }
-      // });
-    });
-
-    console.log({ idsForItemsAlreadyBookedInSelectedDates });
-
-    return idsForItemsAlreadyBookedInSelectedDates;
-  }
   //-----------------------------------------------------------------------
   //-----------------------------------------------------------------------
-
-  static getItemsNotBooked(
-    monthlyBookings: IMonthlyBookings,
-    selectedDatesGroupedInMonths: Record<string, Record<string, string>>,
-    items: Item[],
-    defaultItemId?: string,
-    defaultBookingDays?: Record<string, string>
-  ) {
-    // console.log({
-    //   monthlyBookings,
-    //   selectedDatesGroupedInMonths,
-    //   defaultItemId,
-    //   defaultBookingDays,
-    // });
-    const months = Object.keys(monthlyBookings);
-
-    const allItems: Record<string, Item> = {};
-    items.forEach(item => {
-      const { itemId } = item;
-      allItems[itemId] = item;
-    });
-
-    const dailyBookings: Record<string, Record<string, string>> = {}; //{date1:{item1:item1,item2:item2}}
-
-    function updateDayBookings(day: string, itemId: string) {
-      const dayBookings = dailyBookings[day];
-
-      if (dayBookings) {
-        dailyBookings[day][itemId] = itemId;
-      } else {
-        dailyBookings[day] = { [itemId]: itemId };
-      }
-    }
-
-    //convert monthly bookings to objects only: //{date1:{item1:item1,item2:item2}}
-    months.forEach(monthId => {
-      const monthBookings = monthlyBookings[monthId];
-
-      if (monthBookings) {
-        const bookedItems = Object.keys(monthBookings);
-        bookedItems.forEach(itemId => {
-          const itemMonthBookings = monthBookings[itemId];
-          if (Array.isArray(itemMonthBookings)) {
-            itemMonthBookings.forEach(day => {
-              let dayIsBeingEdited = false;
-              if (defaultItemId === itemId) {
-                /**
-                 * this is the current booked item
-                 * check if the item booking for the day is the one being edited
-                 * if true, dont add day to booked days.
-                 */
-                if (defaultBookingDays) {
-                  dayIsBeingEdited = Boolean(defaultBookingDays[day]);
-                }
-              }
-
-              // console.log({ itemId, defaultItemId, day, dayIsBeingEdited });
-
-              if (!dayIsBeingEdited) {
-                updateDayBookings(day, itemId);
-              }
-            });
-          }
-        });
-      }
-    });
-
-    // console.log({ dailyBookings });
-
-    const selectedMonths = Object.keys(selectedDatesGroupedInMonths);
-    // console.log({ selectedMonths });
-
-    selectedMonths.forEach(selectedMonth => {
-      const selectedMonthDates = selectedDatesGroupedInMonths[selectedMonth];
-      Object.keys(selectedMonthDates).forEach(selectedDate => {
-        //check if there is an item booked today. delete from list if booked
-        const alreadyBookedItems = dailyBookings[selectedDate];
-        // console.log({ selectedDate, alreadyBookedItems });
-        if (alreadyBookedItems) {
-          Object.keys(alreadyBookedItems).forEach(alreadyBookedItemId => {
-            //delete item from list
-            delete allItems[alreadyBookedItemId];
-          });
-        }
-      });
-    });
-
-    // console.log({ allItems });
-
-    return allItems;
-  }
 
   //-----------------------------------------------------------------------
   // static get
@@ -640,6 +187,42 @@ export default class Bookings {
     }
   }
   //----------------------------------------------------------------
+
+  static convertInvoiceToBooking(invoice: IBookingInvoice) {
+    const { customer, customerNotes, subTotal, total, balance, items, _id } =
+      invoice;
+    const bookingData = items[0];
+    //
+    const {
+      rate: bookingRate,
+      total: bookingTotal,
+      qty,
+      details: itemDetails,
+    } = bookingData;
+    const details = itemDetails as ISaleItemDetails;
+
+    const { selectedDates, startDate, endDate, item: vehicle } = details;
+
+    //
+    const transferFee = items[1]?.total || 0;
+
+    return {
+      _id,
+      customer,
+      customerNotes,
+      vehicle,
+      startDate,
+      endDate,
+      selectedDates,
+      bookingRate,
+      bookingTotal,
+      transferFee,
+      qty,
+      subTotal,
+      total,
+      balance,
+    };
+  }
 }
 
 ///

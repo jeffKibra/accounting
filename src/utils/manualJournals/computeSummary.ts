@@ -1,4 +1,4 @@
-import { IManualJournalEntry, TaxSummary } from 'types';
+import { IManualJournalEntry, ITaxSummary } from 'types';
 import BigNumber from 'bignumber.js';
 
 interface SummaryEntry {
@@ -6,7 +6,7 @@ interface SummaryEntry {
   debit: number;
 }
 
-interface TaxEntry extends TaxSummary, SummaryEntry {}
+interface TaxEntry extends ITaxSummary, SummaryEntry {}
 
 interface Taxes {
   [key: string]: TaxEntry;
@@ -50,7 +50,7 @@ export default function computeSummary(entries: IManualJournalEntry[]) {
          * accumulate tax total of all tax types
          */
         //entry has a tax field
-        const taxId = tax.taxId;
+        const taxId = tax._id;
         const taxRate = new BigNumber(tax.rate).dividedBy(100);
 
         const taxDebit = entryDebit.times(taxRate).dp(2).toNumber();

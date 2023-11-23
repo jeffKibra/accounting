@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { AccountFromDb } from '../../types';
+import { IAccount } from '../../types';
 
 type State = {
   loading: boolean;
   isModified: boolean;
-  account: AccountFromDb | null;
-  accounts: AccountFromDb[] | null;
+  account: IAccount | null;
+  accounts: IAccount[] | null;
   action: string | null;
   error: { code?: string; message?: string } | null;
 };
@@ -48,10 +48,7 @@ const chartOfAccountsSlice = createSlice({
         error: null,
       };
     },
-    getOneSuccess: (
-      state: State,
-      action: PayloadAction<AccountFromDb | null>
-    ) => {
+    getOneSuccess: (state: State, action: PayloadAction<IAccount | null>) => {
       return {
         ...state,
         loading: false,
@@ -67,7 +64,7 @@ const chartOfAccountsSlice = createSlice({
     },
     getListSuccess: (
       state: State,
-      action: PayloadAction<AccountFromDb[] | null>
+      action: PayloadAction<IAccount[] | null>
     ) => {
       console.log('accounts succes action', action.payload);
       return {

@@ -11,7 +11,7 @@ import {
 } from '../../slices/accountTypesSlice';
 import { error as toastError } from '../../slices/toastSlice';
 
-import { AccountType, RootState } from 'types';
+import { IAccountType, RootState } from 'types';
 
 function* fetchAccountTypes() {
   yield put(start(FETCH_ACCOUNT_TYPES));
@@ -49,7 +49,7 @@ function* fetchAccountTypes() {
   }
 
   try {
-    const accountTypes: AccountType[] = yield call(fetchList);
+    const accountTypes: IAccountType[] = yield call(fetchList);
 
     yield put(accountTypesSuccess(accountTypes));
   } catch (err) {

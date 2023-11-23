@@ -1,8 +1,8 @@
-import { SalesItem, SalesTax } from 'types';
+import { ISaleItem, ISaleTax } from 'types';
 import BigNumber from 'bignumber.js';
 
 interface Taxes {
-  [key: string]: SalesTax;
+  [key: string]: ISaleTax;
 }
 
 interface Summary {
@@ -13,7 +13,7 @@ interface Summary {
 
 BigNumber.config({ DECIMAL_PLACES: 2 });
 
-export default function getSaleSummary(selectedItems: SalesItem[]) {
+export default function getSaleSummary(selectedItems: ISaleItem[]) {
   console.log({ selectedItems });
 
   const { subTotal, totalTax, taxes } = selectedItems.reduce(
@@ -22,8 +22,8 @@ export default function getSaleSummary(selectedItems: SalesItem[]) {
       const subTotal = new BigNumber(summary.subTotal);
 
       const { salesTax } = item;
-      const itemTaxTotal = new BigNumber(item.itemTaxTotal);
-      const itemRateTotal = new BigNumber(item.itemRateTotal);
+      const itemTaxTotal = new BigNumber(item.taxTotal);
+      const itemRateTotal = new BigNumber(item.total);
 
       const newSummary = {
         ...summary,
@@ -36,7 +36,7 @@ export default function getSaleSummary(selectedItems: SalesItem[]) {
          * accumulate tax total of all tax types
          */
         //item has a tax field
-        const taxId = salesTax.taxId;
+        const taxId = salesTax._id;
         //check if a similar tax is available in the taxes summary
         const currentTax = taxes[taxId];
 

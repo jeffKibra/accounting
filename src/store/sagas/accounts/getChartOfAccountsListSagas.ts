@@ -11,7 +11,7 @@ import {
 } from '../../slices/chartOfAccountsSlice';
 import { error as toastError } from '../../slices/toastSlice';
 
-import { AccountFromDb, RootState } from 'types';
+import { IAccount, RootState } from 'types';
 
 function* getAccounts() {
   yield put(getList());
@@ -30,7 +30,7 @@ function* getAccounts() {
   }
 
   try {
-    const accounts: AccountFromDb[] = yield call(fetchList);
+    const accounts: IAccount[] = yield call(fetchList);
 
     yield put(getListSuccess(accounts));
   } catch (err) {

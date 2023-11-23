@@ -8,7 +8,8 @@ import BookingPaymentInput from './BookingPaymentInput';
 import { getBookingBalance } from 'utils/bookings';
 
 function convertInvoiceToBooking(invoice) {
-  const { customer, customerNotes, subTotal, total, items } = invoice;
+  const { customer, customerNotes, subTotal, total, balance, items, _id } =
+    invoice;
   const bookingData = items[0];
   //
   const {
@@ -22,6 +23,7 @@ function convertInvoiceToBooking(invoice) {
   const transferFee = items[1]?.total || 0;
 
   return {
+    _id,
     customer,
     customerNotes,
     vehicle,
@@ -34,6 +36,7 @@ function convertInvoiceToBooking(invoice) {
     qty,
     subTotal,
     total,
+    balance,
   };
 }
 
@@ -55,13 +58,13 @@ export default function getBookingTableData(
 
   const {
     total,
-    downPayment,
+    // downPayment,
     paymentsReceived,
     startDate,
     endDate,
     selectedDates,
   } = booking;
-  const imprest = downPayment?.amount || 0;
+  // const imprest = downPayment?.amount || 0;
 
   let balance = booking?.balance || 0;
   let paymentAmount = 0;
@@ -74,7 +77,7 @@ export default function getBookingTableData(
     ...booking,
     total: Number(total).toLocaleString(),
     balance: Number(balance).toLocaleString(),
-    imprest: Number(imprest).toLocaleString(),
+    // imprest: Number(imprest).toLocaleString(),
     dueDate: <DueDateStatus booking={booking || {}} />,
     dates: <BookingDates startDate={startDate} endDate={endDate} />,
     // date: <bookingDates booking={booking} />,

@@ -37,6 +37,7 @@ export const invoiceFields = `
   totalTax
   subTotal
   total
+  balance
 
   customerNotes
   dueDate
@@ -49,8 +50,8 @@ export const invoiceFields = `
 `;
 
 const GET_INVOICE = gql`
-  query GetBooking($id: ID) {
-    booking(id: $id) {
+  query GetInvoice($id: ID) {
+    invoice(id: $id) {
      ${invoiceFields}
     }
   }

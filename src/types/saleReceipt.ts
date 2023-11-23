@@ -1,11 +1,11 @@
 import { Timestamp } from 'firebase/firestore';
 import {
-  Account,
+  IAccountSummary,
   IContactSummary,
   OrgSummary,
   PaymentMode,
-  SalesItem,
-  SalesSummary,
+  ISaleItem,
+  ISaleSummary,
   TransactionTypes,
 } from '.';
 
@@ -21,14 +21,14 @@ interface Meta {
 }
 
 export interface SaleReceiptForm {
-  account: Account;
+  account: IAccountSummary;
   customer: IContactSummary;
   customerNotes: string;
   paymentMode: PaymentMode;
   receiptDate: Date;
   reference: string;
-  selectedItems: SalesItem[];
-  summary: SalesSummary;
+  selectedItems: ISaleItem[];
+  summary: ISaleSummary;
 }
 
 export interface SaleReceipt extends SaleReceiptForm, Meta {

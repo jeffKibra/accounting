@@ -1,6 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
 import {
-  Invoice,
+  IInvoice,
   PaymentReceived,
   Org,
   IContact,
@@ -8,40 +8,40 @@ import {
 } from '../types';
 
 function formatCustomerData(customer: IContact): IContactSummary {
-  const { displayName, type, companyName, email, id, contactType } = customer;
+  const { displayName, _id } = customer;
 
-  return { displayName, type, companyName, email, id, contactType };
+  return { displayName, _id };
 }
 
-function formatVendorData(vendor: IContact): IContactSummary {
-  const { displayName, companyName, email, id, contactType, type } = vendor;
+// function formatVendorData(vendor: IContact): IContactSummary {
+//   const { displayName, email, id, contactType, type } = vendor;
 
-  return { displayName, companyName, email, id, contactType, type };
-}
+//   return { displayName, email, id, contactType, type };
+// }
 
-function formatInvoices(invoices: Invoice[]) {
+function formatInvoices(invoices: IInvoice[]) {
   return invoices.map(invoice => {
     const {
       saleDate,
       dueDate,
-      bookingTotal,
-      transferAmount,
+      // bookingTotal,
+      // transferAmount,
       total,
-      status,
-      invoiceId,
+      // status,
+      _id: invoiceId,
       balance,
-      transactionType,
+      // transactionType,
     } = invoice;
     return {
       saleDate,
       dueDate,
-      bookingTotal,
-      transferAmount,
+      // bookingTotal,
+      // transferAmount,
       total,
-      status,
+      // status,
       invoiceId,
       balance,
-      transactionType,
+      // transactionType,
     };
   });
 }
@@ -72,7 +72,7 @@ interface TransactionDetails {
   modifiedAt: Date | Timestamp;
   modifiedBy?: string;
   customer: IContact;
-  paidInvoices: Invoice[];
+  paidInvoices: IInvoice[];
   org: Org;
   [key: string]: unknown;
 }
@@ -98,7 +98,6 @@ const formats = {
   formatCustomerData,
   formatOrgData,
   formatTransactionDetails,
-  formatVendorData,
   formatCash,
 };
 

@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 //
-import { success } from 'store/slices/monthlyBookings';
+// import { success } from 'store/slices/monthlyBookings';
 
 import { Bookings } from 'utils/bookings';
 
@@ -17,7 +17,7 @@ export default function useGetBookingsForMonth() {
 
   const setMonthBookings = useCallback(
     (monthId, bookings) => {
-      dispatch(success({ [monthId]: bookings }));
+      // dispatch(success({ [monthId]: bookings }));
     },
     [dispatch]
   );

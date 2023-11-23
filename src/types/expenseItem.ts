@@ -1,11 +1,11 @@
-import { Tax } from ".";
-import { Account } from ".";
+import { ITaxSummary } from '.';
+import { IAccountSummary } from '.';
 
 export interface ExpenseItem {
   amount: number;
   details: string;
   itemRate: number;
   itemTax: number;
-  tax: Tax;
-  account: Account;
+  tax: ITaxSummary;
+  account: IAccountSummary;
 }

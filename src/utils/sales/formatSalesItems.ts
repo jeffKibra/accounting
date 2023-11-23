@@ -1,14 +1,15 @@
-import { SalesItem } from "types";
+import { ISaleItem } from 'types';
 
-export default function formatSaleItems(items: SalesItem[]) {
-  return items.map((saleItem) => {
+export default function formatSaleItems(items: ISaleItem[]) {
+  return items.map(saleItem => {
     const {
-      itemRateTotal,
-      item: {
-        salesAccount: { accountId },
-      },
+      total,
+      salesAccountId: accountId,
+      // item: {
+      //   salesAccount: { accountId },
+      // },
     } = saleItem;
 
-    return { accountId, amount: itemRateTotal };
+    return { accountId, amount: total };
   });
 }

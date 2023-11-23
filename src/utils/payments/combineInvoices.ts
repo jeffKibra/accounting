@@ -1,18 +1,18 @@
-import { InvoiceSummary, Invoice } from "../../types";
+import { IInvoiceSummary, IInvoice } from '../../types';
 
 export default function combineInvoices(
-  currentInvoices: InvoiceSummary[],
-  incomingInvoices: Invoice[]
+  currentInvoices: IInvoiceSummary[],
+  incomingInvoices: IInvoice[]
 ) {
-  const combined: InvoiceSummary[] = [];
+  const combined: IInvoiceSummary[] = [];
 
-  currentInvoices.forEach((invoice) => {
-    const { invoiceId } = invoice;
+  currentInvoices.forEach(invoice => {
+    const { _id: invoiceId } = invoice;
     /**
      * look for the invoice in the second array
      */
     const index = incomingInvoices.findIndex(
-      (incomingInvoice) => incomingInvoice.invoiceId === invoiceId
+      incomingInvoice => incomingInvoice._id === invoiceId
     );
 
     if (index > -1) {
@@ -35,7 +35,7 @@ export default function combineInvoices(
    * add them to the combined array
    */
   if (incomingInvoices.length > 0) {
-    incomingInvoices.forEach((invoice) => {
+    incomingInvoices.forEach(invoice => {
       combined.push(invoice);
     });
   }

@@ -1,13 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { Invoice } from '../../types';
+import { IInvoice } from '../../types';
 import { GET_INVOICE } from '../actions/invoicesActions';
 
 type State = {
   loading: boolean;
   isModified: boolean;
-  invoice: Invoice | null;
-  invoices: Invoice[] | null;
+  invoice: IInvoice | null;
+  invoices: IInvoice[] | null;
   action: string | null;
   error: { code?: string; message?: string } | null;
 };
@@ -44,7 +44,7 @@ const invoicesSlice = createSlice({
         isModified: true,
       };
     },
-    invoiceSuccess: (state: State, action: PayloadAction<Invoice | null>) => {
+    invoiceSuccess: (state: State, action: PayloadAction<IInvoice | null>) => {
       return {
         ...state,
         loading: false,
@@ -53,7 +53,7 @@ const invoicesSlice = createSlice({
     },
     invoicesSuccess: (
       state: State,
-      action: PayloadAction<Invoice[] | null>
+      action: PayloadAction<IInvoice[] | null>
     ) => {
       return {
         ...state,

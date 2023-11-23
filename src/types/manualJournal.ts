@@ -1,14 +1,14 @@
-import { Account } from './accounts';
-import { IContactSummary } from './contacts';
-import { TaxSummary } from './tax';
+import { IAccountSummary } from './account';
+import { IContactSummary } from './contact';
+import { ITaxSummary } from './tax';
 
 import { FieldValue } from 'firebase/firestore';
 
 export interface IManualJournalEntry {
-  account: Account;
+  account: IAccountSummary;
   description: string;
   contact: IContactSummary | null;
-  tax: TaxSummary | null;
+  tax: ITaxSummary | null;
   type: 'debit' | 'credit';
   amount: number;
 }
@@ -19,10 +19,10 @@ export interface IManualJournalSummaryEntry {
 }
 
 export interface IManualJournalTaxEntry
-  extends TaxSummary,
+  extends ITaxSummary,
     IManualJournalSummaryEntry {}
 
-export interface IAccountFromManualJournalEntries extends Account {
+export interface IAccountFromManualJournalEntries extends IAccountSummary {
   balance: number;
   contacts: Record<string, IContactSummary>;
 }

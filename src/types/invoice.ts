@@ -1,12 +1,19 @@
 import {
-  OrgSummary,
-  // IContactSummary,
-  PaymentTerm,
-  // SalesItem,
+  // OrgSummary,
+  // IBookingForm,
   InvoiceTransactionTypes,
-  IBookingForm,
+  PaymentTerm,
+  IContactSummary,
+  // IBookingItem,
+  // ISaleItem,
+  ISaleForm,
+  ISaleMeta,
+  // ISearchQueryOptions,
 } from '.';
-import { Timestamp } from 'firebase/firestore';
+
+//eslint-disable-next-line
+
+///
 
 // export interface InvoicePayment {
 //   account: Account;
@@ -27,47 +34,45 @@ export interface InvoicePayments {
   [key: string]: number;
 }
 
-interface Meta {
+interface IMeta extends ISaleMeta {
   transactionType: keyof InvoiceTransactionTypes;
-  balance: number;
+  // balance: number;
   isSent: boolean;
-  isOverdue: boolean;
-  paymentsCount: number;
-  paymentsIds: string[];
-  paymentsReceived: InvoicePayments;
-  status: number;
-  org: OrgSummary;
-  createdAt: Date | Timestamp;
-  createdBy: string;
-  modifiedAt: Date | Timestamp;
-  modifiedBy: string;
+  // isOverdue: boolean;
+  // overdueAt?: Timestamp;
+  // paymentsCount: number;
+  // paymentsIds: string[];
+  // paymentsReceived: InvoicePayments;
 }
 
-export interface InvoiceFormData extends IBookingForm {
-  // customerNotes: string;
-  dueDate: Date;
-  // orderNumber: string;
+export interface IInvoiceForm extends ISaleForm {
+  customer: IContactSummary;
+  customerNotes: string;
+  dueDate: Date | string;
+
   paymentTerm: PaymentTerm;
-  // subject: string;
+  //
+  // downPayment: IBookingDownPayment;
 }
 
-export interface InvoiceFromDb extends InvoiceFormData, Meta {}
-
-export interface Invoice extends InvoiceFromDb {
-  invoiceId: string;
+export interface IInvoiceFromDb extends IInvoiceForm {
+  balance: number;
+  metaData: IMeta;
 }
 
-//eslint-disable-next-line
-export interface InvoiceSummary
-  extends Pick<
-    Invoice,
-    | 'balance'
-    | 'dueDate'
-    | 'saleDate'
-    | 'invoiceId'
-    | 'status'
-    | 'transactionType'
-    | 'bookingTotal'
-    | 'transferAmount'
-    | 'total'
-  > {}
+export interface IInvoice extends IInvoiceFromDb {
+  _id: string;
+}
+
+export interface IInvoiceSummary
+  extends Pick<IInvoice, '_id' | 'total' | 'dueDate'> {
+  // balance: IInvoice['balance'];
+  // dueDate: IInvoice['dueDate'];
+  // saleDate: IInvoice['saleDate'];
+  // status: IInvoice['status'];
+  // transactionType: IInvoice['transactionType'];
+  // bookingTotal: IInvoice['bookingTotal'];
+  // total: IInvoice['total'];
+}
+
+// export interface IInvoicesQueryOptions extends ISearchQueryOptions {}

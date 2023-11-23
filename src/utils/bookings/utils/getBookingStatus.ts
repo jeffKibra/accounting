@@ -25,7 +25,14 @@ interface IBookingModified extends Omit<IBooking, 'dueDate'> {
 }
 
 export default function getBookingStatus(booking: IBookingModified) {
-  const { balance, total, isSent, isOverdue } = booking;
+  const {
+    balance,
+    total,
+    // isSent, isOverdue
+  } = booking;
+  const isSent = true;
+  const isOverdue = false;
+
   const today = new Date();
   const dueDate = new Date(booking?.dueDate || Date.now());
   const isDue = dueDate.getTime() > today.getTime();

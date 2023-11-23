@@ -1,4 +1,4 @@
-import { AccountMapping } from "../../types";
+import { IAccountMapping } from '../../types';
 
 type MapAccount = {
   accountId: string;
@@ -9,14 +9,14 @@ export default function mapAccounts(
   currentAccounts: MapAccount[],
   incomingAccounts: MapAccount[]
 ) {
-  const similarAccounts: AccountMapping[] = [];
-  const updatedAccounts: AccountMapping[] = [];
-  const newAccounts: AccountMapping[] = [];
-  const deletedAccounts: AccountMapping[] = [];
+  const similarAccounts: IAccountMapping[] = [];
+  const updatedAccounts: IAccountMapping[] = [];
+  const newAccounts: IAccountMapping[] = [];
+  const deletedAccounts: IAccountMapping[] = [];
 
-  currentAccounts.forEach((account) => {
+  currentAccounts.forEach(account => {
     const { accountId, amount } = account;
-    let dataMapping: AccountMapping = {
+    let dataMapping: IAccountMapping = {
       current: amount,
       incoming: 0,
       accountId,
@@ -25,7 +25,7 @@ export default function mapAccounts(
      * find if this income account is also in incoming accounts
      */
     const index = incomingAccounts.findIndex(
-      (incomingAccount) => incomingAccount.accountId === accountId
+      incomingAccount => incomingAccount.accountId === accountId
     );
 
     if (index > -1) {
@@ -54,9 +54,9 @@ export default function mapAccounts(
    * add them the new accounts array
    */
   if (incomingAccounts.length > 0) {
-    incomingAccounts.forEach((account) => {
+    incomingAccounts.forEach(account => {
       const { amount, accountId } = account;
-      const dataMapping: AccountMapping = {
+      const dataMapping: IAccountMapping = {
         current: 0,
         incoming: amount,
         accountId,

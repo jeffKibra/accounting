@@ -1,12 +1,12 @@
-import { SaleItem } from 'types';
+import { ISaleItem } from 'types';
 
 function formatToCurrency(value: number) {
   return Number(value).toLocaleString();
 }
 
 export default function generatePDFSaleItemsTable(
-  items: SaleItem[],
-  taxType: 'taxExclusive' | 'taxInclusive'
+  items: ISaleItem[],
+  taxType: 'exclusive' | 'inclusive'
 ) {
   return {
     margin: [0, 16],
@@ -43,27 +43,24 @@ export default function generatePDFSaleItemsTable(
         ],
         ...items.map((item, i) => {
           const {
-            item: { name },
-            quantity,
-            itemRate,
-            itemTax,
-            itemRateTotal,
-            itemTaxTotal,
+            name,
+            qty,
+            rate: itemRate,
+            tax: itemTax,
+            subTotal,
+            // taxTotal,
+            total: itemTotal,
           } = item;
 
           const itemNo = i + 1;
-          const rate =
-            taxType === 'taxInclusive' ? itemRate + itemTax : itemRate;
-          const total =
-            taxType === 'taxInclusive'
-              ? itemRateTotal + itemTaxTotal
-              : itemRateTotal;
+          const rate = taxType === 'inclusive' ? itemRate + itemTax : itemRate;
+          const total = taxType === 'inclusive' ? itemTotal : subTotal;
 
           return [
             { text: itemNo, margin: [4, 4] },
             { text: name, margin: [4, 4] },
             {
-              text: formatToCurrency(quantity),
+              text: formatToCurrency(qty),
               margin: [4, 4],
               alignment: 'right',
             },

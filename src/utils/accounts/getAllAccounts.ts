@@ -2,7 +2,7 @@ import { doc, getDoc } from 'firebase/firestore';
 
 import { db } from '../firebase';
 
-import { Account, AccountType } from '../../types';
+import { IAccountSummary, IAccountType } from '../../types';
 
 export default async function getAllAccounts(orgId: string) {
   const accountsDoc = await getDoc(
@@ -15,10 +15,10 @@ export default async function getAllAccounts(orgId: string) {
   }
   const accountsData = accountsDoc.data() as Record<
     string,
-    { name: string; accountType: AccountType }
+    { name: string; accountType: IAccountType }
   >;
 
-  const accounts: Account[] = Object.keys(accountsData).map(key => {
+  const accounts: IAccountSummary[] = Object.keys(accountsData).map(key => {
     return {
       accountId: key,
       ...accountsData[key],
