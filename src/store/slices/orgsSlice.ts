@@ -59,6 +59,11 @@ const orgsSlice = createSlice({
     },
     orgSuccess: (state: State, action: PayloadAction<Org | null>) => {
       const { payload } = action;
+
+      const orgId = payload?.orgId || '';
+      localStorage.setItem('orgId', orgId);
+      //todo: remove orgId from local storage on logout
+
       return {
         ...state,
         loading: false,

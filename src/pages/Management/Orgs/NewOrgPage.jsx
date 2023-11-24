@@ -1,32 +1,23 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { connect } from "react-redux";
+import { connect } from 'react-redux';
 
-import { isAdmin } from "../../../utils/roles";
+import { isAdmin } from '../../../utils/roles';
 
-import { reset } from "../../../store/slices/orgsSlice";
-import { CREATE_ORG } from "../../../store/actions/orgsActions";
+import { reset } from '../../../store/slices/orgsSlice';
+import { CREATE_ORG } from '../../../store/actions/orgsActions';
 
-import useAuth from "../../../hooks/useAuth";
+import { useAuth, useCreateOrg } from 'hooks';
 
-import EditOrg from "../../../containers/Management/Orgs/EditOrg";
+import EditOrg from '../../../containers/Management/Orgs/EditOrg';
 
 function NewOrgPage(props) {
-  const { loading, isModified, action, createOrg, resetOrg } = props;
-  const navigate = useNavigate();
   const userProfile = useAuth();
 
-  useEffect(() => {
-    if (isModified) {
-      resetOrg();
-      navigate(-1);
-    }
-  }, [isModified, resetOrg, navigate]);
+  const { createOrg, loading } = useCreateOrg();
 
   return (
     <EditOrg
       isAdmin={isAdmin(userProfile?.role)}
-      loading={loading && action === CREATE_ORG}
+      loading={loading}
       saveData={createOrg}
     />
   );
@@ -44,7 +35,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createOrg: (payload) => dispatch({ type: CREATE_ORG, payload }),
+    createOrg: payload => dispatch({ type: CREATE_ORG, payload }),
     resetOrg: () => dispatch(reset()),
   };
 }

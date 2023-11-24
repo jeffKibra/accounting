@@ -1,4 +1,4 @@
-import { useEffect, useContext, useMemo } from "react";
+import { useEffect, useContext, useMemo } from 'react';
 import {
   FormControl,
   FormLabel,
@@ -10,11 +10,11 @@ import {
   Flex,
   Button,
   Box,
-} from "@chakra-ui/react";
-import PropTypes from "prop-types";
-import { useForm } from "react-hook-form";
+} from '@chakra-ui/react';
+import PropTypes from 'prop-types';
+import { useForm } from 'react-hook-form';
 
-import StepperContext from "../../../contexts/StepperContext";
+import StepperContext from '../../../contexts/StepperContext';
 
 function AddressForm(props) {
   const { loading, defaultValues, updateFormValues, handleFormSubmit } = props;
@@ -22,11 +22,11 @@ function AddressForm(props) {
 
   const defaults = useMemo(() => {
     return {
-      street: defaultValues?.street || "",
-      city: defaultValues?.city || "",
-      state: defaultValues?.state || "",
-      postalCode: defaultValues?.postalCode || "",
-      country: defaultValues?.country || "Kenya",
+      street: defaultValues?.street || '',
+      city: defaultValues?.city || '',
+      state: defaultValues?.state || '',
+      postalCode: defaultValues?.postalCode || '',
+      country: defaultValues?.country || 'Kenya',
     };
   }, [defaultValues]);
 
@@ -37,7 +37,7 @@ function AddressForm(props) {
     reset,
     getValues,
   } = useForm({
-    mode: "onChange",
+    mode: 'onChange',
     defaultValues: {
       ...defaults,
     },
@@ -73,17 +73,17 @@ function AddressForm(props) {
           <FormControl
             isDisabled={loading}
             isRequired
-            isInvalid={!!errors.country}
+            isInvalid={!!errors?.country}
           >
             <FormLabel htmlFor="country">Country</FormLabel>
             <Input
               placeholder="country"
               id="country"
-              {...register("country", {
-                required: { value: true, message: "*Required!" },
+              {...register('country', {
+                required: { value: true, message: '*Required!' },
               })}
             />
-            <FormErrorMessage>{errors.country?.message}</FormErrorMessage>
+            <FormErrorMessage>{errors?.country?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
@@ -91,50 +91,50 @@ function AddressForm(props) {
           <FormControl
             isDisabled={loading}
             isRequired
-            isInvalid={!!errors.state}
+            isInvalid={!!errors?.state}
           >
             <FormLabel htmlFor="state">State | Province</FormLabel>
             <Input
               placeholder="state | Province"
               id="state"
-              {...register("state", {
-                required: { value: true, message: "*Required!" },
+              {...register('state', {
+                required: { value: true, message: '*Required!' },
               })}
             />
-            <FormErrorMessage>{errors.state?.message}</FormErrorMessage>
+            <FormErrorMessage>{errors?.state?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         <GridItem colSpan={6}>
-          <FormControl isDisabled={loading} isInvalid={!!errors.city}>
+          <FormControl isDisabled={loading} isInvalid={!!errors?.city}>
             <FormLabel htmlFor="city">City | Town</FormLabel>
-            <Input placeholder="city | Town" id="city" {...register("city")} />
-            <FormErrorMessage>{errors.city?.message}</FormErrorMessage>
+            <Input placeholder="city | Town" id="city" {...register('city')} />
+            <FormErrorMessage>{errors?.city?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         <GridItem colSpan={6}>
-          <FormControl isDisabled={loading} isInvalid={!!errors.postalCode}>
+          <FormControl isDisabled={loading} isInvalid={!!errors?.postalCode}>
             <FormLabel htmlFor="postalCode">Postal code</FormLabel>
             <Input
               placeholder="Postal code"
               id="postalCode"
-              {...register("postalCode")}
+              {...register('postalCode')}
             />
-            <FormErrorMessage>{errors.postalCode?.message}</FormErrorMessage>
+            <FormErrorMessage>{errors?.postalCode?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         <GridItem colSpan={12}>
-          <FormControl isDisabled={loading} isInvalid={!!errors.street}>
+          <FormControl isDisabled={loading} isInvalid={!!errors?.street}>
             <FormLabel htmlFor="street">Street</FormLabel>
             <Textarea
               resize="none"
               placeholder="street"
               id="street"
-              {...register("street")}
+              {...register('street')}
             />
-            <FormErrorMessage>{errors.street?.message}</FormErrorMessage>
+            <FormErrorMessage>{errors?.street?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
       </Grid>

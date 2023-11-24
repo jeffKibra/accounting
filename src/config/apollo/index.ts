@@ -29,7 +29,7 @@ const authLink = setContext(async (_, { headers, ...moreParams }) => {
   }
   //   console.log('token', token);
   //add orgId to headers from local storage
-  const orgId = localStorage.getItem('orgId');
+  const orgId = localStorage.getItem('orgId') || '';
   // console.log({ orgId });
   // return the headers to the context so httpLink can read them
   return {

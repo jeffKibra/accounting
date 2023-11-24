@@ -1,36 +1,24 @@
-import { Component } from 'react';
 import { connect } from 'react-redux';
-
-import { CHECK_ORG } from '../../../store/actions/orgsActions';
-
+//
+//
+import { useGetOrg } from 'hooks';
+//
+import NewOrgPage from 'pages/Management/Orgs/NewOrgPage';
+//
 import FullPageSpinner from '../../../components/ui/FullPageSpinner';
 
-class CheckOrg extends Component {
-  componentDidMount() {
-    const { check, userProfile } = this.props;
+function CheckOrg(props) {
+  const { children } = props;
 
-    if (userProfile) {
-      check();
-    }
-  }
+  const { loading, data } = useGetOrg();
 
-  componentDidUpdate(prevProps) {
-    const { userProfile, check } = this.props;
-
-    if (userProfile && !prevProps.userProfile) {
-      check();
-    }
-  }
-
-  render() {
-    const { loading, children, action } = this.props;
-
-    return loading && action === CHECK_ORG ? (
-      <FullPageSpinner label="Loading Details..." />
-    ) : (
-      children
-    );
-  }
+  return loading ? (
+    <FullPageSpinner label="Loading Details..." />
+  ) : data ? (
+    children
+  ) : (
+    <NewOrgPage />
+  );
 }
 
 function mapStateToProps(state) {
@@ -40,10 +28,4 @@ function mapStateToProps(state) {
   return { loading, org, action, userProfile };
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    check: () => dispatch({ type: CHECK_ORG }),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(CheckOrg);
+export default connect(mapStateToProps)(CheckOrg);

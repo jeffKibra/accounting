@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { Box, Flex, Heading, Container } from "@chakra-ui/react";
-import PropTypes from "prop-types";
+import { useState } from 'react';
+import { Box, Flex, Heading, Container } from '@chakra-ui/react';
+import PropTypes from 'prop-types';
 
-import Stepper from "../../../components/ui/Stepper";
+import Stepper from '../../../components/ui/Stepper';
 
-import OrgDetailsForm from "../../../components/forms/Orgs/OrgDetailsForm";
-import AddressForm from "../../../components/forms/Orgs/AddressForm";
+import OrgDetailsForm from '../../../components/forms/Orgs/OrgDetailsForm';
+import AddressForm from '../../../components/forms/Orgs/AddressForm';
 
 function EditOrg(props) {
   const { loading, org, saveData } = props;
@@ -13,17 +13,19 @@ function EditOrg(props) {
   const [formValues, setFormValues] = useState(org || {});
 
   function updateFormValues(data) {
-    setFormValues((current) => ({ ...current, ...data }));
+    setFormValues(current => ({ ...current, ...data }));
   }
 
   function finish(data) {
-    updateFormValues(data);
+    const addressData = { address: data };
+
+    updateFormValues(addressData);
 
     const newData = {
       ...formValues,
-      ...data,
+      ...addressData,
     };
-    // console.log({ newData });
+    console.log({ newData, data });
 
     saveData({
       ...newData,
@@ -47,7 +49,7 @@ function EditOrg(props) {
           <Stepper
             steps={[
               {
-                label: "Details",
+                label: 'Details',
                 content: (
                   <Box py="20px">
                     <OrgDetailsForm
@@ -60,12 +62,12 @@ function EditOrg(props) {
                 ),
               },
               {
-                label: "Address ",
+                label: 'Address ',
                 content: (
                   <Box py="20px">
                     <AddressForm
                       loading={loading}
-                      defaultValues={formValues}
+                      defaultValues={formValues?.address}
                       updateFormValues={updateFormValues}
                       handleFormSubmit={finish}
                     />
