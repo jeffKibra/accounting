@@ -9,7 +9,7 @@ import { formatBookingData } from './useCreateBooking';
 
 function useUpdateBooking(bookingId) {
   const [modifyBooking, { called, loading: updating, reset, error }] =
-    useMutation(mutations.bookings.UPDATE_BOOKING);
+    useMutation(mutations.sales.bookings.UPDATE_BOOKING);
 
   const { loading, booking } = useGetBooking(bookingId);
 

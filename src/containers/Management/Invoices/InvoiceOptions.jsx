@@ -19,14 +19,18 @@ import {
 
 import Dialog from 'components/ui/Dialog';
 
-import useDeleteInvoice from 'hooks/useDeleteInvoice';
+import { useDeleteInvoiceModal } from 'hooks';
 
 import { generatePDF } from 'utils/invoices';
 
 function InvoiceOptions(props) {
   const { invoice, edit, view, deletion, download } = props;
-  const { invoiceId } = invoice;
-  const { details, isDeleted, resetInvoice } = useDeleteInvoice(invoice);
+
+  const { _id: invoiceId, metaData } = invoice;
+
+  const isBooking = metaData?.saleType === 'car_booking';
+
+  const { details, isDeleted, resetInvoice } = useDeleteInvoiceModal(invoice);
 
   useEffect(() => {
     if (isDeleted) {
@@ -38,7 +42,7 @@ function InvoiceOptions(props) {
     <Menu>
       <MenuButton
         as={IconButton}
-        aria-label="Table Options"
+        aria-label="Invoices Options"
         icon={<RiMoreFill />}
         colorScheme="cyan"
         size="sm"
@@ -55,15 +59,19 @@ function InvoiceOptions(props) {
             View
           </MenuItem>
         ) : null}
+
         {edit ? (
           <MenuItem
             as={Link}
-            to={`/sale/invoices/${invoiceId}/edit`}
+            to={`/sale/${
+              isBooking ? 'bookings' : 'invoices'
+            }/${invoiceId}/edit`}
             icon={<RiEdit2Line />}
           >
             Edit
           </MenuItem>
         ) : null}
+
         {deletion ? (
           <Dialog
             {...details}

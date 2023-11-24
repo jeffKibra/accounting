@@ -38,7 +38,7 @@ export const invoiceFields = `
   subTotal
   total
   balance
-
+  
   customerNotes
   dueDate
 
@@ -47,7 +47,16 @@ export const invoiceFields = `
     value
     days
   } 
+
+  metaData {
+    saleType
+  }
 `;
+
+// payments{
+//     paymentId
+//     amount
+//   }
 
 const GET_INVOICE = gql`
   query GetInvoice($id: ID) {

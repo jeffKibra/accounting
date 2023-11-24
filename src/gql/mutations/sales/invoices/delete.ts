@@ -3,10 +3,10 @@ import { gql } from '@apollo/client';
 //
 // import { vehicleInListFields } from '../../queries/vehicles/searchVehicles';
 
-const DELETE_BOOKING = gql`
-  mutation DeleteBooking($id: ID!) {
-    deleteBooking(id: $id)
+const DELETE_INVOICE = gql`
+  mutation DeleteInvoice($id: ID!) {
+    deleteInvoice(id: $id)
   }
 `;
 
-export default DELETE_BOOKING;
+export default DELETE_INVOICE;

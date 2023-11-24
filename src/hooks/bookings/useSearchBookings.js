@@ -20,7 +20,7 @@ function useSearchBookings() {
     data: gqlData,
     refetch,
     called,
-  } = useQuery(queries.bookings.LIST_BOOKINGS, {
+  } = useQuery(queries.sales.bookings.LIST_BOOKINGS, {
     fetchPolicy: 'cache-and-network',
     onCompleted: handleCompleted,
   });

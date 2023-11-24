@@ -2,9 +2,11 @@ import { useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { connect } from 'react-redux';
 
+//
+import { useGetInvoice } from 'hooks';
+
 import InvoiceOptions from '../../../containers/Management/Invoices/InvoiceOptions';
 
-import { GET_INVOICE } from '../../../store/actions/invoicesActions';
 import { reset } from '../../../store/slices/invoicesSlice';
 
 import { INVOICES } from '../../../nav/routes';
@@ -18,16 +20,14 @@ import Empty from '../../../components/ui/Empty';
 import ViewInvoice from '../../../containers/Management/Invoices/ViewInvoice';
 
 function ViewInvoicePage(props) {
-  const { loading, isModified, invoice, action, resetInvoice, getInvoice } =
-    props;
+  const { isModified, resetInvoice } = props;
   const { invoiceId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   useSavedLocation().setLocation();
 
-  useEffect(() => {
-    getInvoice(invoiceId);
-  }, [getInvoice, invoiceId]);
+  const { invoice, loading } = useGetInvoice(invoiceId);
+  console.log({ invoice, loading });
 
   useEffect(() => {
     if (isModified) {
@@ -48,7 +48,7 @@ function ViewInvoicePage(props) {
         [String(invoiceId).padStart(6, '0')]: location.pathname,
       }}
     >
-      {loading && action === GET_INVOICE ? (
+      {loading ? (
         <SkeletonLoader />
       ) : invoice ? (
         <ViewInvoice invoice={invoice} />
@@ -68,8 +68,6 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     resetInvoice: () => dispatch(reset()),
-    getInvoice: invoiceId =>
-      dispatch({ type: GET_INVOICE, payload: invoiceId }),
   };
 }
 

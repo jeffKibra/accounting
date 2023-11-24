@@ -21,14 +21,14 @@ import { bookingProps } from 'propTypes';
 
 import Dialog from 'components/ui/Dialog';
 
-import { useDeleteBooking } from 'hooks';
+import { useDeleteBookingModal } from 'hooks';
 
 import { generatePDF } from 'utils/invoices';
 
 function BookingOptions(props) {
   const { booking, edit, view, deletion, download } = props;
   const { _id } = booking;
-  const { details, isDeleted, resetBooking } = useDeleteBooking(booking);
+  const { details, isDeleted, resetBooking } = useDeleteBookingModal(booking);
 
   useEffect(() => {
     if (isDeleted) {
@@ -51,7 +51,8 @@ function BookingOptions(props) {
         {view ? (
           <MenuItem
             as={Link}
-            to={`/sale/bookings/${_id}/view`}
+            to={`/sale/invoices/${_id}/view`}
+            // to={`/sale/bookings/${_id}/view`}
             icon={<RiEyeLine />}
           >
             View

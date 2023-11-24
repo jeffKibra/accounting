@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 //
-import { bookingFields } from '../../queries/bookings/get';
+import { bookingFields } from '../../../queries/sales/bookings/get';
 
 const UPDATE_BOOKING = gql`
   mutation UpdateBooking($id: ID!, $formData: BookingInput!) {

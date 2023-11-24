@@ -1,33 +1,33 @@
-import { useMemo } from 'react';
+// import { useMemo } from 'react';
 import { TableContainer, Table, Tbody, Td, Tr } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 //
 import { bookingProps } from 'propTypes';
 
 function ViewSaleSummaryTable(props) {
-  const { booking, showBalance } = props;
+  const { invoice, showBalance } = props;
   const {
-    paymentsReceived: payments,
+    // payments,
     total,
     subTotal,
     balance,
     // downPayment: { amount: imprest },
-  } = booking;
+  } = invoice;
   // console.log({ payments, total, subTotal });
 
-  const paymentsTotal = useMemo(() => {
-    // console.log('payments have changed', payments);
+  // const paymentsTotal = useMemo(() => {
+  //   // console.log('payments have changed', payments);
 
-    let total = 0;
+  //   let total = 0;
 
-    if (payments && typeof payments === 'object') {
-      Object.values(payments).forEach(payment => {
-        total += Number(payment);
-      });
-    }
+  //   if (payments && typeof payments === 'object') {
+  //     Object.values(payments).forEach(payment => {
+  //       total += Number(payment);
+  //     });
+  //   }
 
-    return total;
-  }, [payments]);
+  //   return total;
+  // }, [payments]);
 
   // let balance = totalAmount - +paymentsTotal;
 
@@ -76,7 +76,7 @@ function ViewSaleSummaryTable(props) {
             </Td>
           </Tr> */}
 
-          {paymentsTotal > 0 && (
+          {/* {paymentsTotal > 0 && (
             <Tr>
               <Td isNumeric>
                 <b>Other Payments</b>
@@ -85,7 +85,7 @@ function ViewSaleSummaryTable(props) {
                 <b>(-) {Number(paymentsTotal).toLocaleString()}</b>
               </Td>
             </Tr>
-          )}
+          )} */}
           {/* "#f5f4f3" */}
           {showBalance && (
             <Tr bg="gray.100">

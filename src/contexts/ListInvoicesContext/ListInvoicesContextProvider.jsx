@@ -20,7 +20,7 @@ export default function ListInvoicesContextProvider(props) {
   return (
     <ListContextProvider
       defaultValues={defaultValues}
-      GQLQuery={queries.invoices.LIST_INVOICES}
+      GQLQuery={queries.sales.invoices.LIST_INVOICES}
       additionalQueryParams={{ customerId }}
       resultField="invoices"
     >

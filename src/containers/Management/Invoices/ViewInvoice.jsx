@@ -14,20 +14,23 @@ import {
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
-import ViewSaleItemTable from '../../../components/tables/Sales/ViewSaleItemTable';
+import SaleItemsTable from '../../../components/tables/Sales/SaleItemsTable';
+// import ViewSaleItemTable from '../../../components/tables/Sales/ViewSaleItemTable';
 import ViewSaleSummaryTable from '../../../components/tables/Sales/ViewSaleSummaryTable';
 
 function ViewInvoice(props) {
-  const { invoice } = props;
+  const { invoice, loading } = props;
   console.log({ invoice });
   const {
     org,
     customer,
-    invoiceId,
+    _id: invoiceId,
     saleDate,
     dueDate,
     customerNotes,
     balance,
+    items,
+    taxType,
   } = invoice;
 
   return (
@@ -45,10 +48,10 @@ function ViewInvoice(props) {
           <GridItem colSpan={[12, 6]}>
             <VStack align="flex-start" w="full">
               <Heading color="#333" as="h2" size="sm">
-                {org?.name}
+                {org?.name || ''}
               </Heading>
-              <Text>{org?.address}</Text>
-              <Text>{org?.city}</Text>
+              <Text>{org?.address || ''}</Text>
+              <Text>{org?.city || ''}</Text>
             </VStack>
           </GridItem>
           <GridItem colSpan={[12, 6]}>
@@ -91,28 +94,36 @@ function ViewInvoice(props) {
                 <Tr>
                   <Td isNumeric>Invoice Date:</Td>
                   <Td pr="0px !important" isNumeric>
-                    {new Date(saleDate).toDateString()}
+                    {new Date(+saleDate).toDateString()}
                   </Td>
                 </Tr>
                 <Tr>
                   <Td isNumeric>Due Date:</Td>
                   <Td pr="0px !important" isNumeric>
-                    {new Date(dueDate).toDateString()}
+                    {new Date(+dueDate).toDateString()}
                   </Td>
                 </Tr>
               </Tbody>
             </Table>
           </GridItem>
         </Grid>
+
         <Box w="full" mt="20px!important">
-          <ViewSaleItemTable invoice={invoice} />
+          <SaleItemsTable
+            items={items}
+            loading={loading}
+            taxType={taxType || 'inclusive'}
+            invoice={invoice}
+          />
         </Box>
+
         <Grid w="full" columnGap={3} templateColumns="repeat(12, 1fr)">
           <GridItem colSpan={[1, 6]}></GridItem>
           <GridItem colSpan={[11, 6]}>
             <ViewSaleSummaryTable showBalance invoice={invoice} />
           </GridItem>
         </Grid>
+
         {customerNotes && (
           <VStack align="flex-start" w="full" mt="50px!important">
             <Text>Notes</Text>
@@ -128,29 +139,32 @@ function ViewInvoice(props) {
 ViewInvoice.propTypes = {
   invoice: PropTypes.shape({
     customer: PropTypes.object.isRequired,
-    org: PropTypes.object.isRequired,
+    // org: PropTypes.object.isRequired,
     saleDate: PropTypes.instanceOf(Date).isRequired,
     dueDate: PropTypes.instanceOf(Date).isRequired,
-    invoiceId: PropTypes.string.isRequired,
-    status: PropTypes.number.isRequired,
-    item: PropTypes.object.isRequired,
+    _id: PropTypes.string.isRequired,
+    items: PropTypes.array.isRequired,
     balance: PropTypes.number.isRequired,
-    salesTax: PropTypes.oneOfType([
-      PropTypes.shape({
-        name: PropTypes.string,
-        rate: PropTypes.number,
-        taxId: PropTypes.string,
-      }),
-      PropTypes.string,
-    ]),
-    bookingRate: PropTypes.number.isRequired,
-    bookingTotal: PropTypes.number.isRequired,
-    transferAmount: PropTypes.number.isRequired,
     subTotal: PropTypes.number.isRequired,
+    totalTax: PropTypes.number.isRequired,
     total: PropTypes.number.isRequired,
-    // itemTax: PropTypes.number.isRequired,
-    quantity: PropTypes.number.isRequired,
     taxType: PropTypes.string,
+    paymentTerm: PropTypes.object.isRequired,
+
+    // status: PropTypes.number.isRequired,
+
+    // salesTax: PropTypes.oneOfType([
+    //   PropTypes.shape({
+    //     name: PropTypes.string,
+    //     rate: PropTypes.number,
+    //     taxId: PropTypes.string,
+    //   }),
+    //   PropTypes.string,
+    // ]),
+    // bookingRate: PropTypes.number.isRequired,
+    // bookingTotal: PropTypes.number.isRequired,
+    // transferAmount: PropTypes.number.isRequired,
+    // itemTax: PropTypes.number.isRequired,
   }),
 };
 

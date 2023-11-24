@@ -6,7 +6,9 @@ import { checkIfIsSameDay } from '../../../utils/dates';
 function InvoiceDates(props) {
   const { invoice } = props;
   // console.log({ props });
-  const { saleDate, dueDate, balance } = invoice;
+  const { saleDate, dueDate: dueDateString, balance } = invoice;
+  const dueDate = new Date(dueDateString);
+
   const today = new Date();
   const overdueDays = Math.floor(
     (today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24)
@@ -17,7 +19,7 @@ function InvoiceDates(props) {
 
   return (
     <>
-      {saleDate.toDateString()} <br />{' '}
+      {new Date(+saleDate).toDateString()} <br />{' '}
       <Text fontSize="xs" color="#1A202C">
         {balance > 0 && isToday ? (
           <>

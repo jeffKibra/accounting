@@ -9,7 +9,7 @@ import useToasts from '../useToasts';
 
 function useGetInvoice(invoiceId) {
   const { loading, error, data, refetch } = useQuery(
-    queries.invoices.GET_INVOICE,
+    queries.sales.invoices.GET_INVOICE,
     {
       variables: { id: invoiceId },
     }

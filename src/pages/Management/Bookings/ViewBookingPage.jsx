@@ -16,6 +16,7 @@ import SkeletonLoader from '../../../components/ui/SkeletonLoader';
 import Empty from '../../../components/ui/Empty';
 
 import ViewBooking from '../../../containers/Management/Bookings/ViewBooking';
+import ViewInvoice from '../../../containers/Management/Invoices/ViewInvoice';
 
 function ViewBookingPage(props) {
   const { isModified, resetBooking } = props;

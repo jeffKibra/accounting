@@ -1,27 +1,27 @@
 import { useEffect } from 'react';
-import { Box, Text } from '@chakra-ui/react';
 import { useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 
 //
-import { BOOKINGS } from 'nav/routes';
+
+// import BookingDates from 'components/tables/Bookings/BookingDates';
 //
 
-import BookingDates from 'components/tables/Bookings/BookingDates';
-//
 import useToasts from '../useToasts';
 
 import { mutations } from 'gql';
 
-export default function useDeleteInvoice(invoice) {
-  const { customer, _id: invoiceId, vehicle, startDate, endDate } = invoice;
-
+export default function useDeleteInvoice(
+  invoiceId,
+  queriesToRefetch,
+  successRoute
+) {
   const navigate = useNavigate();
   const { error: toastError, success: toastSuccess } = useToasts();
 
   const [deleteInvoice, { called, loading, error, reset }] = useMutation(
-    mutations.invoices.DELETE_BOOKING,
-    { refetchQueries: ['ListInvoices'] }
+    mutations.sales.invoices.DELETE_INVOICE,
+    { refetchQueries: [...queriesToRefetch] }
   );
 
   const success = called && !loading && !error;
@@ -29,13 +29,13 @@ export default function useDeleteInvoice(invoice) {
 
   useEffect(() => {
     if (success) {
-      toastSuccess('Invoice successfully deleted!');
+      toastSuccess('Deletion Successful!');
       //
       reset();
       //
-      navigate(BOOKINGS);
+      navigate(successRoute);
     }
-  }, [success, toastSuccess, reset, navigate]);
+  }, [success, toastSuccess, reset, navigate, successRoute]);
 
   useEffect(() => {
     if (failed) {
@@ -50,47 +50,9 @@ export default function useDeleteInvoice(invoice) {
     // dispatch({ type: DELETE_vehicle, payload: vehicleId });
   }
 
-  const details = {
-    isDone: success,
-    title: 'Delete Invoice',
-    onConfirm: () => handleDelete(invoiceId),
-    // loading: deleting,
-    loading,
-    message: (
-      <Box>
-        <Text>Are you sure you want to delete this Invoice</Text>
-        <Box p={1} pl={5}>
-          <Text>
-            Car Registration:{' '}
-            <Text as="b" textTransform="uppercase">
-              {vehicle?.registration}
-            </Text>
-          </Text>
-          <Text>
-            Invoice Id#: <b>{invoiceId}</b>
-          </Text>
-          <Text>
-            Customer Name: <b>{customer.displayName}</b>
-          </Text>
-          {/* <Text>
-            Invoice Dates :<b>{saleDate.toDateString()}</b>
-          </Text> */}
-          <Text>
-            Invoice Dates :
-            <b>
-              <BookingDates startDate={startDate} endDate={endDate} />
-            </b>
-          </Text>
-        </Box>
-        <Text>NOTE:::THIS ACTION CANNOT BE UNDONE!</Text>
-      </Box>
-    ),
-  };
-
   return {
-    deleting: loading,
+    loading,
     isDeleted: success,
-    details,
     handleDelete,
     resetDelete: reset,
   };

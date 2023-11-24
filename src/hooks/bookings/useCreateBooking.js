@@ -24,7 +24,7 @@ export function formatBookingData(formData) {
 
 function useCreateBooking() {
   const [newBooking, { called, loading, reset, error }] = useMutation(
-    mutations.bookings.CREATE_BOOKING
+    mutations.sales.bookings.CREATE_BOOKING
   );
 
   const navigate = useNavigate();

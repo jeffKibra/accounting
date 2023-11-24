@@ -4,7 +4,7 @@ import { useQuery } from '@apollo/client';
 import { queries } from 'gql';
 import useToasts from '../useToasts';
 
-const { LIST_INVOICES } = queries.invoices;
+const { LIST_INVOICES } = queries.sales.invoices;
 
 function useListInvoices() {
   const [initialFetchCompleted, setInitialFetchCompleted] = useState(false);

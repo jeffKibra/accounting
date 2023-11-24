@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Stack, IconButton } from '@chakra-ui/react';
+import { Stack, IconButton, Text } from '@chakra-ui/react';
 import { RiDeleteBin4Line, RiEdit2Line } from 'react-icons/ri';
 
 import CustomTable from '../CustomRawTable';
@@ -8,73 +8,91 @@ import CustomTable from '../CustomRawTable';
 // import SelectItemForm from "../../forms/Sales/SelectItemForm";
 
 function SaleItemsTable(props) {
-  const { items, handleItemDelete, handleItemEdit, loading, taxType } = props;
+  const {
+    items,
+    handleItemDelete,
+    handleItemEdit,
+    loading,
+    taxType,
+    showActions,
+  } = props;
   console.log({ items });
 
   const columns = useMemo(() => {
     return [
-      { Header: 'Name', accessor: 'displayName' },
+      { Header: 'Description', accessor: 'description' },
       { Header: 'Quantity', accessor: 'quantityString', isNumeric: true },
       { Header: 'Rate', accessor: 'itemRate', isNumeric: true },
       { Header: 'Tax', accessor: 'tax', isNumeric: true },
       { Header: 'Amount', accessor: 'totalAmount', isNumeric: true },
-      { Header: '', accessor: 'actions' },
+      ...(showActions ? [{ Header: '', accessor: 'actions' }] : []),
     ];
-  }, []);
+  }, [showActions]);
 
   const data = useMemo(() => {
     return [...items].map((saleItem, index) => {
       console.log({ saleItem });
       const {
-        item,
+        name,
+        description,
+        rate,
+        qty,
+        subTotal,
+        total,
         salesTax,
-        itemRateTotal,
-        itemTaxTotal,
-        itemRate,
-        itemTax,
-        quantity,
+        // itemRateTotal,
+        // itemTaxTotal,
+        // itemRate,
+        // itemTax,
+        details,
       } = saleItem;
 
-      const rate = taxType === 'taxInclusive' ? itemRate + itemTax : itemRate;
-      const amount =
-        taxType === 'taxInclusive'
-          ? itemRateTotal + itemTaxTotal
-          : itemRateTotal;
+      // const rate = taxType === 'taxInclusive' ? itemRate + itemTax : itemRate;
+      const amount = taxType === 'inclusive' ? total : subTotal;
 
-      const itemName = item?.name || '';
-      const itemUnit = item?.unit || '';
+      const itemUnit = details?.units || '';
 
       return {
         ...saleItem,
+        description: (
+          <>
+            <Text color="#1A202C">{name}</Text>
+            <Text fontSize="xs">{description || ''}</Text>
+          </>
+        ),
         itemRate: rate,
         totalAmount: amount,
-        displayName: `${itemName}`,
-        quantityString: `${quantity} ${itemUnit}`,
+        // displayName: `${name}`,
+        quantityString: `${qty} ${itemUnit}`,
         tax: salesTax?.name ? `${salesTax?.name} (${salesTax?.rate}%)` : '0%',
-        actions: (
-          <Stack direction="row" spacing={1}>
-            <IconButton
-              size="xs"
-              onClick={() => handleItemEdit(saleItem, index)}
-              colorScheme="cyan"
-              icon={<RiEdit2Line />}
-              title="Edit"
-              isDisabled={loading}
-            />
+        ...(showActions
+          ? {
+              actions: (
+                <Stack direction="row" spacing={1}>
+                  <IconButton
+                    size="xs"
+                    onClick={() => handleItemEdit(saleItem, index)}
+                    colorScheme="cyan"
+                    icon={<RiEdit2Line />}
+                    title="Edit"
+                    isDisabled={loading}
+                  />
 
-            <IconButton
-              size="xs"
-              onClick={() => handleItemDelete(index)}
-              colorScheme="red"
-              icon={<RiDeleteBin4Line />}
-              title="Delete"
-              isDisabled={loading}
-            />
-          </Stack>
-        ),
+                  <IconButton
+                    size="xs"
+                    onClick={() => handleItemDelete(index)}
+                    colorScheme="red"
+                    icon={<RiDeleteBin4Line />}
+                    title="Delete"
+                    isDisabled={loading}
+                  />
+                </Stack>
+              ),
+            }
+          : {}),
       };
     });
-  }, [items, handleItemDelete, handleItemEdit, loading, taxType]);
+  }, [items, handleItemDelete, handleItemEdit, loading, taxType, showActions]);
 
   return <CustomTable data={data} columns={columns} />;
 }
@@ -103,6 +121,7 @@ SaleItemsTable.propTypes = {
   handleItemDelete: PropTypes.func.isRequired,
   handleItemEdit: PropTypes.func.isRequired,
   taxType: PropTypes.string.isRequired,
+  showActions: PropTypes.bool,
 };
 
 export default SaleItemsTable;
