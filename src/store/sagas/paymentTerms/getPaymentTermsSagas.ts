@@ -1,35 +1,35 @@
-import { call, takeLatest, select, put } from "redux-saga/effects";
-import { doc, getDoc } from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+import { call, takeLatest, select, put } from 'redux-saga/effects';
+import { doc, getDoc } from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from "../../../utils/firebase";
+import { db } from '../../../utils/firebase';
 
-import { GET_PAYMENT_TERMS } from "../../actions/paymentTermsActions";
+import { GET_PAYMENT_TERMS } from '../../actions/paymentTermsActions';
 import {
   start,
   fail,
   paymentTermsSuccess,
-} from "../../slices/paymentTermsSlice";
-import { error as toastError } from "../../slices/toastSlice";
+} from '../../slices/paymentTermsSlice';
+import { error as toastError } from '../../slices/toastSlice';
 
-import { RootState, PaymentTerm } from "../../../types";
+import { RootState, PaymentTerm } from '../../../types';
 
 function* getPaymentTerms(action: PayloadAction) {
   const { type } = action;
   yield put(start(type));
   const orgId: string = yield select(
-    (state: RootState) => state.orgsReducer.org?.orgId
+    (state: RootState) => state.orgsReducer.org?._id
   );
 
   async function get() {
     const termsDoc = await getDoc(
-      doc(db, "organizations", orgId, "orgDetails", "paymentTerms")
+      doc(db, 'organizations', orgId, 'orgDetails', 'paymentTerms')
     );
     if (!termsDoc.exists) {
-      throw new Error("Payments Terms not found!");
+      throw new Error('Payments Terms not found!');
     }
     const termsData = termsDoc.data() as { [key: string]: PaymentTerm };
-    const terms = Object.keys(termsData).map((key) => {
+    const terms = Object.keys(termsData).map(key => {
       return { ...termsData[key] };
     });
     terms.sort((a, b) => a.days - b.days);

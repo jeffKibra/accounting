@@ -1,5 +1,5 @@
 import {
-  // OrgSummary,
+  // IOrgSummary,
   // IBookingForm,
   InvoiceTransactionTypes,
   PaymentTerm,

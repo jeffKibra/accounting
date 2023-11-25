@@ -2,7 +2,7 @@ import { Timestamp } from 'firebase/firestore';
 import {
   IAccountSummary,
   IContactSummary,
-  OrgSummary,
+  IOrgSummary,
   PaymentMode,
   ISaleItem,
   ISaleSummary,
@@ -16,7 +16,7 @@ interface Meta {
   modifiedBy: string;
   isSent: boolean;
   status: string;
-  org: OrgSummary;
+  org: IOrgSummary;
   transactionType: keyof Pick<TransactionTypes, 'SALE_RECEIPT'>;
 }
 

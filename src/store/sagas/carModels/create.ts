@@ -12,15 +12,15 @@ import {
   error as toastError,
 } from '../../slices/toastSlice';
 
-import { RootState, ICarModelForm, Org } from '../../../types';
+import { RootState, ICarModelForm, IOrg } from '../../../types';
 
 function* createCarModel(action: PayloadAction<ICarModelForm>) {
   yield put(start(CREATE_CAR_MODEL));
   const { payload: data } = action;
   console.log({ data });
 
-  const org: Org = yield select((state: RootState) => state.orgsReducer.org);
-  const { orgId } = org;
+  const org: IOrg = yield select((state: RootState) => state.orgsReducer.org);
+  const { _id: orgId } = org;
 
   async function create() {
     const collectionRef = dbCollections(orgId).orgDetails;

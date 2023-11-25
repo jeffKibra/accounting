@@ -2,7 +2,7 @@ import { Timestamp } from 'firebase/firestore';
 import {
   IInvoice,
   PaymentReceived,
-  Org,
+  IOrg,
   IContact,
   IContactSummary,
 } from '../types';
@@ -60,8 +60,8 @@ function formatInvoicePayment(payment: PaymentReceived) {
   };
 }
 
-function formatOrgData(org: Org) {
-  const { orgId, businessType, name } = org;
+function formatOrgData(org: IOrg) {
+  const { _id: orgId, businessType, name } = org;
 
   return { orgId, businessType, name };
 }
@@ -73,7 +73,7 @@ interface TransactionDetails {
   modifiedBy?: string;
   customer: IContact;
   paidInvoices: IInvoice[];
-  org: Org;
+  org: IOrg;
   [key: string]: unknown;
 }
 

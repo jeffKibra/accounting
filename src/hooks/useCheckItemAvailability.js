@@ -5,7 +5,7 @@ import { Bookings } from 'utils/bookings';
 //
 
 function useCheckItemAvailability() {
-  const orgId = useSelector(state => state?.orgsReducer?.org?.orgId);
+  const orgId = useSelector(state => state?.orgsReducer?.org?._id);
 
   const [loading, setLoading] = useState(false);
   const [itemIsAvailable, setItemIsAvailable] = useState(false);

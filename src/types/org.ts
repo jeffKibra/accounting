@@ -1,39 +1,36 @@
-import { Timestamp } from "firebase/firestore";
-
-export interface OrgSummary {
-  orgId?: string;
-  name?: string;
-  businessType?: {
-    name?: string;
-    value?: string;
-  };
-}
+import { IAddress } from './address';
+import { PaymentMode } from './paymentMode';
+import { PaymentTerm } from './paymentTerm';
+import { ITax } from './tax';
 
 interface Meta {
-  createdAt: Timestamp | Date;
+  createdAt: Date | string;
   createdBy: string;
   modifiedBy: string;
-  modifiedAt: Timestamp | Date;
+  modifiedAt: Date | string;
+  status: 0 | -1;
 }
 
-export interface OrgFormData {
+export interface IOrgForm {
   name: string;
   businessType: {
     name: string;
     value: string;
   };
-  city: string;
-  country: string;
   industry: string;
   phone: string;
-  postalCode: string;
-  state: string;
-  street: string;
+  address: IAddress;
   website: string;
 }
 
-export interface OrgFromDb extends OrgFormData, Meta {}
+export interface IOrg extends IOrgForm {
+  _id: string;
+  taxes: ITax[];
+  paymentModes: PaymentMode[];
+  paymentTerms: PaymentTerm[];
+  metaData: Meta;
+}
 
-export interface Org extends OrgFromDb {
-  orgId: string;
+export interface IOrgSummary extends Pick<IOrg, 'name' | 'businessType'> {
+  orgId?: string;
 }

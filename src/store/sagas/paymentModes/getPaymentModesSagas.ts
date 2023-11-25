@@ -33,7 +33,7 @@ function* getPaymentModes(action: PayloadAction) {
     yield put(start(type));
 
     const orgId: string = yield select(
-      (state: RootState) => state.orgsReducer.org?.orgId
+      (state: RootState) => state.orgsReducer.org?._id
     );
 
     const paymentModes: Record<string, PaymentMode> = yield call(get, orgId);

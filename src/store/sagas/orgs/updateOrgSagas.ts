@@ -1,18 +1,18 @@
-import { put, call, takeLatest, select } from "redux-saga/effects";
-import { updateDoc, doc, serverTimestamp } from "firebase/firestore";
-import { PayloadAction } from "@reduxjs/toolkit";
+import { put, call, takeLatest, select } from 'redux-saga/effects';
+import { updateDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from "../../../utils/firebase";
-import { UPDATE_ORG } from "../../actions/orgsActions";
-import { start, success, fail } from "../../slices/orgsSlice";
+import { db } from '../../../utils/firebase';
+import { UPDATE_ORG } from '../../actions/orgsActions';
+import { start, success, fail } from '../../slices/orgsSlice';
 import {
   error as toastError,
   success as toastSuccess,
-} from "../../slices/toastSlice";
+} from '../../slices/toastSlice';
 
-import { RootState, OrgFormData, UserProfile } from "../../../types";
+import { RootState, IOrgForm, UserProfile } from '../../../types';
 
-interface UpdateData extends OrgFormData {
+interface UpdateData extends IOrgForm {
   orgId: string;
 }
 
@@ -26,7 +26,7 @@ function* updateOrg(action: PayloadAction<UpdateData>) {
   const { orgId, ...formData } = action.payload;
 
   function update() {
-    return updateDoc(doc(db, "organizations", orgId), {
+    return updateDoc(doc(db, 'organizations', orgId), {
       ...formData,
       modifiedBy: userProfile?.email,
       modifiedAt: serverTimestamp(),
@@ -37,7 +37,7 @@ function* updateOrg(action: PayloadAction<UpdateData>) {
     yield call(update);
 
     yield put(success(null));
-    yield put(toastSuccess("Organization successfully updated!"));
+    yield put(toastSuccess('Organization successfully updated!'));
   } catch (err) {
     const error = err as Error;
     console.log(error);

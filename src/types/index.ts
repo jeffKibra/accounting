@@ -24,16 +24,8 @@ export * from './tax';
 export * from './journalEntry';
 
 //
-//
-//
-export type { OrgSummary, Org, OrgFormData, OrgFromDb } from './org';
 export type { UserProfile, LoginForm, SignupForm } from './auth';
-// export type {
-//   Customer,
-//   CustomerSummary,
-//   CustomerFromDb,
-//   CustomerFormData,
-// } from './customer';
+
 export type {
   Entry,
   EntryWithStatus,
@@ -53,13 +45,6 @@ export type { PaymentMode } from './paymentMode';
 export type { PaymentTerm } from './paymentTerm';
 export type { Item, ItemFormData, ItemFromDb, ItemType } from './item';
 export type { ICarModel, ICarModelForm, ICarModels } from './carModel';
-
-// export type {
-//   Vendor,
-//   VendorFromDb,
-//   VendorFormData,
-//   VendorSummary,
-// } from './vendor';
 
 export type { DailySummary } from './dailySummary';
 export type {
@@ -86,7 +71,6 @@ export type {
   CustomerOpeningBalanceFromDb,
 } from './customerOpeningBalance';
 export type { DateDetails } from './others';
-
 
 export type {
   IManualJournalEntry,

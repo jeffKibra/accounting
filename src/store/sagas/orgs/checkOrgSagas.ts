@@ -6,7 +6,7 @@ import { error as toastError } from '../../slices/toastSlice';
 
 import { getOrg } from './createOrgSagas';
 
-import { RootState, UserProfile, Org } from '../../../types';
+import { RootState, UserProfile, IOrg } from '../../../types';
 
 function* checkOrg() {
   try {
@@ -18,10 +18,10 @@ function* checkOrg() {
     // console.log({ userProfile });
     const { uid } = userProfile;
 
-    const org: Org | null = uid ? yield call(getOrg, uid) : null;
+    const org: IOrg | null = uid ? yield call(getOrg, uid) : null;
     // console.log({ org });
 
-    const orgId = org?.orgId || '';
+    const orgId = org?._id || '';
     // console.log({ orgId });
     localStorage.setItem('orgId', orgId);
 

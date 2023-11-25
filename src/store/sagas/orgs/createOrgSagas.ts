@@ -12,7 +12,7 @@ import {
   error as toastError,
 } from '../../slices/toastSlice';
 
-import { OrgFormData, Org, UserProfile } from '../../../types';
+import { IOrgForm, IOrg, UserProfile } from '../../../types';
 
 export function getOrg(userId: string) {
   console.log('getting org', userId);
@@ -38,7 +38,7 @@ export function getOrg(userId: string) {
   });
 }
 
-function* createOrg(action: PayloadAction<OrgFormData>) {
+function* createOrg(action: PayloadAction<IOrgForm>) {
   yield put(start(CREATE_ORG));
   console.log({ payload: action.payload });
 
@@ -56,7 +56,7 @@ function* createOrg(action: PayloadAction<OrgFormData>) {
   }
 
   try {
-    const org: Org = yield call(saveData);
+    const org: IOrg = yield call(saveData);
     // console.log({ org });
 
     yield put(success(org));

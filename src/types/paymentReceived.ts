@@ -1,6 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
 import {
-  OrgSummary,
+  IOrgSummary,
   IContactSummary,
   IContact,
   IAccountSummary,
@@ -15,7 +15,7 @@ interface Meta {
   modifiedAt: Date | Timestamp;
   modifiedBy: string;
   status: string;
-  org: OrgSummary;
+  org: IOrgSummary;
   transactionType: keyof Pick<TransactionTypes, 'customer_payment'>;
   paidInvoicesIds: string[];
   excess: number;

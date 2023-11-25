@@ -88,7 +88,7 @@ export function SearchItemsContextProvider(props) {
 
   const reduxDispatch = useDispatch();
 
-  const orgId = useSelector(state => state?.orgsReducer?.org?.orgId);
+  const orgId = useSelector(state => state?.orgsReducer?.org?._id);
   // console.log({ orgId });
 
   const itemsReducer = useSelector(state => state?.itemsReducer) || {};

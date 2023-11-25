@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { Org } from '../../types';
+import { IOrg } from '../../types';
 
 type State = {
   loading: boolean;
   isModified: boolean;
-  orgs: Org[] | null;
-  org: Org | null;
+  orgs: IOrg[] | null;
+  org: IOrg | null;
   action: string | null;
   error: { code?: string; message?: string; stack?: string } | null;
 };
@@ -35,10 +35,10 @@ const orgsSlice = createSlice({
         error: null,
       };
     },
-    success: (state: State, action: PayloadAction<Org | null>) => {
+    success: (state: State, action: PayloadAction<IOrg | null>) => {
       const { payload } = action;
 
-      const orgId = payload?.orgId || '';
+      const orgId = payload?._id || '';
       localStorage.setItem('orgId', orgId);
       //todo: remove orgId from local storage on logout
 
@@ -49,7 +49,7 @@ const orgsSlice = createSlice({
         isModified: true,
       };
     },
-    orgsSuccess: (state: State, action: PayloadAction<Org[] | null>) => {
+    orgsSuccess: (state: State, action: PayloadAction<IOrg[] | null>) => {
       const { payload } = action;
       return {
         ...state,
@@ -57,10 +57,10 @@ const orgsSlice = createSlice({
         orgs: payload,
       };
     },
-    orgSuccess: (state: State, action: PayloadAction<Org | null>) => {
+    orgSuccess: (state: State, action: PayloadAction<IOrg | null>) => {
       const { payload } = action;
 
-      const orgId = payload?.orgId || '';
+      const orgId = payload?._id || '';
       localStorage.setItem('orgId', orgId);
       //todo: remove orgId from local storage on logout
 

@@ -17,7 +17,7 @@ function* fetchAccountTypes() {
   yield put(start(FETCH_ACCOUNT_TYPES));
 
   const orgId: string = yield select(
-    (state: RootState) => state.orgsReducer.org?.orgId
+    (state: RootState) => state.orgsReducer.org?._id
   );
 
   async function fetchList() {

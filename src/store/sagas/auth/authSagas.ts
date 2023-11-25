@@ -24,7 +24,7 @@ import { start, success, fail, reset } from '../../slices/authSlice';
 function removeUser() {
   // console.log("removing current user if any!");
   //remove blog data
-  localStorage.removeItem('org');
+  localStorage.removeItem('orgId');
   //remove accounts data
   localStorage.removeItem('accounts');
   //remove location data

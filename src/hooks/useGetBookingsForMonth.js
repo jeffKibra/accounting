@@ -11,7 +11,7 @@ export default function useGetBookingsForMonth() {
   const monthlyBookingsState = useSelector(
     state => state?.monthlyBookingsReducer
   );
-  const orgId = useSelector(state => state?.orgsReducer?.org?.orgId);
+  const orgId = useSelector(state => state?.orgsReducer?.org?._id);
   // console.log({ monthlyBookingsState, orgId });
   const monthlyBookings = monthlyBookingsState?.monthlyBookings;
 

@@ -4,7 +4,7 @@ import {
   IAccountSummary,
   ExpenseItem,
   IContactSummary,
-  OrgSummary,
+  IOrgSummary,
   TransactionTypes,
 } from '.';
 
@@ -32,7 +32,7 @@ interface Meta {
   modifiedAt: Date | Timestamp;
   modifiedBy: string;
   status: string;
-  org: OrgSummary;
+  org: IOrgSummary;
   transactionType: keyof Pick<TransactionTypes, 'expense'>;
 }
 

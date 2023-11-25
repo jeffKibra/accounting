@@ -12,7 +12,7 @@ import { RootState, DailySummary } from '../../../types';
 function* getMainSummary(action: PayloadAction<string>) {
   yield put(start(action.type));
   const orgId: string = yield select(
-    (state: RootState) => state.orgsReducer.org?.orgId
+    (state: RootState) => state.orgsReducer.org?._id
   );
 
   async function get() {

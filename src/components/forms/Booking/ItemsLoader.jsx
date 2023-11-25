@@ -87,7 +87,7 @@ function mapStateToProps(state) {
   const itemsReducer = state?.itemsReducer;
   const { loading: loadingItems, items, error: itemsError } = itemsReducer;
   // console.log({ itemsReducer, loadingItems, items });
-  const orgId = state?.orgsReducer?.org?.orgId;
+  const orgId = state?.orgsReducer?.org?._id;
 
   // console.log({ orgId });
 

@@ -2,7 +2,7 @@ import { Timestamp } from 'firebase/firestore';
 import {
   CustomerOpeningBalanceTransactionType,
   InvoicePayments,
-  OrgSummary,
+  IOrgSummary,
   IContactSummary,
 } from '.';
 
@@ -14,7 +14,7 @@ interface Meta {
   paymentsIds: string[];
   paymentsReceived: InvoicePayments;
   status: number;
-  org: OrgSummary;
+  org: IOrgSummary;
   createdAt: Date | Timestamp;
   createdBy: string;
   modifiedAt: Date | Timestamp;

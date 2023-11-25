@@ -5,28 +5,28 @@ import {
   doc,
   query,
   where,
-} from "firebase/firestore";
-import { call, put, takeLatest } from "redux-saga/effects";
-import { PayloadAction } from "@reduxjs/toolkit";
+} from 'firebase/firestore';
+import { call, put, takeLatest } from 'redux-saga/effects';
+import { PayloadAction } from '@reduxjs/toolkit';
 
-import { db } from "../../../utils/firebase";
+import { db } from '../../../utils/firebase';
 
-import { start, orgsSuccess, orgSuccess, fail } from "../../slices/orgsSlice";
-import { error as toastError } from "../../slices/toastSlice";
-import { GET_ORGS, GET_ORG } from "../../actions/orgsActions";
+import { start, orgsSuccess, orgSuccess, fail } from '../../slices/orgsSlice';
+import { error as toastError } from '../../slices/toastSlice';
+import { GET_ORGS, GET_ORG } from '../../actions/orgsActions';
 
-import { Org } from "../../../types";
+import { IOrg } from '../../../types';
 
 function* getOrg(action: PayloadAction<string>) {
   yield put(start(GET_ORG));
   const { payload: orgId } = action;
   async function fetchOrg() {
-    const orgDoc = await getDoc(doc(db, "organizations", orgId));
+    const orgDoc = await getDoc(doc(db, 'organizations', orgId));
     return orgDoc.data();
   }
 
   try {
-    const org: Org = yield call(fetchOrg);
+    const org: IOrg = yield call(fetchOrg);
 
     yield put(orgSuccess(org));
   } catch (error) {
@@ -46,15 +46,15 @@ function* getOrgs() {
 
   async function fetchOrgs() {
     const q = query(
-      collection(db, "organizations"),
-      where("status", "in", ["onboarding", "active", "suspended"])
+      collection(db, 'organizations'),
+      where('status', 'in', ['onboarding', 'active', 'suspended'])
     );
     const orgsSnap = await getDocs(q);
-    const orgs = orgsSnap.docs.map((orgDoc) => {
+    const orgs = orgsSnap.docs.map(orgDoc => {
       const orgData = {
-        orgId: orgDoc.id,
+        _id: orgDoc.id,
         ...orgDoc.data(),
-      } as Org;
+      } as IOrg;
 
       return orgData;
     });
@@ -63,7 +63,7 @@ function* getOrgs() {
   }
 
   try {
-    const orgs: Org[] = yield call(fetchOrgs);
+    const orgs: IOrg[] = yield call(fetchOrgs);
 
     yield put(orgsSuccess(orgs));
   } catch (error) {

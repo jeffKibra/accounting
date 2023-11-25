@@ -1,6 +1,9 @@
 import { useEffect, useCallback } from 'react';
 import { useMutation } from '@apollo/client';
+import { useDispatch } from 'react-redux';
 // import { useNavigate } from 'react-router-dom';
+//
+import { orgSuccess } from 'store/slices/orgsSlice';
 //
 import { mutations } from 'gql';
 import useToasts from '../useToasts';
@@ -8,9 +11,13 @@ import useToasts from '../useToasts';
 //
 
 function useCreateOrg() {
-  const [newOrg, { called, loading, reset, error }] = useMutation(
-    mutations.orgs.CREATE_ORG
-  );
+  const [newOrg, { called, loading, reset, error, data: rawData }] =
+    useMutation(mutations.orgs.CREATE_ORG);
+
+  const dispatch = useDispatch();
+
+  console.log({ rawData });
+  const orgData = rawData?.createOrg;
 
   const { error: toastError, success: toastSuccess } = useToasts();
 
@@ -21,13 +28,14 @@ function useCreateOrg() {
   //   console.log({ success, failed, data });
 
   useEffect(() => {
-    if (success) {
+    if (success && orgData) {
       toastSuccess('Org created successfully!');
       //
-      reset();
+      // reset();
       // navigate(`/`);
+      dispatch(orgSuccess(orgData));
     }
-  }, [success, toastSuccess, reset]);
+  }, [success, toastSuccess, reset, orgData, dispatch]);
 
   useEffect(() => {
     if (failed) {

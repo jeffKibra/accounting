@@ -11,17 +11,17 @@ import { db } from '../firebase';
 // import { createInvoice } from "../invoices";
 import { getDateDetails } from '../dates';
 
-import { UserProfile, Org, IAccount, IContactForm } from '../../types';
+import { UserProfile, IOrg, IAccount, IContactForm } from '../../types';
 
 export default async function createVendor(
   transaction: Transaction,
-  org: Org,
+  org: IOrg,
   userProfile: UserProfile,
   accounts: IAccount[],
   vendorId: string,
   vendorData: IContactForm
 ) {
-  const { orgId } = org;
+  const { _id: orgId } = org;
   const { email } = userProfile;
   const vendorRef = doc(db, 'organizations', orgId, 'vendors', vendorId);
   const { yearMonthDay } = getDateDetails();

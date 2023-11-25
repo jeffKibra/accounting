@@ -14,7 +14,7 @@ function* getAccounts(action: PayloadAction<string>) {
   yield put(getList());
 
   const orgId: string = yield select(
-    (state: RootState) => state.orgsReducer.org?.orgId || ''
+    (state: RootState) => state.orgsReducer.org?._id || ''
   );
 
   try {
