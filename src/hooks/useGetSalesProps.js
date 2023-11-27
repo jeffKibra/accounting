@@ -3,8 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 
 // import { GET_ITEMS } from 'store/actions/itemsActions';
 import { GET_CUSTOMERS } from 'store/actions/customersActions';
-import { GET_PAYMENT_TERMS } from 'store/actions/paymentTermsActions';
-import { GET_TAXES } from 'store/actions/taxesActions';
+// import { GET_PAYMENT_TERMS } from 'store/actions/paymentTermsActions';
+// import { GET_TAXES } from 'store/actions/taxesActions';
+//
+import useTaxes from './useTaxes';
 
 export default function useGetSalesProps() {
   const dispatch = useDispatch();
@@ -22,21 +24,13 @@ export default function useGetSalesProps() {
   } = useSelector(state => state.customersReducer);
   loadingCustomers = loadingCustomers && customersAction === GET_CUSTOMERS;
 
-  let {
-    loading: loadingPaymentTerms,
-    paymentTerms,
-    action: ptAction,
-  } = useSelector(state => state.paymentTermsReducer);
-  loadingPaymentTerms = loadingPaymentTerms && ptAction === GET_PAYMENT_TERMS;
+  const org = useSelector(state => state.orgsReducer?.org || {});
+  const paymentTerms = org?.paymentTerms || [];
+  // console.log({ paymentTerms });
 
-  let {
-    loading: loadingTaxes,
-    taxes,
-    action: taxesAction,
-  } = useSelector(state => state.taxesReducer);
-  loadingTaxes = loadingTaxes && taxesAction === GET_TAXES;
+  const { taxes, isLoading: loadingTaxes } = useTaxes();
 
-  const loading = loadingCustomers || loadingPaymentTerms || loadingTaxes;
+  const loading = loadingCustomers || loadingTaxes;
 
   useEffect(() => {
     // function getItems() {
@@ -45,17 +39,17 @@ export default function useGetSalesProps() {
     function getCustomers() {
       dispatch({ type: GET_CUSTOMERS });
     }
-    function getPaymentTerms() {
-      dispatch({ type: GET_PAYMENT_TERMS });
-    }
-    function getTaxes() {
-      dispatch({ type: GET_TAXES });
-    }
+    // function getPaymentTerms() {
+    //   dispatch({ type: GET_PAYMENT_TERMS });
+    // }
+    // function getTaxes() {
+    //   dispatch({ type: GET_TAXES });
+    // }
 
     // getItems();
     getCustomers();
-    getPaymentTerms();
-    getTaxes();
+    // getPaymentTerms();
+    // getTaxes();
   }, [dispatch]);
 
   return {

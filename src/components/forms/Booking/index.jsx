@@ -34,6 +34,7 @@ function BookingForm(props) {
     taxes,
     loading,
   } = useGetBookingFormProps();
+  // console.log({ customers, paymentModes, paymentTerms, taxes, loading });
 
   const { error: toastError } = useToasts();
 
@@ -105,7 +106,7 @@ function BookingForm(props) {
   ) : (
     <Empty
       message={
-        customers?.length === 0
+        !customers || customers?.length === 0
           ? 'Please add atleast one CUSTOMER to continue or reload the page'
           : 'Payment Terms not Found. Try Reloading the page'
       }

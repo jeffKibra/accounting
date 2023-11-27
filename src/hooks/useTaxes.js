@@ -1,19 +1,23 @@
-import { useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { GET_TAXES } from 'store/actions/taxesActions';
 
 function useTaxes() {
   const dispatch = useDispatch();
-  const taxes = useSelector(state => state?.taxesReducer?.taxes);
+  // const taxes = useSelector(state => state?.taxesReducer?.taxes);
+  const org = useSelector(state => state?.orgsReducer?.org);
+  // console.log({ org });
+
+  const taxes = org?.taxes || [];
 
   const fetchTaxes = useCallback(() => {
     dispatch({ type: GET_TAXES });
   }, [dispatch]);
 
-  useEffect(() => {
-    fetchTaxes();
-  }, [fetchTaxes]);
+  // useEffect(() => {
+  //   fetchTaxes();
+  // }, [fetchTaxes]);
 
   const isLoading = !taxes;
 

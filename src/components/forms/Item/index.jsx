@@ -6,7 +6,7 @@ import {
   AlertDescription,
 } from '@chakra-ui/react';
 //
-import { createSKU } from 'functions';
+// import { createSKU } from 'functions';
 //
 import { useToasts, useCarModels } from 'hooks';
 //
@@ -18,7 +18,7 @@ import Form from './Form';
 export default function ItemForm(props) {
   // console.log({ props });
 
-  const { handleFormSubmit, item, taxes, accounts, updating } = props;
+  const { handleFormSubmit, item, taxes, updating } = props;
   // console.log({ accounts });
   const toasts = useToasts();
 
@@ -94,7 +94,7 @@ export default function ItemForm(props) {
         </Alert>
       ) : carMakes && carModels ? (
         <Form
-          accounts={accounts}
+          // accounts={accounts}
           handleFormSubmit={onSubmit}
           updating={updating}
           item={item || {}}

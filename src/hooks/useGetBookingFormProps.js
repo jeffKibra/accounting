@@ -8,7 +8,7 @@ export default function useGetBookingFormProps() {
   const {
     paymentModes,
     loading: loadingPaymentModes,
-    fetchPaymentModes,
+    // fetchPaymentModes,
   } = usePaymentModes();
   // const { accounts, loading: loadingAccounts, fetchAccounts } = useAccounts();
 
@@ -20,13 +20,16 @@ export default function useGetBookingFormProps() {
     paymentTerms,
   } = useGetSalesProps();
 
-  const refresh = useCallback(() => {
-    // fetchAccounts();
-    fetchPaymentModes();
-  }, [
-    fetchPaymentModes,
-    //  fetchAccounts
-  ]);
+  const refresh = useCallback(
+    () => {
+      // fetchAccounts();
+      // fetchPaymentModes();
+    },
+    [
+      // fetchPaymentModes,
+      //  fetchAccounts
+    ]
+  );
 
   const loading = loadingPaymentModes || loadingSaleProps;
   // || loadingAccounts;

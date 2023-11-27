@@ -22,18 +22,17 @@ import ItemForm from 'components/forms/Item';
 import useSavedLocation from '../../../hooks/useSavedLocation';
 
 function NewItemPage(props) {
-  const { isModified, action, resetItem } = props;
-
   const [createItem, { loading, error, called, reset }] = useMutation(
     mutations.vehicles.CREATE_VEHICLE
   );
+
   const success = called && !loading && !error;
   const failed = called && !loading && Boolean(error);
   console.log({ success, failed });
 
   console.log({ error });
 
-  const { accounts, taxes, loading: loadingProps } = useItemFormProps();
+  const { taxes, loading: loadingProps } = useItemFormProps();
 
   const { error: toastError, success: toastSuccess } = useToasts();
 
@@ -88,20 +87,16 @@ function NewItemPage(props) {
     >
       {loadingProps ? (
         <SkeletonLoader />
-      ) : accounts && taxes ? (
+      ) : taxes ? (
         <ItemForm
           updating={loading}
-          accounts={accounts}
+          // accounts={accounts}
           taxes={taxes}
           handleFormSubmit={handleSubmit}
         />
       ) : (
         <>
-          <Empty
-            message={
-              !accounts ? 'Accounts data not found!' : 'Taxes Data not found!'
-            }
-          />
+          <Empty message={'Taxes Data not found!'} />
         </>
       )}
     </PageLayout>
