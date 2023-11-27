@@ -104,7 +104,7 @@ export function* activeAuthListener() {
         authChannel
       );
       const { user, error } = channelResult;
-      console.log({ user, error });
+      // console.log({ user, error });
 
       if (error) {
         throw error;
@@ -141,6 +141,7 @@ export function* login(action: PayloadAction<LoginForm>) {
     payload: { email, password },
   } = action;
   console.log({ email });
+
   async function signin() {
     const userCredential = await signInWithEmailAndPassword(
       auth,
@@ -167,7 +168,7 @@ export function* login(action: PayloadAction<LoginForm>) {
     yield call(removeUser);
 
     const user: UserProfile = yield call(signin);
-    console.log({ user });
+    // console.log({ user });
 
     yield put(success(user));
   } catch (err) {

@@ -7,7 +7,7 @@ import ProtectedRoute from './ProtectedRoute';
 
 function MRoute({ children }) {
   const org = useSelector(state => state.orgsReducer.org);
-  console.log('MROUTE org:', org);
+  // console.log('MROUTE org:', org);
 
   return org ? children : <NewOrgPage />;
 }
