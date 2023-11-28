@@ -117,7 +117,10 @@ function Normal(props) {
           <Text fontSize="sm">clear selection</Text>
         </MenuItemOption>
       )}
-      {options.map(({ name, value }, i) => {
+      {options.map((option, i) => {
+        console.log({ option });
+        const { name, value } = option;
+
         return (
           <MenuItemOption py={1} key={i} value={value}>
             <Text fontSize="sm">{name}</Text>

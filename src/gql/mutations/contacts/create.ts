@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 const CREATE_CONTACT = gql`
-  mutation CreateContact($formData: ContactInput!) {
-    createContact(formData: $formData)
+  mutation CreateContact($contactGroup: String!, $formData: ContactInput!) {
+    createContact(contactGroup: $contactGroup, formData: $formData)
   }
 `;
 

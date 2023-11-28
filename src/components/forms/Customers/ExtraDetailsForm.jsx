@@ -16,7 +16,8 @@ import PropTypes from 'prop-types';
 import { useFormContext } from 'react-hook-form';
 
 import NumInput from '../../ui/NumInput';
-import CustomSelect from '../../ui/CustomSelect';
+// import CustomSelect from '../../ui/CustomSelect';
+import RHFSimpleSelect from 'components/ui/hookForm/RHFSimpleSelect';
 
 import StepperContext from '../../../contexts/StepperContext';
 
@@ -98,13 +99,14 @@ function ExtraDetailsForm(props) {
             isInvalid={!!errors.paymentTerm}
           >
             <FormLabel htmlFor="paymentTerm">Payment Terms</FormLabel>
-            <CustomSelect
-              isDisabled={loading}
+            <RHFSimpleSelect
               name="paymentTerm"
-              placeholder="terms"
               options={paymentTerms}
-              rules={{ required: { value: true, message: '*Required!' } }}
+              optionsConfig={{ nameField: 'name', valueField: '_id' }}
+              placeholder="customer payment term"
+              isDisabled={loading}
             />
+
             <FormErrorMessage>{errors.paymentTerm?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>

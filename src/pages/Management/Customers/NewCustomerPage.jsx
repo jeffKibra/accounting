@@ -1,31 +1,30 @@
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  //  useNavigate,
+  useLocation,
+} from 'react-router-dom';
 
 import { CUSTOMERS } from '../../../nav/routes';
 
 import { CREATE_CUSTOMER } from '../../../store/actions/customersActions';
 import { reset } from '../../../store/slices/customersSlice';
+//
+import { useCreateCustomer } from 'hooks';
 
 import PageLayout from '../../../components/layout/PageLayout';
 
-import useSavedLocation from '../../../hooks/useSavedLocation';
+// import useSavedLocation from '../../../hooks/useSavedLocation';
 
 import EditCustomer from '../../../containers/Management/Customers/EditCustomer';
 
 function NewCustomerPage(props) {
-  const { loading, action, isModified, createCustomer, resetCustomer } = props;
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const location = useLocation();
 
-  useSavedLocation().setLocation();
+  const { createContact, loading } = useCreateCustomer();
 
-  useEffect(() => {
-    if (isModified) {
-      resetCustomer();
-      navigate(CUSTOMERS);
-    }
-  }, [isModified, resetCustomer, navigate]);
+  // useSavedLocation().setLocation();
 
   return (
     <PageLayout
@@ -36,10 +35,7 @@ function NewCustomerPage(props) {
         'New Customer': location.pathname,
       }}
     >
-      <EditCustomer
-        loading={loading && action === CREATE_CUSTOMER}
-        saveData={createCustomer}
-      />
+      <EditCustomer loading={loading} saveData={createContact} />
     </PageLayout>
   );
 }

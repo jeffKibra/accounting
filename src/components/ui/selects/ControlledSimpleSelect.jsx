@@ -50,12 +50,14 @@ function ControlledSimpleSelect(props) {
   const nameField = optionsConfig?.nameField || 'name';
   const valueField = optionsConfig?.valueField || 'value';
   // console.log({ options });
+  // console.log({ nameField, valueField });
 
   const optionsObject = useMemo(() => {
     // console.log('options changed-creating new options object');
     if (Array.isArray(options)) {
       return options.reduce((obj, option) => {
         const value = option[valueField];
+        // console.log({ value, option });
 
         return {
           ...obj,
@@ -130,6 +132,7 @@ function ControlledSimpleSelect(props) {
                 {options.map((option, i) => {
                   const name = option[nameField];
                   const value = option[valueField];
+                  // console.log({ name, value });
 
                   return (
                     <MenuItemOption py={1} key={i} value={value}>

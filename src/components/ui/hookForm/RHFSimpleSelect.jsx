@@ -24,9 +24,14 @@ export default function RHFSimpleSelect(props) {
       // shouldUnregister
       {...controllerProps}
       render={({ field: { onChange, onBlur, value } }) => {
+        function handleChange(data) {
+          // console.log('RHFSimpleSelect handling change', data);
+          onChange(data);
+        }
+
         return (
           <ControlledSimpleSelect
-            onChange={onChange}
+            onChange={handleChange}
             onBlur={onBlur}
             selectedValue={value}
             {...selectProps}

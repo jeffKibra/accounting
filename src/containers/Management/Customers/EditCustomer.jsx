@@ -1,13 +1,13 @@
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Container } from '@chakra-ui/react';
 import { useForm, FormProvider } from 'react-hook-form';
 
-import { useToasts } from '../../../hooks';
+// import { useToasts } from '../../../hooks';
 import { getDirtyFields } from '../../../utils/functions';
 
-import { GET_PAYMENT_TERMS } from '../../../store/actions/paymentTermsActions';
+// import { GET_PAYMENT_TERMS } from '../../../store/actions/paymentTermsActions';
 
 import Stepper from '../../../components/ui/Stepper';
 
@@ -47,7 +47,6 @@ function fetchCurrencyRate() {
 function EditCustomer(props) {
   const { customer, loading, saveData, loadingPaymentTerms, paymentTerms } =
     props;
-  const toasts = useToasts();
 
   const formMethods = useForm({
     mode: 'onChange',
@@ -60,7 +59,6 @@ function EditCustomer(props) {
       displayName: customer?.displayName || '',
       email: customer?.email || '',
       phone: customer?.phone || '',
-      mobile: customer?.mobile || '',
       billingAddress: customer?.billingAddress || {},
       shippingAddress: customer?.shippingAddress || {},
       paymentTerm: customer?.paymentTerm?.value || 'on_receipt',
@@ -75,15 +73,10 @@ function EditCustomer(props) {
   } = formMethods;
 
   function handleFormSubmit(data) {
-    const { paymentTerm: paymentTermId, ...rest } = data;
-    let formValues = { ...rest };
+    // console.log({ data });
+    delete data.paymentTerm.__typename;
 
-    //retrieve payment term object
-    const paymentTerm = paymentTerms.find(term => term.value === paymentTermId);
-    if (!paymentTerm) {
-      return toasts.error('Selected Payment Term not found!');
-    }
-    formValues.paymentTerm = paymentTerm;
+    let formValues = { ...data };
 
     if (customer) {
       //the customer is being updated-submit only changed form values

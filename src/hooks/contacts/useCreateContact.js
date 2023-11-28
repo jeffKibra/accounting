@@ -3,7 +3,6 @@ import { useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 
 //
-import { CUSTOMERS } from 'nav/routes';
 //
 import { mutations } from 'gql';
 import useToasts from '../useToasts';
@@ -15,9 +14,9 @@ export function formatContactData(formData) {
   };
 }
 
-function useCreateContact() {
+function useCreateContact(gqlMutation, successRoute) {
   const [newContact, { called, loading, reset, error }] = useMutation(
-    mutations.contacts.CREATE_CONTACT
+    gqlMutation || mutations.contacts.CREATE_CONTACT
   );
 
   const navigate = useNavigate();
@@ -35,9 +34,9 @@ function useCreateContact() {
       toastSuccess('Contact created successfully!');
       //
       reset();
-      navigate(CUSTOMERS);
+      navigate(successRoute);
     }
-  }, [success, toastSuccess, reset, navigate]);
+  }, [success, toastSuccess, reset, navigate, successRoute]);
 
   useEffect(() => {
     if (failed) {
