@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import {
   FormControl,
-  Input,
+  // Input,
   FormLabel,
   FormErrorMessage,
   Textarea,
@@ -109,15 +109,7 @@ function ExtraDetailsForm(props) {
           </FormControl>
         </GridItem>
 
-        <GridItem colSpan={[12, 6]}>
-          <FormControl isDisabled={loading} isInvalid={!!errors.website}>
-            <FormLabel htmlFor="website">website</FormLabel>
-            <Input id="website" {...register('website')} />
-            <FormErrorMessage>{errors.website?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
-
-        <GridItem colSpan={[12, 6]}>
+        <GridItem colSpan={12}>
           <FormControl isDisabled={loading} isInvalid={!!errors.remarks}>
             <FormLabel htmlFor="remarks">Remarks</FormLabel>
             <Textarea resize="none" id="remarks" {...register('remarks')} />

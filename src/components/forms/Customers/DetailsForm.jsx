@@ -205,24 +205,24 @@ function DetailsForm(props) {
             <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
+
         <GridItem colSpan={[12, 6]}>
           <FormControl isDisabled={loading} isInvalid={!!errors.phone}>
             <FormLabel htmlFor="phone">Phone</FormLabel>
-            <Input
-              id="phone"
-              {...register('phone')}
-            />
+            <Input id="phone" {...register('phone')} />
             <FormErrorMessage>{errors.phone?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
+
         <GridItem colSpan={[12, 6]}>
-          <FormControl isDisabled={loading} isInvalid={!!errors.mobile}>
-            <FormLabel htmlFor="mobile">mobile</FormLabel>
-            <Input id="mobile" {...register('mobile')} />
-            <FormErrorMessage>{errors.mobile?.message}</FormErrorMessage>
+          <FormControl isDisabled={loading} isInvalid={!!errors.website}>
+            <FormLabel htmlFor="website">website</FormLabel>
+            <Input id="website" {...register('website')} />
+            <FormErrorMessage>{errors.website?.message}</FormErrorMessage>
           </FormControl>
         </GridItem>
       </Grid>
+
       <Flex justifyContent="space-around" mt={4}>
         <Button
           onClick={next}

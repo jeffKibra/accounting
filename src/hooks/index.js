@@ -2,7 +2,7 @@ export { default as useAuth } from './useAuth';
 
 export * from './orgs';
 //
-export { default as useDeleteCustomer } from './useDeleteCustomer';
+export { default as useDeleteCustomer } from './contacts/useDeleteContact';
 export { default as useDeleteItem } from './useDeleteItem';
 export { default as useDeletePayment } from './useDeletePayment';
 export { default as useDeleteSaleReceipt } from './useDeleteSaleReceipt';
@@ -44,3 +44,6 @@ export { default as useGetBookingsForMonth } from './useGetBookingsForMonth';
 
 //invoices
 export * from './invoices';
+
+//
+export * from './contacts';

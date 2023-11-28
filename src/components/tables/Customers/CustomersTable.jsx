@@ -1,68 +1,121 @@
-import { useMemo } from 'react';
+import { useMemo, useContext } from 'react';
 import PropTypes from 'prop-types';
+//
 
-import CustomerOptions from '../../../containers/Management/Customers/CustomerOptions';
+import SearchContactsContext from 'contexts/SearchContactsContext';
+//
+//
+import RTTable from 'components/ui/Table/RTTable';
+//
+import getTableColumns from './getTableColumns';
+import getCustomerTableData from './getCustomerTableData';
+//
 
-import CustomTable from '../CustomTable';
+function CustomersDisplayTable(props) {
+  // console.log('ITEmsDisplayProps:', props);
+  const { onRowClick, enableActions, itemIdToHighlight, ...tableProps } = props;
 
-function CustomersTable(props) {
-  const { customers } = props;
-  // console.log({ customers });
+  const contactsContextData = useContext(SearchContactsContext);
+  // console.log({ contactsContextData });
+
+  const {
+    loading,
+    list,
+    error,
+    pageCount,
+    page,
+    count,
+    hitsPerPage,
+    setHitsPerPage,
+    setValueToSearch,
+    gotoPage,
+    nextPage,
+    previousPage,
+    // openFiltersModal,
+    handleSortByChange,
+    // facets,
+  } = contactsContextData;
+
+  const rowsAreSelectable = typeof onRowClick === 'function';
 
   const columns = useMemo(() => {
-    return [
-      { Header: 'Name', accessor: 'displayName' },
-      { Header: 'Company Name', accessor: 'companyName' },
-      { Header: 'Email', accessor: 'email' },
-      { Header: 'Phone', accessor: 'phone' },
-      {
-        Header: 'Pending',
-        accessor: 'receivables',
-        isNumeric: true,
-      },
-      {
-        Header: 'Unused Credits',
-        accessor: 'summary.unusedCredits',
-        isNumeric: true,
-      },
-      { Header: '', accessor: 'actions', isNumeric: true, width: '1%' },
-    ];
-  }, []);
+    const tableColumns = getTableColumns(enableActions);
+
+    return [...tableColumns];
+  }, [enableActions]);
 
   const data = useMemo(() => {
-    return customers.map(customer => {
-      // const {
-      //   summary: { invoicedAmount, invoicePayments },
-      // } = customer;
-      // const receivables = +invoicedAmount - +invoicePayments;
+    let customersData = [];
 
-      return {
-        ...customer,
-        receivables: 0,
-        actions: <CustomerOptions customer={customer} edit view deletion />,
-      };
-    });
-  }, [customers]);
+    if (Array.isArray(list)) {
+      customersData = list.map(customer => {
+        const customerTableData = getCustomerTableData(customer);
 
-  return <CustomTable data={data} columns={columns} />;
+        return {
+          ...customerTableData,
+        };
+      });
+    }
+
+    return customersData;
+  }, [list]);
+
+  // console.log('ITEMSZDISPLAY rerendering...');
+
+  return (
+    <>
+      <RTTable
+        columns={columns}
+        data={data}
+        //status
+        loading={loading}
+        error={error}
+        //pagination
+        pageCount={pageCount}
+        pageIndex={page}
+        pageSize={hitsPerPage}
+        allItemsCount={count}
+        gotoPage={gotoPage}
+        nextPage={nextPage}
+        previousPage={previousPage}
+        setPageSize={setHitsPerPage}
+        //
+        // onFiltersModalOpen={openFiltersModal}
+        //
+        onSort={handleSortByChange}
+        onSearch={setValueToSearch}
+        onRowClick={onRowClick}
+        rowIdToHighlight={itemIdToHighlight || ''}
+        rowFieldToUseAsIdForHighlighting="_id"
+        highlightedRowBGColor="cyan.50"
+        {...(rowsAreSelectable
+          ? {
+              bodyRowProps: {
+                cursor: 'pointer',
+                transition: 'all 100ms ease-in-out',
+                _hover: {
+                  backgroundColor: 'cyan.100',
+                },
+                _active: {
+                  backgroundColor: 'cyan.200',
+                },
+              },
+            }
+          : {})}
+        {...tableProps}
+      />
+    </>
+  );
 }
 
-CustomersTable.propTypes = {
-  customers: PropTypes.arrayOf(
-    PropTypes.shape({
-      displayName: PropTypes.string.isRequired,
-      companyName: PropTypes.string,
-      id: PropTypes.string.isRequired,
-      type: PropTypes.oneOf(['individual', 'business', 'walk_in_customer'])
-        .isRequired,
-      phone: PropTypes.string.isRequired,
-      email: PropTypes.string,
-      openingBalance: PropTypes.number,
-    })
-  ),
-  deleting: PropTypes.bool.isRequired,
-  isDeleted: PropTypes.bool.isRequired,
-  handleDelete: PropTypes.func.isRequired,
+export const CustomersDisplayTablePropTypes = {
+  onRowClick: PropTypes.func,
+  enableActions: PropTypes.bool,
+  itemIdToHighlight: PropTypes.string,
 };
 
-export default CustomersTable;
+CustomersDisplayTable.propTypes = {
+  ...CustomersDisplayTablePropTypes,
+};
+
+export default CustomersDisplayTable;

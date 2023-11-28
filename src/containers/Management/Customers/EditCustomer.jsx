@@ -45,19 +45,9 @@ function fetchCurrencyRate() {
 //----------------------------------------------------------------
 
 function EditCustomer(props) {
-  const {
-    customer,
-    loading,
-    saveData,
-    getPaymentTerms,
-    loadingPaymentTerms,
-    paymentTerms,
-  } = props;
+  const { customer, loading, saveData, loadingPaymentTerms, paymentTerms } =
+    props;
   const toasts = useToasts();
-
-  useEffect(() => {
-    getPaymentTerms();
-  }, [getPaymentTerms]);
 
   const formMethods = useForm({
     mode: 'onChange',
@@ -171,16 +161,10 @@ EditCustomer.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const { loading, action, paymentTerms } = state.paymentTermsReducer;
-  const loadingPaymentTerms = loading && action === GET_PAYMENT_TERMS;
+  const org = state.orgsReducer?.org;
+  const paymentTerms = org?.paymentTerms || [];
 
-  return { loadingPaymentTerms, paymentTerms };
+  return { paymentTerms };
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    getPaymentTerms: () => dispatch({ type: GET_PAYMENT_TERMS }),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(EditCustomer);
+export default connect(mapStateToProps)(EditCustomer);
