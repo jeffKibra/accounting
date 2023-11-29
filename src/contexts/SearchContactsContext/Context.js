@@ -21,5 +21,5 @@ const contextDefaultValues = {
 
 //----------------------------------------------------------------
 
-const SearchItemsContext = createContext(contextDefaultValues);
-export default SearchItemsContext;
+const SearchContactsContext = createContext(contextDefaultValues);
+export default SearchContactsContext;

@@ -38,12 +38,6 @@ export default function generateQueryOptions(state, additionalQueryParams) {
     },
     filters: {
       ...filters,
-      // make:"Toyota"
-      // color: ['grey'],
-      // make:["Honda"]
-      // type:["sedan"]
-      // rate:[20000, 40000]
-      // make:["Mercedes"]
     },
     ...(sortByIsValid
       ? {

@@ -7,7 +7,7 @@ import useToasts from '../useToasts';
 import useGetContact from './useGetContact';
 import { formatContactData } from './useCreateContact';
 
-function useUpdateContact(contactId) {
+function useUpdateContact(contactId, contactGroup = 'customer') {
   const [modifyContact, { called, loading: updating, reset, error }] =
     useMutation(mutations.contacts.UPDATE_CONTACT);
 
@@ -28,9 +28,9 @@ function useUpdateContact(contactId) {
       toastSuccess('Contact updated successfully!');
       //
       reset();
-      navigate(`/contacts/${contactId}/view`);
+      navigate(`/${contactGroup}s/${contactId}/view`);
     }
-  }, [success, toastSuccess, reset, navigate, contactId]);
+  }, [success, toastSuccess, reset, navigate, contactId, contactGroup]);
 
   useEffect(() => {
     if (failed) {

@@ -15,7 +15,7 @@ import {
 import PropTypes from 'prop-types';
 import { useFormContext } from 'react-hook-form';
 
-import NumInput from '../../ui/NumInput';
+// import NumInput from '../../ui/NumInput';
 // import CustomSelect from '../../ui/CustomSelect';
 import RHFSimpleSelect from 'components/ui/hookForm/RHFSimpleSelect';
 
@@ -23,31 +23,35 @@ import StepperContext from '../../../contexts/StepperContext';
 
 //------------------------------------------------------------------------------
 
-const currentcyOptions = [
-  'SGD',
-  'MYR',
-  'EUR',
-  'USD',
-  'AUD',
-  'JPY',
-  'CNH',
-  'HKD',
-  'CAD',
-  'INR',
-  'DKK',
-  'GBP',
-  'RUB',
-  'NZD',
-  'MXN',
-  'IDR',
-  'TWD',
-  'THB',
-  'VND',
-];
+// const currentcyOptions = [
+//   'SGD',
+//   'MYR',
+//   'EUR',
+//   'USD',
+//   'AUD',
+//   'JPY',
+//   'CNH',
+//   'HKD',
+//   'CAD',
+//   'INR',
+//   'DKK',
+//   'GBP',
+//   'RUB',
+//   'NZD',
+//   'MXN',
+//   'IDR',
+//   'TWD',
+//   'THB',
+//   'VND',
+// ];
 //----------------------------------------------------------------
 
 function ExtraDetailsForm(props) {
-  const { loading, paymentTerms, customerId } = props;
+  const {
+    loading,
+    paymentTerms,
+    // customerId
+  } = props;
 
   const { prevStep } = useContext(StepperContext);
 
@@ -68,7 +72,7 @@ function ExtraDetailsForm(props) {
         mt="4px"
         mb="4px"
       >
-        {customerId ? null : (
+        {/* {customerId ? null : (
           <GridItem colSpan={[12, 6]}>
             <FormControl
               isDisabled={loading}
@@ -90,9 +94,12 @@ function ExtraDetailsForm(props) {
               </FormErrorMessage>
             </FormControl>
           </GridItem>
-        )}
+        )} */}
 
-        <GridItem colSpan={[12, 6]}>
+        <GridItem
+          colSpan={12}
+          // colSpan={customerId ? 12 : [12, 6]}
+        >
           <FormControl
             isDisabled={loading}
             isRequired

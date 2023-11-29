@@ -27,6 +27,11 @@ export const NEW_CAR_MODEL = '/car_models/new';
 export const EDIT_CAR_MODEL = '/car_models/:modelId/edit';
 export const VIEW_CAR_MODEL = '/car_models/:modelId/view';
 
+//contacts
+export const CONTACTS = '/contacts';
+export const NEW_CONTACT = '/contacts/new';
+export const EDIT_CONTACT = '/contacts/:contactId/edit';
+export const VIEW_CONTACT = '/contacts/:contactId/view';
 //customers
 export const CUSTOMERS = '/customers';
 export const NEW_CUSTOMER = '/customers/new';

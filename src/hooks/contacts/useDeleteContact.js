@@ -5,12 +5,11 @@ import { useNavigate } from 'react-router-dom';
 //
 import useToasts from '../useToasts';
 //
-import { CUSTOMERS } from 'nav/routes';
 //
 import { mutations } from 'gql';
 
-export default function useDeleteContact(contact) {
-  const { id: contactId, displayName, type } = contact;
+export default function useDeleteContact(contact, successRoute) {
+  const { _id: contactId, displayName, type } = contact;
 
   const navigate = useNavigate();
   const { error: toastError, success: toastSuccess } = useToasts();
@@ -29,9 +28,9 @@ export default function useDeleteContact(contact) {
       //
       reset();
       //
-      navigate(CUSTOMERS);
+      navigate(successRoute);
     }
-  }, [success, toastSuccess, reset, navigate]);
+  }, [success, toastSuccess, reset, navigate, successRoute]);
 
   useEffect(() => {
     if (failed) {

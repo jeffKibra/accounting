@@ -252,6 +252,7 @@ export default function ListContextProvider(props) {
 
   const list = result?.list || [];
   const meta = result?.meta || {};
+  // console.log({ list, meta });
 
   const hitsPerPage = watch('hitsPerPage');
   const currentFilters = watch('filters');

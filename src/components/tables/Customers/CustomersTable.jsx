@@ -36,6 +36,8 @@ function CustomersDisplayTable(props) {
     // facets,
   } = contactsContextData;
 
+  console.log({ count, pageCount, page, hitsPerPage });
+
   const rowsAreSelectable = typeof onRowClick === 'function';
 
   const columns = useMemo(() => {

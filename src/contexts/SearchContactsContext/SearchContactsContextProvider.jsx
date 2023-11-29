@@ -3,7 +3,7 @@ import { useEffect, useRef, useContext } from 'react';
 import PropTypes from 'prop-types';
 
 //
-import SearchItemsContext from './Context';
+import SearchContactsContext from './Context';
 import SearchContext, { SearchContextProvider } from '../SearchContext';
 //
 import { queries } from 'gql';
@@ -15,14 +15,14 @@ import { queries } from 'gql';
 //----------------------------------------------------------------
 //----------------------------------------------------------------
 
-export default function SearchContactContextProvider(props) {
+export default function SearchContactsContextProvider(props) {
   const { children, defaultValues, group } = props;
 
   return (
     <SearchContextProvider
       defaultValues={defaultValues}
-      GQLQuery={queries.vehicles.SEARCH_VEHICLES}
-      resultField="searchVehicles"
+      GQLQuery={queries.contacts.SEARCH_CONTACTS}
+      resultField="searchContacts"
       additionalQueryParams={{ group }}
     >
       <ContextProvider {...props}>{children}</ContextProvider>
@@ -30,7 +30,7 @@ export default function SearchContactContextProvider(props) {
   );
 }
 
-SearchContactContextProvider.propTypes = {
+SearchContactsContextProvider.propTypes = {
   children: PropTypes.node.isRequired,
   defaultValues: PropTypes.object,
   group: PropTypes.string,
@@ -70,14 +70,14 @@ function ContextProvider(props) {
 
   return (
     <>
-      <SearchItemsContext.Provider
+      <SearchContactsContext.Provider
         value={{
           ...searchContext,
           //
         }}
       >
         {children}
-      </SearchItemsContext.Provider>
+      </SearchContactsContext.Provider>
 
       {/* {facets && isOpen ? (
         <VehiclesFiltersModalForm

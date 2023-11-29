@@ -17,7 +17,7 @@ export default function SearchContextProvider(props) {
 
   const generateQueryVariablesCB = useCallback(
     stateToParse => {
-      console.log('Search context provider geerateQueryVariables running...', {
+      console.log('Search context provider generateQueryVariables running...', {
         stateToParse,
         additionalQueryParams,
       });
@@ -63,6 +63,7 @@ function ContextProvider(props) {
 
   const setValueToSearch = useCallback(
     inValue => {
+      // console.log('setting value to search');
       setValue('valueToSearch', inValue);
       //reset page index
       setValue('pageIndex', 0);

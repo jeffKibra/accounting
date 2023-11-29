@@ -21,27 +21,27 @@ import AddressForm, {
 } from '../../../components/forms/Customers/AddressForm';
 
 //----------------------------------------------------------------
-const apiOptions = {
-  method: 'GET',
-  headers: {
-    'X-RapidAPI-Key': '41d5f4d4a6msh5866044e89580f0p18dda8jsn7d3f6ad3aeec',
-    'X-RapidAPI-Host': 'currency-exchange.p.rapidapi.com',
-  },
-};
+// const apiOptions = {
+//   method: 'GET',
+//   headers: {
+//     'X-RapidAPI-Key': '41d5f4d4a6msh5866044e89580f0p18dda8jsn7d3f6ad3aeec',
+//     'X-RapidAPI-Host': 'currency-exchange.p.rapidapi.com',
+//   },
+// };
 
-function fetchCurrencyList() {
-  return fetch(
-    'https://currency-exchange.p.rapidapi.com/listquotes',
-    apiOptions
-  ).then(response => response.json());
-}
+// function fetchCurrencyList() {
+//   return fetch(
+//     'https://currency-exchange.p.rapidapi.com/listquotes',
+//     apiOptions
+//   ).then(response => response.json());
+// }
 
-function fetchCurrencyRate() {
-  return fetch(
-    'https://currency-exchange.p.rapidapi.com/exchange?from=MYR&to=KES&q=1.0',
-    apiOptions
-  ).then(response => response.json());
-}
+// function fetchCurrencyRate() {
+//   return fetch(
+//     'https://currency-exchange.p.rapidapi.com/exchange?from=MYR&to=KES&q=1.0',
+//     apiOptions
+//   ).then(response => response.json());
+// }
 //----------------------------------------------------------------
 
 function EditCustomer(props) {
@@ -61,7 +61,7 @@ function EditCustomer(props) {
       phone: customer?.phone || '',
       billingAddress: customer?.billingAddress || {},
       shippingAddress: customer?.shippingAddress || {},
-      paymentTerm: customer?.paymentTerm?.value || 'on_receipt',
+      paymentTerm: customer?.paymentTerm || null,
       website: customer?.website || '',
       remarks: customer?.remarks || '',
       ...(customer ? {} : { openingBalance: customer?.openingBalance || 0 }),
@@ -118,7 +118,7 @@ function EditCustomer(props) {
                 <ExtraDetailsForm
                   loading={loading}
                   paymentTerms={paymentTerms}
-                  customerId={customer?.id || ''}
+                  customerId={customer?._id || ''}
                 />
               ),
             },

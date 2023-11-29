@@ -1,15 +1,14 @@
-import { useEffect } from 'react';
-import { connect } from 'react-redux';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-
-import useSavedLocation from '../../../hooks/useSavedLocation';
-import { CUSTOMERS } from '../../../nav/routes';
+// import { useEffect } from 'react';
 import {
-  GET_CUSTOMER,
-  UPDATE_CUSTOMER,
-  DELETE_CUSTOMER,
-} from '../../../store/actions/customersActions';
-import { reset } from '../../../store/slices/customersSlice';
+  useParams,
+  useLocation,
+  //  useNavigate
+} from 'react-router-dom';
+
+// import useSavedLocation from '../../../hooks/useSavedLocation';
+import { CUSTOMERS } from '../../../nav/routes';
+//
+import { useGetContact } from 'hooks';
 
 import SkeletonLoader from '../../../components/ui/SkeletonLoader';
 import Empty from '../../../components/ui/Empty';
@@ -18,35 +17,15 @@ import ViewCustomer from '../../../containers/Management/Customers/ViewCustomer'
 import CustomerOptions from '../../../containers/Management/Customers/CustomerOptions';
 
 function ViewCustomerPage(props) {
-  const {
-    loading,
-    action,
-    isModified,
-    customer,
-    getCustomer,
-    updateCustomer,
-    resetCustomer,
-  } = props;
-  const navigate = useNavigate();
+  const { updateCustomer } = props;
+  // const navigate = useNavigate();
+
   const { customerId } = useParams();
   const location = useLocation();
 
-  useSavedLocation().setLocation();
+  // useSavedLocation().setLocation();
 
-  useEffect(() => {
-    getCustomer(customerId);
-  }, [getCustomer, customerId]);
-
-  useEffect(() => {
-    if (isModified) {
-      resetCustomer();
-      if (action === DELETE_CUSTOMER) {
-        navigate(CUSTOMERS);
-      } else {
-        getCustomer(customerId);
-      }
-    }
-  }, [isModified, resetCustomer, navigate, action, getCustomer, customerId]);
+  const { loading, contact } = useGetContact(customerId);
 
   function update(data) {
     updateCustomer({ ...data, customerId });
@@ -54,28 +33,21 @@ function ViewCustomerPage(props) {
 
   return (
     <PageLayout
-      pageTitle={customer?.displayName || 'Customer Details'}
-      actions={
-        customer && <CustomerOptions edit customer={customer} deletion />
-      }
+      pageTitle={contact?.displayName || 'Customer Details'}
+      actions={contact && <CustomerOptions edit customer={contact} deletion />}
       breadcrumbLinks={{
         Dashboard: '/',
         Customers: CUSTOMERS,
         [customerId]: location.pathname,
       }}
     >
-      {loading && action === GET_CUSTOMER ? (
+      {loading ? (
         <SkeletonLoader />
-      ) : customer ? (
+      ) : contact ? (
         (() => {
-          const { createdAt, createdBy, modifiedAt, modifiedBy, ...rest } =
-            customer;
+          const { metaData, searchScore, ...rest } = contact;
           return (
-            <ViewCustomer
-              customer={rest}
-              loading={loading && action === UPDATE_CUSTOMER}
-              saveData={update}
-            />
+            <ViewCustomer customer={rest} loading={loading} saveData={update} />
           );
         })()
       ) : (
@@ -85,19 +57,4 @@ function ViewCustomerPage(props) {
   );
 }
 
-function mapStateToProps(state) {
-  const { loading, action, isModified, customer } = state.customersReducer;
-
-  return { loading, action, isModified, customer };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    getCustomer: customerId =>
-      dispatch({ type: GET_CUSTOMER, payload: customerId }),
-    updateCustomer: payload => dispatch({ type: UPDATE_CUSTOMER, payload }),
-    resetCustomer: () => dispatch(reset()),
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ViewCustomerPage);
+export default ViewCustomerPage;

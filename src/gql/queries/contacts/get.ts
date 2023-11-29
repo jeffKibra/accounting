@@ -34,7 +34,7 @@ export const contactFields = `
 `;
 
 const GET_CONTACT = gql`
-  query GetContact($id: ID) {
+  query GetContact($id: ID!) {
     contact(id: $id) {
      ${contactFields}
     }

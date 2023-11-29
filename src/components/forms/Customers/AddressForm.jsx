@@ -49,7 +49,7 @@ function AddressForm(props) {
       'billingAddress.postalCode',
       'billingAddress.country',
     ]);
-    console.log({ street, city, state, postalCode, country });
+    // console.log({ street, city, state, postalCode, country });
     setValue('shippingAddress.street', street, { shouldDirty: true });
     setValue('shippingAddress.city', city, { shouldDirty: true });
     setValue('shippingAddress.state', state, { shouldDirty: true });
