@@ -12,6 +12,8 @@ import {
 } from '@chakra-ui/react';
 import { useFormContext, Controller } from 'react-hook-form';
 import PropTypes from 'prop-types';
+//
+import SearchContacts from 'components/ui/SearchContacts'
 
 import { deriveDueDate } from '../../../utils/invoices';
 
@@ -25,7 +27,6 @@ import BookingItemFormFields from './BookingItemFormFields';
 
 //---------------------------------------------------------------
 DetailsFields.propTypes = {
-  customers: PropTypes.array.isRequired,
   loading: PropTypes.bool.isRequired,
   paymentTerms: PropTypes.array.isRequired,
   paymentModes: PropTypes.object.isRequired,
@@ -35,7 +36,6 @@ DetailsFields.propTypes = {
 
 export default function DetailsFields(props) {
   const {
-    customers,
     paymentTerms,
     loading,
     bookingId,
@@ -53,26 +53,21 @@ export default function DetailsFields(props) {
   } = useFormContext();
   // console.log({ errors });
 
-  const customerId = watch('customer');
+  const customer = watch('customer');
   const paymentTermId = watch('paymentTerm');
   const saleDate = watch('saleDate');
 
-  const getCustomer = useCallback(
-    customerId => {
-      return customers.find(customer => customer.id === customerId);
-    },
-    [customers]
-  );
+  
   /**
    * update payment term according to customer preference
    */
   useEffect(() => {
-    if (customerId) {
-      const { paymentTerm } = getCustomer(customerId);
+    if (customer) {
+      const { paymentTerm } =customer
       //update payment term field
-      setValue('paymentTerm', paymentTerm.value);
+      setValue('paymentTerm', paymentTerm);
     }
-  }, [customerId, getCustomer, setValue]);
+  }, [customer,setValue]);
   /**
    * update due date according to the selected payment term
    */
@@ -139,19 +134,17 @@ export default function DetailsFields(props) {
             isInvalid={errors.customer}
           >
             <FormLabel htmlFor="customer">Customer</FormLabel>
-            <CustomSelect
+
+            <SearchContacts
               name="customer"
               size="md"
               placeholder="--select customer--"
               isDisabled={loading}
-              rules={{
-                required: { value: true, message: '*Required!' },
+              controllerProps={{
+                rules:{
+                  required: { value: true, message: '*Required!' },
+                }
               }}
-              options={customers.map(customer => {
-                const { id: customerId, displayName } = customer;
-
-                return { name: displayName, value: customerId };
-              })}
             />
             <FormErrorMessage>{errors.customer?.message}</FormErrorMessage>
           </FormControl>

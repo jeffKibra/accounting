@@ -13,7 +13,6 @@ export default function useGetBookingFormProps() {
   // const { accounts, loading: loadingAccounts, fetchAccounts } = useAccounts();
 
   const {
-    customers,
     // items,
     taxes,
     loading: loadingSaleProps,
@@ -56,7 +55,6 @@ export default function useGetBookingFormProps() {
     // accounts: paymentAccounts,
     loading,
     refresh,
-    customers,
     // items,
     taxes,
   };

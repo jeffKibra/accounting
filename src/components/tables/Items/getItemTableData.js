@@ -6,11 +6,11 @@ function createTaxDisplay(tax) {
 }
 
 export default function getItemTableData(item, enableActions) {
-  // console.log({ item });
+  console.log({ item });
   // const { model: carModel, type } = item?.model || {};
 
-  delete item?.__typename;
-  delete item?.model?.__typename;
+  // delete item?.__typename;
+  // delete item?.model?.__typename;
 
   return {
     ...item,

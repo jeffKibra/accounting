@@ -61,7 +61,7 @@ function Form(props) {
       //   salesTax: null,
       // taxType: 'taxExclusive',
       //
-      customer: booking?.customer?._id || '',
+      customer: booking?.customer || '',
       // paymentTerm: booking?.paymentTerm?.value || 'on_receipt',
       downPayment: booking?.downPayment || {
         amount: 0,

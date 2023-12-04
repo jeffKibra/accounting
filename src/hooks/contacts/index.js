@@ -5,3 +5,5 @@ export { default as useUpdateContact } from './useUpdateContact';
 export { default as useDeleteContact } from './useDeleteContact';
 //
 export { default as useGetContact } from './useGetContact';
+//
+export {default as useContactSuggestions} from './useContactSuggestions'

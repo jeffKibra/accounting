@@ -10,19 +10,6 @@ import useTaxes from './useTaxes';
 
 export default function useGetSalesProps() {
   const dispatch = useDispatch();
-  // let {
-  //   // loading: loadingItems,
-  //   // items,
-  //   // action: itemsAction,
-  // } = useSelector(state => state.itemsReducer);
-  // loadingItems = loadingItems && itemsAction === GET_ITEMS;
-
-  let {
-    loading: loadingCustomers,
-    customers,
-    action: customersAction,
-  } = useSelector(state => state.customersReducer);
-  loadingCustomers = loadingCustomers && customersAction === GET_CUSTOMERS;
 
   const org = useSelector(state => state.orgsReducer?.org || {});
   const paymentTerms = org?.paymentTerms || [];
@@ -30,15 +17,12 @@ export default function useGetSalesProps() {
 
   const { taxes, isLoading: loadingTaxes } = useTaxes();
 
-  const loading = loadingCustomers || loadingTaxes;
+  const loading = loadingTaxes;
 
   useEffect(() => {
     // function getItems() {
     //   dispatch({ type: GET_ITEMS });
     // }
-    function getCustomers() {
-      dispatch({ type: GET_CUSTOMERS });
-    }
     // function getPaymentTerms() {
     //   dispatch({ type: GET_PAYMENT_TERMS });
     // }
@@ -47,7 +31,6 @@ export default function useGetSalesProps() {
     // }
 
     // getItems();
-    getCustomers();
     // getPaymentTerms();
     // getTaxes();
   }, [dispatch]);
@@ -55,7 +38,6 @@ export default function useGetSalesProps() {
   return {
     loading,
     // items,
-    customers,
     paymentTerms,
     taxes,
   };
