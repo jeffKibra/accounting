@@ -3,10 +3,7 @@ import PropTypes from 'prop-types';
 
 import ControlledAutoComplete, {
   autoCompletePropTypes,
-
 } from '../ControlledAutoComplete';
-
-
 
 //----------------------------------------------------------------
 

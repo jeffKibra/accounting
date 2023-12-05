@@ -1,7 +1,4 @@
-import { Box } from '@chakra-ui/react';
-import PropTypeps from 'prop-types';
-
-import { useMemo } from 'react';
+import PropTypes from 'prop-types';
 import {
   Menu,
   MenuButton,
@@ -10,18 +7,13 @@ import {
   MenuItemOption,
   Button,
   Text,
+  Box,
 } from '@chakra-ui/react';
-import PropTypes from 'prop-types';
 import { RiArrowUpSLine, RiArrowDownSLine } from 'react-icons/ri';
-
-// import { sortStrings } from 'utils/functions';
 
 import ControlledSearchInput, {
   controlledSearchInputPropTypes,
 } from './ControlledSearchInput';
-
-
-
 
 //----------------------------------------------------------------
 
@@ -78,54 +70,61 @@ function ControlledAutoComplete(props) {
               fontWeight="normal"
             >
               <Text fontSize="sm">
-                {selectedValue ? selectedValue[nameField] : placeholder}
+                {selectedValue ? value[nameField] : placeholder}
               </Text>
             </MenuButton>
 
-            <MenuList maxH="200px" overflowY="auto">
-              <ControlledSearchInput
-                id={id}
-                isDisabled={isDisabled}
-                size={size || 'md'}
-                {...(colorScheme ? { colorScheme } : {})}
-                isActive={isOpen}
-                w="full"
-                variant="outline"
-                textAlign="left"
-                fontWeight="normal"
-              />
+            <MenuList>
+              {/* <Box> */}
+              <Box mt={-2} p={1}>
+                <ControlledSearchInput
+                  id={id}
+                  isDisabled={isDisabled}
+                  size="sm"
+                  {...(colorScheme ? { colorScheme } : {})}
+                  isActive={isOpen}
+                  w="full"
+                  variant="outline"
+                  textAlign="left"
+                  fontWeight="normal"
+                />
+              </Box>
 
-              <MenuOptionGroup
-                onChange={handleChange}
-                value={selectedValue}
-                type="radio"
-              >
-                {allowClearSelection && (
-                  <MenuItemOption py={1} value="">
-                    <Text fontSize="sm">clear selection</Text>
-                  </MenuItemOption>
-                )}
-                {options.map((option, i) => {
-                  const name = option[nameField];
-                  const itemValue = option[valueField];
-                  // console.log({ name, value });
-
-                  function handleItemClick() {
-                    handleChange(option);
-                  }
-
-                  return (
-                    <MenuItemOption
-                      onClick={handleItemClick}
-                      py={1}
-                      key={i}
-                      value={itemValue}
-                    >
-                      <Text fontSize="sm">{name}</Text>
+              <Box maxHeight="100px" overflowY="auto">
+                <MenuOptionGroup
+                  // onChange={handleChange}
+                  value={selectedValue}
+                  type="radio"
+                >
+                  {allowClearSelection && (
+                    <MenuItemOption py={1} pt={2} value="">
+                      <Text fontSize="sm">clear selection</Text>
                     </MenuItemOption>
-                  );
-                })}
-              </MenuOptionGroup>
+                  )}
+
+                  {options.map((option, i) => {
+                    const itemName = option[nameField];
+                    const itemValue = option[valueField];
+                    // console.log({ name, value });
+
+                    function handleItemClick() {
+                      handleChange(option);
+                    }
+
+                    return (
+                      <MenuItemOption
+                        onClick={handleItemClick}
+                        py={1}
+                        key={i}
+                        value={itemValue}
+                      >
+                        <Text fontSize="sm">{itemName}</Text>
+                      </MenuItemOption>
+                    );
+                  })}
+                </MenuOptionGroup>
+              </Box>
+              {/* </Box> */}
             </MenuList>
           </>
         );
@@ -145,10 +144,9 @@ ControlledAutoComplete.defaultProps = {
   },
 };
 
-
-
 export const autoCompletePropTypes = {
   ...controlledSearchInputPropTypes,
+  options: PropTypes.array.isRequired,
   optionsConfig: PropTypes.shape({
     nameField: PropTypes.string.isRequired,
     valueField: PropTypes.string.isRequired,
@@ -168,6 +166,5 @@ ControlledAutoComplete.propTypes = {
   onBlur: PropTypes.func,
   value: PropTypes.string,
 };
-
 
 export default ControlledAutoComplete;

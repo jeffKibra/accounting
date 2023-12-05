@@ -13,7 +13,7 @@ import {
 import { useFormContext, Controller } from 'react-hook-form';
 import PropTypes from 'prop-types';
 //
-import SearchContacts from 'components/ui/SearchContacts'
+import SearchContacts from 'components/ui/SearchContacts';
 
 import { deriveDueDate } from '../../../utils/invoices';
 
@@ -54,32 +54,30 @@ export default function DetailsFields(props) {
   // console.log({ errors });
 
   const customer = watch('customer');
-  const paymentTermId = watch('paymentTerm');
+  const paymentTerm = watch('paymentTerm');
   const saleDate = watch('saleDate');
 
-  
   /**
    * update payment term according to customer preference
    */
   useEffect(() => {
     if (customer) {
-      const { paymentTerm } =customer
+      console.log({ customer });
+      const { paymentTerm } = customer;
       //update payment term field
       setValue('paymentTerm', paymentTerm);
     }
-  }, [customer,setValue]);
+  }, [customer, setValue]);
   /**
    * update due date according to the selected payment term
    */
   useEffect(() => {
-    if (!bookingId && paymentTermId) {
-      const paymentTerm = paymentTerms.find(
-        term => term.value === paymentTermId
-      );
+    if (!bookingId && paymentTerm) {
       const dueDate = deriveDueDate(paymentTerm, saleDate);
+
       setValue('dueDate', dueDate);
     }
-  }, [paymentTermId, saleDate, paymentTerms, setValue, bookingId]);
+  }, [paymentTerm, saleDate, paymentTerms, setValue, bookingId]);
 
   return (
     <Box p={4}>
@@ -140,10 +138,11 @@ export default function DetailsFields(props) {
               size="md"
               placeholder="--select customer--"
               isDisabled={loading}
+              contactGroup="customer"
               controllerProps={{
-                rules:{
+                rules: {
                   required: { value: true, message: '*Required!' },
-                }
+                },
               }}
             />
             <FormErrorMessage>{errors.customer?.message}</FormErrorMessage>
