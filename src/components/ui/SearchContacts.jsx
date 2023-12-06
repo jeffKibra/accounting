@@ -7,7 +7,8 @@ import { useContactSuggestions } from '../../hooks';
 function SearchContacts(props) {
   const { name, contactGroup, isDisabled, ...moreProps } = props;
 
-  const { suggestions, loading } = useContactSuggestions(contactGroup);
+  const { suggestions, loading, fetchSuggestions } =
+    useContactSuggestions(contactGroup);
 
   return (
     <RHFAutoComplete
@@ -17,6 +18,7 @@ function SearchContacts(props) {
       options={suggestions}
       name={name}
       isDisabled={isDisabled}
+      onSearch={fetchSuggestions}
     />
   );
 }

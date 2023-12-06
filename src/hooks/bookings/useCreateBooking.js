@@ -9,14 +9,16 @@ import useToasts from '../useToasts';
 export function formatBookingData(formData) {
   delete formData?.dueDate;
   delete formData?.saleDate;
+  delete formData?.downPayment?.paymentMode?.__typename;
+  delete formData?.paymentTerm;
   const {
-    customer: { id, displayName },
+    customer: { _id, displayName },
   } = formData;
 
   return {
     ...formData,
     customer: {
-      _id: id,
+      _id,
       displayName,
     },
   };

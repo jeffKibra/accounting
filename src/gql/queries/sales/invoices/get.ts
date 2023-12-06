@@ -43,8 +43,8 @@ export const invoiceFields = `
   dueDate
 
   paymentTerm{
+    _id
     name
-    value
     days
   } 
 

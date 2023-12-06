@@ -18,6 +18,7 @@ import SearchContacts from 'components/ui/SearchContacts';
 import { deriveDueDate } from '../../../utils/invoices';
 
 import CustomSelect from '../../ui/CustomSelect';
+import RHFSimpleSelect from 'components/ui/hookForm/RHFSimpleSelect';
 // import CustomDatePicker from '../../ui/CustomDatePicker';
 import ControlledNumInput from 'components/ui/ControlledNumInput';
 import ControlledSelect from 'components/ui/ControlledSelect';
@@ -43,6 +44,8 @@ export default function DetailsFields(props) {
     paymentModes,
     currentBookingDetails,
   } = props;
+
+  console.log({ paymentModes });
 
   const {
     register,
@@ -203,8 +206,22 @@ export default function DetailsFields(props) {
             isRequired
             isInvalid={errors.downPayment?.paymentMode}
           >
-            <FormLabel htmlFor="paymentMode">Payment Mode</FormLabel>
-            <Controller
+            <FormLabel htmlFor="payment_mode">Payment Mode</FormLabel>
+
+            <RHFSimpleSelect
+              name="downPayment.paymentMode"
+              placeholder="select payment mode"
+              id="payment_mode"
+              isDisabled={loading}
+              options={paymentModes}
+              optionsConfig={{ nameField: 'name', valueField: '_id' }}
+              controllerProps={{
+                rules: {
+                  required: { value: true, message: '*Required!' },
+                },
+              }}
+            />
+            {/* <Controller
               name="downPayment.paymentMode"
               control={control}
               render={({ field: { onBlur, onChange, value } }) => {
@@ -230,7 +247,7 @@ export default function DetailsFields(props) {
               rules={{
                 required: { value: true, message: '*Required!' },
               }}
-            />
+            /> */}
 
             <FormErrorMessage>
               {errors.downPayment?.paymentMode?.message}

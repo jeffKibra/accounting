@@ -27,7 +27,7 @@ export const bookingFields = `
     amount
     paymentMode {
       name
-      value
+      _id
     }
   }
   balance

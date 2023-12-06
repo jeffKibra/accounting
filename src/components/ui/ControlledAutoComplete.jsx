@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   Menu,
@@ -8,6 +9,7 @@ import {
   Button,
   Text,
   Box,
+  Spinner,
 } from '@chakra-ui/react';
 import { RiArrowUpSLine, RiArrowDownSLine } from 'react-icons/ri';
 
@@ -31,6 +33,8 @@ function ControlledAutoComplete(props) {
     value,
     onBlur,
     optionsConfig,
+    onSearch,
+    loading,
   } = props;
   // console.log({ props });
 
@@ -77,53 +81,55 @@ function ControlledAutoComplete(props) {
             <MenuList>
               {/* <Box> */}
               <Box mt={-2} p={1}>
-                <ControlledSearchInput
-                  id={id}
-                  isDisabled={isDisabled}
-                  size="sm"
-                  {...(colorScheme ? { colorScheme } : {})}
-                  isActive={isOpen}
+                <SearchInput isDisabled={isDisabled} onSearch={onSearch} />
+              </Box>
+
+              {loading ? (
+                <Box
                   w="full"
-                  variant="outline"
-                  textAlign="left"
-                  fontWeight="normal"
-                />
-              </Box>
-
-              <Box maxHeight="100px" overflowY="auto">
-                <MenuOptionGroup
-                  // onChange={handleChange}
-                  value={selectedValue}
-                  type="radio"
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  py={2}
                 >
-                  {allowClearSelection && (
-                    <MenuItemOption py={1} pt={2} value="">
-                      <Text fontSize="sm">clear selection</Text>
-                    </MenuItemOption>
-                  )}
-
-                  {options.map((option, i) => {
-                    const itemName = option[nameField];
-                    const itemValue = option[valueField];
-                    // console.log({ name, value });
-
-                    function handleItemClick() {
-                      handleChange(option);
-                    }
-
-                    return (
-                      <MenuItemOption
-                        onClick={handleItemClick}
-                        py={1}
-                        key={i}
-                        value={itemValue}
-                      >
-                        <Text fontSize="sm">{itemName}</Text>
+                  <Spinner />
+                </Box>
+              ) : (
+                <Box maxHeight="100px" overflowY="auto">
+                  <MenuOptionGroup
+                    // onChange={handleChange}
+                    value={selectedValue}
+                    type="radio"
+                  >
+                    {allowClearSelection && (
+                      <MenuItemOption py={1} pt={2} value="">
+                        <Text fontSize="sm">clear selection</Text>
                       </MenuItemOption>
-                    );
-                  })}
-                </MenuOptionGroup>
-              </Box>
+                    )}
+
+                    {options.map((option, i) => {
+                      const itemName = option[nameField];
+                      const itemValue = option[valueField];
+                      // console.log({ name, value });
+
+                      function handleItemClick() {
+                        handleChange(option);
+                      }
+
+                      return (
+                        <MenuItemOption
+                          onClick={handleItemClick}
+                          py={1}
+                          key={i}
+                          value={itemValue}
+                        >
+                          <Text fontSize="sm">{itemName}</Text>
+                        </MenuItemOption>
+                      );
+                    })}
+                  </MenuOptionGroup>
+                </Box>
+              )}
               {/* </Box> */}
             </MenuList>
           </>
@@ -134,7 +140,7 @@ function ControlledAutoComplete(props) {
 }
 
 ControlledAutoComplete.defaultProps = {
-  allowClearSelection: true,
+  allowClearSelection: false,
   onBlur: () => {},
   id: 'controlled select',
   options: [],
@@ -158,6 +164,8 @@ export const autoCompletePropTypes = {
   isDisabled: PropTypes.bool,
   renderTrigger: PropTypes.func,
   allowClearSelection: PropTypes.bool,
+  onSearch: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
 };
 
 ControlledAutoComplete.propTypes = {
@@ -168,3 +176,44 @@ ControlledAutoComplete.propTypes = {
 };
 
 export default ControlledAutoComplete;
+
+function SearchInput(props) {
+  const { id, isDisabled, colorScheme, onSearch } = props;
+
+  const [value, setValue] = useState('');
+
+  function handleChange(inValue) {
+    // console.log('search input incoming value', inValue);
+    setValue(inValue);
+  }
+
+  function handleSearch(inValue) {
+    // console.log('searching val:', inValue);
+
+    onSearch(inValue);
+  }
+
+  return (
+    <ControlledSearchInput
+      id={id}
+      isDisabled={isDisabled}
+      size="sm"
+      {...(colorScheme ? { colorScheme } : {})}
+      // isActive={isOpen}
+      w="full"
+      variant="outline"
+      textAlign="left"
+      fontWeight="normal"
+      onChange={handleChange}
+      value={value}
+      onSearch={handleSearch}
+    />
+  );
+}
+
+SearchInput.propTypes = {
+  id: PropTypes.string,
+  isDisabled: PropTypes.bool,
+  colorScheme: PropTypes.string,
+  onSearch: PropTypes.func.isRequired,
+};
