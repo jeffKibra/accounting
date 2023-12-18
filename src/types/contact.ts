@@ -39,8 +39,9 @@ export interface IContactFromDb extends Omit<IContactForm, 'openingBalance'> {
 
 export interface IContact extends IContactFromDb {
   _id: string;
+  __typename?: string;
 }
 
 //eslint-disable-next-line
 export interface IContactSummary
-  extends Pick<IContact, 'displayName' | '_id'> {}
+  extends Pick<IContact, 'displayName' | '_id' | '__typename'> {}

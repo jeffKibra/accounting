@@ -3,17 +3,20 @@
 
 // export type IVehicleType = 'Ivehicle' | 'opening_balance';
 
+export interface IVehicleModel {
+  model: string;
+  make: string;
+  type: string;
+  __typename?: string;
+}
+
 export interface IVehicleFormData {
   registration: string;
   rate: number;
   // sku: string;
   make: string;
   color: string;
-  model: {
-    model: string;
-    make: string;
-    type: string;
-  };
+  model: IVehicleModel;
   year: number;
   description: string;
   // salesAccount: Account;
@@ -36,18 +39,23 @@ interface Meta {
   status: string;
 }
 
-export interface IVehicleFromDb extends IVehicleFormData {
-  metaData: Meta;
-}
-
-export interface IVehicle extends IVehicleFromDb {
+export interface IVehicle extends IVehicleFormData {
   _id: string;
+  metaData: Meta;
+  __typename?: string;
 }
 
 export interface IVehicleForBooking
   extends Pick<
     IVehicle,
-    '_id' | 'registration' | 'rate' | 'color' | 'make' | 'model' | 'year'
+    | '_id'
+    | 'registration'
+    | 'rate'
+    | 'color'
+    | 'make'
+    | 'model'
+    | 'year'
+    | '__typename'
   > {}
 
 export interface IPaginationLastDoc {

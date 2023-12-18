@@ -30,18 +30,22 @@ function useGetInvoice(invoiceId) {
 
   let invoice = null;
   if (rawinvoice) {
-    const { startDate, endDate } = rawinvoice;
+    const { saleDate, dueDate } = rawinvoice;
 
     invoice = {
       ...rawinvoice,
-      startDate: new Date(+startDate),
-      endDate: new Date(+endDate),
+      saleDate: new Date(+saleDate),
+      dueDate: new Date(+dueDate),
     };
   }
 
-  delete invoice?.__typename;
-  delete invoice?.customer?.__typename;
-  delete invoice?.paymentTerm?.__typename;
+  try {
+    delete invoice?.__typename;
+    delete invoice?.customer?.__typename;
+    delete invoice?.paymentTerm?.__typename;
+  } catch (error) {
+    console.error(error);
+  }
 
   return { loading, error, invoice, refetch };
 }

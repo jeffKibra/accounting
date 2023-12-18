@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import {
   FormControl,
   FormLabel,
@@ -17,11 +17,11 @@ import SearchContacts from 'components/ui/SearchContacts';
 
 import { deriveDueDate } from '../../../utils/invoices';
 
-import CustomSelect from '../../ui/CustomSelect';
+// import CustomSelect from '../../ui/CustomSelect';
 import RHFSimpleSelect from 'components/ui/hookForm/RHFSimpleSelect';
 // import CustomDatePicker from '../../ui/CustomDatePicker';
 import ControlledNumInput from 'components/ui/ControlledNumInput';
-import ControlledSelect from 'components/ui/ControlledSelect';
+// import ControlledSelect from 'components/ui/ControlledSelect';
 //
 import BookingItemFormFields from './BookingItemFormFields';
 //
@@ -29,8 +29,8 @@ import BookingItemFormFields from './BookingItemFormFields';
 //---------------------------------------------------------------
 DetailsFields.propTypes = {
   loading: PropTypes.bool.isRequired,
-  paymentTerms: PropTypes.array.isRequired,
-  paymentModes: PropTypes.object.isRequired,
+  // paymentTerms: PropTypes.array.isRequired,
+  paymentModes: PropTypes.array.isRequired,
   bookingId: PropTypes.string,
   currentBookingDetails: PropTypes.object,
 };
@@ -45,7 +45,7 @@ export default function DetailsFields(props) {
     currentBookingDetails,
   } = props;
 
-  console.log({ paymentModes });
+  // console.log({ paymentModes });
 
   const {
     register,
@@ -65,7 +65,7 @@ export default function DetailsFields(props) {
    */
   useEffect(() => {
     if (customer) {
-      console.log({ customer });
+      // console.log({ customer });
       const { paymentTerm } = customer;
       //update payment term field
       setValue('paymentTerm', paymentTerm);
@@ -83,7 +83,7 @@ export default function DetailsFields(props) {
   }, [paymentTerm, saleDate, paymentTerms, setValue, bookingId]);
 
   return (
-    <Box p={4}>
+    <Box w="full" p={4}>
       <Grid mb={2} rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">
         {/* <GridItem colSpan={12}>
           <FormControl isDisabled={loading} isRequired isInvalid={errors.item}>

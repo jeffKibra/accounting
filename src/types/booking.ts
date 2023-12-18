@@ -138,6 +138,7 @@ export interface IBookingFromDb extends IBookingForm, ExtraFields {
 
 export interface IBooking extends IBookingFromDb {
   _id: string;
+  __typename?: string;
 }
 
 export interface IMonthlyBookingUpdateData {
@@ -168,5 +169,4 @@ export interface IMonthlyBookingUpdateData {
 //     | 'total'
 //   > {}
 
-
-export type IBookingInvoice=Required<IInvoice>
+export type IBookingInvoice = Required<IInvoice>;

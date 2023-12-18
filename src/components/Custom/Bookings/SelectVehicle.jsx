@@ -1,5 +1,5 @@
 import { useCallback, useContext } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+// import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Alert,
   AlertDescription,
@@ -14,6 +14,8 @@ import ItemsTable from 'components/tables/Items/ItemsTable';
 import SearchItemsContext, {
   SearchItemsContextProvider,
 } from 'contexts/SearchItemsContext';
+//
+import SelectedVehiclePreview from './SelectedVehiclePreview';
 
 //
 // import ItemsLoader from 'components/forms/Booking/ItemsLoader';
@@ -27,9 +29,6 @@ function SelectVehicle(props) {
     setValue,
     bookingId,
   } = props;
-
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
 
   const { getQueryVariables } = useContext(SearchItemsContext);
 
@@ -54,14 +53,8 @@ function SelectVehicle(props) {
     [setValue]
   );
 
-  const handleVehicleSelect = useCallback(
+  const updateVehicleSelection = useCallback(
     selectedVehicle => {
-      delete selectedVehicle?.__typename;
-      delete selectedVehicle?.searchScore;
-      delete selectedVehicle?.model?.__typename;
-      delete selectedVehicle?.carModel;
-      delete selectedVehicle?.tax;
-
       const incomingQueryVariables = getQueryVariables();
       // console.log('handling vehicle selection in form', {
       //   selectedVehicle,
@@ -69,14 +62,35 @@ function SelectVehicle(props) {
       // });
 
       updateForm(selectedVehicle, incomingQueryVariables);
+    },
+    [updateForm, getQueryVariables]
+  );
+
+  const handleVehicleSelect = useCallback(
+    selectedVehicle => {
+      try {
+        delete selectedVehicle?.__typename;
+        delete selectedVehicle?.searchScore;
+        delete selectedVehicle?.model?.__typename;
+        delete selectedVehicle?.carModel;
+        delete selectedVehicle?.tax;
+      } catch (error) {
+        console.error(error);
+      }
+
+      updateVehicleSelection(selectedVehicle);
 
       //call passed cb
       typeof onSelect === 'function' && onSelect(selectedVehicle);
       //
-      navigate(`${pathname}?stage=2`);
+      // navigate(`${pathname}?stage=2`);
     },
-    [pathname, navigate, onSelect, getQueryVariables, updateForm]
+    [onSelect, updateVehicleSelection]
   );
+
+  const handleClearSelection = useCallback(() => {
+    updateVehicleSelection(null);
+  }, [updateVehicleSelection]);
 
   //----------------------------------------------------------------
 
@@ -111,6 +125,11 @@ function SelectVehicle(props) {
           </AlertDescription>
         </Alert>
       )}
+
+      <SelectedVehiclePreview
+        selectedVehicle={vehicle}
+        onClearSelection={handleClearSelection}
+      />
     </SearchItemsContextProvider>
   );
 }

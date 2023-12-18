@@ -199,9 +199,18 @@ export default class Bookings {
       qty,
       details: itemDetails,
     } = bookingData;
-    const details = itemDetails as ISaleItemDetails;
+    const details = itemDetails as Required<ISaleItemDetails>;
 
     const { selectedDates, startDate, endDate, item: vehicle } = details;
+
+    try {
+      delete vehicle?.__typename;
+      delete vehicle?.model.__typename;
+      delete customer?.__typename;
+    } catch (error) {
+      console.warn('Error deleting booking __typenames');
+      console.error(error);
+    }
 
     //
     const transferFee = items[1]?.total || 0;
@@ -211,8 +220,8 @@ export default class Bookings {
       customer,
       customerNotes,
       vehicle,
-      startDate,
-      endDate,
+      startDate: new Date(+startDate || Date.now()),
+      endDate: new Date(+endDate || Date.now()),
       selectedDates,
       bookingRate,
       bookingTotal,

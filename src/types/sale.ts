@@ -1,10 +1,10 @@
 import {
   ITaxSummary,
-  InvoiceTransactionTypes,
+  // InvoiceTransactionTypes,
   SaleTransactionTypes,
   IContactSummary,
-  PaymentTerm,
-  IAccountSummary,
+  // PaymentTerm,
+  // IAccountSummary,
   IVehicleForBooking,
   // ItemFormData,
 } from '.';

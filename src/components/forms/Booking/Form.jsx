@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Flex, Button } from '@chakra-ui/react';
 import { useForm, FormProvider } from 'react-hook-form';
 import PropTypes from 'prop-types';
@@ -34,6 +34,7 @@ function Form(props) {
   // console.log({ booking });
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   const today = new Date();
 
@@ -158,6 +159,20 @@ function Form(props) {
       selectedDates: String(selectedDates).split(','),
     });
   }
+  //
+  const { pathname } = location;
+
+  function prev() {
+    console.log('prev clicked');
+
+    navigate(`${pathname}?stage=1`);
+  }
+
+  function next() {
+    console.log('next clicked');
+
+    navigate(`${pathname}?stage=2`);
+  }
 
   // console.log({ customers, items, paymentTerms, loading });
 
@@ -170,21 +185,11 @@ function Form(props) {
   // console.log({ stage });
 
   //----------------------------------------------------------------
-
+  const isDetailsPage = stage === '2' && selectedVehicle;
   //----------------------------------------------------------------
 
   return (
-    <Box
-      w="full"
-      mt={2}
-      // p={4}
-      // pb={4}
-      bg="white"
-      borderRadius="lg"
-      shadow="lg"
-      border="1px solid"
-      borderColor="gray.200"
-    >
+    <Card>
       <FormProvider {...formMethods}>
         <Box
           as="form"
@@ -193,7 +198,7 @@ function Form(props) {
           w="full"
         >
           <Box w="full" rowGap={4}>
-            {stage === '2' && selectedVehicle ? (
+            {isDetailsPage ? (
               <>
                 <DetailsFields
                   customers={customers}
@@ -206,7 +211,17 @@ function Form(props) {
                   currentBookingDetails={booking || null}
                 />
 
-                <Flex w="full" pb={6} pt={2} px={4} justify="flex-end">
+                <Flex w="full" pb={6} pt={2} px={4} justify="space-between">
+                  <Button
+                    type="button"
+                    colorScheme="cyan"
+                    size="lg"
+                    isLoading={updating}
+                    onClick={prev}
+                  >
+                    prev
+                  </Button>
+
                   <Button
                     size="lg"
                     type="submit"
@@ -236,18 +251,25 @@ function Form(props) {
         </Box>
       </FormProvider>
 
-      {stage === '2' && selectedVehicle ? null : (
+      {isDetailsPage ? null : (
         <Box p={4}>
           <SelectVehicle
             bookingId={booking?._id}
             watch={watch}
             setValue={setValue}
           />
+
+          <Flex w="full" justifyContent="flex-end" pt={4}>
+            <Button type="button" colorScheme="cyan" size="lg" onClick={next}>
+              next
+            </Button>
+          </Flex>
         </Box>
       )}
-    </Box>
+    </Card>
   );
 }
+
 Form.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,
@@ -259,3 +281,21 @@ Form.propTypes = {
 };
 
 export default Form;
+
+function Card({ children }) {
+  return (
+    <Box
+      w="full"
+      mt={2}
+      // p={4}
+      // pb={4}
+      bg="white"
+      borderRadius="lg"
+      shadow="lg"
+      border="1px solid"
+      borderColor="gray.200"
+    >
+      {children}
+    </Box>
+  );
+}

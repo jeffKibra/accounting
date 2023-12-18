@@ -17,13 +17,7 @@ function useGetBooking(bookingId) {
     return Bookings.convertInvoiceToBooking(invoice);
   }, [invoice]);
 
-  console.log({ loading, booking, invoice, error });
-
-  delete booking?.__typename;
-  delete booking?.customer?.__typename;
-  delete booking?.downPayment?.__typename;
-  // delete booking?.downPayment?.paymentMode?.__typename;
-  delete booking?.vehicle?.__typename;
+  // console.log({ loading, booking, invoice, error });
 
   return { loading, error, booking, refetch };
 }
