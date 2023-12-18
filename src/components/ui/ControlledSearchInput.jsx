@@ -25,7 +25,7 @@ const ControlledSearchInput = forwardRef((props, ref) => {
   function newTimeout(valueToSearch) {
     timeoutRef.current = setTimeout(() => {
       onSearch(valueToSearch);
-    }, delayBeforeSearchMS || 1000);
+    }, delayBeforeSearchMS || 250);
   }
 
   function handleSearch(valueToSearch) {
@@ -74,7 +74,7 @@ const ControlledSearchInput = forwardRef((props, ref) => {
   );
 });
 
-ControlledSearchInput.propTypes = {
+export const controlledSearchInputPropTypes = {
   id: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
@@ -82,6 +82,10 @@ ControlledSearchInput.propTypes = {
   onSearch: PropTypes.func.isRequired,
   placeholder: PropTypes.string,
   delayBeforeSearchMS: PropTypes.number,
+};
+
+ControlledSearchInput.propTypes = {
+  ...controlledSearchInputPropTypes,
 };
 
 ControlledSearchInput.defaultProps = {

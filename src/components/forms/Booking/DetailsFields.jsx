@@ -12,10 +12,13 @@ import {
 } from '@chakra-ui/react';
 import { useFormContext, Controller } from 'react-hook-form';
 import PropTypes from 'prop-types';
+//
+import SearchContacts from 'components/ui/SearchContacts';
 
 import { deriveDueDate } from '../../../utils/invoices';
 
 import CustomSelect from '../../ui/CustomSelect';
+import RHFSimpleSelect from 'components/ui/hookForm/RHFSimpleSelect';
 // import CustomDatePicker from '../../ui/CustomDatePicker';
 import ControlledNumInput from 'components/ui/ControlledNumInput';
 import ControlledSelect from 'components/ui/ControlledSelect';
@@ -25,7 +28,6 @@ import BookingItemFormFields from './BookingItemFormFields';
 
 //---------------------------------------------------------------
 DetailsFields.propTypes = {
-  customers: PropTypes.array.isRequired,
   loading: PropTypes.bool.isRequired,
   paymentTerms: PropTypes.array.isRequired,
   paymentModes: PropTypes.object.isRequired,
@@ -35,7 +37,6 @@ DetailsFields.propTypes = {
 
 export default function DetailsFields(props) {
   const {
-    customers,
     paymentTerms,
     loading,
     bookingId,
@@ -43,6 +44,8 @@ export default function DetailsFields(props) {
     paymentModes,
     currentBookingDetails,
   } = props;
+
+  console.log({ paymentModes });
 
   const {
     register,
@@ -53,38 +56,31 @@ export default function DetailsFields(props) {
   } = useFormContext();
   // console.log({ errors });
 
-  const customerId = watch('customer');
-  const paymentTermId = watch('paymentTerm');
+  const customer = watch('customer');
+  const paymentTerm = watch('paymentTerm');
   const saleDate = watch('saleDate');
 
-  const getCustomer = useCallback(
-    customerId => {
-      return customers.find(customer => customer.id === customerId);
-    },
-    [customers]
-  );
   /**
    * update payment term according to customer preference
    */
   useEffect(() => {
-    if (customerId) {
-      const { paymentTerm } = getCustomer(customerId);
+    if (customer) {
+      console.log({ customer });
+      const { paymentTerm } = customer;
       //update payment term field
-      setValue('paymentTerm', paymentTerm.value);
+      setValue('paymentTerm', paymentTerm);
     }
-  }, [customerId, getCustomer, setValue]);
+  }, [customer, setValue]);
   /**
    * update due date according to the selected payment term
    */
   useEffect(() => {
-    if (!bookingId && paymentTermId) {
-      const paymentTerm = paymentTerms.find(
-        term => term.value === paymentTermId
-      );
+    if (!bookingId && paymentTerm) {
       const dueDate = deriveDueDate(paymentTerm, saleDate);
+
       setValue('dueDate', dueDate);
     }
-  }, [paymentTermId, saleDate, paymentTerms, setValue, bookingId]);
+  }, [paymentTerm, saleDate, paymentTerms, setValue, bookingId]);
 
   return (
     <Box p={4}>
@@ -139,19 +135,18 @@ export default function DetailsFields(props) {
             isInvalid={errors.customer}
           >
             <FormLabel htmlFor="customer">Customer</FormLabel>
-            <CustomSelect
+
+            <SearchContacts
               name="customer"
               size="md"
               placeholder="--select customer--"
               isDisabled={loading}
-              rules={{
-                required: { value: true, message: '*Required!' },
+              contactGroup="customer"
+              controllerProps={{
+                rules: {
+                  required: { value: true, message: '*Required!' },
+                },
               }}
-              options={customers.map(customer => {
-                const { id: customerId, displayName } = customer;
-
-                return { name: displayName, value: customerId };
-              })}
             />
             <FormErrorMessage>{errors.customer?.message}</FormErrorMessage>
           </FormControl>
@@ -211,8 +206,22 @@ export default function DetailsFields(props) {
             isRequired
             isInvalid={errors.downPayment?.paymentMode}
           >
-            <FormLabel htmlFor="paymentMode">Payment Mode</FormLabel>
-            <Controller
+            <FormLabel htmlFor="payment_mode">Payment Mode</FormLabel>
+
+            <RHFSimpleSelect
+              name="downPayment.paymentMode"
+              placeholder="select payment mode"
+              id="payment_mode"
+              isDisabled={loading}
+              options={paymentModes}
+              optionsConfig={{ nameField: 'name', valueField: '_id' }}
+              controllerProps={{
+                rules: {
+                  required: { value: true, message: '*Required!' },
+                },
+              }}
+            />
+            {/* <Controller
               name="downPayment.paymentMode"
               control={control}
               render={({ field: { onBlur, onChange, value } }) => {
@@ -238,7 +247,7 @@ export default function DetailsFields(props) {
               rules={{
                 required: { value: true, message: '*Required!' },
               }}
-            />
+            /> */}
 
             <FormErrorMessage>
               {errors.downPayment?.paymentMode?.message}

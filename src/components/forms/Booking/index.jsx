@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 //
-import formats from 'utils/formats';
+// import formats from 'utils/formats';
 
 //
 import { useToasts, useGetBookingFormProps } from 'hooks';
@@ -29,7 +29,6 @@ function BookingForm(props) {
     // accounts,
     paymentModes,
     paymentTerms,
-    customers,
     // items,
     taxes,
     loading,
@@ -43,13 +42,15 @@ function BookingForm(props) {
   function handleSubmit(data) {
     console.log('submitting...', data);
     // console.log({ data });
-    const { customer: customerId, paymentTerm: paymentTermId, ...rest } = data;
+    const { ...rest } = data;
+
     const { total } = rest;
-    let formValues = { ...rest };
 
     if (total < 0) {
       return toastError('Total Sale Amount should not be less than ZERO(0)!');
     }
+
+    let formValues = { ...rest };
 
     // /**
     //  * ensure dueDate is not a past date
@@ -61,12 +62,6 @@ function BookingForm(props) {
     //   setFutureDateError();
     //   return toasts.error(futureDateErrorMsg);
     // }
-
-    const customer = customers.find(customer => customer.id === customerId);
-    if (!customer) {
-      return toastError('Selected an Invalid customer');
-    }
-    formValues.customer = formats.formatCustomerData(customer);
 
     // const paymentTerm = paymentTerms.find(term => term.value === paymentTermId);
     // if (!paymentTerm) {
@@ -98,15 +93,15 @@ function BookingForm(props) {
         updating={updating}
         paymentModes={paymentModes}
         paymentTerms={paymentTerms}
-        customers={customers}
         taxes={taxes}
         loading={loading}
       />
     </BookingFormContextProvider>
   ) : (
-    <Empty message={'Payment Terms not Found. Try Reloading the page'} />
+    <Empty message="Payment Terms not Found. Try Reloading the page" />
   );
 }
+
 BookingForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,

@@ -1,9 +1,9 @@
-import { useSelector } from 'react-redux';
+// import { useSelector } from 'react-redux';
 import { FormControl, FormErrorMessage } from '@chakra-ui/react';
 import { useFormContext, Controller } from 'react-hook-form';
 import PropTypes from 'prop-types';
 //
-import { Bookings } from 'utils/bookings';
+// import { Bookings } from 'utils/bookings';
 
 //----------------------------------------------------------------
 
@@ -18,12 +18,15 @@ SelectedDates.defaultProps = {
 };
 
 export default function SelectedDates(props) {
-  const { loading, itemId, preselectedDates } = props;
-  console.log({})
+  const {
+    loading,
+    // itemId, preselectedDates
+  } = props;
+  console.log({});
 
-  const monthlyBookings = useSelector(
-    state => state?.monthlyBookingsReducer?.monthlyBookings
-  );
+  // const monthlyBookings = useSelector(
+  //   state => state?.monthlyBookingsReducer?.monthlyBookings
+  // );
 
   const {
     formState: { errors },
@@ -45,20 +48,21 @@ export default function SelectedDates(props) {
           validate: val => {
             // console.log({ val });
 
-            const atleastOneDateIsInRange =
-              Bookings.checkIfAnAlreadyBookedDateIsInRange(
-                itemId,
-                val,
-                monthlyBookings,
-                preselectedDates
-              );
+            // const atleastOneDateIsInRange =
+            //   Bookings.checkIfAnAlreadyBookedDateIsInRange(
+            //     itemId,
+            //     val,
+            //     monthlyBookings,
+            //     preselectedDates
+            //   );
 
-            console.log({ atleastOneDateIsInRange });
+            // console.log({ atleastOneDateIsInRange });
 
-            return (
-              !atleastOneDateIsInRange ||
-              'Some of the selected dates have already been booked!'
-            );
+            // return (
+            //   !atleastOneDateIsInRange ||
+            //   'Some of the selected dates have already been booked!'
+            // );
+            return true;
           },
         }}
         render={() => {

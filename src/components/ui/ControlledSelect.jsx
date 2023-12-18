@@ -106,7 +106,7 @@ function Normal(props) {
   });
 
   function handleChange(iv) {
-    console.log({ iv });
+    // console.log({ iv });
     onChange(iv);
   }
 
@@ -118,7 +118,7 @@ function Normal(props) {
         </MenuItemOption>
       )}
       {options.map((option, i) => {
-        console.log({ option });
+        // console.log({ option });
         const { name, value } = option;
 
         return (
