@@ -6,14 +6,17 @@ import { BOOKINGS } from '../../../nav/routes';
 import { CREATE_BOOKING } from '../../../store/actions/bookingsActions';
 import { reset } from '../../../store/slices/bookingsSlice';
 
-import { useSavedLocation, useCreateBooking } from 'hooks';
+import {
+  // useSavedLocation,
+  useCreateBooking,
+} from 'hooks';
 
 import PageLayout from '../../../components/layout/PageLayout';
 // import NewBooking from 'containers/Management/Bookings/NewBooking';
 import BookingForm from 'components/forms/Booking';
 
 function NewBookingPage(props) {
-  useSavedLocation().setLocation();
+  // useSavedLocation().setLocation();
   // const navigate = useNavigate();
   const location = useLocation();
 

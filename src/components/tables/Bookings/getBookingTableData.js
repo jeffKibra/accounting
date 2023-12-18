@@ -8,6 +8,7 @@ import BookingPaymentInput from './BookingPaymentInput';
 import { getBookingBalance } from 'utils/bookings';
 
 function convertInvoiceToBooking(invoice) {
+  // console.log({ invoice });
   const { customer, customerNotes, subTotal, total, balance, items, _id } =
     invoice;
   const bookingData = items[0];
@@ -18,6 +19,15 @@ function convertInvoiceToBooking(invoice) {
     qty,
     details: { selectedDates, startDate, endDate, item: vehicle },
   } = bookingData;
+
+  try {
+    delete customer?.__typename;
+    delete vehicle?.__typename;
+    delete vehicle?.model?.__typename;
+  } catch (error) {
+    console.warn('Error deleting booking __typenames');
+    console.error(error);
+  }
 
   //
   const transferFee = items[1]?.total || 0;
@@ -50,11 +60,7 @@ export default function getBookingTableData(
   // const { model: carModel, type } = item?.model || {};
 
   const booking = convertInvoiceToBooking(bookingData);
-
-  delete booking?.__typename;
-  delete booking?.vehicle?.__typename;
-  delete booking?.vehicle?.model?.__typename;
-  delete booking?.customer?.__typename;
+  // console.log({ booking });
 
   const {
     total,

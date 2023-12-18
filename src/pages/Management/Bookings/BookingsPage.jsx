@@ -8,13 +8,13 @@ import { ListInvoicesContextProvider } from 'contexts/ListInvoicesContext';
 import { NEW_BOOKING } from '../../../nav/routes';
 //
 //
-import useSavedLocation from '../../../hooks/useSavedLocation';
+// import useSavedLocation from '../../../hooks/useSavedLocation';
 import PageLayout from '../../../components/layout/PageLayout';
 
 import Bookings from '../../../containers/Management/Bookings/Bookings';
 
 function BookingsPage() {
-  useSavedLocation().setLocation();
+  //useSavedLocation().setLocation();
   const location = useLocation();
 
   return (

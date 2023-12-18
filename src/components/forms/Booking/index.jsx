@@ -90,7 +90,7 @@ function BookingForm(props) {
 
   return loading ? (
     <SkeletonLoader />
-  ) : customers?.length > 0 && paymentTerms?.length > 0 ? (
+  ) : paymentTerms?.length > 0 ? (
     <BookingFormContextProvider savedData={booking}>
       <Form
         onSubmit={handleSubmit}
@@ -104,13 +104,7 @@ function BookingForm(props) {
       />
     </BookingFormContextProvider>
   ) : (
-    <Empty
-      message={
-        !customers || customers?.length === 0
-          ? 'Please add atleast one CUSTOMER to continue or reload the page'
-          : 'Payment Terms not Found. Try Reloading the page'
-      }
-    />
+    <Empty message={'Payment Terms not Found. Try Reloading the page'} />
   );
 }
 BookingForm.propTypes = {
