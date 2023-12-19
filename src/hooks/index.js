@@ -47,3 +47,5 @@ export * from './invoices';
 
 //
 export * from './contacts';
+//
+export { default as useModalAutoClose } from './useModalAutoClose';

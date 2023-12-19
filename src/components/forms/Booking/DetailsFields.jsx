@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import {
   FormControl,
   FormLabel,
-  Input,
   Textarea,
   // FormHelperText,
   FormErrorMessage,
@@ -10,18 +9,13 @@ import {
   GridItem,
   Box,
 } from '@chakra-ui/react';
-import { useFormContext, Controller } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 import PropTypes from 'prop-types';
 //
 import SearchContacts from 'components/ui/SearchContacts';
 
 import { deriveDueDate } from '../../../utils/invoices';
 
-// import CustomSelect from '../../ui/CustomSelect';
-import RHFSimpleSelect from 'components/ui/hookForm/RHFSimpleSelect';
-// import CustomDatePicker from '../../ui/CustomDatePicker';
-import ControlledNumInput from 'components/ui/ControlledNumInput';
-// import ControlledSelect from 'components/ui/ControlledSelect';
 //
 import BookingItemFormFields from './BookingItemFormFields';
 //
@@ -41,7 +35,6 @@ export default function DetailsFields(props) {
     loading,
     bookingId,
     // items,
-    paymentModes,
     currentBookingDetails,
   } = props;
 
@@ -52,7 +45,6 @@ export default function DetailsFields(props) {
     formState: { errors },
     setValue,
     watch,
-    control,
   } = useFormContext();
   // console.log({ errors });
 
@@ -161,110 +153,6 @@ export default function DetailsFields(props) {
               {...register('customerNotes')}
             />
             <FormErrorMessage>{errors.customerNotes?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
-
-        <GridItem colSpan={[12, 4]}>
-          <FormControl
-            isDisabled={loading}
-            isRequired
-            isInvalid={errors.downPayment?.amount}
-          >
-            <FormLabel htmlFor="downPaymentAmount">Imprest Given</FormLabel>
-            <Controller
-              name="downPayment.amount"
-              rules={{
-                required: { value: true, message: '* Required!' },
-              }}
-              control={control}
-              render={({ field: { value, ref, onBlur, onChange } }) => {
-                return (
-                  <ControlledNumInput
-                    id="downPaymentAmount"
-                    ref={ref}
-                    updateFieldMode="onBlur"
-                    value={value}
-                    mode="onBlur"
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    min={1}
-                    isReadOnly={loading}
-                  />
-                );
-              }}
-            />
-
-            <FormErrorMessage>
-              {errors.downPayment?.amount?.message}
-            </FormErrorMessage>
-          </FormControl>
-        </GridItem>
-
-        <GridItem colSpan={[12, 4]}>
-          <FormControl
-            isDisabled={loading}
-            isRequired
-            isInvalid={errors.downPayment?.paymentMode}
-          >
-            <FormLabel htmlFor="payment_mode">Payment Mode</FormLabel>
-
-            <RHFSimpleSelect
-              name="downPayment.paymentMode"
-              placeholder="select payment mode"
-              id="payment_mode"
-              isDisabled={loading}
-              options={paymentModes}
-              optionsConfig={{ nameField: 'name', valueField: '_id' }}
-              controllerProps={{
-                rules: {
-                  required: { value: true, message: '*Required!' },
-                },
-              }}
-            />
-            {/* <Controller
-              name="downPayment.paymentMode"
-              control={control}
-              render={({ field: { onBlur, onChange, value } }) => {
-                function handleChange(paymentModeId) {
-                  const paymentMode = paymentModes[paymentModeId];
-
-                  onChange(paymentMode);
-                }
-
-                return (
-                  <ControlledSelect
-                    onChange={handleChange}
-                    value={value?.value || ''}
-                    options={Object.values(paymentModes || {})}
-                    isDisabled={loading}
-                    allowClearSelection
-                    onBlur={onBlur}
-                    placeholder="select payment mode"
-                    id="paymentMode"
-                  />
-                );
-              }}
-              rules={{
-                required: { value: true, message: '*Required!' },
-              }}
-            /> */}
-
-            <FormErrorMessage>
-              {errors.downPayment?.paymentMode?.message}
-            </FormErrorMessage>
-          </FormControl>
-        </GridItem>
-
-        <GridItem colSpan={[12, 4]}>
-          <FormControl
-            isDisabled={loading}
-            isInvalid={errors.downPayment?.reference}
-          >
-            <FormLabel htmlFor="reference">Reference#</FormLabel>
-            <Input id="reference" {...register('downPayment.reference')} />
-            <FormErrorMessage>
-              {errors.downPayment?.reference?.message}
-            </FormErrorMessage>
           </FormControl>
         </GridItem>
       </Grid>

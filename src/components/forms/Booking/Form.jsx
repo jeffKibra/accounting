@@ -1,6 +1,12 @@
 import { useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Box, Flex, Button } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Button,
+  ButtonGroup,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { useForm, FormProvider } from 'react-hook-form';
 import PropTypes from 'prop-types';
 
@@ -16,6 +22,9 @@ import BookingDaysSelector from 'components/Custom/Bookings/BookingDaysSelector'
 import SelectVehicle from 'components/Custom/Bookings/SelectVehicle';
 //
 import DetailsFields from './DetailsFields';
+//
+import SaveDraftDialog from 'components/Custom/Bookings/SaveDraftDialog';
+import DownPaymentModalForm from 'components/forms/Booking/DownPaymentModalForm';
 
 function convertDateToString(date) {
   return date ? new Date(date).toDateString() : '';
@@ -35,6 +44,8 @@ function Form(props) {
 
   const location = useLocation();
   const navigate = useNavigate();
+
+  const bookingId = booking?._id;
 
   const defaultSelectedDates = Array.isArray(booking?.selectedDates)
     ? booking.selectedDates
@@ -80,7 +91,8 @@ function Form(props) {
 
   const { error: toastError } = useToasts();
 
-  const { handleSubmit, watch, setValue, clearErrors } = formMethods;
+  const { handleSubmit, watch, setValue, clearErrors, getValues, trigger } =
+    formMethods;
 
   const startDate = watch('startDate');
   const endDate = watch('endDate');
@@ -143,19 +155,27 @@ function Form(props) {
   }, [startDateString, endDateString, setValue, clearErrors, toastError]);
 
   const handleFormSubmit = useCallback(
-    data => {
+    (data, userAction) => {
       console.log('submitting...', data);
       delete data.queryVariables;
       delete data.daysCount;
+      if (userAction === 'draft') {
+        delete data?.downPayment;
+      }
 
-      const { selectedDatesString } = data;
+      const { total, selectedDatesString } = data;
+
+      if (total < 0) {
+        return toastError('Total Sale Amount should not be less than ZERO(0)!');
+      }
+
       //submit the data
-      onSubmit({
+      return onSubmit({
         ...data,
         selectedDates: String(selectedDatesString).split(','),
       });
     },
-    [onSubmit]
+    [onSubmit, toastError]
   );
   //
   const handleVehicleSelect = useCallback(
@@ -188,10 +208,84 @@ function Form(props) {
   }
 
   function next() {
-    console.log('next clicked');
+    const currentSelectedVehicle = getValues('vehicle');
 
-    navigate(`${pathname}?stage=2`);
+    if (currentSelectedVehicle) {
+      navigate(`${pathname}?stage=2`);
+    } else {
+      navigate(`${pathname}?stage=1`);
+      toastError('Please select a vehicle to continue!');
+    }
   }
+
+  const triggerFormValidation = useCallback(async () => {
+    const isValid = await trigger(); //trigger form validation
+    console.log({ isValid });
+
+    if (!isValid) {
+      toastError('Please provide all the required inputs!');
+    }
+
+    return isValid;
+  }, [trigger, toastError]);
+
+  const triggerSaveDraft = useCallback(
+    async cb => {
+      const isValid = await triggerFormValidation(); //trigger form validation
+
+      if (isValid) {
+        cb();
+      }
+    },
+    [triggerFormValidation]
+  );
+
+  const saveDraft = useCallback(async () => {
+    const isValid = await triggerFormValidation(); //trigger form validation
+
+    if (!isValid) {
+      return;
+    }
+
+    const formValues = getValues();
+
+    return handleFormSubmit(formValues, 'draft');
+  }, [triggerFormValidation, getValues, handleFormSubmit]);
+  //----------------------------------------------------------------
+
+  const {
+    isOpen: downPaymentModalIsOpen,
+    onOpen: openDownPaymentModal,
+    onClose: closeDownPaymentModal,
+  } = useDisclosure();
+  const triggerConfirmBooking = useCallback(async () => {
+    const isValid = await triggerFormValidation(); //trigger form validation
+    console.log({ isValid });
+
+    if (isValid) {
+      openDownPaymentModal();
+    }
+  }, [triggerFormValidation, openDownPaymentModal]);
+
+  const createBooking = useCallback(
+    async downPaymentData => {
+      console.log({ downPaymentData });
+      const isValid = await triggerFormValidation();
+
+      if (!isValid) {
+        return;
+      }
+
+      const bookingFormData = getValues();
+
+      const data = { ...bookingFormData, downPayment: downPaymentData };
+
+      return handleFormSubmit(data, 'create');
+    },
+    [triggerFormValidation, getValues, handleFormSubmit]
+  );
+
+  //----------------------------------------------------------------
 
   // console.log({ customers, items, paymentTerms, loading });
 
@@ -231,26 +325,59 @@ function Form(props) {
                   currentBookingDetails={booking || null}
                 />
 
-                <Flex w="full" pb={6} pt={2} px={4} justify="space-between">
-                  <Button
-                    type="button"
-                    colorScheme="cyan"
-                    size="lg"
-                    isLoading={updating}
-                    onClick={prev}
-                  >
-                    prev
-                  </Button>
+                <Box w="full" pb={6} pt={2} px={4}>
+                  {bookingId ? (
+                    <Flex w="full" justifyContent="flex-end">
+                      <Button
+                        type="submit"
+                        colorScheme="teal"
+                        isLoading={updating}
+                      >
+                        update
+                      </Button>
+                    </Flex>
+                  ) : (
+                    <Flex w="full" justify="space-between">
+                      <Button
+                        type="button"
+                        colorScheme="orange"
+                        isLoading={updating}
+                        onClick={prev}
+                      >
+                        prev
+                      </Button>
 
-                  <Button
-                    size="lg"
-                    type="submit"
-                    isLoading={updating}
-                    colorScheme="cyan"
-                  >
-                    save
-                  </Button>
-                </Flex>
+                      <ButtonGroup>
+                        <SaveDraftDialog
+                          onConfirm={saveDraft}
+                          loading={updating}
+                        >
+                          {onOpen => {
+                            return (
+                              <Button
+                                type="button"
+                                isLoading={updating}
+                                colorScheme="cyan"
+                                onClick={e => triggerSaveDraft(onOpen, e)}
+                              >
+                                save draft
+                              </Button>
+                            );
+                          }}
+                        </SaveDraftDialog>
+
+                        <Button
+                          type="button"
+                          isLoading={updating}
+                          colorScheme="teal"
+                          onClick={triggerConfirmBooking}
+                        >
+                          confirm
+                        </Button>
+                      </ButtonGroup>
+                    </Flex>
+                  )}
+                </Box>
               </>
             ) : (
               <>
@@ -274,7 +401,7 @@ function Form(props) {
       {isDetailsPage ? null : (
         <Box p={4}>
           <SelectVehicle
-            bookingId={booking?._id}
+            bookingId={bookingId}
             watch={watch}
             selectedVehicle={selectedVehicle}
             onSelect={handleVehicleSelect}
@@ -282,12 +409,22 @@ function Form(props) {
           />
 
           <Flex w="full" justifyContent="flex-end" pt={4}>
-            <Button type="button" colorScheme="cyan" size="lg" onClick={next}>
+            <Button type="button" colorScheme="cyan" onClick={next}>
               next
             </Button>
           </Flex>
         </Box>
       )}
+
+      {downPaymentModalIsOpen ? (
+        <DownPaymentModalForm
+          loading={updating}
+          paymentModes={paymentModes}
+          isOpen={downPaymentModalIsOpen}
+          onClose={closeDownPaymentModal}
+          onSubmit={createBooking}
+        />
+      ) : null}
     </Card>
   );
 }
@@ -296,7 +433,6 @@ Form.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,
   booking: bookingFormProps,
-  paymentModes: PropTypes.object,
   paymentTerms: PropTypes.array,
   customers: PropTypes.array,
   taxes: PropTypes.array,

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 // import formats from 'utils/formats';
 
 //
-import { useToasts, useGetBookingFormProps } from 'hooks';
+import { useGetBookingFormProps } from 'hooks';
 //
 import { bookingFormProps } from 'propTypes';
 //
@@ -35,22 +35,13 @@ function BookingForm(props) {
   } = useGetBookingFormProps();
   // console.log({ customers, paymentModes, paymentTerms, taxes, loading });
 
-  const { error: toastError } = useToasts();
-
   // console.log({ selectedDates });
 
   function handleSubmit(data) {
     console.log('submitting...', data);
     // console.log({ data });
-    const { ...rest } = data;
 
-    const { total } = rest;
-
-    if (total < 0) {
-      return toastError('Total Sale Amount should not be less than ZERO(0)!');
-    }
-
-    let formValues = { ...rest };
+    let formValues = { ...data };
 
     // /**
     //  * ensure dueDate is not a past date
@@ -78,7 +69,7 @@ function BookingForm(props) {
     // console.log({ formValues });
 
     //submit the data
-    onSubmit(formValues);
+    return onSubmit(formValues);
   }
 
   // console.log({ customers, items, paymentTerms, loading });
