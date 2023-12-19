@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import SearchItemsContext from 'contexts/SearchItemsContext';
 //
-import { useGetItems } from 'hooks';
+// import { useGetItems } from 'hooks';
 //
 import RTTable from 'components/ui/Table/RTTable';
 //
@@ -22,7 +22,7 @@ function ItemsDisplayTable(props) {
   const itemsContext = useContext(SearchItemsContext);
   // console.log({ itemsContext });
 
-  useGetItems();
+  // useGetItems();
 
   const {
     loading,

@@ -18,21 +18,21 @@ import VehiclesFiltersModalForm from 'components/forms/VehiclesFilters/ModalForm
 export default function SearchItemsContextProvider(props) {
   const { children, selectedDatesString, defaultValues, bookingId } = props;
 
-  const selectedDates = useMemo(() => {
-    let sDates = [];
+  const additionalQueryParams = useMemo(() => {
+    let selectedDates = [];
     if (selectedDatesString) {
-      sDates = String(selectedDatesString).split(',');
+      selectedDates = String(selectedDatesString).split(',');
     }
 
-    return sDates;
-  }, [selectedDatesString]);
+    return { selectedDates, bookingId };
+  }, [selectedDatesString, bookingId]);
 
   return (
     <SearchContextProvider
       defaultValues={defaultValues}
       GQLQuery={queries.vehicles.SEARCH_VEHICLES}
-      additionalQueryParams={{ bookingId, selectedDates }}
-      selectedDates={selectedDates}
+      additionalQueryParams={additionalQueryParams}
+      // selectedDates={selectedDates}
       resultField="searchVehicles"
     >
       <ContextProvider {...props}>{children}</ContextProvider>

@@ -63,7 +63,7 @@ function ContextProvider(props) {
 
   const setValueToSearch = useCallback(
     inValue => {
-      // console.log('setting value to search');
+      console.log('setting value to search');
       setValue('valueToSearch', inValue);
       //reset page index
       setValue('pageIndex', 0);

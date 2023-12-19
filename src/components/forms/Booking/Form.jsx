@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Flex, Button } from '@chakra-ui/react';
 import { useForm, FormProvider } from 'react-hook-form';
@@ -36,8 +36,6 @@ function Form(props) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const today = new Date();
-
   const defaultSelectedDates = Array.isArray(booking?.selectedDates)
     ? booking.selectedDates
     : [];
@@ -48,7 +46,7 @@ function Form(props) {
       //booking values
       startDate: new Date(booking?.startDate || Date.now()),
       endDate: new Date(booking?.endDate || Date.now()),
-      selectedDates: defaultSelectedDates.join(','),
+      selectedDatesString: defaultSelectedDates.join(','),
       daysCount: defaultSelectedDates?.length || 0,
       vehicle: booking?.vehicle || null,
       // quantity: booking?.quantity || 0,
@@ -86,13 +84,14 @@ function Form(props) {
 
   const startDate = watch('startDate');
   const endDate = watch('endDate');
+  const selectedDatesString = watch('selectedDatesString');
   const selectedVehicle = watch('vehicle');
-  const selectedDates = watch('selectedDates');
+  // console.log({ selectedVehicle });
 
   const startDateString = convertDateToString(startDate);
   const endDateString = convertDateToString(endDate);
 
-  // console.log({ selectedDates });
+  // console.log({ selectedDatesString });
 
   useEffect(() => {
     //validate fields
@@ -131,7 +130,7 @@ function Form(props) {
     const incomingSelectedDatesString = incomingSelectedDates.join(',');
 
     //update selectedDates field
-    setValue('selectedDates', incomingSelectedDatesString, {
+    setValue('selectedDatesString', incomingSelectedDatesString, {
       shouldValidate: true,
       shouldDirty: true,
       shouldTouch: true,
@@ -143,22 +142,42 @@ function Form(props) {
     });
   }, [startDateString, endDateString, setValue, clearErrors, toastError]);
 
-  useEffect(() => {
-    console.log('selectedDates have changed', selectedDates);
-  }, [selectedDates]);
+  const handleFormSubmit = useCallback(
+    data => {
+      console.log('submitting...', data);
+      delete data.queryVariables;
+      delete data.daysCount;
 
-  function handleFormSubmit(data) {
-    console.log('submitting...', data);
-    delete data.queryVariables;
-    delete data.daysCount;
+      const { selectedDatesString } = data;
+      //submit the data
+      onSubmit({
+        ...data,
+        selectedDates: String(selectedDatesString).split(','),
+      });
+    },
+    [onSubmit]
+  );
+  //
+  const handleVehicleSelect = useCallback(
+    (incomingVehicle, incomingQueryVariables) => {
+      // console.log({ item });
+      const rate = incomingVehicle?.rate || 0;
 
-    const { selectedDates } = data;
-    //submit the data
-    onSubmit({
-      ...data,
-      selectedDates: String(selectedDates).split(','),
-    });
-  }
+      setValue('vehicle', incomingVehicle);
+      // //update rate and reset transfer rate
+      setValue('bookingRate', rate, {
+        /**
+         * setting should validate to true triggers unnecessary updates
+         */
+        // shouldValidate: true,
+        shouldDirty: true,
+      });
+
+      // setValue('queryVariables', incomingQueryVariables);
+    },
+    [setValue]
+  );
+
   //
   const { pathname } = location;
 
@@ -185,7 +204,8 @@ function Form(props) {
   // console.log({ stage });
 
   //----------------------------------------------------------------
-  const isDetailsPage = stage === '2' && selectedVehicle;
+  const isDetailsPage = stage === '2' && Boolean(selectedVehicle?._id);
+
   //----------------------------------------------------------------
 
   return (
@@ -256,7 +276,9 @@ function Form(props) {
           <SelectVehicle
             bookingId={booking?._id}
             watch={watch}
-            setValue={setValue}
+            selectedVehicle={selectedVehicle}
+            onSelect={handleVehicleSelect}
+            selectedDatesString={selectedDatesString}
           />
 
           <Flex w="full" justifyContent="flex-end" pt={4}>
