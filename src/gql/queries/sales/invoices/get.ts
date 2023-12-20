@@ -18,11 +18,15 @@ export const invoiceFields = `
       item {
          _id
         registration
+        rate
+        make
         model {
           make
           model
+          type
         } 
         year 
+        color
       }
     }
   }
@@ -30,7 +34,11 @@ export const invoiceFields = `
     _id
     displayName
   }
+  customerNotes
+
   saleDate
+  dueDate
+
   taxType
   discount
   taxes
@@ -38,9 +46,6 @@ export const invoiceFields = `
   subTotal
   total
   balance
-  
-  customerNotes
-  dueDate
 
   paymentTerm{
     _id

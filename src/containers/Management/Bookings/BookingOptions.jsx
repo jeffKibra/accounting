@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 import {
   RiDeleteBin4Line,
   RiEdit2Line,
   RiEyeLine,
-  RiDownloadCloud2Line,
+  // RiDownloadCloud2Line,
   RiMoreFill,
 } from 'react-icons/ri';
 import PropTypes from 'prop-types';
@@ -23,18 +23,14 @@ import Dialog from 'components/ui/Dialog';
 
 import { useDeleteBookingModal } from 'hooks';
 
-import { generatePDF } from 'utils/invoices';
+// import { generatePDF } from 'utils/invoices';
 
 function BookingOptions(props) {
-  const { booking, edit, view, deletion, download } = props;
+  const { booking, edit, view, deletion, 
+    // download 
+  } = props;
   const { _id } = booking;
-  const { details, isDeleted, resetBooking } = useDeleteBookingModal(booking);
-
-  useEffect(() => {
-    if (isDeleted) {
-      resetBooking();
-    }
-  }, [isDeleted, resetBooking]);
+  const { details } = useDeleteBookingModal(booking);
 
   return (
     <Menu>
@@ -48,16 +44,6 @@ function BookingOptions(props) {
         // variant="outline"
       />
       <MenuList fontSize="md" lineHeight="6">
-        {view ? (
-          <MenuItem
-            as={Link}
-            to={`/sale/invoices/${_id}/view`}
-            // to={`/sale/bookings/${_id}/view`}
-            icon={<RiEyeLine />}
-          >
-            View
-          </MenuItem>
-        ) : null}
         {edit ? (
           <MenuItem
             as={Link}
@@ -67,6 +53,18 @@ function BookingOptions(props) {
             Edit
           </MenuItem>
         ) : null}
+
+        {view ? (
+          <MenuItem
+            as={Link}
+            to={`/sale/bookings/${_id}/invoice`}
+            // to={`/sale/bookings/${_id}/view`}
+            icon={<RiEyeLine />}
+          >
+            View Invoice
+          </MenuItem>
+        ) : null}
+
         {deletion ? (
           <Dialog
             {...details}
@@ -80,14 +78,14 @@ function BookingOptions(props) {
           />
         ) : null}
 
-        {download ? (
+        {/* {download ? (
           <MenuItem
             onClick={() => generatePDF(booking)}
             icon={<RiDownloadCloud2Line />}
           >
             Download
           </MenuItem>
-        ) : null}
+        ) : null} */}
       </MenuList>
     </Menu>
   );

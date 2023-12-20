@@ -48,7 +48,9 @@ export const VIEW_INVOICE = '/sale/invoices/:invoiceId/view';
 export const BOOKINGS = '/sale/bookings';
 export const NEW_BOOKING = '/sale/bookings/new';
 export const EDIT_BOOKING = '/sale/bookings/:bookingId/edit';
-export const VIEW_BOOKING = '/sale/bookings/:bookingId/view';
+// export const VIEW_BOOKING = '/sale/bookings/:bookingId/view';
+export const VIEW_BOOKING_INVOICE = '/sale/bookings/:bookingId/invoice';
+
 //payments received
 export const PAYMENTS = '/sale/payments';
 export const NEW_PAYMENT = '/sale/payments/new';

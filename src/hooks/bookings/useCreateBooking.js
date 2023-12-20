@@ -7,10 +7,15 @@ import useToasts from '../useToasts';
 
 //
 export function formatBookingData(formData) {
-  delete formData?.dueDate;
-  delete formData?.saleDate;
-  delete formData?.downPayment?.paymentMode?.__typename;
-  delete formData?.paymentTerm;
+  try {
+    delete formData?.dueDate;
+    delete formData?.saleDate;
+    delete formData?.downPayment?.paymentMode?.__typename;
+    delete formData?.paymentTerm;
+  } catch (error) {
+    console.error(error);
+  }
+
   const {
     customer: { _id, displayName },
   } = formData;

@@ -16,6 +16,7 @@ import { queries } from 'gql';
 
 export default function ListInvoicesContextProvider(props) {
   const { children, defaultValues, customerId } = props;
+  console.log({ defaultValues });
 
   return (
     <ListContextProvider

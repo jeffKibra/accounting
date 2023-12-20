@@ -23,7 +23,7 @@ import SelectVehicle from 'components/Custom/Bookings/SelectVehicle';
 //
 import DetailsFields from './DetailsFields';
 //
-import SaveDraftDialog from 'components/Custom/Bookings/SaveDraftDialog';
+// import SaveDraftDialog from 'components/Custom/Bookings/SaveDraftDialog';
 import DownPaymentModalForm from 'components/forms/Booking/DownPaymentModalForm';
 
 function convertDateToString(date) {
@@ -72,6 +72,7 @@ function Form(props) {
       // taxType: 'taxExclusive',
       //
       customer: booking?.customer || '',
+      customerNotes: booking?.customerNotes || '',
       // paymentTerm: booking?.paymentTerm?.value || 'on_receipt',
       downPayment: booking?.downPayment || {
         amount: 0,
@@ -85,7 +86,6 @@ function Form(props) {
       //
       // subject: booking?.subject || '',
       // orderNumber: booking?.orderNumber || '',
-      // customerNotes: booking?.customerNotes || '',
     },
   });
 
@@ -156,22 +156,25 @@ function Form(props) {
 
   const handleFormSubmit = useCallback(
     (data, userAction) => {
-      console.log('submitting...', data);
+      // console.log('submitting...', data);
       delete data.queryVariables;
       delete data.daysCount;
-      if (userAction === 'draft') {
+      if (userAction !== 'create') {
         delete data?.downPayment;
       }
 
-      const { total, selectedDatesString } = data;
+      const { selectedDatesString, ...formData } = data;
+      const { total } = formData;
 
       if (total < 0) {
         return toastError('Total Sale Amount should not be less than ZERO(0)!');
       }
 
+      // console.log({ formData, userAction });
+
       //submit the data
       return onSubmit({
-        ...data,
+        ...formData,
         selectedDates: String(selectedDatesString).split(','),
       });
     },
@@ -202,8 +205,6 @@ function Form(props) {
   const { pathname } = location;
 
   function prev() {
-    console.log('prev clicked');
-
     navigate(`${pathname}?stage=1`);
   }
 
@@ -220,7 +221,7 @@ function Form(props) {
 
   const triggerFormValidation = useCallback(async () => {
     const isValid = await trigger(); //trigger form validation
-    console.log({ isValid });
+    // console.log({ isValid });
 
     if (!isValid) {
       toastError('Please provide all the required inputs!');
@@ -229,28 +230,28 @@ function Form(props) {
     return isValid;
   }, [trigger, toastError]);
 
-  const triggerSaveDraft = useCallback(
-    async cb => {
-      const isValid = await triggerFormValidation(); //trigger form validation
+  // const triggerSaveDraft = useCallback(
+  //   async cb => {
+  //     const isValid = await triggerFormValidation(); //trigger form validation
 
-      if (isValid) {
-        cb();
-      }
-    },
-    [triggerFormValidation]
-  );
+  //     if (isValid) {
+  //       cb();
+  //     }
+  //   },
+  //   [triggerFormValidation]
+  // );
 
-  const saveDraft = useCallback(async () => {
-    const isValid = await triggerFormValidation(); //trigger form validation
+  // const saveDraft = useCallback(async () => {
+  //   const isValid = await triggerFormValidation(); //trigger form validation
 
-    if (!isValid) {
-      return;
-    }
+  //   if (!isValid) {
+  //     return;
+  //   }
 
-    const formValues = getValues();
+  //   const formValues = getValues();
 
-    return handleFormSubmit(formValues, 'draft');
-  }, [triggerFormValidation, getValues, handleFormSubmit]);
+  //   return handleFormSubmit(formValues, 'draft');
+  // }, [triggerFormValidation, getValues, handleFormSubmit]);
   //----------------------------------------------------------------
 
   const {
@@ -260,7 +261,7 @@ function Form(props) {
   } = useDisclosure();
   const triggerConfirmBooking = useCallback(async () => {
     const isValid = await triggerFormValidation(); //trigger form validation
-    console.log({ isValid });
+    // console.log({ isValid });
 
     if (isValid) {
       openDownPaymentModal();
@@ -269,7 +270,7 @@ function Form(props) {
 
   const createBooking = useCallback(
     async downPaymentData => {
-      console.log({ downPaymentData });
+      // console.log({ downPaymentData });
       const isValid = await triggerFormValidation();
 
       if (!isValid) {
@@ -348,7 +349,7 @@ function Form(props) {
                       </Button>
 
                       <ButtonGroup>
-                        <SaveDraftDialog
+                        {/* <SaveDraftDialog
                           onConfirm={saveDraft}
                           loading={updating}
                         >
@@ -364,7 +365,7 @@ function Form(props) {
                               </Button>
                             );
                           }}
-                        </SaveDraftDialog>
+                        </SaveDraftDialog> */}
 
                         <Button
                           type="button"
@@ -372,7 +373,7 @@ function Form(props) {
                           colorScheme="teal"
                           onClick={triggerConfirmBooking}
                         >
-                          confirm
+                          save
                         </Button>
                       </ButtonGroup>
                     </Flex>

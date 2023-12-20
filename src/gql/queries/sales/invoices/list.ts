@@ -2,15 +2,15 @@ import { gql } from '@apollo/client';
 
 import { invoiceFields } from './get';
 
-export const bookingInListFields = `
+export const invoiceInListFields = `
   ${invoiceFields}
 `;
 
 const LIST_INVOICES = gql`
-  query ListInvoices($options: InvoicesQueryOptions) {
-    invoices(options: $options) {
+  query ListInvoices($queryOptions: InvoicesQueryOptions) {
+    invoices(options: $queryOptions) {
       list {
-        ${bookingInListFields}
+        ${invoiceInListFields}
       }
       meta {
         count

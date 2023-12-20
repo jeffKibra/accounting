@@ -28,7 +28,8 @@ function useUpdateBooking(bookingId) {
       toastSuccess('booking updated successfully!');
       //
       reset();
-      navigate(`/sale/bookings/${bookingId}/view`);
+      //booking invoice view page
+      navigate(`/sale/bookings/${bookingId}/invoice`);
     }
   }, [success, toastSuccess, reset, navigate, bookingId]);
 
@@ -38,25 +39,31 @@ function useUpdateBooking(bookingId) {
     }
   }, [failed, error, toastError]);
 
-  const currentSelectedVehicleId = booking?.vehicle?._id;
+  // const currentSelectedVehicleId = booking?.vehicle?._id;
 
   const updateBooking = useCallback(
     formData => {
       //check if selectedVehicle has changed.
-      if (currentSelectedVehicleId === formData?.vehicle?._id) {
-        delete formData?.vehicle;
-      }
+      // if (currentSelectedVehicleId === formData?.vehicle?._id) {
+      //   delete formData?.vehicle;
+      // }
 
       //   console.log({ formData });
       const formattedData = formatBookingData(formData);
-      modifyBooking({
+      // console.log({ formattedData, formData });
+
+      return modifyBooking({
         variables: {
           id: bookingId,
           formData: formattedData,
         },
       });
     },
-    [bookingId, modifyBooking, currentSelectedVehicleId]
+    [
+      bookingId,
+      modifyBooking,
+      // currentSelectedVehicleId
+    ]
   );
 
   return {

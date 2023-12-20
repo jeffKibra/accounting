@@ -95,12 +95,15 @@ export default function ListContextProvider(props) {
 
   const initialQueryVariables = useMemo(() => {
     const originalState = getValues();
+    // console.log({ originalState });
 
     const variables = generateQueryVariablesLocally(originalState);
     console.log('generating initial query variables', variables);
 
     return variables;
   }, [getValues, generateQueryVariablesLocally]);
+
+  console.log({ initialQueryVariables });
 
   //----------------------------------------------------------------
 
@@ -148,7 +151,7 @@ export default function ListContextProvider(props) {
 
         console.log('searching...');
 
-        refetch({
+        return refetch({
           ...queryVariables,
         });
       }
