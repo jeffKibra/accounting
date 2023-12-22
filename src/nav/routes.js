@@ -52,10 +52,10 @@ export const EDIT_BOOKING = '/sale/bookings/:bookingId/edit';
 export const VIEW_BOOKING_INVOICE = '/sale/bookings/:bookingId/invoice';
 
 //payments received
-export const PAYMENTS = '/sale/payments';
-export const NEW_PAYMENT = '/sale/payments/new';
-export const EDIT_PAYMENT = '/sale/payments/:paymentId/edit';
-export const VIEW_PAYMENT = '/sale/payments/:paymentId/view';
+export const PAYMENTS_RECEIVED = '/sale/payments-received';
+export const NEW_PAYMENT_RECEIVED = '/sale/payments-received/new';
+export const EDIT_PAYMENT_RECEIVED = '/sale/payments-received/:paymentId/edit';
+export const VIEW_PAYMENT_RECEIVED = '/sale/payments-received/:paymentId/view';
 //receipts
 export const SALE_RECEIPTS = '/sale/sales-receipts';
 export const NEW_SALE_RECEIPT = '/sale/sales-receipts/new';

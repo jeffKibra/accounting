@@ -26,7 +26,7 @@ function useContactSuggestions(contactGroup) {
 
   const suggestions = data?.getContactSuggestions || [];
 
-  console.log({ suggestions });
+  // console.log({ suggestions });
 
   const fetchSuggestions = useCallback(
     async incomingQuery => {
@@ -35,7 +35,7 @@ function useContactSuggestions(contactGroup) {
       try {
         const variables = createVariables(incomingQuery);
         const result = await refetch(variables);
-        console.log({ result });
+        // console.log({ result });
 
         return result;
       } catch (error) {

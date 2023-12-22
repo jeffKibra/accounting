@@ -10,7 +10,7 @@ import {
 } from '../../../store/actions/paymentsActions';
 import { reset } from '../../../store/slices/paymentsSlice';
 
-import { PAYMENTS } from '../../../nav/routes';
+import { PAYMENTS_RECEIVED } from '../../../nav/routes';
 
 import useSavedLocation from '../../../hooks/useSavedLocation';
 import PageLayout from '../../../components/layout/PageLayout';
@@ -18,7 +18,7 @@ import PageLayout from '../../../components/layout/PageLayout';
 import SkeletonLoader from '../../../components/ui/SkeletonLoader';
 import Empty from '../../../components/ui/Empty';
 
-import EditPayment from '../../../containers/Management/Payments/EditPayment';
+import EditPaymentReceived from '../../../containers/Management/PaymentsReceived/EditPaymentReceived';
 
 function trimPayment(payment) {
   const {
@@ -42,7 +42,7 @@ function trimPayment(payment) {
   };
 }
 
-function EditPaymentPage(props) {
+function EditPaymentReceivedPage(props) {
   const {
     loading,
     action,
@@ -55,8 +55,8 @@ function EditPaymentPage(props) {
   const { paymentId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  useSavedLocation().setLocation();
-  const viewRoute = `/sale/payments/${paymentId}/view`;
+  // useSavedLocation().setLocation();
+  const viewRoute = `/sale/payments-received/${paymentId}/view`;
 
   useEffect(() => {
     getPayment(paymentId);
@@ -93,14 +93,14 @@ function EditPaymentPage(props) {
       }
       breadcrumbLinks={{
         Dashboard: '/',
-        Payments: PAYMENTS,
+        'Payments Received': PAYMENTS_RECEIVED,
         [paymentId]: location.pathname,
       }}
     >
       {loading && action === GET_PAYMENT ? (
         <SkeletonLoader />
       ) : payment ? (
-        <EditPayment
+        <EditPaymentReceived
           updating={loading && action === UPDATE_PAYMENT}
           saveData={update}
           payment={trimPayment(payment)}
@@ -128,4 +128,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditPaymentPage);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(EditPaymentReceivedPage);

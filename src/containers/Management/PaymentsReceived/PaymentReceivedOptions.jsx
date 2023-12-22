@@ -4,14 +4,16 @@ import { RiDeleteBin4Line, RiEdit2Line, RiEyeLine } from 'react-icons/ri';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-import useDeletePayment from '../../../hooks/useDeletePayment';
+import { useDeletePaymentReceived } from 'hooks';
 
 import MenuOptions from '../../../components/ui/MenuOptions';
 
-function PaymentOptions(props) {
+function PaymentReceivedOptions(props) {
   const { payment, edit, view, deletion } = props;
-  const { paymentId } = payment;
-  const { details, isDeleted, resetPayment } = useDeletePayment(payment);
+  const { _id: paymentId } = payment;
+
+  const { details, isDeleted, resetPayment } =
+    useDeletePaymentReceived(payment);
 
   useEffect(() => {
     if (isDeleted) {
@@ -26,7 +28,7 @@ function PaymentOptions(props) {
             name: 'View',
             icon: RiEyeLine,
             as: Link,
-            to: `/sale/payments/${paymentId}/view`,
+            to: `/sale/payments-received/${paymentId}/view`,
           },
         ]
       : []),
@@ -36,7 +38,7 @@ function PaymentOptions(props) {
             name: 'Edit',
             icon: RiEdit2Line,
             as: Link,
-            to: `/sale/payments/${paymentId}/edit`,
+            to: `/sale/payments-received/${paymentId}/edit`,
           },
         ]
       : []),
@@ -62,11 +64,11 @@ function PaymentOptions(props) {
   );
 }
 
-PaymentOptions.propTypes = {
+PaymentReceivedOptions.propTypes = {
   payment: PropTypes.object.isRequired,
   edit: PropTypes.bool,
   view: PropTypes.bool,
   deletion: PropTypes.bool,
 };
 
-export default PaymentOptions;
+export default PaymentReceivedOptions;

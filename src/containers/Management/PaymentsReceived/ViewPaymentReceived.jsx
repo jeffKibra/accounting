@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Container,
   VStack,
@@ -21,7 +20,7 @@ import { getPaymentsTotal } from '../../../utils/payments';
 
 import BookingsTable from 'components/tables/Bookings/BookingsTable';
 
-function ViewPayment(props) {
+function ViewPaymentReceived(props) {
   const { payment, bookings } = props;
   const {
     org,
@@ -154,7 +153,7 @@ function ViewPayment(props) {
   );
 }
 
-ViewPayment.propTypes = {
+ViewPaymentReceived.propTypes = {
   payment: PropTypes.shape({
     customer: PropTypes.object.isRequired,
     orgId: PropTypes.string,
@@ -168,4 +167,4 @@ ViewPayment.propTypes = {
   bookings: PropTypes.arrayOf(bookingProps),
 };
 
-export default ViewPayment;
+export default ViewPaymentReceived;

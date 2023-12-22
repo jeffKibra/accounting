@@ -9,10 +9,12 @@ import {
 } from '@chakra-ui/react';
 import { useFormContext, Controller } from 'react-hook-form';
 import PropTypes from 'prop-types';
-
+//
+import SearchContacts from 'components/ui/SearchContacts';
+//
 import ControlledNumInput from 'components/ui/ControlledNumInput';
 // import RadioInput from "../../ui/RadioInput";
-import RHFSimpleSelect from 'components/ui/hookForm/RHFSimpleSelect';
+// import RHFSimpleSelect from 'components/ui/hookForm/RHFSimpleSelect';
 // import RHFGroupedOptionsSelect from 'components/ui/hookForm/RHFGroupedOptionsSelect';
 import CustomDatePicker from '../../ui/CustomDatePicker';
 import ControlledSelect from 'components/ui/ControlledSelect';
@@ -20,7 +22,6 @@ import ControlledSelect from 'components/ui/ControlledSelect';
 
 function FormFields(props) {
   const {
-    customers: rawCustomers,
     // accounts,
     paymentModes,
     customerId,
@@ -28,18 +29,6 @@ function FormFields(props) {
   } = props;
 
   // console.log({ formDisabled, customerId });
-
-  const customers = useMemo(() => {
-    if (!Array.isArray(rawCustomers)) {
-      return [];
-    }
-
-    return rawCustomers.map(customer => {
-      const { id, companyName, type, contactType, displayName, email } =
-        customer;
-      return { id, displayName, companyName, email, contactType, type };
-    });
-  }, [rawCustomers]);
 
   // console.log({ accounts });
   // console.log({ defaultValues });
@@ -61,13 +50,17 @@ function FormFields(props) {
             isInvalid={errors.customer}
           >
             <FormLabel htmlFor="customer">Customer</FormLabel>
-            <RHFSimpleSelect
+
+            <SearchContacts
               name="customer"
+              size="md"
               placeholder="--select customer--"
-              options={customers}
-              optionsConfig={{
-                nameField: 'displayName',
-                valueField: 'id',
+              isDisabled={formDisabled}
+              contactGroup="customer"
+              controllerProps={{
+                rules: {
+                  required: { value: true, message: '*Required!' },
+                },
               }}
             />
 

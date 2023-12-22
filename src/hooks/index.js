@@ -44,6 +44,8 @@ export { default as useGetBookingsForMonth } from './useGetBookingsForMonth';
 
 //invoices
 export * from './invoices';
+//payments received
+export * from './paymentsReceived';
 
 //
 export * from './contacts';

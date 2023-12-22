@@ -1,17 +1,19 @@
-import { Button } from '@chakra-ui/react';
+import { Button, Box } from '@chakra-ui/react';
 import { Link, useLocation } from 'react-router-dom';
 import { RiAddLine } from 'react-icons/ri';
 
 //
 import { ListInvoicesContextProvider } from 'contexts/ListInvoicesContext';
 
-import { NEW_BOOKING } from '../../../nav/routes';
+import { NEW_BOOKING } from 'nav/routes';
 //
 //
-// import useSavedLocation from '../../../hooks/useSavedLocation';
-import PageLayout from '../../../components/layout/PageLayout';
+// import useSavedLocation from 'hooks/useSavedLocation';
+import PageLayout from 'components/layout/PageLayout';
 
-import Bookings from '../../../containers/Management/Bookings/Bookings';
+import BookingsTable from 'components/tables/Bookings/BookingsTable';
+
+// import Bookings from 'containers/Management/Bookings/Bookings';
 
 function BookingsPage() {
   //useSavedLocation().setLocation();
@@ -33,7 +35,21 @@ function BookingsPage() {
       }}
     >
       <ListInvoicesContextProvider>
-        <Bookings />
+        <Box
+          mt={-2}
+          w="full"
+          bg="white"
+          borderRadius="md"
+          shadow="md"
+          py={4}
+          // px={2}
+        >
+          <BookingsTable
+            showCustomer
+            columnsToExclude={['paymentInput', 'paymentAmount', 'id']}
+          />
+        </Box>
+        {/* <Bookings /> */}
       </ListInvoicesContextProvider>
     </PageLayout>
   );

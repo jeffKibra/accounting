@@ -10,10 +10,10 @@ import { getPaymentsTotal } from 'utils/payments';
 import { useToasts } from 'hooks';
 import ControlledDialog from 'components/ui/ControlledDialog';
 
-import BookingsPayments from 'components/forms/Payment/BookingsPayments';
-import FormFields from 'components/forms/Payment/FormFields';
+import BookingsPayments from 'components/forms/PaymentReceived/BookingsPayments';
+import FormFields from 'components/forms/PaymentReceived/FormFields';
 //
-const DEFAULT_ACCOUNT_ID = 'undeposited_funds';
+// const DEFAULT_ACCOUNT_ID = 'undeposited_funds';
 //
 
 const schema = Yup.object().shape({
@@ -40,7 +40,7 @@ const schema = Yup.object().shape({
 
 //----------------------------------------------------------------
 
-export default function PaymentForm(props) {
+export default function PaymentReceivedForm(props) {
   // console.log('paymnt form updating', { props });
   const {
     payment,
@@ -56,33 +56,44 @@ export default function PaymentForm(props) {
   const [balance, setBalance] = useState(0);
 
   const defaultPayments = useMemo(() => {
-    const payments = payment?.payments || {};
+    const paidInvoices = payment?.paidInvoices || [];
+
+    let paidInvoicesMap = {};
+
+    if (Array.isArray(paidInvoices)) {
+      paidInvoices.forEach(invoicePayment => {
+        const { invoiceId, amount } = invoicePayment;
+
+        paidInvoicesMap[invoiceId] = amount;
+      });
+    }
+
     // console.log('default payments have changed index', payments);
-    return payments;
-  }, [payment?.payments]);
+    return paidInvoicesMap;
+  }, [payment?.paidInvoices]);
 
   const { isOpen, onClose, onOpen } = useDisclosure();
   const toasts = useToasts();
 
   // console.log({ invoices, loadingInvoices });
 
-  const paymentAccount = useMemo(() => {
-    const accountId = payment?.account?.accountId || DEFAULT_ACCOUNT_ID;
-    let account = null;
+  // const paymentAccount = useMemo(() => {
+  //   const accountId = payment?.account?.accountId || DEFAULT_ACCOUNT_ID;
+  //   let account = null;
 
-    if (Array.isArray(accounts)) {
-      account = accounts.find(account => account.accountId === accountId);
-      if (!account) {
-        const errorMsg = 'Payment Account not found!';
-        console.error(errorMsg);
-        toasts.error(errorMsg);
-      }
-    }
+  //   if (Array.isArray(accounts)) {
+  //     account = accounts.find(account => account.accountId === accountId);
+  //     if (!account) {
+  //       const errorMsg = 'Payment Account not found!';
+  //       console.error(errorMsg);
+  //       toasts.error(errorMsg);
+  //     }
+  //   }
 
-    console.log(account);
+  //   console.log(account);
 
-    return account;
-  }, [accounts, payment?.account, toasts]);
+  //   return account;
+  // }, [accounts, payment?.account, toasts]);
 
   // console.log({ paymentAccount, accounts });
 
@@ -93,10 +104,10 @@ export default function PaymentForm(props) {
       customer: payment?.customer || null,
       paymentDate: payment?.paymentDate || new Date(),
       amount: payment?.amount || 0,
-      account: paymentAccount,
+      // account: paymentAccount,
       paymentMode: payment?.paymentMode || null,
       reference: payment?.reference || '',
-      payments: payment?.payments || {},
+      payments: defaultPayments || {},
       // || autoFill(invoices, amount),
     },
   });
@@ -109,10 +120,11 @@ export default function PaymentForm(props) {
   // const form = watch();
   // console.log({ form });
 
-  const watchedFields = watch(['customer', 'amount', 'account']);
+  const watchedFields = watch(['customer', 'amount']);
   console.log({ watchedFields });
   const customer = watchedFields[0];
-  const customerId = customer?.id || '';
+  const customerId = customer?._id || '';
+  console.log({ customerId });
 
   const amountReceived = watchedFields[1];
 
@@ -256,7 +268,7 @@ export default function PaymentForm(props) {
   );
 }
 
-PaymentForm.propTypes = {
+PaymentReceivedForm.propTypes = {
   handleFormSubmit: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,
   paymentId: PropTypes.string,

@@ -13,9 +13,13 @@ import {
   AlertDescription,
   Text,
   Heading,
+  Box,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
+//
+import { ListInvoicesContextProvider } from 'contexts/ListInvoicesContext';
+//
 import { useCustomerBookings } from 'hooks';
 
 import { getPaymentsTotal } from 'utils/payments';
@@ -25,7 +29,7 @@ import Empty from 'components/ui/Empty';
 
 // import UnpaidBookingsTable from './UnpaidBookingsTable';
 import BookingsTable from 'components/tables/Bookings/BookingsTable';
-import PaymentsSummaryTable from '../../tables/Payments/PaymentsSummaryTable';
+import PaymentsSummaryTable from 'components/tables/PaymentsReceived/PaymentsSummaryTable';
 
 //custom hooks
 function usePaymentsTotal() {
@@ -230,39 +234,11 @@ function BookingsPayments(props) {
       </Flex>
 
       {customerId ? (
-        loading ? (
-          <Flex
-            w="full"
-            direction="column"
-            justify="center"
-            align="center"
-            py={5}
-          >
-            <Spinner size="lg" />
-            <Text mt={3}>Loading bookings...</Text>
-          </Flex>
-        ) : error ? (
-          <Alert status="error" flexDirection="column">
-            <AlertIcon />
-            <AlertTitle>Error fetching Customer bookings!</AlertTitle>
-            <AlertDescription>
-              {error?.message || 'Unknown error!'}
-            </AlertDescription>
-          </Alert>
-        ) : Array.isArray(bookings) && bookings?.length > 0 ? (
-          <Grid w="full" gap={2} templateColumns="repeat(12, 1fr)">
-            <GridItem colSpan={12}>
-              {/* <UnpaidBookingsTable
-                bookings={bookings}
-                amount={amount}
-                paymentId={paymentId || ''}
-                loading={loading}
-                formIsDisabled={formIsDisabled}
-                // taxDeducted={taxDeducted}
-              /> */}
-
+        <Grid w="full" gap={2} templateColumns="repeat(12, 1fr)">
+          <GridItem colSpan={12}>
+            <ListInvoicesContextProvider customerId={customerId}>
               <BookingsTable
-                bookings={bookings}
+                // showCustomer
                 paymentTotal={amount}
                 paymentId={paymentId || ''}
                 loading={loading}
@@ -271,15 +247,13 @@ function BookingsPayments(props) {
                 columnsToExclude={['actions', 'imprest', 'paymentAmount']}
                 // taxDeducted={taxDeducted}
               />
-            </GridItem>
-            <GridItem colSpan={[1, 6]} />
-            <GridItem colSpan={[11, 6]} borderRadius="md" p={4}>
-              <PaymentsSummaryTable amount={amount} payments={paymentsTotal} />
-            </GridItem>
-          </Grid>
-        ) : (
-          <Empty message="No unpaid bookings found for the customer!" />
-        )
+            </ListInvoicesContextProvider>
+          </GridItem>
+          <GridItem colSpan={[1, 6]} />
+          <GridItem colSpan={[11, 6]} borderRadius="md" p={4}>
+            <PaymentsSummaryTable amount={amount} payments={paymentsTotal} />
+          </GridItem>
+        </Grid>
       ) : (
         <Flex w="full" justify="center" py={5}>
           <Text>Please select a CUSTOMER to display a list of bookings.</Text>

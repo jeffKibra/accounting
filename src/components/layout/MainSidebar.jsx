@@ -76,8 +76,8 @@ function ManagementSidebar(props) {
         Bookings
       </DrawerItem>
 
-      <DrawerItem route={routes.PAYMENTS} icon={RiCoinsLine}>
-        Payments
+      <DrawerItem route={routes.PAYMENTS_RECEIVED} icon={RiCoinsLine}>
+        Payments Received
       </DrawerItem>
       {/* <DrawerItem route={routes.EXPENSES} icon={RiCoinsLine}>
         Expenses

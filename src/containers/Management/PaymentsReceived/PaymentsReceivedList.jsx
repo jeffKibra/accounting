@@ -1,16 +1,16 @@
-import { useEffect } from "react";
-import { connect } from "react-redux";
-import { Box } from "@chakra-ui/react";
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { Box } from '@chakra-ui/react';
 
-import { GET_PAYMENTS } from "../../../store/actions/paymentsActions";
-import { reset } from "../../../store/slices/paymentsSlice";
+import { GET_PAYMENTS } from '../../../store/actions/paymentsActions';
+import { reset } from '../../../store/slices/paymentsSlice';
 
-import SkeletonLoader from "../../../components/ui/SkeletonLoader";
-import Empty from "../../../components/ui/Empty";
+import SkeletonLoader from '../../../components/ui/SkeletonLoader';
+import Empty from '../../../components/ui/Empty';
 
-import PaymentsTable from "../../../components/tables/Payments/PaymentsTable";
+import PaymentsReceivedTable from '../../../components/tables/PaymentsReceived/PaymentsReceivedTable';
 
-function Payments(props) {
+function PaymentsReceivedList(props) {
   const { loading, payments, action, isModified, getPayments, resetPayment } =
     props;
 
@@ -37,7 +37,7 @@ function Payments(props) {
       py={4}
       px={2}
     >
-      <PaymentsTable showCustomer payments={payments} />
+      <PaymentsReceivedTable showCustomer payments={payments} />
     </Box>
   ) : (
     <Empty />
@@ -57,4 +57,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Payments);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PaymentsReceivedList);
