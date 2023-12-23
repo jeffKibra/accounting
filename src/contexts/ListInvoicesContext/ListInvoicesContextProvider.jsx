@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 
 import PropTypes from 'prop-types';
 
@@ -16,13 +16,17 @@ import { queries } from 'gql';
 
 export default function ListInvoicesContextProvider(props) {
   const { children, defaultValues, customerId } = props;
-  console.log({ defaultValues });
+  // console.log({ defaultValues });
+
+  const additionalQueryParams = useMemo(() => {
+    return { customerId };
+  }, [customerId]);
 
   return (
     <ListContextProvider
       defaultValues={defaultValues}
       GQLQuery={queries.sales.invoices.LIST_INVOICES}
-      additionalQueryParams={{ customerId }}
+      additionalQueryParams={additionalQueryParams}
       resultField="invoices"
     >
       <ContextProvider>{children}</ContextProvider>

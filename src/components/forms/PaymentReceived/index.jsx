@@ -1,16 +1,19 @@
-import { useState, useMemo } from 'react';
-import { Box, useDisclosure, Flex, Button } from '@chakra-ui/react';
+import { useState, useMemo, useCallback } from 'react';
+import { Box, Flex, Button, useDisclosure } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { FormProvider, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import { getPaymentsTotal } from 'utils/payments';
+//
+import { ListInvoicesContextProvider } from 'contexts/ListInvoicesContext';
+//
 
 import { useToasts } from 'hooks';
 import ControlledDialog from 'components/ui/ControlledDialog';
 
-import BookingsPayments from 'components/forms/PaymentReceived/BookingsPayments';
+import BookingsPayments from 'components/forms/PaymentReceived/InvoicesPayments';
 import FormFields from 'components/forms/PaymentReceived/FormFields';
 //
 // const DEFAULT_ACCOUNT_ID = 'undeposited_funds';
@@ -27,10 +30,10 @@ const schema = Yup.object().shape({
     .required('*Required!'),
   reference: Yup.string(),
   paymentMode: Yup.object().required('*Required!').nullable(),
-  bankCharges: Yup.number()
-    .typeError('Value must be a number!')
-    .min(0, 'Amount should be a positive number(>=0)!'),
-  account: Yup.object().required('*Required!').nullable(),
+  // bankCharges: Yup.number()
+  //   .typeError('Value must be a number!')
+  //   .min(0, 'Amount should be a positive number(>=0)!'),
+  // account: Yup.object().required('*Required!').nullable(),
   // taxDeducted: Yup.string().required("*Required!"),
   // tdsTaxAccount: Yup.string().when("taxDeducted", {
   //   is: "yes",
@@ -47,7 +50,7 @@ export default function PaymentReceivedForm(props) {
     paymentId,
     customers,
     accounts,
-    handleFormSubmit,
+    onSubmit,
     updating,
     paymentModes,
   } = props;
@@ -73,7 +76,7 @@ export default function PaymentReceivedForm(props) {
   }, [payment?.paidInvoices]);
 
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const toasts = useToasts();
+  const { error: toastError } = useToasts();
 
   // console.log({ invoices, loadingInvoices });
 
@@ -86,7 +89,7 @@ export default function PaymentReceivedForm(props) {
   //     if (!account) {
   //       const errorMsg = 'Payment Account not found!';
   //       console.error(errorMsg);
-  //       toasts.error(errorMsg);
+  //       toastError(errorMsg);
   //     }
   //   }
 
@@ -111,7 +114,14 @@ export default function PaymentReceivedForm(props) {
       // || autoFill(invoices, amount),
     },
   });
-  const { handleSubmit, watch, getValues } = formMethods;
+  const {
+    handleSubmit,
+    watch,
+    getValues,
+    formState: { errors },
+  } = formMethods;
+
+  console.log({ errors });
 
   // const [payments, setPayments] = useState(
   //   payment?.payments ? { ...payment.payments } : null
@@ -128,75 +138,109 @@ export default function PaymentReceivedForm(props) {
 
   const amountReceived = watchedFields[1];
 
-  function onSubmit(data) {
-    const { payments } = data;
-    //update form values so that incase saving fails, data is not lost
-    console.log({ data });
+  const handleFormSubmit = useCallback(
+    data => {
+      const {
+        payments,
+        paymentMode: { name: paymentModeName, _id: paymentModeId },
+        ...formData
+      } = data;
 
-    Object.keys(payments).forEach(key => {
-      const amount = Number(payments[key]);
-      if (isNaN(amount) || amount <= 0) {
-        delete payments[key];
-      }
-    });
+      //update form values so that incase saving fails, data is not lost
+      console.log({ data });
 
-    const formData = {
-      ...data,
-      payments,
-    };
+      const paymentMode = {
+        name: paymentModeName,
+        _id: paymentModeId,
+      };
 
-    // console.log({ formData });
+      const paidInvoices = [];
 
-    // console.log({ allData });
-    handleFormSubmit(formData);
-  }
+      Object.keys(payments).forEach(invoiceId => {
+        const invoicePayment = Number(payments[invoiceId]);
 
-  function checkOverPayment(formData) {
+        if (isNaN(invoicePayment) || invoicePayment <= 0) {
+          // delete payments[invoiceId];
+
+          return;
+        }
+
+        paidInvoices.push({ invoiceId, amount: invoicePayment });
+      });
+
+      const paymentData = {
+        ...formData,
+        paymentMode,
+        paidInvoices,
+      };
+
+      // console.log({ paymentData });
+
+      // console.log({ allData });
+      return onSubmit(paymentData);
+    },
+    [onSubmit]
+  );
+
+  const checkOverPayment = useCallback(formData => {
     const { amount, payments } = formData;
     const paymentsTotal = getPaymentsTotal(payments);
+
+    console.log('checking overpayment', {
+      amount,
+      payments,
+      paymentsTotal,
+      formData,
+    });
 
     if (amount < paymentsTotal) {
       throw new Error(
         'Amounts assigned to paying Invoices should not be greater than the Customer payment!'
       );
     }
-  }
+  }, []);
 
-  function checkUnderPayment(formData) {
-    const { amount, payments } = formData;
-    const paymentsTotal = getPaymentsTotal(payments);
+  const checkUnderPayment = useCallback(
+    formData => {
+      const { amount, payments } = formData;
+      const paymentsTotal = getPaymentsTotal(payments);
 
-    if (amount > paymentsTotal) {
-      setBalance(amount - paymentsTotal);
-      onOpen();
-    } else {
-      onSubmit(formData);
-    }
-  }
+      if (amount > paymentsTotal) {
+        setBalance(amount - paymentsTotal);
+        onOpen();
+      } else {
+        return handleFormSubmit(formData);
+      }
+    },
+    [handleFormSubmit, setBalance, onOpen]
+  );
 
-  function validatePayments(formData) {
-    console.log('validating payments', formData);
-    try {
-      checkOverPayment(formData);
-      checkUnderPayment(formData);
-    } catch (error) {
-      console.error(error);
-      toasts.error(error?.message);
-    }
-  }
+  const validatePayments = useCallback(
+    formData => {
+      console.log('validating payments', formData);
+      try {
+        checkOverPayment(formData);
+        return checkUnderPayment(formData);
+      } catch (error) {
+        console.error(error);
+        toastError(error?.message);
+      }
+    },
+    [checkOverPayment, checkUnderPayment, toastError]
+  );
 
-  function confirmUnderPayment() {
+  const confirmUnderPayment = useCallback(() => {
     try {
       const formData = getValues();
 
       checkOverPayment(formData);
 
-      onSubmit(formData);
+      return handleFormSubmit(formData);
     } catch (error) {
       console.error(error);
-      toasts.error(error?.message);
+      toastError(error?.message);
     }
-  }
+  }, [getValues, checkOverPayment, handleFormSubmit, toastError]);
 
   // console.log({ UnpaidInvoices, FormFields });
 
@@ -232,13 +276,16 @@ export default function PaymentReceivedForm(props) {
               customerId={customerId}
               amountReceived={amountReceived}
             />
-            <BookingsPayments
-              paymentId={paymentId}
-              formIsDisabled={formIsDisabled}
-              customerId={customerId}
-              amountReceived={amountReceived}
-              defaultPayments={defaultPayments}
-            />
+
+            <ListInvoicesContextProvider customerId={customerId}>
+              <BookingsPayments
+                paymentId={paymentId}
+                formIsDisabled={formIsDisabled}
+                customerId={customerId}
+                amountReceived={amountReceived}
+                defaultPayments={defaultPayments}
+              />
+            </ListInvoicesContextProvider>
           </Box>
           <Flex w="full" py={4} justify="flex-end">
             <Button
@@ -269,7 +316,7 @@ export default function PaymentReceivedForm(props) {
 }
 
 PaymentReceivedForm.propTypes = {
-  handleFormSubmit: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,
   paymentId: PropTypes.string,
   payment: PropTypes.shape({

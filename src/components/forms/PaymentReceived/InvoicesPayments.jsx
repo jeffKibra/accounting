@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useContext } from 'react';
 import { useFormContext } from 'react-hook-form';
 import {
   Button,
@@ -6,26 +6,26 @@ import {
   Grid,
   GridItem,
   VStack,
-  Spinner,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
+  // Spinner,
+  // Alert,
+  // AlertIcon,
+  // AlertTitle,
+  // AlertDescription,
   Text,
   Heading,
-  Box,
+  // Box,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 
 //
-import { ListInvoicesContextProvider } from 'contexts/ListInvoicesContext';
+import ListInvoicesContext from 'contexts/ListInvoicesContext';
 //
-import { useCustomerBookings } from 'hooks';
+// import { useCustomerBookings } from 'hooks';
 
 import { getPaymentsTotal } from 'utils/payments';
-import { getBookingBalance } from 'utils/bookings';
+import { getInvoiceBalance } from 'utils/invoices';
 
-import Empty from 'components/ui/Empty';
+// import Empty from 'components/ui/Empty';
 
 // import UnpaidBookingsTable from './UnpaidBookingsTable';
 import BookingsTable from 'components/tables/Bookings/BookingsTable';
@@ -69,15 +69,16 @@ function arePaymentsEqual(newPayments = {}, oldPayments = {}) {
 
 //----------------------------------------------------------------
 
-function BookingsPayments(props) {
+function InvoicesPayments(props) {
   // console.log({ props });
   const { paymentId, formIsDisabled, customerId, defaultPayments } = props;
 
   const { watch, setValue, getValues } = useFormContext();
+  //
+  const { list: invoices, loading } = useContext(ListInvoicesContext);
+  console.log({ invoices });
+  //
   const paymentsTotal = usePaymentsTotal();
-
-  const { getBookings, getBookingsToEdit, bookings, loading, error } =
-    useCustomerBookings();
 
   const updatePayments = useCallback(
     values => {
@@ -88,7 +89,7 @@ function BookingsPayments(props) {
 
   useEffect(() => {
     function getPaymentsResetValues() {
-      if (Array.isArray(bookings) && bookings?.length > 0) {
+      if (Array.isArray(invoices) && invoices?.length > 0) {
         const paymentsFromForm = getValues('payments') || {};
         // console.log({ paymentsFromForm });
         const currentPayments = {
@@ -99,8 +100,8 @@ function BookingsPayments(props) {
         // console.log({ paymentsArray });
         if (paymentsArray?.length > 0) {
           paymentsArray.forEach(bookingId => {
-            //check if this booking is in the list of bookings
-            const found = bookings.find(booking => booking.id === bookingId);
+            //check if this booking is in the list of invoices
+            const found = invoices.find(booking => booking.id === bookingId);
 
             if (!found) {
               //delete the booking payment if it has not been found
@@ -127,19 +128,7 @@ function BookingsPayments(props) {
     if (!paymentsAreEqual) {
       updatePayments(newPayments);
     }
-  }, [bookings, defaultPayments, updatePayments, getValues]);
-
-  useEffect(() => {
-    if (customerId) {
-      if (paymentId) {
-        // console.log('fetching bookings to edit', { customerId, paymentId });
-        getBookingsToEdit(customerId, paymentId);
-      } else {
-        // console.log('fetching customer unpaid bookings', { customerId });
-        getBookings(customerId);
-      }
-    }
-  }, [customerId, paymentId, getBookings, getBookingsToEdit]);
+  }, [invoices, defaultPayments, updatePayments, getValues]);
 
   const amount = watch('amount');
 
@@ -153,33 +142,36 @@ function BookingsPayments(props) {
   // console.log({ payments });
   // console.log({ payments, paymentsTotal });
 
-  const autoFill = useCallback(
-    (bookings, amount) => {
-      if (bookings?.length > 0) {
-        let balance = amount;
+  const generateAutoFillValues = useCallback(
+    (invoices, amount) => {
+      if (invoices?.length > 0) {
+        let excess = amount;
         const balances = {};
 
-        bookings.forEach(booking => {
-          const { id: bookingId } = booking;
+        invoices.forEach(invoice => {
+          const { _id: invoiceId, balance: invoiceBalance } = invoice;
           let autoFill = 0;
-          const bookingBalance = getBookingBalance(booking, paymentId);
-          // console.log({ bookingBalance });
+          // const invoiceBalance = getInvoiceBalance(invoice, paymentId);
+          // console.log({ invoiceBalance });
 
-          if (bookingBalance <= balance) {
-            autoFill = bookingBalance;
-            balance = balance - bookingBalance;
+          if (invoiceBalance <= excess) {
+            autoFill = invoiceBalance;
+            excess = excess - invoiceBalance;
           } else {
-            autoFill = balance;
-            balance = balance - balance;
+            autoFill = excess;
+            excess = 0;
           }
-          balances[bookingId] = autoFill;
+
+          balances[invoiceId] = autoFill;
         });
 
         return balances;
       }
       return {};
     },
-    [paymentId]
+    [
+      // paymentId
+    ]
   );
 
   /**
@@ -187,11 +179,13 @@ function BookingsPayments(props) {
    */
 
   function clear() {
-    if (bookings?.length > 0) {
+    if (invoices?.length > 0) {
       const values = {};
-      bookings.forEach(booking => {
-        const { id: bookingId } = booking;
-        values[bookingId] = 0;
+
+      invoices.forEach(invoice => {
+        const { id: invoiceId } = invoice;
+
+        values[invoiceId] = 0;
       });
 
       updatePayments(values);
@@ -199,7 +193,7 @@ function BookingsPayments(props) {
   }
 
   function autoPay() {
-    const values = autoFill(bookings, amount);
+    const values = generateAutoFillValues(invoices, amount);
     updatePayments(values);
     // reset(values);
   }
@@ -208,8 +202,9 @@ function BookingsPayments(props) {
     <VStack mt={5} pt={4} w="full">
       <Flex w="full" justify="space-between">
         <Heading as="h3" size="md">
-          bookings
+          invoices
         </Heading>
+
         <Flex justify="flex-end" w="full">
           <Button
             onClick={clear}
@@ -236,18 +231,16 @@ function BookingsPayments(props) {
       {customerId ? (
         <Grid w="full" gap={2} templateColumns="repeat(12, 1fr)">
           <GridItem colSpan={12}>
-            <ListInvoicesContextProvider customerId={customerId}>
-              <BookingsTable
-                // showCustomer
-                paymentTotal={amount}
-                paymentId={paymentId || ''}
-                loading={loading}
-                formIsDisabled={formIsDisabled}
-                isPayment
-                columnsToExclude={['actions', 'imprest', 'paymentAmount']}
-                // taxDeducted={taxDeducted}
-              />
-            </ListInvoicesContextProvider>
+            <BookingsTable
+              // showCustomer
+              paymentTotal={amount}
+              paymentId={paymentId || ''}
+              loading={loading}
+              formIsDisabled={formIsDisabled}
+              isPayment
+              columnsToExclude={['actions', 'imprest', 'paymentAmount']}
+              // taxDeducted={taxDeducted}
+            />
           </GridItem>
           <GridItem colSpan={[1, 6]} />
           <GridItem colSpan={[11, 6]} borderRadius="md" p={4}>
@@ -256,17 +249,17 @@ function BookingsPayments(props) {
         </Grid>
       ) : (
         <Flex w="full" justify="center" py={5}>
-          <Text>Please select a CUSTOMER to display a list of bookings.</Text>
+          <Text>Please select a CUSTOMER to display a list of invoices.</Text>
         </Flex>
       )}
     </VStack>
   );
 }
 
-BookingsPayments.propTypes = {
-  bookings: PropTypes.array.isRequired,
+InvoicesPayments.propTypes = {
+  invoices: PropTypes.array.isRequired,
   loading: PropTypes.bool.isRequired,
   paymentId: PropTypes.string,
 };
 
-export default BookingsPayments;
+export default InvoicesPayments;

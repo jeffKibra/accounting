@@ -1,6 +1,6 @@
 import { IBooking } from '../../../types';
 
-export default function getBookingBalance(
+export default function getInvoiceBalance(
   booking: IBooking,
   paymentId: string
 ) {

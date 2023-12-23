@@ -3,11 +3,12 @@ import BookingOptions from 'containers/Management/Bookings/BookingOptions';
 //
 import BookingDates from './BookingDates';
 import DueDateStatus from './DueDateStatus';
-import BookingPaymentInput from './BookingPaymentInput';
+import InvoicePaymentInput from '../Invoices/InvoicePaymentInput';
 //
-import { getBookingBalance, Bookings } from 'utils/bookings';
+import { Bookings } from 'utils/bookings';
+// import { getInvoiceBalance } from 'utils/invoices';
 
-export default function getBookingTableData(
+export default function formatRowData(
   bookingData,
   paymentTotal,
   paymentId,
@@ -26,13 +27,14 @@ export default function getBookingTableData(
     startDate,
     endDate,
     selectedDates,
+    _id: bookingId,
   } = booking;
   // const imprest = downPayment?.amount || 0;
 
   let balance = booking?.balance || 0;
   let paymentAmount = 0;
   if (paymentId) {
-    balance = getBookingBalance(booking, paymentId);
+    // balance = getBookingBalance(booking, paymentId);
     paymentAmount = paymentsReceived[paymentId];
   }
 
@@ -47,8 +49,8 @@ export default function getBookingTableData(
     paymentAmount: Number(paymentAmount).toLocaleString(),
     days: selectedDates?.length || 0,
     paymentInput: (
-      <BookingPaymentInput
-        booking={booking}
+      <InvoicePaymentInput
+        invoiceId={bookingId}
         formIsDisabled={false}
         paymentTotal={paymentTotal}
         paymentId={paymentId}

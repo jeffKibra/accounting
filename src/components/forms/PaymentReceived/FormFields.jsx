@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+// import { useMemo } from 'react';
 import {
   FormControl,
   FormLabel,
@@ -14,10 +14,9 @@ import SearchContacts from 'components/ui/SearchContacts';
 //
 import ControlledNumInput from 'components/ui/ControlledNumInput';
 // import RadioInput from "../../ui/RadioInput";
-// import RHFSimpleSelect from 'components/ui/hookForm/RHFSimpleSelect';
 // import RHFGroupedOptionsSelect from 'components/ui/hookForm/RHFGroupedOptionsSelect';
 import CustomDatePicker from '../../ui/CustomDatePicker';
-import ControlledSelect from 'components/ui/ControlledSelect';
+import RHFSimpleSelect from 'components/ui/hookForm/RHFSimpleSelect';
 //
 
 function FormFields(props) {
@@ -38,7 +37,7 @@ function FormFields(props) {
     control,
     // watch,
   } = useFormContext();
-  console.log({ errors });
+  // console.log({ errors });
 
   return (
     <>
@@ -148,27 +147,17 @@ function FormFields(props) {
           >
             <FormLabel htmlFor="paymentMode">Payment Mode</FormLabel>
 
-            <Controller
+            <RHFSimpleSelect
               name="paymentMode"
-              control={control}
-              render={({ field: { onChange, onBlur, value } }) => {
-                function handleChange(paymentModeId) {
-                  console.log({ paymentModeId });
-                  const paymentMode = paymentModes[paymentModeId];
-                  onChange(paymentMode);
-                }
-
-                return (
-                  <ControlledSelect
-                    onChange={handleChange}
-                    value={value?.value || ''}
-                    allowClearSelection
-                    isDisabled={formDisabled || !customerId}
-                    onBlur={onBlur}
-                    placeholder="select payment mode"
-                    options={Object.values(paymentModes)}
-                  />
-                );
+              placeholder="select payment mode"
+              id="payment_mode"
+              isDisabled={formDisabled || !customerId}
+              options={paymentModes}
+              optionsConfig={{ nameField: 'name', valueField: '_id' }}
+              controllerProps={{
+                rules: {
+                  required: { value: true, message: '*Required!' },
+                },
               }}
             />
 

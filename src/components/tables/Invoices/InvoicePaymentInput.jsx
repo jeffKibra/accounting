@@ -4,9 +4,8 @@ import PropTypes from 'prop-types';
 import ControlledNumInput from 'components/ui/ControlledNumInput';
 //
 
-function BookingPaymentInput(props) {
-  const { formIsDisabled, booking, paymentTotal, balance } = props;
-  const { id: bookingId } = booking;
+function InvoicePaymentInput(props) {
+  const { formIsDisabled, invoiceId, paymentTotal, balance } = props;
 
   const { control } = useFormContext();
 
@@ -14,7 +13,7 @@ function BookingPaymentInput(props) {
 
   return (
     <Controller
-      name={`payments.${bookingId}`}
+      name={`payments.${invoiceId}`}
       control={control}
       render={({ field: { ref, onChange, onBlur, value } }) => {
         return (
@@ -27,6 +26,7 @@ function BookingPaymentInput(props) {
             min={0}
             max={max}
             isDisabled={formIsDisabled}
+            size="sm"
           />
         );
       }}
@@ -34,11 +34,11 @@ function BookingPaymentInput(props) {
   );
 }
 
-BookingPaymentInput.propTypes = {
+InvoicePaymentInput.propTypes = {
   formIsDisabled: PropTypes.bool.isRequired,
-  booking: PropTypes.object.isRequired,
+  invoiceId: PropTypes.string.isRequired,
   paymentTotal: PropTypes.number,
   balance: PropTypes.number,
 };
 
-export default BookingPaymentInput;
+export default InvoicePaymentInput;

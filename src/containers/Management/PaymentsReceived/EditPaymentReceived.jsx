@@ -41,7 +41,7 @@ function EditPaymentReceived(props) {
     <PaymentReceivedForm
       updating={updating}
       paymentModes={paymentModes}
-      handleFormSubmit={saveData}
+      onSubmit={saveData}
       payment={payment}
       paymentId={paymentId}
     />

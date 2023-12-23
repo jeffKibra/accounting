@@ -10,7 +10,7 @@ import RTTable from 'components/ui/Table/RTTable';
 // import bookingDates from './bookingDates';
 import ListInvoicesContext from 'contexts/ListInvoicesContext';
 //
-import getBookingTableData from './getBookingTableData';
+import formatRowData from './formatRowData';
 import getTableColumns from './getTableColumns';
 //
 import { bookingProps } from 'propTypes';
@@ -80,7 +80,7 @@ function BookingsTable(props) {
 
     if (Array.isArray(bookings)) {
       bookingsData = bookings.map(booking => {
-        const formattedData = getBookingTableData(
+        const formattedData = formatRowData(
           booking,
           paymentTotal,
           paymentId,
