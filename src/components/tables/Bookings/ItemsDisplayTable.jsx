@@ -9,7 +9,7 @@ import { useGetItems } from 'hooks';
 import RTTable from 'components/ui/Table/RTTable';
 //
 import getTableColumns from './getTableColumns';
-import getItemTableData from './getBookingTableData';
+import getItemTableData from './formatRowData';
 //
 // import ItemsFilters from './ItemsFilters/Form';
 

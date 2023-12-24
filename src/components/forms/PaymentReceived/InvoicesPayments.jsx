@@ -76,7 +76,7 @@ function InvoicesPayments(props) {
   const { watch, setValue, getValues } = useFormContext();
   //
   const { list: invoices, loading } = useContext(ListInvoicesContext);
-  console.log({ invoices });
+  // console.log({ invoices });
   //
   const paymentsTotal = usePaymentsTotal();
 
