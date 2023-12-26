@@ -154,7 +154,7 @@ export default function PaymentReceivedForm(props) {
         _id: paymentModeId,
       };
 
-      const paidInvoices = [];
+      const allocations = [];
 
       Object.keys(payments).forEach(invoiceId => {
         const invoicePayment = Number(payments[invoiceId]);
@@ -165,13 +165,13 @@ export default function PaymentReceivedForm(props) {
           return;
         }
 
-        paidInvoices.push({ invoiceId, amount: invoicePayment });
+        allocations.push({ invoiceId, amount: invoicePayment });
       });
 
       const paymentData = {
         ...formData,
         paymentMode,
-        paidInvoices,
+        allocations,
       };
 
       // console.log({ paymentData });
