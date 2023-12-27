@@ -16,6 +16,7 @@ import {
   // Box,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
+import BigNumber from 'bignumber.js';
 
 //
 import ListInvoicesContext from 'contexts/ListInvoicesContext';
@@ -149,7 +150,8 @@ function InvoicesPayments(props) {
         const balances = {};
 
         invoices.forEach(invoice => {
-          const { _id: invoiceId, balance: invoiceBalance } = invoice;
+          const { _id: invoiceId } = invoice;
+          const invoiceBalance = invoice?.balance || 0;
           let autoFill = 0;
           // const invoiceBalance = getInvoiceBalance(invoice, paymentId);
           // console.log({ invoiceBalance });
@@ -164,6 +166,8 @@ function InvoicesPayments(props) {
 
           balances[invoiceId] = autoFill;
         });
+
+        console.log({ balances, excess, amount });
 
         return balances;
       }

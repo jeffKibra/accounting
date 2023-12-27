@@ -1,4 +1,4 @@
-import { Button } from '@chakra-ui/react';
+import { Button, Box } from '@chakra-ui/react';
 import { Link, useLocation } from 'react-router-dom';
 import { RiAddLine } from 'react-icons/ri';
 
@@ -33,7 +33,9 @@ function PaymentsReceivedListPage() {
       }}
     >
       <ListPaymentsReceivedContextProvider>
-        <PaymentsReceivedTable showCustomer />
+        <Box w="full" bg="white" borderRadius="lg" shadow="lg">
+          <PaymentsReceivedTable showCustomer />
+        </Box>
 
         {/* <PaymentsReceivedList /> */}
       </ListPaymentsReceivedContextProvider>

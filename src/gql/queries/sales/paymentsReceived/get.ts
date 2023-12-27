@@ -9,15 +9,16 @@ export const paymentReceivedFields = `
   }
   amount
   reference
-  paidInvoices {
-    invoiceId
+  allocations {
+    ref
     amount
   }
-  excess
   paymentMode{
     _id
     name
   } 
+  excess
+  
   metaData {
     createdAt
   }
