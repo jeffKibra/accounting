@@ -15,6 +15,8 @@ function useUpdatePaymentReceived(paymentId) {
   const [modifyPaymentReceived, { called, loading: updating, reset, error }] =
     useMutation(UPDATE_PAYMENT_RECEIVED);
 
+  console.log('use update payment received');
+
   const { loading, paymentReceived } = useGetPaymentReceived(paymentId);
 
   const navigate = useNavigate();

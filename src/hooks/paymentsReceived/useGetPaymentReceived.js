@@ -12,6 +12,7 @@ const { GET_PAYMENT_RECEIVED } = queries.sales.paymentsReceived;
 function useGetPaymentReceived(paymentReceivedId) {
   const { loading, error, data, refetch } = useQuery(GET_PAYMENT_RECEIVED, {
     variables: { id: paymentReceivedId },
+    fetchPolicy: 'cache-and-network',
   });
 
   const { error: toastError } = useToasts();

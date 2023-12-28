@@ -11,10 +11,10 @@ const { CREATE_PAYMENT_RECEIVED } = mutations.sales.paymentsReceived;
 
 export function formatPaymentReceivedData(formData) {
   try {
-    delete formData?.dueDate;
-    delete formData?.saleDate;
-    delete formData?.downPayment?.paymentMode?.__typename;
-    delete formData?.paymentTerm;
+    delete formData?.__typename;
+    delete formData?.customer?.__typename;
+    delete formData?.paymentMode?.__typename;
+    delete formData?.metaData?.__typename;
   } catch (error) {
     console.error(error);
   }

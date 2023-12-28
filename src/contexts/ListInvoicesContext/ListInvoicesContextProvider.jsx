@@ -15,12 +15,12 @@ import { queries } from 'gql';
 //----------------------------------------------------------------
 
 export default function ListInvoicesContextProvider(props) {
-  const { children, defaultValues, customerId } = props;
+  const { children, defaultValues, customerId, paymentId } = props;
   // console.log({ defaultValues });
 
   const additionalQueryParams = useMemo(() => {
-    return { customerId };
-  }, [customerId]);
+    return { customerId, paymentId };
+  }, [customerId, paymentId]);
 
   return (
     <ListContextProvider
@@ -38,6 +38,7 @@ ListInvoicesContextProvider.propTypes = {
   children: PropTypes.node.isRequired,
   defaultValues: PropTypes.object,
   customerId: PropTypes.string,
+  paymentId: PropTypes.string,
 };
 
 //----------------------------------------------------------------

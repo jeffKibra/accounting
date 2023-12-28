@@ -35,14 +35,21 @@ import PaymentsSummaryTable from 'components/tables/PaymentsReceived/PaymentsSum
 //custom hooks
 function usePaymentsTotal() {
   const { watch } = useFormContext();
-  const payments = watch('payments');
-  const paymentsTotal = getPaymentsTotal(payments);
-  return paymentsTotal;
+
+  const allocations = watch('allocations');
+
+  const amount = watch('amount');
+  //
+  const allocationsTotal = getPaymentsTotal(allocations);
+
+  console.log('usePaymentsTotal', { allocations, allocationsTotal, amount });
+
+  return allocationsTotal;
 }
 //----------------------------------------------------------------
-function arePaymentsEqual(newPayments = {}, oldPayments = {}) {
-  const payments1 = { ...newPayments };
-  const payments2 = { ...oldPayments };
+function areAllocationsEqual(newAllocations = {}, prevAllocations = {}) {
+  const payments1 = { ...newAllocations };
+  const payments2 = { ...prevAllocations };
 
   const similarValues = [];
   const uniqueValues = [];
@@ -70,66 +77,79 @@ function arePaymentsEqual(newPayments = {}, oldPayments = {}) {
 
 //----------------------------------------------------------------
 
-function InvoicesPayments(props) {
+function PaymentAllocations(props) {
   // console.log({ props });
-  const { paymentId, formIsDisabled, customerId, defaultPayments } = props;
+  const { paymentId, formIsDisabled, customerId, defaultAllocations } = props;
 
   const { watch, setValue, getValues } = useFormContext();
   //
   const { list: invoices, loading } = useContext(ListInvoicesContext);
   // console.log({ invoices });
   //
-  const paymentsTotal = usePaymentsTotal();
+  const allocationsTotal = usePaymentsTotal();
+  console.log('payment allocations', { allocationsTotal });
 
-  const updatePayments = useCallback(
+  const updateAllocations = useCallback(
     values => {
-      setValue('payments', values);
+      setValue('allocations', values);
     },
     [setValue]
   );
 
   useEffect(() => {
-    function getPaymentsResetValues() {
+    function getAllocationsResetValues() {
+      const allocationsFromForm = getValues('allocations') || {};
+      // console.log({ allocationsFromForm });
+
+      const currentAllocations = {
+        ...defaultAllocations,
+        ...allocationsFromForm,
+      };
+
+      // console.log({ currentAllocations, invoices });
+
+      const allocatedIdsArray = Object.keys(currentAllocations);
+      // console.log({ allocatedIdsArray });
+
       if (Array.isArray(invoices) && invoices?.length > 0) {
-        const paymentsFromForm = getValues('payments') || {};
-        // console.log({ paymentsFromForm });
-        const currentPayments = {
-          ...defaultPayments,
-          ...paymentsFromForm,
-        };
-        const paymentsArray = Object.keys(currentPayments);
-        // console.log({ paymentsArray });
-        if (paymentsArray?.length > 0) {
-          paymentsArray.forEach(bookingId => {
+        if (allocatedIdsArray?.length > 0) {
+          allocatedIdsArray.forEach(allocatedBookingId => {
             //check if this booking is in the list of invoices
-            const found = invoices.find(booking => booking.id === bookingId);
+            const found = invoices.find(
+              booking => booking._id === allocatedBookingId
+            );
+
+            // console.log({ found, allocatedBookingId });
 
             if (!found) {
               //delete the booking payment if it has not been found
-              delete currentPayments[bookingId];
+              delete currentAllocations[allocatedBookingId];
             }
           });
 
-          return { ...currentPayments };
+          return { ...currentAllocations };
         } else {
           return {};
         }
       } else {
-        return {};
+        return { ...currentAllocations };
       }
     }
 
     // console.log('generating payments rest values');
-    const newPayments = getPaymentsResetValues();
-    // console.log({ newPayments });
-    const oldPayments = getValues('payments');
-    const paymentsAreEqual = arePaymentsEqual(newPayments, oldPayments);
-    // console.log({ paymentsAreEqual });
+    const newAllocations = getAllocationsResetValues();
+    // console.log({ newAllocations });
+    const prevAllocations = getValues('allocations');
+    const allocationsAreEqual = areAllocationsEqual(
+      newAllocations,
+      prevAllocations
+    );
+    // console.log({ newAllocations, prevAllocations, allocationsAreEqual });
 
-    if (!paymentsAreEqual) {
-      updatePayments(newPayments);
+    if (!allocationsAreEqual) {
+      updateAllocations(newAllocations);
     }
-  }, [invoices, defaultPayments, updatePayments, getValues]);
+  }, [invoices, defaultAllocations, updateAllocations, getValues]);
 
   const amount = watch('amount');
 
@@ -167,7 +187,7 @@ function InvoicesPayments(props) {
           balances[invoiceId] = autoFill;
         });
 
-        console.log({ balances, excess, amount });
+        // console.log({ balances, excess, amount });
 
         return balances;
       }
@@ -187,18 +207,19 @@ function InvoicesPayments(props) {
       const values = {};
 
       invoices.forEach(invoice => {
-        const { id: invoiceId } = invoice;
+        const { _id: invoiceId } = invoice;
 
         values[invoiceId] = 0;
       });
 
-      updatePayments(values);
+      updateAllocations(values);
     }
   }
 
   function autoPay() {
     const values = generateAutoFillValues(invoices, amount);
-    updatePayments(values);
+
+    updateAllocations(values);
     // reset(values);
   }
 
@@ -206,7 +227,7 @@ function InvoicesPayments(props) {
     <VStack mt={5} pt={4} w="full">
       <Flex w="full" justify="space-between">
         <Heading as="h3" size="md">
-          invoices
+          Bookings
         </Heading>
 
         <Flex justify="flex-end" w="full">
@@ -241,14 +262,19 @@ function InvoicesPayments(props) {
               paymentId={paymentId || ''}
               loading={loading}
               formIsDisabled={formIsDisabled}
+              defaultAllocations={defaultAllocations || {}}
               isPayment
-              columnsToExclude={['actions', 'imprest', 'paymentAmount']}
+              columnsToExclude={['actions', 'imprest', 'allocatedAmount']}
               // taxDeducted={taxDeducted}
             />
           </GridItem>
+
           <GridItem colSpan={[1, 6]} />
           <GridItem colSpan={[11, 6]} borderRadius="md" p={4}>
-            <PaymentsSummaryTable amount={amount} payments={paymentsTotal} />
+            <PaymentsSummaryTable
+              amount={amount}
+              allocationsTotal={allocationsTotal}
+            />
           </GridItem>
         </Grid>
       ) : (
@@ -260,10 +286,11 @@ function InvoicesPayments(props) {
   );
 }
 
-InvoicesPayments.propTypes = {
-  invoices: PropTypes.array.isRequired,
-  loading: PropTypes.bool.isRequired,
+PaymentAllocations.propTypes = {
+  formIsDisabled: PropTypes.bool,
   paymentId: PropTypes.string,
+  customerId: PropTypes.string,
+  defaultAllocations: PropTypes.object,
 };
 
-export default InvoicesPayments;
+export default PaymentAllocations;

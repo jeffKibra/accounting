@@ -12,6 +12,7 @@ export const paymentReceivedFields = `
   allocations {
     ref
     amount
+    transactionType
   }
   paymentMode{
     _id

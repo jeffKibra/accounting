@@ -46,7 +46,7 @@ function BookingsPage() {
         >
           <BookingsTable
             showCustomer
-            columnsToExclude={['paymentInput', 'paymentAmount', 'id']}
+            columnsToExclude={['paymentAllocationInput', 'allocatedAmount', 'id']}
           />
         </Box>
         {/* <Bookings /> */}

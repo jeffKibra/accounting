@@ -13,8 +13,8 @@ function getTableColumns(showCustomer, enableActions) {
     { Header: 'Total', accessor: 'total', isNumeric: true },
     // { Header: 'Imprest', accessor: 'imprest', isNumeric: true },
     { Header: 'Balance', accessor: 'balance', isNumeric: true },
-    { Header: 'Payment', accessor: 'paymentAmount', isNumeric: true },
-    { Header: 'Pay', accessor: 'paymentInput', isNumeric: true },
+    { Header: 'Payment', accessor: 'allocatedAmount', isNumeric: true },
+    { Header: 'Pay', accessor: 'paymentAllocationInput', isNumeric: true },
     ...(enableActions
       ? [{ Header: '', accessor: 'actions', isNumeric: true }]
       : []),

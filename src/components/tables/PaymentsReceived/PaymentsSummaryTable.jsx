@@ -1,8 +1,11 @@
-import { TableContainer, Table, Tbody, Td, Tr } from "@chakra-ui/react";
-import PropTypes from "prop-types";
+import { TableContainer, Table, Tbody, Td, Tr } from '@chakra-ui/react';
+import PropTypes from 'prop-types';
+import BigNumber from 'bignumber.js';
 
 function PaymentsSummaryTable(props) {
-  const { amount, payments } = props;
+  const { amount, allocationsTotal } = props;
+
+  const excess = new BigNumber(amount).minus(allocationsTotal).dp(2).toNumber();
 
   return (
     <TableContainer>
@@ -10,17 +13,17 @@ function PaymentsSummaryTable(props) {
         <Tbody>
           <Tr>
             <Td>Amount Received</Td>
-            <Td isNumeric>{amount}</Td>
+            <Td isNumeric>{Number(amount).toLocaleString()}</Td>
           </Tr>
 
           <Tr>
             <Td>Payments</Td>
-            <Td isNumeric>{payments}</Td>
+            <Td isNumeric>{Number(allocationsTotal).toLocaleString()}</Td>
           </Tr>
 
           <Tr>
             <Td>Amount in Excess </Td>
-            <Td isNumeric>{amount - payments}</Td>
+            <Td isNumeric>{Number(excess).toLocaleString()}</Td>
           </Tr>
         </Tbody>
       </Table>
@@ -30,7 +33,7 @@ function PaymentsSummaryTable(props) {
 
 PaymentsSummaryTable.propTypes = {
   amount: PropTypes.number.isRequired,
-  payments: PropTypes.number.isRequired,
+  allocationsTotal: PropTypes.number.isRequired,
 };
 
 export default PaymentsSummaryTable;

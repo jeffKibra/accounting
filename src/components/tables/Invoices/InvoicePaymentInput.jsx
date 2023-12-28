@@ -13,7 +13,7 @@ function InvoicePaymentInput(props) {
 
   return (
     <Controller
-      name={`payments.${invoiceId}`}
+      name={`allocations.${invoiceId}`}
       control={control}
       render={({ field: { ref, onChange, onBlur, value } }) => {
         return (

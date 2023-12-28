@@ -11,9 +11,10 @@ import { Bookings } from 'utils/bookings';
 export default function formatRowData(
   bookingData,
   paymentTotal,
-  paymentId,
+  paymentAllocationToBooking,
   enableActions
 ) {
+  console.log('format row data', { bookingData });
   // console.log({ item });
   // const { model: carModel, type } = item?.model || {};
 
@@ -23,7 +24,6 @@ export default function formatRowData(
   const {
     total,
     // downPayment,
-    paymentsReceived,
     startDate,
     endDate,
     selectedDates,
@@ -32,28 +32,24 @@ export default function formatRowData(
   // const imprest = downPayment?.amount || 0;
 
   let balance = booking?.balance || 0;
-  let paymentAmount = 0;
-  if (paymentId) {
-    // balance = getBookingBalance(booking, paymentId);
-    paymentAmount = paymentsReceived[paymentId];
-  }
+
+  const allocatedAmount = paymentAllocationToBooking || 0;
 
   return {
     ...booking,
     total: Number(total).toLocaleString(),
     balance: Number(balance).toLocaleString(),
     // imprest: Number(imprest).toLocaleString(),
-    dueDate: <DueDateStatus booking={booking || {}} />,
+    // dueDate: <DueDateStatus booking={booking || {}} />,
     dates: <BookingDates startDate={startDate} endDate={endDate} />,
     // date: <bookingDates booking={booking} />,
-    paymentAmount: Number(paymentAmount).toLocaleString(),
     days: selectedDates?.length || 0,
-    paymentInput: (
+    allocatedAmount: Number(allocatedAmount).toLocaleString(),
+    paymentAllocationInput: (
       <InvoicePaymentInput
         invoiceId={bookingId}
         formIsDisabled={false}
         paymentTotal={paymentTotal}
-        paymentId={paymentId}
         balance={balance}
       />
     ),

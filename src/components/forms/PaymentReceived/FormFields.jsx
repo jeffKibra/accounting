@@ -24,10 +24,10 @@ function FormFields(props) {
     // accounts,
     paymentModes,
     customerId,
-    formDisabled,
+    formIsDisabled,
   } = props;
 
-  // console.log({ formDisabled, customerId });
+  // console.log({ formIsDisabled, customerId });
 
   // console.log({ accounts });
   // console.log({ defaultValues });
@@ -44,7 +44,7 @@ function FormFields(props) {
       <Grid gap={3} templateColumns="repeat(12, 1fr)">
         <GridItem colSpan={[12, 6]} mb={5}>
           <FormControl
-            isDisabled={formDisabled}
+            isDisabled={formIsDisabled}
             required
             isInvalid={errors.customer}
           >
@@ -54,7 +54,7 @@ function FormFields(props) {
               name="customer"
               size="md"
               placeholder="--select customer--"
-              isDisabled={formDisabled}
+              isDisabled={formIsDisabled}
               contactGroup="customer"
               controllerProps={{
                 rules: {
@@ -70,7 +70,7 @@ function FormFields(props) {
 
         <GridItem colSpan={[12, 6]}>
           <FormControl
-            isDisabled={formDisabled || !customerId}
+            isDisabled={formIsDisabled || !customerId}
             required
             isInvalid={errors.amount}
           >
@@ -103,7 +103,7 @@ function FormFields(props) {
 
         <GridItem colSpan={[12, 6]}>
           <FormControl
-            isDisabled={formDisabled || !customerId}
+            isDisabled={formIsDisabled || !customerId}
             required
             isInvalid={errors.paymentDate}
           >
@@ -117,7 +117,7 @@ function FormFields(props) {
 
         {/* <GridItem colSpan={[12, 4]}>
           <FormControl
-            isDisabled={formDisabled || !customerId}
+            isDisabled={formIsDisabled || !customerId}
             required
             isInvalid={errors.account}
           >
@@ -132,7 +132,7 @@ function FormFields(props) {
                 valueField: 'accountId',
                 groupNameField: ['accountType', 'name'],
               }}
-              isDisabled={formDisabled || !customerId}
+              isDisabled={formIsDisabled || !customerId}
             />
 
             <FormErrorMessage>{errors.account?.message}</FormErrorMessage>
@@ -141,7 +141,7 @@ function FormFields(props) {
 
         <GridItem colSpan={[12, 6]}>
           <FormControl
-            isDisabled={formDisabled || !customerId}
+            isDisabled={formIsDisabled || !customerId}
             required
             isInvalid={errors.paymentMode}
           >
@@ -151,7 +151,7 @@ function FormFields(props) {
               name="paymentMode"
               placeholder="select payment mode"
               id="payment_mode"
-              isDisabled={formDisabled || !customerId}
+              isDisabled={formIsDisabled || !customerId}
               options={paymentModes}
               optionsConfig={{ nameField: 'name', valueField: '_id' }}
               controllerProps={{
@@ -167,7 +167,7 @@ function FormFields(props) {
 
         <GridItem colSpan={[12, 6]}>
           <FormControl
-            isDisabled={formDisabled || !customerId}
+            isDisabled={formIsDisabled || !customerId}
             required
             isInvalid={errors.reference}
           >
@@ -248,13 +248,11 @@ function FormFields(props) {
 }
 
 FormFields.propTypes = {
-  loading: PropTypes.bool.isRequired,
-  formDisabled: PropTypes.bool.isRequired,
-  customers: PropTypes.array.isRequired,
-  accounts: PropTypes.array.isRequired,
-  paymentModes: PropTypes.object.isRequired,
+  // accounts: PropTypes.array.isRequired,
+  // loading: PropTypes.bool.isRequired,
+  formIsDisabled: PropTypes.bool.isRequired,
+  paymentModes: PropTypes.array.isRequired,
   customerId: PropTypes.string,
-  bookings: PropTypes.array,
 };
 
 export default FormFields;

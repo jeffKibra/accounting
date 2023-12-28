@@ -13,7 +13,7 @@ import { ListInvoicesContextProvider } from 'contexts/ListInvoicesContext';
 import { useToasts } from 'hooks';
 import ControlledDialog from 'components/ui/ControlledDialog';
 
-import BookingsPayments from 'components/forms/PaymentReceived/InvoicesPayments';
+import PaymentAllocations from 'components/forms/PaymentReceived/PaymentAllocations';
 import FormFields from 'components/forms/PaymentReceived/FormFields';
 //
 // const DEFAULT_ACCOUNT_ID = 'undeposited_funds';
@@ -58,22 +58,31 @@ export default function PaymentReceivedForm(props) {
 
   const [balance, setBalance] = useState(0);
 
-  const defaultPayments = useMemo(() => {
-    const paidInvoices = payment?.paidInvoices || [];
+  const defaultAllocations = useMemo(() => {
+    const currentAllocations = payment?.allocations || [];
 
-    let paidInvoicesMap = {};
+    let allocationsMap = {};
 
-    if (Array.isArray(paidInvoices)) {
-      paidInvoices.forEach(invoicePayment => {
-        const { invoiceId, amount } = invoicePayment;
+    if (Array.isArray(currentAllocations)) {
+      currentAllocations.forEach(allocation => {
+        const { ref, amount, transactionType } = allocation;
 
-        paidInvoicesMap[invoiceId] = amount;
+        const isInvoicePayment =
+          transactionType === 'invoice_payment' ||
+          transactionType === 'invoice_down_payment';
+
+        if (isInvoicePayment) {
+          const invoiceId = ref;
+          allocationsMap[invoiceId] = amount;
+        }
       });
     }
 
     // console.log('default payments have changed index', payments);
-    return paidInvoicesMap;
-  }, [payment?.paidInvoices]);
+    return allocationsMap;
+  }, [payment?.allocations]);
+
+  console.log({ defaultAllocations });
 
   const { isOpen, onClose, onOpen } = useDisclosure();
   const { error: toastError } = useToasts();
@@ -100,17 +109,18 @@ export default function PaymentReceivedForm(props) {
 
   // console.log({ paymentAccount, accounts });
 
+  const paymentDate = payment?.paymentDate;
   const formMethods = useForm({
     mode: 'onChange',
     resolver: yupResolver(schema),
     defaultValues: {
       customer: payment?.customer || null,
-      paymentDate: payment?.paymentDate || new Date(),
+      paymentDate: paymentDate ? new Date(+paymentDate) : new Date(),
       amount: payment?.amount || 0,
       // account: paymentAccount,
       paymentMode: payment?.paymentMode || null,
       reference: payment?.reference || '',
-      payments: defaultPayments || {},
+      allocations: defaultAllocations || {},
       // || autoFill(invoices, amount),
     },
   });
@@ -267,23 +277,26 @@ export default function PaymentReceivedForm(props) {
             borderColor="gray.200"
           >
             <FormFields
-              customers={customers}
-              loading={updating}
-              accounts={accounts}
-              paymentId={paymentId}
+              // customers={customers}
+              // loading={updating}
+              // accounts={accounts}
+              // paymentId={paymentId}
               paymentModes={paymentModes}
               formIsDisabled={formIsDisabled}
               customerId={customerId}
-              amountReceived={amountReceived}
+              // amountReceived={amountReceived}
             />
 
-            <ListInvoicesContextProvider customerId={customerId}>
-              <BookingsPayments
+            <ListInvoicesContextProvider
+              paymentId={paymentId}
+              customerId={customerId}
+            >
+              <PaymentAllocations
                 paymentId={paymentId}
                 formIsDisabled={formIsDisabled}
                 customerId={customerId}
                 amountReceived={amountReceived}
-                defaultPayments={defaultPayments}
+                defaultAllocations={defaultAllocations}
               />
             </ListInvoicesContextProvider>
           </Box>

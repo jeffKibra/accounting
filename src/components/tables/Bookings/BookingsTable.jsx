@@ -24,6 +24,7 @@ function BookingsTable(props) {
     paymentTotal,
     paymentId,
     columnsToExclude,
+    defaultAllocations,
     ...tableProps
   } = props;
   // console.log({ tableProps });
@@ -79,11 +80,17 @@ function BookingsTable(props) {
     let bookingsData = [];
 
     if (Array.isArray(bookings)) {
+      const allocations = defaultAllocations || {};
       bookingsData = bookings.map(booking => {
+        const { _id: bookingId } = booking;
+        const paymentAllocationToBooking = allocations[bookingId];
+
+        // console.log({ paymentAllocationToBooking, bookingId });
+
         const formattedData = formatRowData(
           booking,
           paymentTotal,
-          paymentId,
+          paymentAllocationToBooking,
           true
         );
 
@@ -92,7 +99,7 @@ function BookingsTable(props) {
     }
 
     return bookingsData;
-  }, [bookings, paymentId, paymentTotal]);
+  }, [bookings, paymentTotal, defaultAllocations]);
 
   const rowsAreSelectable = typeof onRowClick === 'function';
 
@@ -147,6 +154,7 @@ BookingsTable.propTypes = {
   paymentId: PropTypes.string,
   formIsDisabled: PropTypes.bool,
   columnsToExclude: PropTypes.arrayOf(PropTypes.string),
+  defaultAllocations: PropTypes.object,
 };
 
 export default BookingsTable;
