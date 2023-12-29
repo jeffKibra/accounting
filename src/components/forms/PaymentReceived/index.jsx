@@ -5,7 +5,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 
-import { getPaymentsTotal } from 'utils/payments';
+import { getAllocationsTotal } from 'utils/payments';
 //
 import { ListInvoicesContextProvider } from 'contexts/ListInvoicesContext';
 //
@@ -48,11 +48,10 @@ export default function PaymentReceivedForm(props) {
   const {
     payment,
     paymentId,
-    customers,
-    accounts,
     onSubmit,
     updating,
     paymentModes,
+    // accounts,
   } = props;
   // console.log({ accounts });
 
@@ -65,16 +64,9 @@ export default function PaymentReceivedForm(props) {
 
     if (Array.isArray(currentAllocations)) {
       currentAllocations.forEach(allocation => {
-        const { ref, amount, transactionType } = allocation;
+        const { invoiceId, amount } = allocation;
 
-        const isInvoicePayment =
-          transactionType === 'invoice_payment' ||
-          transactionType === 'invoice_down_payment';
-
-        if (isInvoicePayment) {
-          const invoiceId = ref;
-          allocationsMap[invoiceId] = amount;
-        }
+        allocationsMap[invoiceId] = amount;
       });
     }
 
@@ -82,7 +74,7 @@ export default function PaymentReceivedForm(props) {
     return allocationsMap;
   }, [payment?.allocations]);
 
-  console.log({ defaultAllocations });
+  // console.log({ defaultAllocations });
 
   const { isOpen, onClose, onOpen } = useDisclosure();
   const { error: toastError } = useToasts();
@@ -141,23 +133,23 @@ export default function PaymentReceivedForm(props) {
   // console.log({ form });
 
   const watchedFields = watch(['customer', 'amount']);
-  console.log({ watchedFields });
+  // console.log({ watchedFields });
   const customer = watchedFields[0];
   const customerId = customer?._id || '';
-  console.log({ customerId });
+  // console.log({ customerId });
 
   const amountReceived = watchedFields[1];
 
   const handleFormSubmit = useCallback(
     data => {
       const {
-        payments,
+        allocations: allocationsMap,
         paymentMode: { name: paymentModeName, _id: paymentModeId },
         ...formData
       } = data;
 
       //update form values so that incase saving fails, data is not lost
-      console.log({ data });
+      // console.log({ data });
 
       const paymentMode = {
         name: paymentModeName,
@@ -166,16 +158,16 @@ export default function PaymentReceivedForm(props) {
 
       const allocations = [];
 
-      Object.keys(payments).forEach(invoiceId => {
-        const invoicePayment = Number(payments[invoiceId]);
+      Object.keys(allocationsMap).forEach(invoiceId => {
+        const invoiceAllocation = Number(allocationsMap[invoiceId]);
 
-        if (isNaN(invoicePayment) || invoicePayment <= 0) {
-          // delete payments[invoiceId];
+        if (isNaN(invoiceAllocation) || invoiceAllocation <= 0) {
+          // delete allocations[invoiceId];
 
           return;
         }
 
-        allocations.push({ invoiceId, amount: invoicePayment });
+        allocations.push({ invoiceId, amount: invoiceAllocation });
       });
 
       const paymentData = {
@@ -184,7 +176,7 @@ export default function PaymentReceivedForm(props) {
         allocations,
       };
 
-      // console.log({ paymentData });
+      console.log({ paymentData });
 
       // console.log({ allData });
       return onSubmit(paymentData);
@@ -192,31 +184,33 @@ export default function PaymentReceivedForm(props) {
     [onSubmit]
   );
 
-  const checkOverPayment = useCallback(formData => {
-    const { amount, payments } = formData;
-    const paymentsTotal = getPaymentsTotal(payments);
+  const checkOverAllocation = useCallback(formData => {
+    const { amount, allocations } = formData;
+    const allocationsTotal = getAllocationsTotal(allocations);
 
-    console.log('checking overpayment', {
-      amount,
-      payments,
-      paymentsTotal,
-      formData,
-    });
+    // console.log('checking overpayment', {
+    //   amount,
+    //   allocations,
+    //   allocationsTotal,
+    //   formData,
+    // });
 
-    if (amount < paymentsTotal) {
+    if (amount < allocationsTotal) {
       throw new Error(
         'Amounts assigned to paying Invoices should not be greater than the Customer payment!'
       );
     }
   }, []);
 
-  const checkUnderPayment = useCallback(
+  const checkUnderAllocation = useCallback(
     formData => {
-      const { amount, payments } = formData;
-      const paymentsTotal = getPaymentsTotal(payments);
+      const { amount, allocations } = formData;
+      const allocationsTotal = getAllocationsTotal(allocations);
 
-      if (amount > paymentsTotal) {
-        setBalance(amount - paymentsTotal);
+      // console.log({ amount, allocations, allocationsTotal });
+
+      if (amount > allocationsTotal) {
+        setBalance(amount - allocationsTotal);
         onOpen();
       } else {
         return handleFormSubmit(formData);
@@ -225,32 +219,32 @@ export default function PaymentReceivedForm(props) {
     [handleFormSubmit, setBalance, onOpen]
   );
 
-  const validatePayments = useCallback(
+  const validateAllocations = useCallback(
     formData => {
-      console.log('validating payments', formData);
+      // console.log('validating allocations', formData);
       try {
-        checkOverPayment(formData);
-        return checkUnderPayment(formData);
+        checkOverAllocation(formData);
+        return checkUnderAllocation(formData);
       } catch (error) {
         console.error(error);
         toastError(error?.message);
       }
     },
-    [checkOverPayment, checkUnderPayment, toastError]
+    [checkOverAllocation, checkUnderAllocation, toastError]
   );
 
-  const confirmUnderPayment = useCallback(() => {
+  const confirmUnderAllocation = useCallback(() => {
     try {
       const formData = getValues();
 
-      checkOverPayment(formData);
+      checkOverAllocation(formData);
 
       return handleFormSubmit(formData);
     } catch (error) {
       console.error(error);
       toastError(error?.message);
     }
-  }, [getValues, checkOverPayment, handleFormSubmit, toastError]);
+  }, [getValues, checkOverAllocation, handleFormSubmit, toastError]);
 
   // console.log({ UnpaidInvoices, FormFields });
 
@@ -262,7 +256,7 @@ export default function PaymentReceivedForm(props) {
         <Box
           as="form"
           role="form"
-          onSubmit={handleSubmit(validatePayments)}
+          onSubmit={handleSubmit(validateAllocations)}
           w="full"
         >
           <Box
@@ -321,7 +315,7 @@ export default function PaymentReceivedForm(props) {
         message={`The Excess amount of ${balance} will be added to the customers Account!`}
         onConfirm={() => {
           onClose();
-          confirmUnderPayment();
+          confirmUnderAllocation();
         }}
       />
     </>

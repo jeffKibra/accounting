@@ -30,7 +30,6 @@ function EditPaymentReceivedPage(props) {
     // console.log({ data });
     return updatePaymentReceived({
       ...data,
-      paymentId,
     });
   }
 

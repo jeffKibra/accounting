@@ -16,15 +16,15 @@ import {
   // Box,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
-import BigNumber from 'bignumber.js';
+// import BigNumber from 'bignumber.js';
 
 //
 import ListInvoicesContext from 'contexts/ListInvoicesContext';
 //
 // import { useCustomerBookings } from 'hooks';
 
-import { getPaymentsTotal } from 'utils/payments';
-import { getInvoiceBalance } from 'utils/invoices';
+import { getAllocationsTotal } from 'utils/payments';
+// import { getInvoiceBalance } from 'utils/invoices';
 
 // import Empty from 'components/ui/Empty';
 
@@ -40,13 +40,15 @@ function usePaymentsTotal() {
 
   const amount = watch('amount');
   //
-  const allocationsTotal = getPaymentsTotal(allocations);
+  const allocationsTotal = getAllocationsTotal(allocations);
 
   console.log('usePaymentsTotal', { allocations, allocationsTotal, amount });
 
   return allocationsTotal;
 }
+
 //----------------------------------------------------------------
+
 function areAllocationsEqual(newAllocations = {}, prevAllocations = {}) {
   const payments1 = { ...newAllocations };
   const payments2 = { ...prevAllocations };
@@ -155,7 +157,7 @@ function PaymentAllocations(props) {
 
   // const payments = watch('payments');
 
-  // const paymentsTotal = getPaymentsTotal(payments);
+  // const paymentsTotal = getAllocationsTotal(payments);
 
   // useEffect(() => {
   //   console.log('payments have changed', payments);
@@ -255,7 +257,7 @@ function PaymentAllocations(props) {
 
       {customerId ? (
         <Grid w="full" gap={2} templateColumns="repeat(12, 1fr)">
-          <GridItem colSpan={12}>
+          <GridItem colSpan={12} ml={-4} mr={-4}>
             <BookingsTable
               // showCustomer
               paymentTotal={amount}

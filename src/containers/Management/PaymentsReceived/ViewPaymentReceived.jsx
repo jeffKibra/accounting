@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   Container,
   VStack,
@@ -13,10 +14,9 @@ import {
   Tr,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
+import BigNumber from 'bignumber.js';
 //
 import { bookingProps, datePropType } from 'propTypes';
-
-import { getPaymentsTotal } from '../../../utils/payments';
 
 import BookingsTable from 'components/tables/Bookings/BookingsTable';
 
@@ -29,12 +29,32 @@ function ViewPaymentReceived(props) {
     paymentMode,
     reference,
     amount,
-    payments,
+    allocations,
     paymentId,
   } = payment;
+  // console.log({ payment });
 
-  const paymentsTotal = getPaymentsTotal(payments);
-  const excess = amount - paymentsTotal;
+  const { excess } = useMemo(() => {
+    let allocationsTotal = new BigNumber(0);
+
+    if (Array.isArray(allocations)) {
+      allocations.forEach(allocation => {
+        const { amount } = allocation;
+
+        allocationsTotal = allocationsTotal.plus(amount);
+      });
+    }
+
+    let excess = new BigNumber(amount).minus(allocationsTotal).dp(2).toNumber();
+    allocationsTotal = allocationsTotal.dp(2).toNumber();
+
+    // console.log({ excess, allocationsTotal, allocations });
+
+    return {
+      allocationsTotal,
+      excess,
+    };
+  }, [allocations, amount]);
 
   return (
     <Container
@@ -141,8 +161,14 @@ function ViewPaymentReceived(props) {
           {/* <PaymentBookingsTable bookings={bookings} payments={payments} /> */}
           <BookingsTable
             bookings={bookings}
-            payments={payments}
-            columnsToExclude={['paymentInput', 'actions', 'imprest', 'balance']}
+            defaultAllocations={allocations}
+            // payments={payments}
+            columnsToExclude={[
+              'paymentAllocationInput',
+              'actions',
+              'imprest',
+              'balance',
+            ]}
             paymentId={paymentId}
           />
         </Box>

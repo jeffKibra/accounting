@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 //
 import useToasts from '../useToasts';
 //
+import { PAYMENTS_RECEIVED } from 'nav/routes';
 //
 import { mutations } from 'gql';
 
@@ -33,7 +34,7 @@ export default function useDeletePaymentReceived(payment, successRoute) {
       //
       reset();
       //
-      navigate(successRoute);
+      navigate(PAYMENTS_RECEIVED);
     }
   }, [success, toastSuccess, reset, navigate, successRoute]);
 

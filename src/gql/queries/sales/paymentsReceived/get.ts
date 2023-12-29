@@ -10,7 +10,7 @@ export const paymentReceivedFields = `
   amount
   reference
   allocations {
-    ref
+    invoiceId
     amount
     transactionType
   }

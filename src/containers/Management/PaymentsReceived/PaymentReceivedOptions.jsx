@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
 import { RiDeleteBin4Line, RiEdit2Line, RiEyeLine } from 'react-icons/ri';
 import PropTypes from 'prop-types';
@@ -12,14 +11,7 @@ function PaymentReceivedOptions(props) {
   const { payment, edit, view, deletion } = props;
   const { _id: paymentId } = payment;
 
-  const { details, isDeleted, resetPayment } =
-    useDeletePaymentReceived(payment);
-
-  useEffect(() => {
-    if (isDeleted) {
-      resetPayment();
-    }
-  }, [isDeleted, resetPayment]);
+  const { details } = useDeletePaymentReceived(payment);
 
   const options = [
     ...(view
