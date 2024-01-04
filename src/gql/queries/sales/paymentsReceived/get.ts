@@ -1,4 +1,13 @@
 import { gql } from '@apollo/client';
+//
+import { invoiceFields } from '../invoices/get';
+//
+
+export const allocationFields = `
+  invoiceId
+  amount
+  transactionType
+`;
 
 export const paymentReceivedFields = `
   _id
@@ -9,11 +18,7 @@ export const paymentReceivedFields = `
   }
   amount
   reference
-  allocations {
-    invoiceId
-    amount
-    transactionType
-  }
+  
   paymentMode{
     _id
     name
@@ -30,12 +35,25 @@ export const paymentReceivedFields = `
 //     amount
 //   }
 
-const GET_PAYMENT_RECEIVED = gql`
+export const GET_PAYMENT_RECEIVED = gql`
   query GetPaymentReceived($id: ID) {
     paymentReceived(id: $id) {
      ${paymentReceivedFields}
+     allocations {
+       ${allocationFields}
+     }
     }
   }
 `;
 
-export default GET_PAYMENT_RECEIVED;
+export const GET_PAYMENT_RECEIVED_WITH_INVOICES_POPULATED = gql`
+  query GetPaymentReceivedWithPopulatedInvoices($id: ID) {
+    populatedPaymentReceived(id: $id) {
+     ${paymentReceivedFields}
+     allocations {
+        ${invoiceFields}
+       ${allocationFields}
+     }
+    }
+  }
+`;

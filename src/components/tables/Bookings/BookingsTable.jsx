@@ -1,17 +1,11 @@
-import { useMemo, useContext } from 'react';
+import { useContext } from 'react';
 import PropTypes from 'prop-types';
 // import { Text } from '@chakra-ui/react';
 
-// import useDeletebooking from "../../../hooks/useDeletebooking";
-import RTTable from 'components/ui/Table/RTTable';
-// import CustomRawTable from '../CustomRawTable';
-// import TableActions from "../TableActions";
+import BookingsTableView from './BookingsTableView';
 
-// import bookingDates from './bookingDates';
 import ListInvoicesContext from 'contexts/ListInvoicesContext';
 //
-import formatRowData from './formatRowData';
-import getTableColumns from './getTableColumns';
 //
 import { bookingProps } from 'propTypes';
 
@@ -53,60 +47,9 @@ function BookingsTable(props) {
 
   console.log({ bookings });
 
-  const columns = useMemo(() => {
-    const allColumns = getTableColumns(showCustomer, true);
-
-    const columnsToExcludeMap = {};
-    if (Array.isArray(columnsToExclude)) {
-      columnsToExclude.forEach(column => {
-        columnsToExcludeMap[column] = column;
-      });
-    }
-
-    const columnsToDisplay = [];
-    allColumns.forEach(column => {
-      const columnId = column.accessor;
-      const excludeColumn = Boolean(columnsToExcludeMap[columnId]);
-
-      if (!excludeColumn) {
-        columnsToDisplay.push(column);
-      }
-    });
-
-    return columnsToDisplay;
-  }, [showCustomer, columnsToExclude]);
-
-  const data = useMemo(() => {
-    let bookingsData = [];
-
-    if (Array.isArray(bookings)) {
-      const allocations = defaultAllocations || {};
-      bookingsData = bookings.map(booking => {
-        const { _id: bookingId } = booking;
-        const paymentAllocationToBooking = allocations[bookingId];
-
-        // console.log({ paymentAllocationToBooking, bookingId });
-
-        const formattedData = formatRowData(
-          booking,
-          paymentTotal,
-          paymentAllocationToBooking,
-          true
-        );
-
-        return formattedData;
-      });
-    }
-
-    return bookingsData;
-  }, [bookings, paymentTotal, defaultAllocations]);
-
-  const rowsAreSelectable = typeof onRowClick === 'function';
-
   return (
-    <RTTable
-      columns={columns}
-      data={data}
+    <BookingsTableView
+      bookings={bookings}
       //status
       loading={loading}
       error={error}
@@ -119,29 +62,11 @@ function BookingsTable(props) {
       nextPage={nextPage}
       previousPage={previousPage}
       setPageSize={setHitsPerPage}
-      //
-      // onFiltersModalOpen={openFiltersModal}
-      //
       onSort={handleSortByChange}
       // onSearch={setValueToSearch}
       onRowClick={onRowClick}
       rowIdToHighlight={itemIdToHighlight || ''}
       rowFieldToUseAsIdForHighlighting="_id"
-      highlightedRowBGColor="cyan.50"
-      {...(rowsAreSelectable
-        ? {
-            bodyRowProps: {
-              cursor: 'pointer',
-              transition: 'all 100ms ease-in-out',
-              _hover: {
-                backgroundColor: 'cyan.100',
-              },
-              _active: {
-                backgroundColor: 'cyan.200',
-              },
-            },
-          }
-        : {})}
       {...tableProps}
     />
   );

@@ -2,7 +2,7 @@ import BookingOptions from 'containers/Management/Bookings/BookingOptions';
 
 //
 import BookingDates from './BookingDates';
-import DueDateStatus from './DueDateStatus';
+// import DueDateStatus from './DueDateStatus';
 import InvoicePaymentInput from '../Invoices/InvoicePaymentInput';
 //
 import { Bookings } from 'utils/bookings';
@@ -33,7 +33,9 @@ export default function formatRowData(
 
   let balance = booking?.balance || 0;
 
-  const allocatedAmount = paymentAllocationToBooking || 0;
+  const allocatedAmount = bookingData?.amount;
+
+  // const allocatedAmount = paymentAllocationToBooking || 0;
 
   return {
     ...booking,

@@ -18,10 +18,10 @@ import BigNumber from 'bignumber.js';
 //
 import { bookingProps, datePropType } from 'propTypes';
 
-import BookingsTable from 'components/tables/Bookings/BookingsTable';
+import BookingsTableView from 'components/tables/Bookings/BookingsTableView';
 
 function ViewPaymentReceived(props) {
-  const { payment, bookings } = props;
+  const { payment } = props;
   const {
     org,
     customer,
@@ -31,10 +31,11 @@ function ViewPaymentReceived(props) {
     amount,
     allocations,
     paymentId,
+    excess,
   } = payment;
   // console.log({ payment });
 
-  const { excess } = useMemo(() => {
+  const allocationsTotal = useMemo(() => {
     let allocationsTotal = new BigNumber(0);
 
     if (Array.isArray(allocations)) {
@@ -45,16 +46,14 @@ function ViewPaymentReceived(props) {
       });
     }
 
-    let excess = new BigNumber(amount).minus(allocationsTotal).dp(2).toNumber();
+    // let excess = new BigNumber(amount).minus(allocationsTotal).dp(2).toNumber();
     allocationsTotal = allocationsTotal.dp(2).toNumber();
 
     // console.log({ excess, allocationsTotal, allocations });
 
-    return {
-      allocationsTotal,
-      excess,
-    };
-  }, [allocations, amount]);
+    return allocationsTotal;
+  }, [allocations]);
+  console.log({ allocationsTotal });
 
   return (
     <Container
@@ -159,8 +158,8 @@ function ViewPaymentReceived(props) {
 
         <Box w="full" pt={3}>
           {/* <PaymentBookingsTable bookings={bookings} payments={payments} /> */}
-          <BookingsTable
-            bookings={bookings}
+          <BookingsTableView
+            bookings={allocations}
             defaultAllocations={allocations}
             // payments={payments}
             columnsToExclude={[
@@ -187,10 +186,9 @@ ViewPaymentReceived.propTypes = {
     paymentDate: datePropType,
     paymentId: PropTypes.string.isRequired,
     status: PropTypes.number,
-    payments: PropTypes.object.isRequired,
+    allocations: PropTypes.arrayOf(bookingProps),
     reference: PropTypes.string,
   }),
-  bookings: PropTypes.arrayOf(bookingProps),
 };
 
 export default ViewPaymentReceived;

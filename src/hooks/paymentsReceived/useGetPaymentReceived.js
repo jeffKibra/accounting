@@ -6,11 +6,17 @@ import { queries } from 'gql';
 import useToasts from '../useToasts';
 
 //
-const { GET_PAYMENT_RECEIVED } = queries.sales.paymentsReceived;
+const { GET_PAYMENT_RECEIVED, GET_PAYMENT_RECEIVED_WITH_INVOICES_POPULATED } =
+  queries.sales.paymentsReceived;
 //
 
-function useGetPaymentReceived(paymentReceivedId) {
-  const { loading, error, data, refetch } = useQuery(GET_PAYMENT_RECEIVED, {
+function useGetPaymentReceived(paymentReceivedId, mode) {
+  const isUpdate = mode === 'update';
+  const query = isUpdate
+    ? GET_PAYMENT_RECEIVED
+    : GET_PAYMENT_RECEIVED_WITH_INVOICES_POPULATED;
+
+  const { loading, error, data, refetch } = useQuery(query, {
     variables: { id: paymentReceivedId },
     fetchPolicy: 'cache-and-network',
   });
@@ -25,8 +31,10 @@ function useGetPaymentReceived(paymentReceivedId) {
     }
   }, [failed, error, toastError]);
 
-  const rawPaymentReceived = data?.paymentReceived;
-  console.log({ rawPaymentReceived });
+  const rawPaymentReceived = isUpdate
+    ? data?.paymentReceived
+    : data?.populatedPaymentReceived;
+  // console.log({ rawPaymentReceived });
 
   let paymentReceived = null;
   if (rawPaymentReceived) {

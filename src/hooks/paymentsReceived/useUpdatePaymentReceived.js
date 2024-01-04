@@ -17,7 +17,10 @@ function useUpdatePaymentReceived(paymentId) {
 
   console.log('use update payment received');
 
-  const { loading, paymentReceived } = useGetPaymentReceived(paymentId);
+  const { loading, paymentReceived } = useGetPaymentReceived(
+    paymentId,
+    'update'
+  );
 
   const navigate = useNavigate();
 

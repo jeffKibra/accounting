@@ -1,9 +1,12 @@
 import { gql } from '@apollo/client';
 
-import { paymentReceivedFields } from './get';
+import { paymentReceivedFields, allocationFields } from './get';
 
 export const paymentReceivedInListFields = `
   ${paymentReceivedFields}
+  allocations {
+    ${allocationFields}
+  }
 `;
 
 const LIST_PAYMENTS_RECEIVED = gql`
