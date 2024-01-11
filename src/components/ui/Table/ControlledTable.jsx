@@ -36,6 +36,7 @@ function ControlledTable(props) {
     globalFilter,
     setGlobalFilter,
     //pagination props
+    showPagination,
     pageIndex,
     pageSize,
     gotoPage,
@@ -87,8 +88,9 @@ function ControlledTable(props) {
         ) : null}
       </HStack>
 
+      {/* minW="650px" */}
       <TableContainer w="full">
-        <ChakraTable minW="650px" variant="simple" size="sm" {...tableProps}>
+        <ChakraTable width="full" variant="simple" size="sm" {...tableProps}>
           <THead headers={headers} />
 
           {loading ? null : (
@@ -103,7 +105,6 @@ function ControlledTable(props) {
           {caption && <TableCaption>{caption}</TableCaption>}
         </ChakraTable>
       </TableContainer>
-
       {loading ? (
         <SkeletonLoader />
       ) : (
@@ -123,24 +124,26 @@ function ControlledTable(props) {
           ) : null}
         </>
       )}
-
-      <Box w="full" mt={2} mb={1}>
-        <Pagination
-          data={data || []}
-          loading={loading}
-          canNextPage={canNextPage}
-          canPreviousPage={canPreviousPage}
-          gotoPage={gotoPage}
-          nextPage={nextPage}
-          previousPage={previousPage}
-          pageIndex={Number(pageIndex)}
-          // pageCount={pageCount}
-          rowsPerPage={Number(pageSize)}
-          onRowsPerPageChange={setPageSize}
-          rowsPerPageOptions={rowsPerPageOptions}
-          itemsCount={Number(allItemsCount) || 0}
-        />
-      </Box>
+      {showPagination ? (
+        <Box w="full" mt={2} mb={1}>
+          <Pagination
+            // show={showPagination === false ? false : true}
+            data={data || []}
+            loading={loading}
+            canNextPage={canNextPage}
+            canPreviousPage={canPreviousPage}
+            gotoPage={gotoPage}
+            nextPage={nextPage}
+            previousPage={previousPage}
+            pageIndex={Number(pageIndex)}
+            // pageCount={pageCount}
+            rowsPerPage={Number(pageSize)}
+            onRowsPerPageChange={setPageSize}
+            rowsPerPageOptions={rowsPerPageOptions}
+            itemsCount={Number(allItemsCount) || 0}
+          />
+        </Box>
+      ) : null}
     </Box>
   );
 }
@@ -175,6 +178,7 @@ export const ControlledTablePropTypes = {
   // onFilter: PropTypes.func,
   //
   onFiltersModalOpen: PropTypes.func,
+  showPagination: PropTypes.bool,
   ...TableContextProviderPropTypes,
 };
 

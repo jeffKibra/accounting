@@ -8,6 +8,7 @@ export const invoiceFields = `
     description
     rate
     qty
+    unit
     total
     salesAccountId
     details {

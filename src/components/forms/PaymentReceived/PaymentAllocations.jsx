@@ -260,6 +260,7 @@ function PaymentAllocations(props) {
           <GridItem colSpan={12} ml={-4} mr={-4}>
             <BookingsTable
               // showCustomer
+              showPagination={false}
               paymentTotal={amount}
               paymentId={paymentId || ''}
               loading={loading}

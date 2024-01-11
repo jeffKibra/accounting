@@ -173,6 +173,7 @@ export const RTTablePropTypes = {
   loading: PropTypes.bool,
   error: PropTypes.object,
   //pagination props
+  showPagination: PropTypes.bool,
   pageIndex: PropTypes.number,
   pageCount: PropTypes.number,
   gotoPage: PropTypes.func,
@@ -193,10 +194,11 @@ RTTable.propTypes = {
 
 RTTable.defaultProps = {
   gotoPage: () => {},
-  setPageSize: () => {},
+  // setPageSize: () => {},
   onRowClick: () => {},
   // onSearch: () => {},
   onSort: () => {},
+  showPagination: true,
 };
 
 export default RTTable;

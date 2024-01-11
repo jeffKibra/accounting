@@ -70,6 +70,9 @@ export default function Pagination(props) {
   const firstItem = data[0]?.original;
   const lastItem = data[data.length - 1]?.original;
 
+  const onRowsPerPageChangeIsValid = typeof onRowsPerPageChange === 'function';
+  // console.log({ onRowsPerPageChangeIsValid, onRowsPerPageChange });
+
   return (
     <Box
       display="flex"
@@ -93,6 +96,7 @@ export default function Pagination(props) {
           size="sm"
           allowClearSelection={false}
           sortDirection="desc"
+          isDisabled={!onRowsPerPageChangeIsValid}
         />
       </Box>
 

@@ -1,11 +1,11 @@
 import { Divider, Accordion, VStack, Flex, Box } from '@chakra-ui/react';
 import {
   RiDashboardLine,
-  RiSettings6Line,
+  // RiSettings6Line,
   RiContactsLine,
   RiCoinsLine,
   RiStore3Line,
-  RiBook2Line,
+  // RiBook2Line,
   RiCarLine,
   RiCalendarCheckLine,
 } from 'react-icons/ri';
@@ -106,7 +106,7 @@ function ManagementSidebar(props) {
       <Box w="full" height="50px"></Box>
       <Divider />
 
-      <ExpandableDrawerItem
+      {/* <ExpandableDrawerItem
         title="Bookkeeping"
         icon={RiBook2Line}
         subRoutes={[
@@ -120,7 +120,7 @@ function ManagementSidebar(props) {
         title="Settings"
         icon={RiSettings6Line}
         subRoutes={[{ title: 'Taxes', route: routes.TAXES }]}
-      />
+      /> */}
     </>
   );
 }

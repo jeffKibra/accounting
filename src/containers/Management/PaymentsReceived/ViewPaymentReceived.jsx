@@ -159,6 +159,7 @@ function ViewPaymentReceived(props) {
         <Box w="full" pt={3}>
           {/* <PaymentBookingsTable bookings={bookings} payments={payments} /> */}
           <BookingsTableView
+            showPagination={false}
             bookings={allocations}
             defaultAllocations={allocations}
             // payments={payments}

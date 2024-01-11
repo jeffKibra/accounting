@@ -30,11 +30,12 @@ export default function generateQueryOptions(state, additionalQueryParams) {
     additionalQueryParams && typeof additionalQueryParams === 'object';
 
   // console.log({ sortByIsValid, sortBy });
+  console.log({ hitsPerPage });
 
   const queryOptions = {
     pagination: {
-      limit: hitsPerPage,
       page: pageNumberIsValid ? incomingPage : 0,
+      ...(hitsPerPage ? { limit: hitsPerPage } : {}),
     },
     filters: {
       ...filters,

@@ -38,6 +38,7 @@ function BookingsTableView(props) {
     handleSortByChange,
     ...tableProps
   } = props;
+  console.log({ columnsToExclude });
   // console.log({ tableProps });
   // console.log({ bookings });
 
@@ -145,6 +146,8 @@ BookingsTableView.propTypes = {
   formIsDisabled: PropTypes.bool,
   columnsToExclude: PropTypes.arrayOf(PropTypes.string),
   defaultAllocations: PropTypes.object,
+  //
+  itemIdToHighlight: PropTypes.string,
   //
   loading: PropTypes.bool,
   error: PropTypes.object,

@@ -18,9 +18,10 @@ function CustomRawTable(props) {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     instance;
 
+  // minW = '650px';
   return (
     <TableContainer w="full">
-      <Table {...getTableProps()} minW="650px" variant="simple" size="sm">
+      <Table {...getTableProps()} width="full" variant="simple" size="sm">
         {caption && <TableCaption>{caption}</TableCaption>}
         <Thead>
           {headerGroups.map(headerGroup => {

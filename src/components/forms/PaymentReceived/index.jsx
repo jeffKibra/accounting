@@ -284,6 +284,7 @@ export default function PaymentReceivedForm(props) {
             <ListInvoicesContextProvider
               paymentId={paymentId}
               customerId={customerId}
+              defaultValues={{ hitsPerPage: 50 }}
             >
               <PaymentAllocations
                 paymentId={paymentId}

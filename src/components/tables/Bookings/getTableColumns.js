@@ -1,10 +1,12 @@
 function getTableColumns(showCustomer, enableActions) {
   const tableColumns = [
+    { Header: 'Booking#', accessor: '_id' },
     { Header: 'Car', accessor: 'vehicle.registration' },
     { Header: 'Booking Dates', accessor: 'dates' },
+    // { Header: 'Date Out', accessor: 'startDate' },
+    // { Header: 'Date In', accessor: 'endDate' },
 
-    { Header: 'Days', accessor: 'days', isNumeric: true },
-    { Header: 'Booking#', accessor: 'id' },
+    // { Header: 'Days', accessor: 'days', isNumeric: true },
     ...(showCustomer
       ? [{ Header: 'Customer', accessor: 'customer.displayName' }]
       : []),

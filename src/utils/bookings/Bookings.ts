@@ -189,8 +189,15 @@ export default class Bookings {
   //----------------------------------------------------------------
 
   static convertInvoiceToBooking(invoice: IBookingInvoice) {
-    const { customer, customerNotes, subTotal, total, balance, items, _id } =
-      invoice;
+    const {
+      customer: { __typename: customerTypename, ...customer },
+      customerNotes,
+      subTotal,
+      total,
+      balance,
+      items,
+      _id,
+    } = invoice;
     const bookingData = items[0];
     //
     const {
@@ -201,16 +208,17 @@ export default class Bookings {
     } = bookingData;
     const details = itemDetails as Required<ISaleItemDetails>;
 
-    const { selectedDates, startDate, endDate, item: vehicle } = details;
+    const {
+      selectedDates,
+      startDate,
+      endDate,
+      item: { __typename: vehicleTypename, ...item },
+    } = details;
 
-    try {
-      delete vehicle?.__typename;
-      delete vehicle?.model.__typename;
-      delete customer?.__typename;
-    } catch (error) {
-      console.warn('Error deleting booking __typenames');
-      console.error(error);
-    }
+    const {
+      model: { __typename: modelTypename, ...model },
+    } = item;
+    const vehicle = { ...item, model };
 
     //
     const transferFee = items[1]?.total || 0;

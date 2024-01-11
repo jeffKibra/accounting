@@ -10,17 +10,6 @@ import ListInvoicesContext from 'contexts/ListInvoicesContext';
 import { bookingProps } from 'propTypes';
 
 function BookingsTable(props) {
-  const {
-    onRowClick,
-    enableActions,
-    itemIdToHighlight,
-    showCustomer,
-    paymentTotal,
-    paymentId,
-    columnsToExclude,
-    defaultAllocations,
-    ...tableProps
-  } = props;
   // console.log({ tableProps });
   // console.log({ bookings });
 
@@ -64,10 +53,7 @@ function BookingsTable(props) {
       setPageSize={setHitsPerPage}
       onSort={handleSortByChange}
       // onSearch={setValueToSearch}
-      onRowClick={onRowClick}
-      rowIdToHighlight={itemIdToHighlight || ''}
-      rowFieldToUseAsIdForHighlighting="_id"
-      {...tableProps}
+      {...props}
     />
   );
 }

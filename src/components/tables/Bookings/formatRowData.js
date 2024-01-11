@@ -26,7 +26,7 @@ export default function formatRowData(
     // downPayment,
     startDate,
     endDate,
-    selectedDates,
+    // selectedDates,
     _id: bookingId,
   } = booking;
   // const imprest = downPayment?.amount || 0;
@@ -43,9 +43,10 @@ export default function formatRowData(
     balance: Number(balance).toLocaleString(),
     // imprest: Number(imprest).toLocaleString(),
     // dueDate: <DueDateStatus booking={booking || {}} />,
+    // startDate: new Date(+startDate).toDateString(),
+    // endDate: new Date(+endDate).toDateString(),
     dates: <BookingDates startDate={startDate} endDate={endDate} />,
-    // date: <bookingDates booking={booking} />,
-    days: selectedDates?.length || 0,
+    // days: selectedDates?.length || 0,
     allocatedAmount: Number(allocatedAmount).toLocaleString(),
     paymentAllocationInput: (
       <InvoicePaymentInput

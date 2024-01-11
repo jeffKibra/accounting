@@ -23,8 +23,8 @@ function SaleItemsTable(props) {
       { Header: 'Description', accessor: 'description' },
       { Header: 'Quantity', accessor: 'quantityString', isNumeric: true },
       { Header: 'Rate', accessor: 'itemRate', isNumeric: true },
-      { Header: 'Tax', accessor: 'tax', isNumeric: true },
-      { Header: 'Amount', accessor: 'totalAmount', isNumeric: true },
+      // { Header: 'Tax', accessor: 'tax', isNumeric: true },
+      { Header: 'Total', accessor: 'totalAmount', isNumeric: true },
       ...(showActions ? [{ Header: '', accessor: 'actions' }] : []),
     ];
   }, [showActions]);
@@ -37,6 +37,7 @@ function SaleItemsTable(props) {
         description,
         rate,
         qty,
+        unit,
         subTotal,
         total,
         salesTax,
@@ -44,13 +45,11 @@ function SaleItemsTable(props) {
         // itemTaxTotal,
         // itemRate,
         // itemTax,
-        details,
+        // details,
       } = saleItem;
 
       // const rate = taxType === 'taxInclusive' ? itemRate + itemTax : itemRate;
       const amount = taxType === 'inclusive' ? total : subTotal;
-
-      const itemUnit = details?.units || '';
 
       return {
         ...saleItem,
@@ -60,10 +59,10 @@ function SaleItemsTable(props) {
             <Text fontSize="xs">{description || ''}</Text>
           </>
         ),
-        itemRate: rate,
-        totalAmount: amount,
+        itemRate: Number(rate).toLocaleString(),
+        totalAmount: Number(amount).toLocaleString(),
         // displayName: `${name}`,
-        quantityString: `${qty} ${itemUnit}`,
+        quantityString: `${Number(qty).toLocaleString()} ${unit || ''}`,
         tax: salesTax?.name ? `${salesTax?.name} (${salesTax?.rate}%)` : '0%',
         ...(showActions
           ? {

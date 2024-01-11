@@ -7,7 +7,9 @@ import useToasts from '../useToasts';
 
 //
 export function formatBookingData(formData) {
+  // console.log({ formData });
   try {
+    delete formData?.vehicle?.model?.__typename;
     delete formData?.dueDate;
     delete formData?.saleDate;
     delete formData?.downPayment?.paymentMode?.__typename;
