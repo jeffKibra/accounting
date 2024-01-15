@@ -85,7 +85,7 @@ export default function ListContextProvider(props) {
           ? generateQueryVariablesCB
           : generateQueryVariables;
 
-      console.log({ stateToParse });
+      // console.log({ stateToParse });
 
       return cb(stateToParse, additionalQueryParams);
     },
@@ -98,12 +98,12 @@ export default function ListContextProvider(props) {
     // console.log({ originalState });
 
     const variables = generateQueryVariablesLocally(originalState);
-    console.log('generating initial query variables', variables);
+    // console.log('generating initial query variables', variables);
 
     return variables;
   }, [getValues, generateQueryVariablesLocally]);
 
-  console.log({ initialQueryVariables });
+  // console.log({ initialQueryVariables });
 
   //----------------------------------------------------------------
 
@@ -147,9 +147,9 @@ export default function ListContextProvider(props) {
         // console.log({ state });
 
         const queryVariables = generateQueryVariablesLocally(state);
-        console.log({ queryVariables });
+        // console.log();
 
-        console.log('searching...');
+        console.log('searching...', { queryVariables });
 
         return refetch({
           ...queryVariables,
@@ -276,7 +276,7 @@ export default function ListContextProvider(props) {
         value={{
           //search params
           hitsPerPage,
-          currentFilters,
+          filters: currentFilters,
           //search result values
           rawResult,
           loading,

@@ -45,7 +45,7 @@ function FiltersDisplay(props) {
   }
 
   return (
-    <Flex flexWrap="wrap" direction="row" px={4} spacing={3} mb={2}>
+    <Flex flexWrap="wrap" direction="row" spacing={3} mb={2}>
       <RateFilters
         selectedRatesRange={rate}
         ratesRangeFacet={ratesRangeFacet}

@@ -22,9 +22,18 @@ function useGetVehicle(vehicleId) {
     }
   }, [failed, error, toastError]);
 
-  const vehicle = data?.vehicle;
-  delete vehicle?.__typename;
-  delete vehicle?.model?.__typename;
+  const vehicle = data?.vehicle
+    ? JSON.parse(JSON.stringify(data.vehicle))
+    : null;
+
+  try {
+    if (vehicle) {
+      delete vehicle?.__typename;
+      delete vehicle?.model?.__typename;
+    }
+  } catch (error) {
+    console.warn(error);
+  }
 
   return { loading, error, vehicle, refetch };
 }

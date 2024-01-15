@@ -32,17 +32,21 @@ function useGetInvoice(invoiceId) {
   if (rawinvoice) {
     const { saleDate, dueDate } = rawinvoice;
 
-    invoice = {
-      ...rawinvoice,
-      saleDate: new Date(+saleDate),
-      dueDate: new Date(+dueDate),
-    };
+    invoice = JSON.parse(
+      JSON.stringify({
+        ...rawinvoice,
+        saleDate: new Date(+saleDate),
+        dueDate: new Date(+dueDate),
+      })
+    );
   }
 
   try {
-    delete invoice?.__typename;
-    delete invoice?.customer?.__typename;
-    delete invoice?.paymentTerm?.__typename;
+    if (invoice) {
+      delete invoice?.__typename;
+      delete invoice?.customer?.__typename;
+      delete invoice?.paymentTerm?.__typename;
+    }
   } catch (error) {
     console.error(error);
   }

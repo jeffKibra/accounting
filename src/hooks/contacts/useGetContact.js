@@ -23,12 +23,29 @@ function useGetContact(contactId) {
     }
   }, [failed, error, toastError]);
 
-  const contact = data?.contact;
-  delete contact?.__typename;
-  delete contact?.billingAddress?.__typename;
-  delete contact?.shippingAddress?.__typename;
-  delete contact?.paymentTerm?.__typename;
-  delete contact?.metaData?.__typename;
+  const contact =  JSON.parse(JSON.stringify(data?.contact||{})) 
+
+  try {
+    if (contact) {
+      console.log({ contact });
+      delete contact.__typename;
+      //
+      if (contact.billingAddress) {
+        delete contact.billingAddress?.__typename;
+      }
+      if (contact.shippingAddress) {
+        delete contact.shippingAddress?.__typename;
+      }
+      if (contact.paymentTerm) {
+        delete contact.paymentTerm?.__typename;
+      }
+      if (contact.metaData) {
+        delete contact.metaData?.__typename;
+      }
+    }
+  } catch (error) {
+    console.warn(error);
+  }
 
   return { loading, error, contact, refetch };
 }

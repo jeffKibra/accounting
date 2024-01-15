@@ -1,7 +1,7 @@
-import { useContext } from 'react';
+// import { useContext } from 'react';
 import { Box } from '@chakra-ui/react';
 import {
-  RiCalendarEventLine,
+  // RiCalendarEventLine,
   RiDeleteBin4Line,
   RiEdit2Line,
   RiEyeLine,
@@ -9,18 +9,24 @@ import {
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 //
-import SearchItemsContext from 'contexts/SearchItemsContext';
+// import SearchItemsContext from 'contexts/SearchItemsContext';
 
 import useDeleteItem from '../../../hooks/useDeleteItem';
 
 import MenuOptions from '../../../components/ui/MenuOptions';
 
 function ItemOptions(props) {
-  const { item, edit, view, deletion, schedule } = props;
+  const {
+    item,
+    edit,
+    view,
+    deletion,
+    // schedule
+  } = props;
   const { _id: itemId } = item;
   const { details } = useDeleteItem(item);
 
-  const { handleSearchVehicles } = useContext(SearchItemsContext);
+  // const { handleSearchVehicles } = useContext(SearchItemsContext);
 
   const options = [
     ...(view
@@ -54,16 +60,16 @@ function ItemOptions(props) {
           },
         ]
       : []),
-    ...(schedule
-      ? [
-          {
-            name: 'View Schedule',
-            icon: RiCalendarEventLine,
-            as: Link,
-            to: `/items/${itemId}/schedule`,
-          },
-        ]
-      : []),
+    // ...(schedule
+    //   ? [
+    //       {
+    //         name: 'View Schedule',
+    //         icon: RiCalendarEventLine,
+    //         as: Link,
+    //         to: `/items/${itemId}/schedule`,
+    //       },
+    //     ]
+    //   : []),
   ];
 
   return (

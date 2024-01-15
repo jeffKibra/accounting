@@ -40,18 +40,20 @@ function useGetPaymentReceived(paymentReceivedId, mode) {
   if (rawPaymentReceived) {
     const { paymentDate } = rawPaymentReceived;
 
-    paymentReceived = {
-      ...rawPaymentReceived,
-      paymentDate: new Date(+paymentDate),
-    };
+    paymentReceived = JSON.parse(
+      JSON.stringify({
+        ...rawPaymentReceived,
+        paymentDate: new Date(+paymentDate),
+      })
+    );
   }
 
   if (paymentReceived) {
     try {
-      delete paymentReceived?.__typename;
-      delete paymentReceived?.customer?.__typename;
-      delete paymentReceived?.paymentMode?.__typename;
-      delete paymentReceived?.metaData?.__typename;
+      delete paymentReceived.__typename;
+      delete paymentReceived.customer?.__typename;
+      delete paymentReceived.paymentMode?.__typename;
+      delete paymentReceived.metaData?.__typename;
     } catch (error) {
       console.error(error);
     }

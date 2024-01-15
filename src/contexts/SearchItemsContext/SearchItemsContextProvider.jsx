@@ -81,6 +81,7 @@ function ContextProvider(props) {
     meta,
     list: vehicles,
   } = searchContext;
+  // console.log({ filters });
   // console.log({ vehicles });
 
   const result = rawResult?.searchVehicles;
