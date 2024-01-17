@@ -1,8 +1,10 @@
-// import { Button } from '@chakra-ui/react';
+import { Link } from 'react-router-dom';
+import { Button } from '@chakra-ui/react';
 import { useLocation } from 'react-router-dom';
-// import { RiAddLine } from 'react-icons/ri';
+import { RiAddLine } from 'react-icons/ri';
 
 import useSavedLocation from '../../../hooks/useSavedLocation';
+import { useGetV } from 'hooks';
 
 import PageLayout from '../../../components/layout/PageLayout';
 import CarModels from '../../../containers/Management/CarModels/CarModels';
@@ -14,13 +16,13 @@ function CarModelsPage() {
   return (
     <PageLayout
       pageTitle="Car Models"
-      // actions={
-      //   <Link to={`${location.pathname}/new`}>
-      //     <Button leftIcon={<RiAddLine />} colorScheme="cyan" size="sm">
-      //       New Model
-      //     </Button>
-      //   </Link>
-      // }
+      actions={
+        <Link to={`${location.pathname}/new`}>
+          <Button leftIcon={<RiAddLine />} colorScheme="cyan" size="sm">
+            New
+          </Button>
+        </Link>
+      }
       breadcrumbLinks={{
         Dashboard: '/',
         'Car Models': location.pathname,

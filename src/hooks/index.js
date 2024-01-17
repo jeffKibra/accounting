@@ -50,4 +50,6 @@ export * from './paymentsReceived';
 //
 export * from './contacts';
 //
+export * from './vehicles';
+//
 export { default as useModalAutoClose } from './useModalAutoClose';

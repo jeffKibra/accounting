@@ -4,9 +4,9 @@ import * as routes from '../routes';
 import ManagementRoute from '../ManagementRoute';
 
 //CarModels
-import CarModelsPage from 'pages/Management/CarModels/CarModelsPage';
-import NewCarModelPage from 'pages/Management/CarModels/NewCarModelPage';
-import EditCarModelPage from 'pages/Management/CarModels/EditCarModelPage';
+import CarModelsPage from 'pages/Management/VehicleModels/CarModelsPage';
+import NewCarModelPage from 'pages/Management/VehicleModels/NewCarModelPage';
+import EditCarModelPage from 'pages/Management/VehicleModels/EditCarModelPage';
 
 function CarModels() {
   return [

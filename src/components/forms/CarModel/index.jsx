@@ -14,6 +14,7 @@ import PropTypes from 'prop-types';
 import { useForm, FormProvider } from 'react-hook-form';
 //
 import NumInput from '../../ui/NumInput';
+import RHFSimpleSelect from 'components/ui/hookForm/RHFSimpleSelect';
 // import CustomSelect from '../../ui/CustomSelect';
 
 export default function CarModelForm(props) {
@@ -64,11 +65,16 @@ export default function CarModelForm(props) {
               isInvalid={errors.make}
             >
               <FormLabel htmlFor="make">Car Make</FormLabel>
-              <Input
+
+              <RHFSimpleSelect
                 id="make"
-                {...register('make', {
-                  required: { value: true, message: 'Required' },
-                })}
+                name="make"
+                isDisabled={updating}
+                placeholder="Select Car make"
+                options={[]}
+                controllerProps={{
+                  rules: { required: { value: true, message: 'Required' } },
+                }}
               />
 
               <FormErrorMessage>{errors?.make?.message}</FormErrorMessage>
@@ -97,8 +103,28 @@ export default function CarModelForm(props) {
           </GridItem>
 
           <GridItem colSpan={[12, 6]}>
+            <FormControl
+              isReadOnly={updating}
+              w="full"
+              isRequired
+              isInvalid={errors.type}
+            >
+              <FormLabel htmlFor="model">Type</FormLabel>
+              <Input
+                id="type"
+                {...register('type', {
+                  required: { value: true, message: 'Required' },
+                })}
+              />
+
+              <FormErrorMessage>{errors?.type?.message}</FormErrorMessage>
+              <FormHelperText>E.g Coupe SUV</FormHelperText>
+            </FormControl>
+          </GridItem>
+
+          <GridItem colSpan={[12, 6]}>
             <FormControl isDisabled={updating} isInvalid={errors.year}>
-              <FormLabel htmlFor="year">Year</FormLabel>
+              <FormLabel htmlFor="year">Year of Manufacture</FormLabel>
               <NumInput
                 name="year"
                 min={0}
