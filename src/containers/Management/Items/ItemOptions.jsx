@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom';
 //
 // import SearchItemsContext from 'contexts/SearchItemsContext';
 
-import useDeleteItem from '../../../hooks/useDeleteItem';
+import { useDeleteVehicle } from 'hooks';
 
 import MenuOptions from '../../../components/ui/MenuOptions';
 
@@ -24,7 +24,7 @@ function ItemOptions(props) {
     // schedule
   } = props;
   const { _id: itemId } = item;
-  const { details } = useDeleteItem(item);
+  const { details } = useDeleteVehicle(item);
 
   // const { handleSearchVehicles } = useContext(SearchItemsContext);
 

@@ -3,7 +3,7 @@ import { useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 //
 import { mutations } from 'gql';
-import useToasts from './useToasts';
+import useToasts from '../useToasts';
 import useGetVehicle from './useGetVehicle';
 
 function useUpdateVehicle(vehicleId) {
@@ -27,6 +27,7 @@ function useUpdateVehicle(vehicleId) {
       toastSuccess('Vehicle updated successfully!');
       //
       reset();
+      //wait before redirecting
       navigate(`/items/${vehicleId}/view`);
     }
   }, [success, toastSuccess, reset, navigate, vehicleId]);

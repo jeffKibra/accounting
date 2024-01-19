@@ -12,7 +12,7 @@ export default function ItemForm(props) {
   // console.log({ props });
 
   const { onSubmit, item, taxes, updating } = props;
-  console.log({ item });
+  // console.log({ item });
   // console.log({ accounts });
   const toasts = useToasts();
 
@@ -88,5 +88,5 @@ ItemForm.propTypes = {
   updating: PropTypes.bool.isRequired,
   item: PropTypes.object,
   taxes: PropTypes.array,
-  accounts: PropTypes.array.isRequired,
+  accounts: PropTypes.array,
 };

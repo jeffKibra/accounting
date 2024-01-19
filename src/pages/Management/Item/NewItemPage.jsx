@@ -1,12 +1,9 @@
-import { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useMutation } from '@apollo/client';
+import {  useLocation } from 'react-router-dom';
 
 //
-import { mutations } from 'gql';
 //hooks
-import { useItemFormProps, useToasts } from 'hooks';
+import { useCreateVehicle } from 'hooks';
 
 import { CREATE_ITEM } from '../../../store/actions/itemsActions';
 import { reset } from '../../../store/slices/itemsSlice';
@@ -19,62 +16,10 @@ import Empty from 'components/ui/Empty';
 
 import ItemForm from 'components/forms/Item';
 
-import useSavedLocation from '../../../hooks/useSavedLocation';
-
 function NewItemPage(props) {
-  const [createItem, { loading, error, called, reset }] = useMutation(
-    mutations.vehicles.CREATE_VEHICLE
-  );
+  const { createVehicle, loading, loadingProps, taxes } = useCreateVehicle();
 
-  const success = called && !loading && !error;
-  const failed = called && !loading && Boolean(error);
-  console.log({ success, failed });
-
-  console.log({ error });
-
-  const { taxes, loading: loadingProps } = useItemFormProps();
-
-  const { error: toastError, success: toastSuccess } = useToasts();
-
-  const navigate = useNavigate();
   const location = useLocation();
-  useSavedLocation().setLocation();
-
-  // useEffect(() => {
-  //   if (isModified) {
-  //     resetItem();
-  //     navigate(ITEMS);
-  //   }
-  // }, [isModified, resetItem, navigate]);
-  useEffect(() => {
-    console.log({ success });
-    if (success) {
-      toastSuccess('Vehicle created successfully!');
-      reset();
-      navigate(ITEMS);
-    }
-  }, [reset, navigate, toastSuccess, success]);
-
-  useEffect(() => {
-    if (failed) {
-      console.log(error);
-      toastError(error.message);
-    }
-  }, [error, failed, toastError]);
-
-  function handleSubmit(formData) {
-    console.log({ formData });
-    reset();
-    createItem({
-      variables: { formData },
-      // refetchQueries: [
-      //   {
-      //     query: 'SearchVehicles',
-      //     // fetchPolicy:''
-      //   },
-      // ],
-    });
-  }
 
   return (
     <PageLayout
@@ -92,7 +37,7 @@ function NewItemPage(props) {
           updating={loading}
           // accounts={accounts}
           taxes={taxes}
-          onSubmit={handleSubmit}
+          onSubmit={createVehicle}
         />
       ) : (
         <>

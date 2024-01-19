@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 //
 import { mutations } from 'gql';
 import useToasts from '../useToasts';
+//
+import { INVOICES } from 'nav/routes';
 
 //
 export function formatBookingData(formData) {
@@ -32,7 +34,7 @@ export function formatBookingData(formData) {
 }
 
 function useCreateBooking() {
-  const [newBooking, { called, loading, reset, error }] = useMutation(
+  const [newBooking, { called, loading, reset, error, data }] = useMutation(
     mutations.sales.bookings.CREATE_BOOKING
   );
 
@@ -46,14 +48,17 @@ function useCreateBooking() {
   //   console.log({ loading });
   //   console.log({ success, failed, data });
 
+  const createdInvoiceId = data?.createBooking || '';
+
   useEffect(() => {
     if (success) {
       toastSuccess('Booking created successfully!');
       //
       reset();
-      navigate(`/sale/bookings`);
+      navigate(`${INVOICES}/${createdInvoiceId}/view`);
+      // navigate(`/sale/bookings`);
     }
-  }, [success, toastSuccess, reset, navigate]);
+  }, [success, toastSuccess, reset, navigate, createdInvoiceId]);
 
   useEffect(() => {
     if (failed) {

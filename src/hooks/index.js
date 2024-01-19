@@ -2,8 +2,6 @@ export { default as useAuth } from './useAuth';
 
 export * from './orgs';
 //
-export { default as useDeleteCustomer } from './contacts/useDeleteContact';
-export { default as useDeleteItem } from './useDeleteItem';
 export { default as useDeletePayment } from './useDeletePayment';
 export { default as useDeleteSaleReceipt } from './useDeleteSaleReceipt';
 export { default as useDeleteTax } from './useDeleteTax';
@@ -29,13 +27,11 @@ export { default as useURLSearchParamsQuery } from './useURLSearchParamsQuery';
 export { default as useIsMountedRef } from './useIsMountedRef';
 
 //
-export { default as useCarModels } from './useCarModels';
+// export { default as useCarModels } from './useCarModels';
 
 //
 export { default as useSearchItems } from './useSearchItems';
 export { default as useGetItems } from './useGetItems';
-export { default as useGetVehicle } from './useGetVehicle';
-export { default as useUpdateVehicle } from './useUpdateVehicle';
 //bookings
 export * from './bookings';
 //

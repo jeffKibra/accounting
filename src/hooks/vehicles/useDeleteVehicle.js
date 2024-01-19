@@ -10,7 +10,7 @@ import {
   mutations,
   // queries
 } from 'gql';
-import useToasts from './useToasts';
+import useToasts from '../useToasts';
 //
 // import SearchItemsContext from 'contexts/SearchItemsContext/Context';
 //
@@ -22,9 +22,9 @@ import { ITEMS } from 'nav/routes';
 const { DELETE_VEHICLE } = mutations.vehicles;
 // const { SEARCH_VEHICLES } = queries.vehicles;
 
-export default function useDeleteItem(item) {
+export default function useDeleteVehicle(vehicle) {
   // console.log({ item });
-  const { _id: vehicleId, registration, model } = item;
+  const { _id: vehicleId, registration, model } = vehicle;
   const { name: modelName, make, year } = model;
   // const {
   //   loading,

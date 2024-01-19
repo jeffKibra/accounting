@@ -67,6 +67,7 @@ export default function ControlledRangeSlider(props) {
 ControlledRangeSlider.defaultProps = {
   onBlur: () => {},
   onChange: () => {},
+  onChangeEnd: () => {},
   isReadOnly: false,
 };
 
@@ -74,7 +75,7 @@ export const RangeSliderPropTypes = {
   min: PropTypes.number,
   max: PropTypes.number,
   icon: PropTypes.node,
-  onChangeEnd: PropTypes.func.isRequired,
+  onChangeEnd: PropTypes.func,
   isReadOnly: PropTypes.bool,
 };
 

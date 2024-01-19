@@ -33,6 +33,8 @@ function ViewInvoice(props) {
     taxType,
   } = invoice;
 
+  // console.log({ saleDate, dueDate });
+
   return (
     <Container
       borderRadius="md"
@@ -94,13 +96,13 @@ function ViewInvoice(props) {
                 <Tr>
                   <Td isNumeric>Invoice Date:</Td>
                   <Td pr="0px !important" isNumeric>
-                    {new Date(+saleDate).toDateString()}
+                    {new Date(saleDate).toDateString()}
                   </Td>
                 </Tr>
                 <Tr>
                   <Td isNumeric>Due Date:</Td>
                   <Td pr="0px !important" isNumeric>
-                    {new Date(+dueDate).toDateString()}
+                    {new Date(dueDate).toDateString()}
                   </Td>
                 </Tr>
               </Tbody>
@@ -140,8 +142,14 @@ ViewInvoice.propTypes = {
   invoice: PropTypes.shape({
     customer: PropTypes.object.isRequired,
     // org: PropTypes.object.isRequired,
-    saleDate: PropTypes.instanceOf(Date).isRequired,
-    dueDate: PropTypes.instanceOf(Date).isRequired,
+    saleDate: PropTypes.oneOfType([
+      PropTypes.instanceOf(Date),
+      PropTypes.string,
+    ]).isRequired,
+    dueDate: PropTypes.oneOfType([
+      PropTypes.instanceOf(Date),
+      PropTypes.string,
+    ]).isRequired,
     _id: PropTypes.string.isRequired,
     items: PropTypes.array.isRequired,
     balance: PropTypes.number.isRequired,

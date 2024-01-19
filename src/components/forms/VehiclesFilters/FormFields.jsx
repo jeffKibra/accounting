@@ -14,7 +14,7 @@ function VehiclesFiltersFormFields(props) {
    * component must be wrapped in a react-hook-form FormProvider context
    */
   const { facets } = props;
-  // console.log({ facets });
+  console.log({ facets });
   const { makes, types, colors, ratesRange } = facets;
 
   const { watch, getValues, setValue } = useFormContext();
@@ -46,14 +46,20 @@ function VehiclesFiltersFormFields(props) {
             if (makeModel) {
               // console.log({ makeModel });
               const { _id: modelId } = makeModel;
+              // console.log({ modelId });
               modelsObject[modelId] = makeModel;
+
+              //push to models array
+              models.push(makeModel);
             }
           });
         }
 
-        models.push(...makeModels);
+        // models.push(...makeModels);
       });
     }
+
+    // console.log({ models, makesObject, modelsObject });
 
     return { models, makesObject, modelsObject };
   }, [makes]);

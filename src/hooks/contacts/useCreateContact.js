@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 //
 import { mutations } from 'gql';
 import useToasts from '../useToasts';
+//
 
 //
 export function formatContactData(formData) {
@@ -15,7 +16,7 @@ export function formatContactData(formData) {
 }
 
 function useCreateContact(gqlMutation, successRoute) {
-  const [newContact, { called, loading, reset, error }] = useMutation(
+  const [newContact, { called, loading, reset, error, data }] = useMutation(
     gqlMutation || mutations.contacts.CREATE_CONTACT
   );
 
@@ -29,14 +30,18 @@ function useCreateContact(gqlMutation, successRoute) {
   //   console.log({ loading });
   //   console.log({ success, failed, data });
 
+  const createdContactId = data?.createCustomer;
+  // console.log({ createdContactId, data });
+
   useEffect(() => {
     if (success) {
       toastSuccess('Contact created successfully!');
       //
       reset();
-      navigate(successRoute);
+      navigate(`${successRoute}/${createdContactId}/view`);
+      // navigate(successRoute);
     }
-  }, [success, toastSuccess, reset, navigate, successRoute]);
+  }, [success, toastSuccess, reset, navigate, successRoute, createdContactId]);
 
   useEffect(() => {
     if (failed) {
