@@ -3,16 +3,18 @@ import { useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 //
 import { mutations } from 'gql';
-import useToasts from '../useToasts';
+import useToasts from '../../../useToasts';
 import useGetVehicleModel from './useGetVehicleModel';
+//
+import { VEHICLE_MODELS } from 'nav/routes';
 
 //
 
-function useUpdateVehicleModel(makeId, modelId) {
+function useUpdateVehicleModel(make, modelId) {
   const [modifyBooking, { called, loading: updating, reset, error }] =
     useMutation(mutations.vehicles.makes.models.UPDATE_VEHICLE_MODEL);
 
-  const { loading, vehicleModel } = useGetVehicleModel(makeId, modelId);
+  const { loading, vehicleModel } = useGetVehicleModel(make, modelId);
 
   const navigate = useNavigate();
 
@@ -26,13 +28,13 @@ function useUpdateVehicleModel(makeId, modelId) {
 
   useEffect(() => {
     if (success) {
-      toastSuccess('vehicle model updated successfully!');
+      toastSuccess('Vehicle model updated successfully!');
       //
       reset();
       //updated make view page
-      navigate(`/vehicles/makes/${makeId}`);
+      navigate(`${VEHICLE_MODELS}?make=${make}`);
     }
-  }, [success, toastSuccess, reset, navigate, makeId]);
+  }, [success, toastSuccess, reset, navigate, make]);
 
   useEffect(() => {
     if (failed) {
@@ -46,14 +48,12 @@ function useUpdateVehicleModel(makeId, modelId) {
     formData => {
       return modifyBooking({
         variables: {
-          makeId,
           id: modelId,
           formData,
         },
       });
     },
     [
-      makeId,
       modelId,
       modifyBooking,
       // currentSelectedVehicleId

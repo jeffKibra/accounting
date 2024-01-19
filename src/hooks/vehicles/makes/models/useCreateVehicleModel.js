@@ -1,9 +1,10 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 //
 import { mutations } from 'gql';
-import useToasts from '../useToasts';
+import useToasts from '../../../useToasts';
+import { VEHICLE_MODELS } from 'nav/routes';
 
 //
 
@@ -11,6 +12,8 @@ function useCreateVehicleModel() {
   const [newBooking, { called, loading, reset, error }] = useMutation(
     mutations.vehicles.makes.models.CREATE_VEHICLE_MODEL
   );
+
+  const [selectedMake, setSelectedMake] = useState('');
 
   const navigate = useNavigate();
 
@@ -27,9 +30,9 @@ function useCreateVehicleModel() {
       toastSuccess('Vehicle Model created successfully!');
       //
       reset();
-      navigate(`/vehicles/makes`);
+      navigate(`${VEHICLE_MODELS}?make=${selectedMake}`);
     }
-  }, [success, toastSuccess, reset, navigate]);
+  }, [success, toastSuccess, reset, navigate, selectedMake]);
 
   useEffect(() => {
     if (failed) {
@@ -40,9 +43,13 @@ function useCreateVehicleModel() {
   const createVehicleModel = useCallback(
     formData => {
       //   console.log({ formData });
+      const make = formData?.make || '';
+
+      setSelectedMake(make);
+
       newBooking({
         variables: {
-          formData: formData,
+          formData,
         },
       });
     },

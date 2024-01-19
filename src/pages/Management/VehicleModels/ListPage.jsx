@@ -3,21 +3,21 @@ import { Button } from '@chakra-ui/react';
 import { useLocation } from 'react-router-dom';
 import { RiAddLine } from 'react-icons/ri';
 
-import useSavedLocation from '../../../hooks/useSavedLocation';
-import { useGetV } from 'hooks';
-
 import PageLayout from '../../../components/layout/PageLayout';
-import CarModels from '../../../containers/Management/CarModels/CarModels';
+import CarModels from '../../../containers/Management/VehicleModels/List';
+//
 
-function CarModelsPage() {
-  const location = useLocation();
-  useSavedLocation().setLocation();
+function VehicleModelsPage() {
+  const { pathname } = useLocation();
+
+  // const { loading, vehicleMakes } = useListVehicleMakes();
+  // console.log({ loading, vehicleMakes });
 
   return (
     <PageLayout
-      pageTitle="Car Models"
+      pageTitle="Vehicle Models"
       actions={
-        <Link to={`${location.pathname}/new`}>
+        <Link to={`${pathname}/new`}>
           <Button leftIcon={<RiAddLine />} colorScheme="cyan" size="sm">
             New
           </Button>
@@ -25,7 +25,7 @@ function CarModelsPage() {
       }
       breadcrumbLinks={{
         Dashboard: '/',
-        'Car Models': location.pathname,
+        Models: pathname,
       }}
     >
       <CarModels />
@@ -33,4 +33,4 @@ function CarModelsPage() {
   );
 }
 
-export default CarModelsPage;
+export default VehicleModelsPage;

@@ -92,7 +92,7 @@ function NewItemPage(props) {
           updating={loading}
           // accounts={accounts}
           taxes={taxes}
-          handleFormSubmit={handleSubmit}
+          onSubmit={handleSubmit}
         />
       ) : (
         <>

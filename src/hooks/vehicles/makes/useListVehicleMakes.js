@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@apollo/client';
 //
 import { queries } from 'gql';
-import useToasts from '../useToasts';
+import useToasts from '../../useToasts';
 
 const { LIST_VEHICLE_MAKES } = queries.vehicles.makes;
 

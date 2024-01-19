@@ -7,9 +7,10 @@ export const bookingFields = `
     registration
     model {
       make
-      model
+      name
+      type
+      year
     } 
-    year 
   }
   customer {
     _id

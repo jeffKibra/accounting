@@ -3,8 +3,8 @@ function getTableColumns(enableActions) {
   const tableColumns = [
     { Header: 'Registration', accessor: 'registration' },
     // { Header: 'Unique Identifier', accessor: 'sku' },
-    { Header: 'Make', accessor: 'make' },
-    { Header: 'Model', accessor: 'model.model' },
+    { Header: 'Make', accessor: 'model.make' },
+    { Header: 'Model', accessor: 'model.name' },
     { Header: 'Type', accessor: 'model.type' },
     { Header: 'Color', accessor: 'color' },
     { Header: 'Rate', accessor: 'rate', isNumeric: true },

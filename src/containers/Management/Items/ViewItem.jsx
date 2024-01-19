@@ -28,7 +28,6 @@ export default function ViewItem(props) {
   const {
     registration,
     model: modelData,
-    year,
     rate,
     color,
     // sku,
@@ -37,7 +36,7 @@ export default function ViewItem(props) {
     // unit,
     description,
   } = item;
-  const { model, make, type } = modelData;
+  const { name: modelName, make, type, year } = modelData;
 
   //   let startDate = new Date();
   //   let endDate = new Date();
@@ -76,7 +75,7 @@ export default function ViewItem(props) {
               </Tr>
               <Tr>
                 <FieldTitle>Model</FieldTitle>
-                <FieldValue>{`${model} (${year})`}</FieldValue>
+                <FieldValue>{`${modelName} (${year})`}</FieldValue>
               </Tr>
               <Tr>
                 <FieldTitle>Color</FieldTitle>

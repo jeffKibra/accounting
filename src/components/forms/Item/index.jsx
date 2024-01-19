@@ -1,32 +1,25 @@
 import PropTypes from 'prop-types';
-import {
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
-} from '@chakra-ui/react';
 //
 // import { createSKU } from 'functions';
 //
-import { useToasts, useCarModels } from 'hooks';
+import { useToasts } from 'hooks';
 //
-import SkeletonLoader from 'components/ui/SkeletonLoader';
-import Empty from 'components/ui/Empty';
+
 //
 import Form from './Form';
 
 export default function ItemForm(props) {
   // console.log({ props });
 
-  const { handleFormSubmit, item, taxes, updating } = props;
+  const { onSubmit, item, taxes, updating } = props;
+  console.log({ item });
   // console.log({ accounts });
   const toasts = useToasts();
 
-  const { carModels, carMakes, loading: loadingModels, error } = useCarModels();
   // console.log({ carModels, loadingModels, error });
 
-  function onSubmit(data) {
-    delete data.model.years;
+  function handleSubmit(data) {
+    // delete data.model.years;
     // console.log({ data });
     const {
       salesTax: salesTaxId,
@@ -77,39 +70,21 @@ export default function ItemForm(props) {
     // console.log(formData);
 
     // console.log({ formData });
-    handleFormSubmit(formData);
+    onSubmit(formData);
   }
 
   return (
-    <>
-      {loadingModels ? (
-        <SkeletonLoader />
-      ) : error ? (
-        <Alert status="error">
-          <AlertIcon />
-          <AlertTitle>Error Fetching Car Models!</AlertTitle>
-          <AlertDescription>
-            {error?.message || 'Unknown error.'}
-          </AlertDescription>
-        </Alert>
-      ) : carMakes && carModels ? (
-        <Form
-          // accounts={accounts}
-          handleFormSubmit={onSubmit}
-          updating={updating}
-          item={item || {}}
-          carModels={carModels}
-          carMakes={carMakes}
-        />
-      ) : (
-        <Empty message="Car models not found. Try adding some car models before proceeding." />
-      )}
-    </>
+    <Form
+      // accounts={accounts}
+      onSubmit={handleSubmit}
+      updating={updating}
+      vehicle={item || {}}
+    />
   );
 }
 
 ItemForm.propTypes = {
-  handleFormSubmit: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,
   item: PropTypes.object,
   taxes: PropTypes.array,

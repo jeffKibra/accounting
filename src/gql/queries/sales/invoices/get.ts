@@ -20,13 +20,12 @@ export const invoiceFields = `
          _id
         registration
         rate
-        make
         model {
           make
-          model
+          name
           type
+          year
         } 
-        year 
         color
       }
     }

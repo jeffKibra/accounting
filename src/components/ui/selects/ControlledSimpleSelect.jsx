@@ -7,9 +7,13 @@ import {
   MenuItemOption,
   Button,
   Text,
+  Box,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { RiArrowUpSLine, RiArrowDownSLine } from 'react-icons/ri';
+//
+import Empty from '../Empty';
+import CustomSpinner from '../CustomSpinner';
 
 // import { sortStrings } from 'utils/functions';
 
@@ -26,6 +30,7 @@ export const SimpleSelectPropTypes = {
   isDisabled: PropTypes.bool,
   renderTrigger: PropTypes.func,
   allowClearSelection: PropTypes.bool,
+  loading: PropTypes.bool,
 };
 //----------------------------------------------------------------
 
@@ -44,6 +49,8 @@ function ControlledSimpleSelect(props) {
     onBlur,
     selectedValue,
     optionsConfig,
+    loading,
+    extractSelectedObjectCB,
   } = props;
   // console.log({ props });
 
@@ -82,13 +89,28 @@ function ControlledSimpleSelect(props) {
   // }, [options, nameField]);
 
   function handleChange(value) {
-    // console.log({ value });
+    console.log({ value });
     const fullValue = optionsObject[value];
     // console.log({ fullValue });
     onChange(fullValue);
   }
 
-  const selectedValueValue = selectedValue ? selectedValue[valueField] : '';
+  // console.log({ selectedValue });
+  const selectedValueValue = useMemo(() => {
+    let selection = '';
+
+    if (selectedValue) {
+      if (typeof selectedValue === 'object') {
+        selection = selectedValue[valueField] || '';
+      } else {
+        selection = selectedValue;
+      }
+    }
+
+    // console.log({ selection });
+
+    return selection;
+  }, [selectedValue, valueField]);
   // console.log({ selectedValueValue });
 
   return (
@@ -112,35 +134,44 @@ function ControlledSimpleSelect(props) {
                 rightIcon={isOpen ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
                 fontWeight="normal"
               >
-                <Text fontSize="sm">
-                  {selectedValue ? selectedValue[nameField] : placeholder}
-                </Text>
+                <Box fontSize="sm">{selectedValueValue || placeholder}</Box>
               </MenuButton>
             )}
 
             <MenuList maxH="200px" overflowY="auto">
-              <MenuOptionGroup
-                onChange={handleChange}
-                value={selectedValueValue}
-                type="radio"
-              >
-                {allowClearSelection && (
-                  <MenuItemOption py={1} value="">
-                    <Text fontSize="sm">clear selection</Text>
-                  </MenuItemOption>
-                )}
-                {options.map((option, i) => {
-                  const name = option[nameField];
-                  const value = option[valueField];
-                  // console.log({ name, value });
-
-                  return (
-                    <MenuItemOption py={1} key={i} value={value}>
-                      <Text fontSize="sm">{name}</Text>
+              {loading ? (
+                <CustomSpinner size="md" />
+              ) : Array.isArray(options) && options.length > 0 ? (
+                <MenuOptionGroup
+                  onChange={handleChange}
+                  value={selectedValueValue}
+                  type="radio"
+                >
+                  {allowClearSelection && (
+                    <MenuItemOption py={1} value="">
+                      <Text fontSize="sm">clear selection</Text>
                     </MenuItemOption>
-                  );
-                })}
-              </MenuOptionGroup>
+                  )}
+                  {options.map((option, i) => {
+                    const name = option[nameField];
+                    const value = option[valueField];
+                    // console.log({ name, value });
+
+                    if (value === selectedValueValue) {
+                      //pass value to a callback
+                      extractSelectedObjectCB(option);
+                    }
+
+                    return (
+                      <MenuItemOption py={1} key={i} value={value}>
+                        <Box fontSize="sm">{name}</Box>
+                      </MenuItemOption>
+                    );
+                  })}
+                </MenuOptionGroup>
+              ) : (
+                <Empty imageSize="100px" />
+              )}
             </MenuList>
           </>
         );
@@ -158,13 +189,15 @@ ControlledSimpleSelect.defaultProps = {
     nameField: 'name',
     valueField: 'value',
   },
+  extractSelectedObjectCB: () => {},
 };
 
 ControlledSimpleSelect.propTypes = {
   ...SimpleSelectPropTypes,
   onChange: PropTypes.func.isRequired,
   onBlur: PropTypes.func,
-  value: PropTypes.string,
+  selectedValue: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  extractSelectedObjectCB: PropTypes.func,
 };
 
 export default ControlledSimpleSelect;

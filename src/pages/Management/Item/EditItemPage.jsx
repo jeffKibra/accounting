@@ -29,6 +29,7 @@ function EditItemPage(props) {
 
   const { updating, updateVehicle, vehicle, loading } =
     useUpdateVehicle(itemId);
+  console.log({ loading, vehicle });
 
   // useEffect(() => {
   //   getItem(itemId);
@@ -55,20 +56,13 @@ function EditItemPage(props) {
       {loading ? (
         <SkeletonLoader />
       ) : vehicle ? (
-        (() => {
-          const { createdAt, modifiedAt, createdBy, modifiedBy, ...rest } =
-            vehicle;
-          console.log({ rest });
-          return (
-            <ItemForm
-              updating={updating}
-              item={rest}
-              handleFormSubmit={handleSubmit}
-              // accounts={accounts}
-              // taxes={taxes || []}
-            />
-          );
-        })()
+        <ItemForm
+          updating={updating}
+          item={vehicle}
+          onSubmit={handleSubmit}
+          // accounts={accounts}
+          // taxes={taxes || []}
+        />
       ) : (
         <Empty
           message={

@@ -3,15 +3,15 @@ import { useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 //
 import { queries } from 'gql';
-import useToasts from '../useToasts';
+import useToasts from '../../../useToasts';
 
 //
 
-function useGetVehicleModel(makeId, modelId) {
+function useGetVehicleModel(make, modelId) {
   const { loading, error, data, refetch } = useQuery(
     queries.vehicles.makes.models.GET_VEHICLE_MODEL,
     {
-      variables: { makeId, id: modelId },
+      variables: { make, id: modelId },
     }
   );
 
@@ -26,7 +26,7 @@ function useGetVehicleModel(makeId, modelId) {
   }, [failed, error, toastError]);
 
   const rawModel = data?.vehicleModel;
-  console.log({ rawModel });
+  // console.log({ rawModel });
 
   let vehicleModel = null;
   if (rawModel) {

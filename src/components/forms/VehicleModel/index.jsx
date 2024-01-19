@@ -11,24 +11,27 @@ import {
   // Switch,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm, FormProvider, Controller } from 'react-hook-form';
 //
-import NumInput from '../../ui/NumInput';
-import RHFSimpleSelect from 'components/ui/hookForm/RHFSimpleSelect';
+//
+// import NumInput from '../../ui/NumInput';
+// import RHFSimpleSelect from 'components/ui/hookForm/RHFSimpleSelect';
+import SelectVehicleMakeInput from './SelectVehicleMakeInput';
 // import CustomSelect from '../../ui/CustomSelect';
 
-export default function CarModelForm(props) {
+export default function VehicleModelForm(props) {
   // console.log({ props });
 
-  const { handleFormSubmit, carModel, updating } = props;
+  const { onSubmit, vehicleModel, updating } = props;
   // console.log({ accounts });
 
   const formMethods = useForm({
     mode: 'onChange',
     defaultValues: {
-      make: carModel?.make || '',
-      model: carModel?.model || '',
-      year: carModel?.year || 0,
+      make: vehicleModel?.make || '',
+      name: vehicleModel?.name || '',
+      type: vehicleModel?.type || '',
+      years: vehicleModel?.years || '',
     },
   });
 
@@ -39,6 +42,7 @@ export default function CarModelForm(props) {
       errors,
     },
     register,
+    control,
   } = formMethods;
 
   return (
@@ -55,7 +59,7 @@ export default function CarModelForm(props) {
           w="full"
           as="form"
           role="form"
-          onSubmit={handleSubmit(handleFormSubmit)}
+          onSubmit={handleSubmit(onSubmit)}
         >
           <GridItem colSpan={[12, 6]}>
             <FormControl
@@ -64,21 +68,32 @@ export default function CarModelForm(props) {
               isRequired
               isInvalid={errors.make}
             >
-              <FormLabel htmlFor="make">Car Make</FormLabel>
+              <FormLabel htmlFor="make">Vehicle Make</FormLabel>
 
-              <RHFSimpleSelect
-                id="make"
+              <Controller
                 name="make"
-                isDisabled={updating}
-                placeholder="Select Car make"
-                options={[]}
-                controllerProps={{
-                  rules: { required: { value: true, message: 'Required' } },
+                control={control}
+                render={({ field: { onBlur, onChange, value } }) => {
+                  function handleChange(selectedVehicleMake) {
+                    // console.log({ selectedVehicleMake });
+                    onChange(selectedVehicleMake?.name || '');
+                  }
+
+                  // console.log({ value });
+
+                  return (
+                    <SelectVehicleMakeInput
+                      onChange={handleChange}
+                      value={value}
+                      onBlur={onBlur}
+                      disabled={updating}
+                    />
+                  );
                 }}
               />
 
               <FormErrorMessage>{errors?.make?.message}</FormErrorMessage>
-              <FormHelperText>Car Manufacturer e.g Toyota</FormHelperText>
+              <FormHelperText>Vehicle Manufacturer e.g Toyota</FormHelperText>
             </FormControl>
           </GridItem>
 
@@ -87,17 +102,17 @@ export default function CarModelForm(props) {
               isReadOnly={updating}
               w="full"
               isRequired
-              isInvalid={errors.model}
+              isInvalid={errors.name}
             >
-              <FormLabel htmlFor="model">Car Model</FormLabel>
+              <FormLabel htmlFor="name">Model Name</FormLabel>
               <Input
-                id="model"
-                {...register('model', {
+                id="name"
+                {...register('name', {
                   required: { value: true, message: 'Required' },
                 })}
               />
 
-              <FormErrorMessage>{errors?.model?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
               <FormHelperText>E.g Corolla</FormHelperText>
             </FormControl>
           </GridItem>
@@ -123,22 +138,19 @@ export default function CarModelForm(props) {
           </GridItem>
 
           <GridItem colSpan={[12, 6]}>
-            <FormControl isDisabled={updating} isInvalid={errors.year}>
-              <FormLabel htmlFor="year">Year of Manufacture</FormLabel>
-              <NumInput
-                name="year"
-                min={0}
-                size="md"
-                rules={{
-                  // required: { value: true, message: '*Required!' },
-                  min: {
-                    value: 0,
-                    message: 'Value should be a positive integer!',
-                  },
-                }}
+            <FormControl isDisabled={updating} isInvalid={errors.years}>
+              <FormLabel htmlFor="years">Years of Manufacture</FormLabel>
+              <Input
+                id="years"
+                {...register('years', {
+                  required: { value: true, message: 'Required' },
+                })}
               />
 
-              <FormErrorMessage>{errors?.year?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors?.years?.message}</FormErrorMessage>
+              <FormHelperText>
+                Enter a coma(,) separated list of years
+              </FormHelperText>
             </FormControl>
           </GridItem>
 
@@ -158,8 +170,8 @@ export default function CarModelForm(props) {
   );
 }
 
-CarModelForm.propTypes = {
-  handleFormSubmit: PropTypes.func.isRequired,
+VehicleModelForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,
-  carModel: PropTypes.object,
+  vehicleModel: PropTypes.object,
 };

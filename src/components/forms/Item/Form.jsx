@@ -16,33 +16,50 @@ import PropTypes from 'prop-types';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
 //
 //
+import ModelFields from './ModelFields';
 //
 import NumInput from '../../ui/NumInput';
-import ControlledGroupedOptionsSelect from 'components/ui/selects/ControlledGroupedOptionsSelect';
-import CustomSelect from 'components/ui/CustomSelect';
 
 export default function Form(props) {
   // console.log({ props });
 
-  const { handleFormSubmit, item, carMakes, carModels, updating } = props;
+  const { onSubmit, vehicle, updating } = props;
 
   const formMethods = useForm({
     mode: 'onChange',
     defaultValues: {
-      registration: item?.registration || '',
-      rate: item?.rate || 0,
-      make: item?.make || '',
-      model: item?.model || null,
-      year: item?.year || '',
-      color: item?.color || '',
-      description: item?.description || '',
-      // type: item?.type || '',
-      //   skuOption: item?.skuOption || 'barcode',
-      // salesAccount: item?.salesAccount?.accountId || 'sales',
-      // salesTax: item?.salesTax?.taxId || '',
-      // pricesIncludeTax: item?.pricesIncludeTax || false,
+      registration: vehicle?.registration || '',
+      rate: vehicle?.rate || 0,
+      //start of model fields
+      make: vehicle?.model?.make || '',
+      model: vehicle?.model?.name || '',
+      type: vehicle?.model?.type || '',
+      year: String(vehicle?.model?.year || ''),
+      //end of model fields
+      color: vehicle?.color || '',
+      description: vehicle?.description || '',
+      // type: vehicle?.type || '',
+      //   skuOption: vehicle?.skuOption || 'barcode',
+      // salesAccount: vehicle?.salesAccount?.accountId || 'sales',
+      // salesTax: vehicle?.salesTax?.taxId || '',
+      // pricesIncludeTax: vehicle?.pricesIncludeTax || false,
     },
   });
+
+  function handleFormSubmit(data) {
+    console.log('submiting form', { data });
+    const { model, make, year, type, ...formData } = data;
+    const modelData = {
+      name: model || '',
+      make,
+      year: +year,
+      type,
+    };
+    const formattedData = { ...formData, model: modelData };
+    console.log({ formattedData });
+
+    onSubmit(formattedData);
+  }
 
   const {
     handleSubmit,
@@ -60,27 +77,19 @@ export default function Form(props) {
   const carMake = watch('make');
   const carModel = watch('model');
 
-  useEffect(() => {
-    const selectedModelData = getValues('model');
-    if (selectedModelData) {
-      const carMakeData = carModels[carMake] || {};
-      const carModelData = carMakeData[selectedModelData?.model || ''];
+  // useEffect(() => {
+  //   const selectedModelData = getValues('model');
+  //   if (selectedModelData) {
+  //     const carMakeData = carModels[carMake] || {};
+  //     const carModelData = carMakeData[selectedModelData?.model || ''];
 
-      // console.log({ carModelData });
+  //     // console.log({ carModelData });
 
-      if (!carModelData) {
-        setValue('model', null);
-      }
-    }
-  }, [carMake, setValue, carModels, getValues]);
-
-  const selectedCarModels = useMemo(() => {
-    const selectedModels = Object.values(carModels[carMake] || {});
-
-    return selectedModels;
-  }, [carMake, carModels]);
-
-  const selectedModelYears = carModel?.years || [];
+  //     if (!carModelData) {
+  //       setValue('model', null);
+  //     }
+  //   }
+  // }, [carMake, setValue, carModels, getValues]);
 
   // console.log({ selectedCarModels, selectedModelYears });
 
@@ -154,91 +163,7 @@ export default function Form(props) {
           </FormControl>
         </GridItem>
 
-        <GridItem colSpan={[12, 6]}>
-          <FormControl isRequired isReadOnly={updating} isInvalid={errors.make}>
-            <FormLabel htmlFor="make">Car Make</FormLabel>
-            <CustomSelect
-              name="make"
-              placeholder="Car Make"
-              isDisabled={updating}
-              rules={{
-                required: { value: true, message: 'Required * ' },
-              }}
-              options={carMakes.map(make => ({
-                name: make,
-                value: make,
-              }))}
-            />
-            <FormErrorMessage>{errors?.make?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
-
-        <GridItem colSpan={[12, 6]}>
-          <FormControl
-            isRequired
-            isReadOnly={updating}
-            isInvalid={errors.model}
-          >
-            <FormLabel htmlFor="model">Model</FormLabel>
-
-            <Controller
-              name="model"
-              control={control}
-              rules={{
-                required: { value: true, message: 'Required * ' },
-              }}
-              render={({ field: { name, onChange, onBlur, value } }) => {
-                return (
-                  <ControlledGroupedOptionsSelect
-                    isDisabled={updating}
-                    placeholder="Select Car Model"
-                    selectedValue={value}
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    name={name}
-                    options={
-                      carMake
-                        ? selectedCarModels
-                        : [
-                            {
-                              make: '',
-                              model: 'Select a valid Car Make first!',
-                              year: '',
-                              id: '',
-                            },
-                          ]
-                    }
-                    optionsConfig={{
-                      nameField: 'model',
-                      valueField: 'model',
-                      groupNameField: ['make'],
-                    }}
-                  />
-                );
-              }}
-            />
-
-            <FormErrorMessage>{errors?.model?.message}</FormErrorMessage>
-          </FormControl>
-        </GridItem>
-
-        <GridItem colSpan={[12, 6]}>
-          <FormControl isReadOnly={updating} isInvalid={errors.year}>
-            <FormLabel htmlFor="year">Year</FormLabel>
-
-            <CustomSelect
-              name="year"
-              placeholder="year of manufacture"
-              isDisabled={updating}
-              options={selectedModelYears.map(year => ({
-                name: String(year),
-                value: String(year),
-              }))}
-            />
-            <FormErrorMessage>{errors?.year?.message}</FormErrorMessage>
-            <FormHelperText>Year of Manufacture</FormHelperText>
-          </FormControl>
-        </GridItem>
+        <ModelFields updating={updating} />
 
         <GridItem colSpan={[12, 6]}>
           <FormControl
@@ -351,9 +276,8 @@ export default function Form(props) {
 }
 
 Form.propTypes = {
-  handleFormSubmit: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
   updating: PropTypes.bool.isRequired,
-  item: PropTypes.object,
-  carModels: PropTypes.object,
+  vehicle: PropTypes.object,
   accounts: PropTypes.array,
 };

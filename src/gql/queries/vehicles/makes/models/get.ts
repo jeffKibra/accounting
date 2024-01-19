@@ -8,12 +8,13 @@ export const vehicleModelFields = `
     years
     metaData {
       orgId
+      createdAt
     }
 `;
 
 const GET_VEHICLE_MODEL = gql`
-  query GetVehicleModel($makeId: ID!, $id: ID) {
-    vehicleModel(makeId: $makeId, id: $id) {
+  query GetVehicleModel($make: String!, $id: ID!) {
+    vehicleModel(make: $make, id: $id) {
      ${vehicleModelFields}
     }
   }

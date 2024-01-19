@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 const CREATE_VEHICLE_MODEL = gql`
-  mutation CreateVehicleModel($makeId: ID!, $formData: VehicleModelInput!) {
-    createVehicleModel(makeId: $makeId, formData: $formData)
+  mutation CreateVehicleModel($formData: VehicleModelInput!) {
+    createVehicleModel(formData: $formData)
   }
 `;
 

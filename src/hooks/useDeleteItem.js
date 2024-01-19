@@ -24,8 +24,8 @@ const { DELETE_VEHICLE } = mutations.vehicles;
 
 export default function useDeleteItem(item) {
   // console.log({ item });
-  const { _id: vehicleId, registration, make, year } = item;
-  const model = item?.model?.model;
+  const { _id: vehicleId, registration, model } = item;
+  const { name: modelName, make, year } = model;
   // const {
   //   loading,
   //   action,
@@ -38,7 +38,11 @@ export default function useDeleteItem(item) {
   const [deleteVehicle, { called, loading, reset, error }] = useMutation(
     DELETE_VEHICLE,
     {
-      refetchQueries: ['SearchVehicles'],
+      refetchQueries: [
+        'SearchVehicles',
+        // { query: 'SearchVehicles', variables: {} },
+      ],
+
       // update(cache, result, options) {
       //   //activate if refetch queries completely fails to work
       //   // console.log({ cache, result, options });
@@ -120,7 +124,7 @@ export default function useDeleteItem(item) {
             REGISTRATION: <b>{registration}</b>
           </Text>
           <Text>
-            Model: <b>{`${make} ${model} ${year ? `(${year})` : ''}`}</b>
+            Model: <b>{`${make} ${modelName} ${year ? `(${year})` : ''}`}</b>
           </Text>
           {/* <Text>
             VEHICLE TYPE: <b>{variant}</b>

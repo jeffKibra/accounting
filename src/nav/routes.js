@@ -21,11 +21,11 @@ export const EDIT_ITEM = '/items/:itemId/edit';
 export const VIEW_ITEM = '/items/:itemId/view';
 export const VIEW_ITEM_SCHEDULE = '/items/:itemId/schedule';
 
-//car models
-export const CAR_MODELS = '/car_models';
-export const NEW_CAR_MODEL = '/car_models/new';
-export const EDIT_CAR_MODEL = '/car_models/:modelId/edit';
-export const VIEW_CAR_MODEL = '/car_models/:modelId/view';
+//vehicle models
+export const VEHICLE_MODELS = '/vehicle_models';
+export const NEW_VEHICLE_MODEL = '/vehicle_models/new';
+export const EDIT_VEHICLE_MODEL = '/vehicle_models/:make/:modelId/edit';
+export const VIEW_VEHICLE_MODEL = '/vehicle_models/:make/:modelId/view';
 
 //contacts
 export const CONTACTS = '/contacts';

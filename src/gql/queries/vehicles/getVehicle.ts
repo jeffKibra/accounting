@@ -4,13 +4,12 @@ export const vehicleFields = `
    _id
   registration
   rate
-  make
   model {
+    name
     make
-    model
     type
+    year
   }
-  year
   color
   description
 `;
