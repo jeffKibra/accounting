@@ -38,6 +38,7 @@ export default function DownPaymentFields(props) {
   } = useFormContext();
   // console.log({ errors });
 
+  console.log({ paymentModes });
   return (
     <Box w="full" p={4}>
       <Grid rowGap={2} columnGap={4} templateColumns="repeat(12, 1fr)">

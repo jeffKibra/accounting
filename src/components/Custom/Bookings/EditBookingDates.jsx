@@ -8,7 +8,7 @@ import Editable from './Editable';
 //----------------------------------------------------------------
 EditBookingDates.propTypes = {
   loading: PropTypes.bool,
-  currentBookingDetails: PropTypes.array,
+  currentBookingDetails: PropTypes.object,
 };
 
 function EditBookingDates(props) {

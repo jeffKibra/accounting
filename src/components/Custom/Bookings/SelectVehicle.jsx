@@ -31,7 +31,9 @@ function SelectVehicle(props) {
   }, [selectedDatesString]);
 
   const handleVehicleSelect = useCallback(
-    incomingVehicle => {
+    incomingVehicleData => {
+      const incomingVehicle = JSON.parse(JSON.stringify(incomingVehicleData));
+
       if (incomingVehicle) {
         try {
           delete incomingVehicle?.searchScore;

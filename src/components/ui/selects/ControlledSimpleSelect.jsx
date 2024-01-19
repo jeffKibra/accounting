@@ -96,21 +96,26 @@ function ControlledSimpleSelect(props) {
   }
 
   // console.log({ selectedValue });
-  const selectedValueValue = useMemo(() => {
-    let selection = '';
+  const { selectedValueValue, selectedValueName } = useMemo(() => {
+    let selectedValueValue = '';
+    let selectedValueName = '';
 
     if (selectedValue) {
       if (typeof selectedValue === 'object') {
-        selection = selectedValue[valueField] || '';
+        selectedValueValue = selectedValue[valueField] || '';
+        //
+        selectedValueName = selectedValue[nameField] || '';
       } else {
-        selection = selectedValue;
+        selectedValueValue = selectedValue;
+        //
+        selectedValueName = selectedValue;
       }
     }
 
-    // console.log({ selection });
+    // console.log({ selectedValueValue });
 
-    return selection;
-  }, [selectedValue, valueField]);
+    return { selectedValueValue, selectedValueName };
+  }, [selectedValue, valueField, nameField]);
   // console.log({ selectedValueValue });
 
   return (
@@ -134,7 +139,7 @@ function ControlledSimpleSelect(props) {
                 rightIcon={isOpen ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
                 fontWeight="normal"
               >
-                <Box fontSize="sm">{selectedValueValue || placeholder}</Box>
+                <Box fontSize="sm">{selectedValueName || placeholder}</Box>
               </MenuButton>
             )}
 

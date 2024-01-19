@@ -95,7 +95,11 @@ function ControlledAutoComplete(props) {
                   <Spinner />
                 </Box>
               ) : (
-                <Box maxHeight="100px" overflowY="auto">
+                <Box
+                  // maxHeight="100px"
+                  maxHeight="200px"
+                  overflowY="auto"
+                >
                   <MenuOptionGroup
                     // onChange={handleChange}
                     value={selectedValue}
@@ -172,7 +176,11 @@ ControlledAutoComplete.propTypes = {
   ...autoCompletePropTypes,
   onChange: PropTypes.func.isRequired,
   onBlur: PropTypes.func,
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([
+    PropTypes.object,
+    PropTypes.string,
+    PropTypes.number,
+  ]).isRequired,
 };
 
 export default ControlledAutoComplete;

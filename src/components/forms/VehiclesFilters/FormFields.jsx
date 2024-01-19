@@ -14,7 +14,7 @@ function VehiclesFiltersFormFields(props) {
    * component must be wrapped in a react-hook-form FormProvider context
    */
   const { facets } = props;
-  console.log({ facets });
+  // console.log({ facets });
   const { makes, types, colors, ratesRange } = facets;
 
   const { watch, getValues, setValue } = useFormContext();

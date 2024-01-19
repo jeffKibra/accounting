@@ -29,11 +29,13 @@ export default function RHFAutoComplete(props) {
           onChange(data);
         }
 
+        // console.log('autocomplete value', { value });
+
         return (
           <ControlledAutoComplete
             onChange={handleChange}
             onBlur={onBlur}
-            value={value}
+            value={value || ''}
             {...selectProps}
           />
         );

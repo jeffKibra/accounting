@@ -21,8 +21,8 @@ function EditSelectedVehicle(props) {
   const vehicle = watch('vehicle');
   // console.log({ item });
 
-  const carModel = vehicle?.model || {};
-  const year = vehicle?.year || '';
+  const vehicleModel = vehicle?.model || {};
+  const year = vehicleModel?.year || '';
 
   const handleEdit = useCallback(() => {
     navigate(`${pathname}?stage=1`);
@@ -34,7 +34,7 @@ function EditSelectedVehicle(props) {
         <Heading mt={-4} textTransform="uppercase">
           {vehicle?.registration || ''}
         </Heading>
-        <Text>{`${carModel?.make} ${carModel?.model} ${
+        <Text>{`${vehicleModel?.make || ''} ${vehicleModel?.name || ''} ${
           year ? `(${year})` : ''
         } `}</Text>
       </>
@@ -50,7 +50,7 @@ function EditSelectedVehicle(props) {
   //             <Heading mt={-4} textTransform="uppercase">
   //               {item?.name || ''}
   //             </Heading>
-  //             <Text>{`${carModel?.make} ${carModel?.model} (${item?.year})`}</Text>
+  //             <Text>{`${vehicleModel?.make} ${vehicleModel?.model} (${item?.year})`}</Text>
   //           </>
   //         </Editable>
   //       );

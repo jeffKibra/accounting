@@ -76,9 +76,6 @@ const ControlledSearchInput = forwardRef((props, ref) => {
 
 export const controlledSearchInputPropTypes = {
   id: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  onBlur: PropTypes.func,
   onSearch: PropTypes.func.isRequired,
   placeholder: PropTypes.string,
   delayBeforeSearchMS: PropTypes.number,
@@ -86,6 +83,9 @@ export const controlledSearchInputPropTypes = {
 
 ControlledSearchInput.propTypes = {
   ...controlledSearchInputPropTypes,
+  onChange: PropTypes.func.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  onBlur: PropTypes.func,
 };
 
 ControlledSearchInput.defaultProps = {

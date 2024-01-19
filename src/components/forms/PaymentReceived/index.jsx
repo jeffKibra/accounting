@@ -100,14 +100,16 @@ export default function PaymentReceivedForm(props) {
   // }, [accounts, payment?.account, toasts]);
 
   // console.log({ paymentAccount, accounts });
-
   const paymentDate = payment?.paymentDate;
+
+  // console.log({ paymentDate });
+
   const formMethods = useForm({
     mode: 'onChange',
     resolver: yupResolver(schema),
     defaultValues: {
       customer: payment?.customer || null,
-      paymentDate: paymentDate ? new Date(+paymentDate) : new Date(),
+      paymentDate: paymentDate ? new Date(paymentDate) : new Date(),
       amount: payment?.amount || 0,
       // account: paymentAccount,
       paymentMode: payment?.paymentMode || null,
@@ -335,7 +337,10 @@ PaymentReceivedForm.propTypes = {
     amount: PropTypes.number,
     customer: PropTypes.object,
     paymentId: PropTypes.string,
-    paymentDate: PropTypes.instanceOf(Date),
+    paymentDate: PropTypes.oneOfType([
+      PropTypes.instanceOf(Date),
+      PropTypes.string,
+    ]),
     taxDeducted: PropTypes.string,
     tdsTaxAccount: PropTypes.string,
     notes: PropTypes.string,

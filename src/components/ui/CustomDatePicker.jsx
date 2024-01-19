@@ -35,7 +35,8 @@ function CustomDatePicker(props) {
             name={name}
             onBlur={onBlur}
             ref={ref}
-            selected={value}
+            // selected={value}
+            value={value}
             onChange={onChange}
             {...datePickerProps}
           />

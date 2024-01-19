@@ -73,7 +73,10 @@ EditPaymentReceived.propTypes = {
     excess: PropTypes.number,
     // accountId: PropTypes.string,
     bankCharges: PropTypes.number,
-    paymentDate: PropTypes.instanceOf(Date),
+    paymentDate: PropTypes.oneOfType([
+      PropTypes.instanceOf(Date),
+      PropTypes.string,
+    ]),
     // taxDeducted: PropTypes.string,
     // tdsTaxAccount: PropTypes.string,
     notes: PropTypes.string,
